@@ -1,0 +1,174 @@
+/* Search Button Fix - Separated Layout with Highlighted Gradient Style */
+
+/* Search container wrapper for positioning */
+.search-container {
+    position: relative !important;
+    flex: 1 !important;
+    max-width: 600px !important;
+    display: flex !important;
+    gap: 0.75rem !important;
+    align-items: center !important;
+}
+
+/* Fix search bar to use flexbox for side-by-side layout */
+.search-bar {
+    flex: 1 !important;
+    max-width: 600px !important;
+    display: flex !important;
+    gap: 0 !important;
+    align-items: center !important;
+}
+
+/* Input box - fixed text color and removed right padding */
+.search-input {
+    flex: 1 !important;
+    padding: 0.75rem 1rem !important;
+    border: 2px solid var(--surface-alt) !important;
+    background-color: var(--surface-alt) !important;
+    border-radius: var(--radius-md) !important;
+    font-size: 0.95rem !important;
+    transition: all 0.2s !important;
+    color: var(--text-main) !important;
+    /* Fix: Dark text color */
+}
+
+.search-input::placeholder {
+    color: var(--text-muted) !important;
+    /* Visible placeholder */
+}
+
+.search-input:focus {
+    outline: none !important;
+    background-color: var(--surface) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 4px rgba(0, 43, 91, 0.1) !important;
+}
+
+/* Search button - separated and highlighted */
+.search-btn {
+    position: relative !important;
+    /* Changed from absolute */
+    background: linear-gradient(135deg, #002B5B 0%, #2563EB 100%) !important;
+    color: white !important;
+    padding: 0.75rem 1.25rem !important;
+    border-radius: var(--radius-md) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3) !important;
+    flex-shrink: 0 !important;
+    /* Prevent button from shrinking */
+}
+
+.search-btn:hover {
+    transform: translateY(-2px) scale(1.05) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+    background: linear-gradient(135deg, #001F42 0%, #1d4ed8 100%) !important;
+}
+
+.search-btn:active {
+    transform: translateY(0) scale(0.98) !important;
+}
+
+/* Search Suggestions Dropdown */
+.search-suggestions {
+    position: absolute !important;
+    top: calc(100% + 0.5rem) !important;
+    left: 0 !important;
+    right: 3.5rem !important;
+    background: white !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-md) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    z-index: 1000 !important;
+    max-height: 400px !important;
+    overflow-y: auto !important;
+}
+
+.suggestions-header {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    color: var(--text-muted) !important;
+    border-bottom: 1px solid var(--border) !important;
+    background-color: var(--surface-alt) !important;
+}
+
+.suggestion-item {
+    padding: 0.75rem 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+    color: var(--text-main) !important;
+    border-bottom: 1px solid var(--surface-alt) !important;
+}
+
+.suggestion-item:hover {
+    background-color: var(--surface-alt) !important;
+    color: var(--primary) !important;
+}
+
+.suggestion-item svg {
+    color: var(--text-muted) !important;
+    flex-shrink: 0 !important;
+}
+
+.suggestion-item:hover svg {
+    color: var(--primary) !important;
+}
+
+.suggestion-search-all {
+    padding: 0.75rem 1rem !important;
+    font-weight: 600 !important;
+    color: var(--primary) !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
+    border-top: 2px solid var(--border) !important;
+    background-color: var(--surface) !important;
+}
+
+.suggestion-search-all:hover {
+    background-color: var(--primary) !important;
+    color: white !important;
+}
+
+/* Header components */
+.nav-actions {
+    display: flex !important;
+    gap: 1.5rem !important;
+    align-items: center !important;
+}
+
+.action-icon {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    font-size: 0.75rem !important;
+    color: var(--text-muted) !important;
+    gap: 0.25rem !important;
+    position: relative !important;
+}
+
+.action-icon:hover {
+    color: var(--primary) !important;
+}
+
+.cart-count {
+    position: absolute !important;
+    top: -5px !important;
+    right: -5px !important;
+    background-color: var(--accent) !important;
+    color: white !important;
+    font-size: 0.7rem !important;
+    font-weight: bold !important;
+    width: 18px !important;
+    height: 18px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
