@@ -1,8 +1,7 @@
 export default {
-    base: '/lumina/',
+    base: './',
     build: {
         outDir: 'dist',
         assetsDir: 'assets',
-    },
-    publicDir: 'public'
+    }
 }
