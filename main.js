@@ -11,7 +11,9 @@ const state = {
     searchQuery: '', // search functionality
     showSuggestions: false, // show/hide suggestions dropdown
     searchSuggestions: [], // current search suggestions
-    currentProductId: null // for product detail page
+    currentProductId: null, // for product detail page
+    sortBy: 'featured', // featured, price-asc, price-desc, name-asc, name-desc
+    filterCategory: null // null or category string
 };
 
 // --- Utilities ---
@@ -307,13 +309,67 @@ const HomePage = () => {
 };
 
 const ProductsPage = () => {
+    // Apply filtering
+    let displayedProducts = [...state.products];
+
+    if (state.filterCategory) {
+        displayedProducts = displayedProducts.filter(p => p.category === state.filterCategory);
+    }
+
+    // Apply sorting
+    switch (state.sortBy) {
+        case 'price-asc':
+            displayedProducts.sort((a, b) => a.price - b.price);
+            break;
+        case 'price-desc':
+            displayedProducts.sort((a, b) => b.price - a.price);
+            break;
+        case 'name-asc':
+            displayedProducts.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+        case 'name-desc':
+            displayedProducts.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+        case 'featured':
+        default:
+            // Default ID sort or custom logic
+            displayedProducts.sort((a, b) => a.id - b.id);
+            break;
+    }
+
     return `
-        <div style="padding: 2rem 0;">
-            <div class="section-title">
-                <h2>All Products</h2>
+        <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
+            <div class="products-header">
+                <div class="breadcrumbs">
+                    <a href="#" onclick="window.navigate('home'); return false;">Home</a>
+                    <span>&gt;</span>
+                    <span>Products</span>
+                </div>
+                
+                <div class="products-toolbar">
+                    <div class="toolbar-left">
+                        <button class="filter-btn" onclick="window.showToast('Filter drawer coming soon!')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
+                            Filter
+                        </button>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">${displayedProducts.length} products</span>
+                    </div>
+                    
+                    <div class="sort-container">
+                        <span class="sort-label">Sort by:</span>
+                        <select class="sort-select" onchange="window.handleSort(this.value)">
+                            <option value="featured" ${state.sortBy === 'featured' ? 'selected' : ''}>Featured</option>
+                            <option value="price-asc" ${state.sortBy === 'price-asc' ? 'selected' : ''}>Price: Low to High</option>
+                            <option value="price-desc" ${state.sortBy === 'price-desc' ? 'selected' : ''}>Price: High to Low</option>
+                            <option value="name-asc" ${state.sortBy === 'name-asc' ? 'selected' : ''}>Alphabetical: A-Z</option>
+                            <option value="name-desc" ${state.sortBy === 'name-desc' ? 'selected' : ''}>Alphabetical: Z-A</option>
+                        </select>
+                    </div>
+                </div>
             </div>
+
             <div class="product-grid">
-                ${state.products.map(ProductCard).join('')}
+                ${displayedProducts.map(ProductCard).join('')}
             </div>
         </div>
     `;
@@ -723,6 +779,11 @@ const AdminPage = () => {
 // --- Actions ---
 
 window.navigate = navigate;
+
+window.handleSort = (sortValue) => {
+    state.sortBy = sortValue;
+    render();
+};
 
 window.viewProduct = (productId) => {
     state.currentProductId = productId;
