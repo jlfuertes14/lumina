@@ -120,7 +120,7 @@ const Header = () => {
             
             <nav class="header-nav">
                 <a href="#" class="nav-link ${state.route === 'home' ? 'active' : ''}" onclick="window.navigate('home'); return false;">Home</a>
-                <a href="#" class="nav-link">Products</a>
+                <a href="#" class="nav-link ${state.route === 'products' ? 'active' : ''}" onclick="window.navigate('products'); return false;">Products</a>
                 <a href="#" class="nav-link">Brands</a>
                 <a href="#" class="nav-link">Deals</a>
                 <a href="#" class="nav-link">Support</a>
@@ -155,17 +155,56 @@ const ProductCard = (product) => {
 
 const HomePage = () => {
     // Filter products based on search query
-    const filteredProducts = state.searchQuery
-        ? state.products.filter(product =>
+    if (state.searchQuery) {
+        const filteredProducts = state.products.filter(product =>
             product.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
             product.category.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
             product.description.toLowerCase().includes(state.searchQuery.toLowerCase())
-        )
-        : state.products;
+        );
 
-    const searchResultsText = state.searchQuery
-        ? `<p style="color: var(--text-muted); margin-bottom: 1rem;">Found ${filteredProducts.length} result${filteredProducts.length !== 1 ? 's' : ''} for "${state.searchQuery}"</p>`
-        : '';
+        return `
+            <div class="hero">
+                <div class="hero-content">
+                    <span class="hero-badge">Quality Components</span>
+                    <h1>Build Your Next Project</h1>
+                    <p>Premium electronics components, development boards, sensors, and maker supplies. Everything you need to bring your ideas to life.</p>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-primary" onclick="window.navigate('products')">Shop Components</button>
+                        <button class="btn btn-outline">Learn More</button>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80" alt="Electronics Components" style="max-width: 400px; border-radius: 20px;">
+                </div>
+            </div>
+            
+            <div style="padding: 2rem 0;">
+                <div class="section-title">
+                    <h2>Search Results</h2>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">Found ${filteredProducts.length} result${filteredProducts.length !== 1 ? 's' : ''} for "${state.searchQuery}"</p>
+                ${filteredProducts.length > 0 ? `
+                    <div class="product-grid">
+                        ${filteredProducts.map(ProductCard).join('')}
+                    </div>
+                ` : `
+                    <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem; opacity: 0.3;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <h3 style="margin-bottom: 0.5rem;">No products found</h3>
+                        <p>Try searching with different keywords</p>
+                        <button class="btn btn-primary" onclick="window.clearSearch()" style="margin-top: 1rem;">Clear Search</button>
+                    </div>
+                `}
+            </div>
+        `;
+    }
+
+    // Default Home: Show Popular Products (5 items)
+    // 1. ESP32, 2. Servo, 3. Ultrasonic, 4. 18650, 5. Jumper Wires
+    const popularIds = [1, 6, 2, 12, 4];
+    const popularProducts = state.products
+        .filter(p => popularIds.includes(p.id))
+        .sort((a, b) => popularIds.indexOf(a.id) - popularIds.indexOf(b.id));
 
     return `
         <div class="hero">
@@ -174,7 +213,7 @@ const HomePage = () => {
                 <h1>Build Your Next Project</h1>
                 <p>Premium electronics components, development boards, sensors, and maker supplies. Everything you need to bring your ideas to life.</p>
                 <div style="display: flex; gap: 1rem;">
-                    <button class="btn btn-primary" onclick="document.querySelector('.product-grid').scrollIntoView({behavior: 'smooth'})">Shop Components</button>
+                    <button class="btn btn-primary" onclick="window.navigate('products')">Shop Components</button>
                     <button class="btn btn-outline">Learn More</button>
                 </div>
             </div>
@@ -185,22 +224,25 @@ const HomePage = () => {
         
         <div style="padding: 2rem 0;">
             <div class="section-title">
-                <h2>${state.searchQuery ? 'Search Results' : 'Featured Components'}</h2>
-                ${!state.searchQuery ? '<a href="#" style="font-size: 0.9rem; color: var(--primary); font-weight: 600;">View All Products &rarr;</a>' : ''}
+                <h2>Popular Products</h2>
+                <a href="#" onclick="window.navigate('products'); return false;" style="font-size: 0.9rem; color: var(--primary); font-weight: 600;">View All Products &rarr;</a>
             </div>
-            ${searchResultsText}
-            ${filteredProducts.length > 0 ? `
-                <div class="product-grid">
-                    ${filteredProducts.map(ProductCard).join('')}
-                </div>
-            ` : `
-                <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem; opacity: 0.3;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                    <h3 style="margin-bottom: 0.5rem;">No products found</h3>
-                    <p>Try searching with different keywords</p>
-                    <button class="btn btn-primary" onclick="window.clearSearch()" style="margin-top: 1rem;">Clear Search</button>
-                </div>
-            `}
+            <div class="product-grid">
+                ${popularProducts.map(ProductCard).join('')}
+            </div>
+        </div>
+    `;
+};
+
+const ProductsPage = () => {
+    return `
+        <div style="padding: 2rem 0;">
+            <div class="section-title">
+                <h2>All Products</h2>
+            </div>
+            <div class="product-grid">
+                ${state.products.map(ProductCard).join('')}
+            </div>
         </div>
     `;
 };
@@ -865,6 +907,7 @@ const render = () => {
 
     switch (state.route) {
         case 'home': content = HomePage(); break;
+        case 'products': content = ProductsPage(); break;
         case 'login': content = LoginPage(); break;
         case 'signup': content = SignupPage(); break;
         case 'cart': content = CartPage(); break;
