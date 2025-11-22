@@ -1,59 +1,4 @@
-import { products as initialProducts, users as initialUsers, orders as initialOrders } from './src/data.js';
-
-// --- State Management ---
-const state = {
-    products: JSON.parse(localStorage.getItem('products_v2')) || initialProducts,
-    users: JSON.parse(localStorage.getItem('users_v2')) || initialUsers,
-    orders: JSON.parse(localStorage.getItem('orders')) || initialOrders,
-    currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
-    cart: JSON.parse(localStorage.getItem('cart_v2')) || [],
-    route: 'home', // home, login, signup, cart, admin, checkout, product-detail, products
-    searchQuery: '', // search functionality
-    showSuggestions: false, // show/hide suggestions dropdown
-    searchSuggestions: [], // current search suggestions
-    currentProductId: null // for product detail page
-};
-
-// --- Utilities ---
-const saveState = () => {
-    localStorage.setItem('products_v2', JSON.stringify(state.products));
-    localStorage.setItem('users_v2', JSON.stringify(state.users));
-    localStorage.setItem('orders', JSON.stringify(state.orders));
-    localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
-    localStorage.setItem('cart_v2', JSON.stringify(state.cart));
-};
-
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount);
-};
-
-const showToast = (message) => {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.classList.add('show'), 100);
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-};
-
-// --- Router ---
-const navigate = (route) => {
-    state.route = route;
-    render();
-    window.scrollTo(0, 0);
-};
-
-// --- Components ---
-
-const Header = () => {
-    const cartCount = state.cart.reduce((acc, item) => acc + item.quantity, 0);
-    const isLoggedIn = !!state.currentUser;
-    const isAdmin = state.currentUser?.role === 'admin';
-
-    return `
+(function(){const s=document.createElement("link").relList;if(s&&s.supports&&s.supports("modulepreload"))return;for(const r of document.querySelectorAll('link[rel="modulepreload"]'))a(r);new MutationObserver(r=>{for(const n of r)if(n.type==="childList")for(const c of n.addedNodes)c.tagName==="LINK"&&c.rel==="modulepreload"&&a(c)}).observe(document,{childList:!0,subtree:!0});function i(r){const n={};return r.integrity&&(n.integrity=r.integrity),r.referrerPolicy&&(n.referrerPolicy=r.referrerPolicy),r.crossOrigin==="use-credentials"?n.credentials="include":r.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function a(r){if(r.ep)return;r.ep=!0;const n=i(r);fetch(r.href,n)}})();const k=[{id:1,name:"ESP32 Development Board (Type-C)",category:"Microcontrollers",price:350,image:"images/products/esp32.png",stock:45,description:"Type C ESP32 Development Board with 30/38 pins. Supported interfaces: UART, SPI, SDIO, I2C, PWM, I2S, IR, ADC, DAC. Perfect for IoT projects."},{id:2,name:"Ultrasonic Sensor HC-SR04",category:"Sensors",price:89,image:"images/products/hc-sr04.png",stock:120,description:"Popular and cost-effective module used for non-contact distance measurement. Works by emitting ultrasonic waves."},{id:3,name:"L298N DC Motor Driver Module",category:"Motor Drivers",price:75,image:"images/products/l298n.png",stock:67,description:"Dual H-Bridge Motor Driver Module. High voltage, dual H-bridge manufactured by ST company. Perfect for controlling DC motors and stepper motors."},{id:4,name:"40-Pin Jumper Wires (10cm)",category:"Cables & Wires",price:25,image:"images/products/jumper-wires.png",stock:200,description:"Essential tools for breadboarding and prototyping. 40-pin jumper wires allow easy connections between components."},{id:5,name:"Breadboard 830 Points",category:"Prototyping",price:99,image:"images/products/breadboard.png",stock:85,description:"Solderless breadboard SYB-MB102 with 830 tie points. Completely reusable, perfect for creating temporary circuits without soldering."},{id:6,name:"SG90 Micro Servo Motor (9g)",category:"Motors & Actuators",price:95,image:"images/products/sg90.png",stock:150,description:"SG92R/SG90 Micro Servo with nylon carbon fiber gears. Stall Torque: 2.5kg/cm at 4.8V. Perfect for RC models and robotics."},{id:7,name:"Tower Pro MG996R Servo Motor",category:"Motors & Actuators",price:275,image:"images/products/mg996r.png",stock:42,description:"Digital servo motor with 180° rotation. High torque for robotics applications. Metal gears for durability."},{id:8,name:"1-4 Channel 5V Relay Module",category:"Relays & Switches",price:125,image:"images/products/relay.png",stock:95,description:"5V/12V 10A relay module with optocoupler. Compatible with Arduino, Orange Pi, and Raspberry Pi (use 5V version)."},{id:9,name:"LM2596S DC-DC Buck Converter",category:"Power Supply",price:45,image:"images/products/buck-converter.png",stock:78,description:"Step-down voltage regulator module. Adjustable output voltage. Perfect for powering projects with different voltage requirements."},{id:10,name:"IR Proximity Sensor",category:"Sensors",price:35,image:"images/products/ir-sensor.png",stock:110,description:"Multipurpose infrared sensor for obstacle sensing, color detection, and line following applications."},{id:11,name:"18650 Battery Holder (1S/2S/3S)",category:"Batteries & Holders",price:35,image:"images/products/battery-holder.png",stock:140,description:"Series battery holder for 18650 cells with wire. Available in 1, 2, or 3 cell configurations for various voltage requirements."},{id:12,name:"PKCELL 18650 3.7V Battery (3000mAh)",category:"Batteries & Holders",price:175,image:"images/products/battery-18650.png",stock:88,description:"True rated lithium-ion 18650 battery. Available in 2200mAh, 3000mAh, 3350mAh capacities. Perfect for power banks and flashlights."},{id:13,name:"USB Cable for Arduino Nano/Uno",category:"Cables & Wires",price:25,image:"images/products/usb-cable.png",stock:165,description:"25cm Mini USB cable for Arduino Nano or Uno/Mega boards. Blue color, quality connectors."},{id:14,name:"FR4 Universal PCB Board (Double-Sided)",category:"Prototyping",price:55,image:"images/products/pcb-board.png",stock:95,description:"Fiberglass universal protoboard, more durable than phenolic paper PCB. Double-sided for complex circuits."},{id:15,name:"SanDisk MicroSD Card (16GB-256GB)",category:"Storage",price:299,image:"images/products/microsd.png",stock:75,description:"SanDisk Ultra Class 10 memory card for Raspberry Pi and phones. Fast transfer speeds. Available in multiple capacities."},{id:16,name:"eSUN PLA+ 3D Printer Filament (1.75mm, 1kg)",category:"3D Printing",price:799,image:"images/products/esun-pla-plus.png",stock:55,description:"Environmentally friendly PLA+ filament with smooth surface finish. Easy to print with excellent layer adhesion."},{id:17,name:"eSUN PETG Filament (1.75mm, 1kg)",category:"3D Printing",price:1099,image:"images/products/esun-petg.png",stock:48,description:"High-performance PETG filament combining ABS strength with PLA ease of printing. Excellent durability."},{id:18,name:"Polymaker Matte PLA Filament",category:"3D Printing",price:1350,image:"images/products/polymaker-matte.png",stock:35,description:"Panchroma™ Matte bioplastic 3D printing filament. Next generation matte finish for stunning prints."},{id:19,name:"ELEGOO PLA Filament (1.75mm, 1kg)",category:"3D Printing",price:749,image:"images/products/elegoo-pla.png",stock:62,description:"High-quality PLA with lower melting temperature. Easy to use, multiple color options available."},{id:20,name:"Bambu Lab PLA Basic Filament (1kg)",category:"3D Printing",price:999,image:"images/products/bambu-lab.png",stock:40,description:"Easy to print, beginner-friendly PLA with smooth surface finish. Biodegradable and reliable quality."}],S=[{id:1,name:"Admin User",email:"adminlumina",password:"lumina12",role:"admin"},{id:2,name:"John Doe",email:"userlumina",password:"lumina123",role:"customer"}],$=[{id:"ORD-001",userId:2,date:"2023-10-25",total:1598,status:"Completed",items:[{productId:1,quantity:1},{productId:2,quantity:1}]}],e={products:JSON.parse(localStorage.getItem("products_v2"))||k,users:JSON.parse(localStorage.getItem("users_v2"))||S,orders:JSON.parse(localStorage.getItem("orders"))||$,currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:"home",searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null},g=()=>{localStorage.setItem("products_v2",JSON.stringify(e.products)),localStorage.setItem("users_v2",JSON.stringify(e.users)),localStorage.setItem("orders",JSON.stringify(e.orders)),localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(e.cart))},d=t=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(t),u=t=>{const s=document.createElement("div");s.className="toast",s.textContent=t,document.body.appendChild(s),setTimeout(()=>s.classList.add("show"),100),setTimeout(()=>{s.classList.remove("show"),setTimeout(()=>s.remove(),300)},3e3)},l=t=>{e.route=t,m(),window.scrollTo(0,0)},P=()=>{const t=e.cart.reduce((a,r)=>a+r.quantity,0),s=!!e.currentUser,i=e.currentUser?.role==="admin";return`
         <header>
             <div class="header-top">
                 <a href="#" class="logo" onclick="window.navigate('home'); return false;">
@@ -67,7 +12,7 @@ const Header = () => {
                             id="searchInput" 
                             class="search-input" 
                             placeholder="Search for Products..." 
-                            value="${state.searchQuery}"
+                            value="${e.searchQuery}"
                             oninput="window.handleSearchInput(event)"
                             onkeyup="if(event.key === 'Enter') window.handleSearch()"
                             onfocus="window.showSearchSuggestions()"
@@ -75,42 +20,42 @@ const Header = () => {
                         <button class="search-btn" onclick="window.handleSearch()">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         </button>
-                        ${state.showSuggestions && state.searchQuery ? `
+                        ${e.showSuggestions&&e.searchQuery?`
                             <div class="search-suggestions" id="searchSuggestions">
                                 <div class="suggestions-header">Suggestions</div>
-                                ${state.searchSuggestions.slice(0, 5).map(suggestion => `
-                                    <div class="suggestion-item" onclick="window.selectSuggestion('${suggestion.replace(/'/g, "\\'")}')"> 
+                                ${e.searchSuggestions.slice(0,5).map(a=>`
+                                    <div class="suggestion-item" onclick="window.selectSuggestion('${a.replace(/'/g,"\\'")}')"> 
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                        <span>${suggestion}</span>
+                                        <span>${a}</span>
                                     </div>
-                                `).join('')}
-                                ${state.searchQuery ? `
+                                `).join("")}
+                                ${e.searchQuery?`
                                     <div class="suggestion-search-all" onclick="window.handleSearch()">
-                                        Search for "${state.searchQuery}" →
+                                        Search for "${e.searchQuery}" →
                                     </div>
-                                ` : ''}
+                                `:""}
                             </div>
-                        ` : ''}
+                        `:""}
                     </div>
                 </div>
 
                 <div class="nav-actions">
-                    ${!isAdmin ? `
+                    ${i?"":`
                     <a href="#" class="action-icon" onclick="window.navigate('cart'); return false;">
                         <div style="position: relative;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                            ${cartCount > 0 ? `<span class="cart-count">${cartCount}</span>` : ''}
+                            ${t>0?`<span class="cart-count">${t}</span>`:""}
                         </div>
                         <span>Cart</span>
                     </a>
-                    ` : ''}
+                    `}
                     
-                    ${isLoggedIn ? `
+                    ${s?`
                         <div class="action-icon" onclick="window.logout()" style="cursor: pointer;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                             <span>Logout</span>
                         </div>
-                    ` : `
+                    `:`
                         <a href="#" class="action-icon" onclick="window.navigate('login'); return false;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             <span>Login</span>
@@ -120,97 +65,68 @@ const Header = () => {
             </div>
             
             <nav class="header-nav">
-                <a href="#" class="nav-link ${state.route === 'home' ? 'active' : ''}" onclick="window.navigate('home'); return false;">Home</a>
-                <a href="#" class="nav-link ${state.route === 'products' ? 'active' : ''}" onclick="window.navigate('products'); return false;">Products</a>
+                <a href="#" class="nav-link ${e.route==="home"?"active":""}" onclick="window.navigate('home'); return false;">Home</a>
+                <a href="#" class="nav-link ${e.route==="products"?"active":""}" onclick="window.navigate('products'); return false;">Products</a>
                 <a href="#" class="nav-link">Brands</a>
                 <a href="#" class="nav-link">Deals</a>
                 <a href="#" class="nav-link">Support</a>
-                ${isAdmin ? `<a href="#" class="nav-link ${state.route === 'admin' ? 'active' : ''}" onclick="window.navigate('admin'); return false;">Admin Dashboard</a>` : ''}
+                ${i?`<a href="#" class="nav-link ${e.route==="admin"?"active":""}" onclick="window.navigate('admin'); return false;">Admin Dashboard</a>`:""}
             </nav>
         </header>
-    `;
-};
-
-const ProductCard = (product) => {
-    const isLowStock = product.stock < 10;
-    const badgeClass = isLowStock ? 'low-stock' : '';
-    const badgeText = isLowStock ? 'Low Stock' : 'In Stock';
-
-    return `
-        <div class="product-card" onclick="window.viewProduct(${product.id})" style="cursor: pointer;">
-            <div class="product-badge ${badgeClass}">${badgeText}</div>
+    `},h=t=>{const s=t.stock<10,i=s?"low-stock":"",a=s?"Low Stock":"In Stock";return`
+        <div class="product-card" onclick="window.viewProduct(${t.id})" style="cursor: pointer;">
+            <div class="product-badge ${i}">${a}</div>
             <div class="product-image">
-                <img src="${product.image}" alt="${product.name}" />
+                <img src="${t.image}" alt="${t.name}" />
             </div>
             <div class="product-info">
-                <div class="product-category">${product.category}</div>
-                <h3 class="product-title">${product.name}</h3>
-                <div class="product-price">${formatCurrency(product.price)}</div>
-                <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${product.id})">
+                <div class="product-category">${t.category}</div>
+                <h3 class="product-title">${t.name}</h3>
+                <div class="product-price">${d(t.price)}</div>
+                <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${t.id})">
                     Add to Cart
                 </button>
             </div>
         </div>
-    `;
-};
-
-const ProductDetailPage = () => {
-    const product = state.products.find(p => p.id === state.currentProductId);
-
-    if (!product) {
-        navigate('home');
-        return '';
-    }
-
-    const isLowStock = product.stock < 10;
-    const stockStatus = product.stock > 0 ? 'In Stock' : 'Out of Stock';
-    const stockColor = product.stock > 0 ? 'var(--success)' : 'var(--danger)';
-
-    // Get 4 random related products (excluding current)
-    const relatedProducts = state.products
-        .filter(p => p.id !== product.id)
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 4);
-
-    return `
+    `},x=()=>{const t=e.products.find(r=>r.id===e.currentProductId);if(!t)return l("home"),"";t.stock<10;const s=t.stock>0?"In Stock":"Out of Stock",i=t.stock>0?"var(--success)":"var(--danger)",a=e.products.filter(r=>r.id!==t.id).sort(()=>.5-Math.random()).slice(0,4);return`
         <div class="product-detail-container">
             <div class="breadcrumbs">
                 <a href="#" onclick="window.navigate('home'); return false;">Home</a> &gt; 
                 <a href="#" onclick="window.navigate('products'); return false;">Products</a> &gt; 
-                <span>${product.name}</span>
+                <span>${t.name}</span>
             </div>
 
             <div class="product-main">
                 <div class="product-gallery">
-                    <img src="${product.image}" alt="${product.name}">
+                    <img src="${t.image}" alt="${t.name}">
                 </div>
 
                 <div class="product-details-info">
-                    <div class="product-sku">SKU: LUM-${product.id.toString().padStart(4, '0')}</div>
-                    <h1 class="detail-title">${product.name}</h1>
-                    <div class="detail-price">${formatCurrency(product.price)}</div>
+                    <div class="product-sku">SKU: LUM-${t.id.toString().padStart(4,"0")}</div>
+                    <h1 class="detail-title">${t.name}</h1>
+                    <div class="detail-price">${d(t.price)}</div>
 
                     <div class="detail-section">
                         <span class="detail-label">Description</span>
-                        <p style="color: var(--text-muted); line-height: 1.6;">${product.description}</p>
+                        <p style="color: var(--text-muted); line-height: 1.6;">${t.description}</p>
                     </div>
 
                     <div class="detail-section">
                         <span class="detail-label">Quantity</span>
                         <div class="quantity-selector">
                             <button class="qty-btn" onclick="window.adjustDetailQty(-1)">-</button>
-                            <input type="number" id="detailQty" class="qty-input" value="1" min="1" max="${product.stock}" readonly>
+                            <input type="number" id="detailQty" class="qty-input" value="1" min="1" max="${t.stock}" readonly>
                             <button class="qty-btn" onclick="window.adjustDetailQty(1)">+</button>
                         </div>
                     </div>
 
-                    <button class="btn-add-large" onclick="window.addToCartFromDetail(${product.id})">
+                    <button class="btn-add-large" onclick="window.addToCartFromDetail(${t.id})">
                         Add To Cart
                     </button>
 
-                    <div class="stock-status" style="color: ${stockColor}">
-                        <span class="stock-dot" style="background-color: ${stockColor}"></span>
-                        ${stockStatus} (${product.stock} available)
+                    <div class="stock-status" style="color: ${i}">
+                        <span class="stock-dot" style="background-color: ${i}"></span>
+                        ${s} (${t.stock} available)
                     </div>
                 </div>
             </div>
@@ -218,23 +134,11 @@ const ProductDetailPage = () => {
             <div class="related-products">
                 <h3 class="related-title">You may also like</h3>
                 <div class="product-grid">
-                    ${relatedProducts.map(ProductCard).join('')}
+                    ${a.map(h).join("")}
                 </div>
             </div>
         </div>
-    `;
-};
-
-const HomePage = () => {
-    // Filter products based on search query
-    if (state.searchQuery) {
-        const filteredProducts = state.products.filter(product =>
-            product.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-            product.category.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-            product.description.toLowerCase().includes(state.searchQuery.toLowerCase())
-        );
-
-        return `
+    `},y=()=>{if(e.searchQuery){const i=e.products.filter(a=>a.name.toLowerCase().includes(e.searchQuery.toLowerCase())||a.category.toLowerCase().includes(e.searchQuery.toLowerCase())||a.description.toLowerCase().includes(e.searchQuery.toLowerCase()));return`
             <div class="hero">
                 <div class="hero-content">
                     <span class="hero-badge">Quality Components</span>
@@ -254,12 +158,12 @@ const HomePage = () => {
                 <div class="section-title">
                     <h2>Search Results</h2>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 1rem;">Found ${filteredProducts.length} result${filteredProducts.length !== 1 ? 's' : ''} for "${state.searchQuery}"</p>
-                ${filteredProducts.length > 0 ? `
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">Found ${i.length} result${i.length!==1?"s":""} for "${e.searchQuery}"</p>
+                ${i.length>0?`
                     <div class="product-grid">
-                        ${filteredProducts.map(ProductCard).join('')}
+                        ${i.map(h).join("")}
                     </div>
-                ` : `
+                `:`
                     <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
                         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem; opacity: 0.3;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <h3 style="margin-bottom: 0.5rem;">No products found</h3>
@@ -268,17 +172,7 @@ const HomePage = () => {
                     </div>
                 `}
             </div>
-        `;
-    }
-
-    // Default Home: Show Popular Products (5 items)
-    // 1. ESP32, 2. Servo, 3. Ultrasonic, 4. 18650, 5. Jumper Wires
-    const popularIds = [1, 6, 2, 12, 4];
-    const popularProducts = state.products
-        .filter(p => popularIds.includes(p.id))
-        .sort((a, b) => popularIds.indexOf(a.id) - popularIds.indexOf(b.id));
-
-    return `
+        `}const t=[1,6,2,12,4];return`
         <div class="hero">
             <div class="hero-content">
                 <span class="hero-badge">Quality Components</span>
@@ -300,27 +194,19 @@ const HomePage = () => {
                 <a href="#" onclick="window.navigate('products'); return false;" style="font-size: 0.9rem; color: var(--primary); font-weight: 600;">View All Products &rarr;</a>
             </div>
             <div class="product-grid">
-                ${popularProducts.map(ProductCard).join('')}
+                ${e.products.filter(i=>t.includes(i.id)).sort((i,a)=>t.indexOf(i.id)-t.indexOf(a.id)).map(h).join("")}
             </div>
         </div>
-    `;
-};
-
-const ProductsPage = () => {
-    return `
+    `},C=()=>`
         <div style="padding: 2rem 0;">
             <div class="section-title">
                 <h2>All Products</h2>
             </div>
             <div class="product-grid">
-                ${state.products.map(ProductCard).join('')}
+                ${e.products.map(h).join("")}
             </div>
         </div>
-    `;
-};
-
-const LoginPage = () => {
-    return `
+    `,L=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Welcome Back</h2>
             <form onsubmit="window.handleLogin(event)">
@@ -338,11 +224,7 @@ const LoginPage = () => {
                 Don't have an account? <a href="#" onclick="window.navigate('signup'); return false;" style="color: var(--accent)">Sign up</a>
             </p>
         </div>
-    `;
-};
-
-const SignupPage = () => {
-    return `
+    `,M=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Create Account</h2>
             <form onsubmit="window.handleSignup(event)">
@@ -364,81 +246,43 @@ const SignupPage = () => {
                 Already have an account? <a href="#" onclick="window.navigate('login'); return false;" style="color: var(--accent)">Login</a>
             </p>
         </div>
-    `;
-};
-
-const CartPage = () => {
-    if (state.cart.length === 0) {
-        return `
+    `,I=()=>{if(e.cart.length===0)return`
             <div class="text-center" style="padding: 4rem;">
                 <h2>Your cart is empty</h2>
                 <p class="text-muted mb-4">Looks like you haven't added anything yet.</p>
                 <button class="btn btn-primary" onclick="window.navigate('home')">Start Shopping</button>
             </div>
-        `;
-    }
-
-    const total = state.cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-
-    return `
+        `;const t=e.cart.reduce((s,i)=>s+i.price*i.quantity,0);return`
         <div class="cart-container">
             <h2 class="mb-4">Shopping Cart</h2>
             <div class="cart-items">
-                ${state.cart.map(item => `
+                ${e.cart.map(s=>`
                     <div class="cart-item">
-                        <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
+                        <img src="${s.image}" alt="${s.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                         <div style="flex: 1;">
-                            <h3 style="font-size: 1rem;">${item.name}</h3>
-                            <p class="text-muted">${formatCurrency(item.price)}</p>
+                            <h3 style="font-size: 1rem;">${s.name}</h3>
+                            <p class="text-muted">${d(s.price)}</p>
                         </div>
                         <div style="display: flex; align-items: center; gap: 1rem;">
-                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
-                            <span>${item.quantity}</span>
-                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${s.id}, ${s.quantity-1})">-</button>
+                            <span>${s.quantity}</span>
+                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${s.id}, ${s.quantity+1})">+</button>
                         </div>
-                        <button class="btn btn-ghost" style="color: var(--danger);" onclick="window.removeFromCart(${item.id})">Remove</button>
+                        <button class="btn btn-ghost" style="color: var(--danger);" onclick="window.removeFromCart(${s.id})">Remove</button>
                     </div>
-                `).join('')}
+                `).join("")}
             </div>
             <div class="cart-summary">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                     <span>Total</span>
-                    <span>${formatCurrency(total)}</span>
+                    <span>${d(t)}</span>
                 </div>
                 <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
                     Proceed to Checkout
                 </button>
             </div>
         </div>
-    `;
-};
-
-const AdminPage = () => {
-    if (!state.currentUser || state.currentUser.role !== 'admin') {
-        navigate('home');
-        return '';
-    }
-
-    // Calculate metrics
-    const totalSales = state.orders.reduce((acc, order) => acc + order.total, 0);
-    const totalOrders = state.orders.length;
-    const totalProducts = state.products.length;
-    const totalCustomers = state.users.filter(u => u.role === 'customer').length;
-
-    // Low stock products
-    const lowStockProducts = state.products.filter(p => p.stock < 10);
-    const outOfStockProducts = state.products.filter(p => p.stock === 0);
-
-    // Recent orders (last 5)
-    const recentOrders = state.orders.slice(0, 5);
-
-    // Average order value
-    const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
-
-    // Total inventory value
-    const inventoryValue = state.products.reduce((acc, p) => acc + (p.price * p.stock), 0);
-
-    return `
+    `},A=()=>{if(!e.currentUser||e.currentUser.role!=="admin")return l("home"),"";const t=e.orders.reduce((o,p)=>o+p.total,0),s=e.orders.length,i=e.products.length,a=e.users.filter(o=>o.role==="customer").length,r=e.products.filter(o=>o.stock<10),n=e.products.filter(o=>o.stock===0),c=e.orders.slice(0,5),w=s>0?t/s:0,v=e.products.reduce((o,p)=>o+p.price*p.stock,0);return`
         <div class="admin-container">
             <div class="admin-header">
                 <h1>📊 Admin Dashboard</h1>
@@ -468,7 +312,7 @@ const AdminPage = () => {
                     </div>
                     <div class="metric-content">
                         <div class="metric-label">Total Revenue</div>
-                        <div class="metric-value">${formatCurrency(totalSales)}</div>
+                        <div class="metric-value">${d(t)}</div>
                         <div class="metric-change positive">+15.3% from last month</div>
                     </div>
                 </div>
@@ -481,7 +325,7 @@ const AdminPage = () => {
                     </div>
                     <div class="metric-content">
                         <div class="metric-label">Total Orders</div>
-                        <div class="metric-value">${totalOrders}</div>
+                        <div class="metric-value">${s}</div>
                         <div class="metric-change positive">+8 new today</div>
                     </div>
                 </div>
@@ -494,7 +338,7 @@ const AdminPage = () => {
                     </div>
                     <div class="metric-content">
                         <div class="metric-label">Total Customers</div>
-                        <div class="metric-value">${totalCustomers}</div>
+                        <div class="metric-value">${a}</div>
                         <div class="metric-change">2 new this week</div>
                     </div>
                 </div>
@@ -507,7 +351,7 @@ const AdminPage = () => {
                     </div>
                     <div class="metric-content">
                         <div class="metric-label">Avg. Order Value</div>
-                        <div class="metric-value">${formatCurrency(avgOrderValue)}</div>
+                        <div class="metric-value">${d(w)}</div>
                         <div class="metric-change positive">+5.2% increase</div>
                     </div>
                 </div>
@@ -518,28 +362,28 @@ const AdminPage = () => {
                 <div class="admin-section alert-section">
                     <div class="section-header">
                         <h3>⚠️ Inventory Alerts</h3>
-                        <span class="badge badge-warning">${lowStockProducts.length + outOfStockProducts.length}</span>
+                        <span class="badge badge-warning">${r.length+n.length}</span>
                     </div>
                     <div class="alert-list">
-                        ${outOfStockProducts.length > 0 ? `
+                        ${n.length>0?`
                             <div class="alert-item critical">
                                 <div class="alert-icon">🔴</div>
                                 <div class="alert-content">
                                     <div class="alert-title">Out of Stock</div>
-                                    <div class="alert-desc">${outOfStockProducts.length} product(s) need restocking</div>
+                                    <div class="alert-desc">${n.length} product(s) need restocking</div>
                                 </div>
                             </div>
-                        ` : ''}
-                        ${lowStockProducts.length > 0 ? `
+                        `:""}
+                        ${r.length>0?`
                             <div class="alert-item warning">
                                 <div class="alert-icon">⚠️</div>
                                 <div class="alert-content">
                                     <div class="alert-title">Low Stock Alert</div>
-                                    <div class="alert-desc">${lowStockProducts.length} product(s) running low (< 10 units)</div>
+                                    <div class="alert-desc">${r.length} product(s) running low (< 10 units)</div>
                                 </div>
                             </div>
-                        ` : ''}
-                        ${lowStockProducts.length === 0 && outOfStockProducts.length === 0 ? `
+                        `:""}
+                        ${r.length===0&&n.length===0?`
                             <div class="alert-item success">
                                 <div class="alert-icon">✅</div>
                                 <div class="alert-content">
@@ -547,12 +391,12 @@ const AdminPage = () => {
                                     <div class="alert-desc">No inventory issues detected</div>
                                 </div>
                             </div>
-                        ` : ''}
+                        `:""}
                         <div class="alert-item info">
                             <div class="alert-icon">📦</div>
                             <div class="alert-content">
                                 <div class="alert-title">Inventory Value</div>
-                                <div class="alert-desc">${formatCurrency(inventoryValue)} total stock value</div>
+                                <div class="alert-desc">${d(v)} total stock value</div>
                             </div>
                         </div>
                     </div>
@@ -565,11 +409,11 @@ const AdminPage = () => {
                     <div class="stats-list">
                         <div class="stat-item">
                             <span class="stat-label">Products</span>
-                            <span class="stat-number">${totalProducts}</span>
+                            <span class="stat-number">${i}</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Categories</span>
-                            <span class="stat-number">${[...new Set(state.products.map(p => p.category))].length}</span>
+                            <span class="stat-number">${[...new Set(e.products.map(o=>o.category))].length}</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Conversion Rate</span>
@@ -587,7 +431,7 @@ const AdminPage = () => {
             <div class="admin-section">
                 <div class="section-header">
                     <h3>🛍️ Recent Orders</h3>
-                    <span class="text-muted">${recentOrders.length} orders</span>
+                    <span class="text-muted">${c.length} orders</span>
                 </div>
                 <div class="table-container">
                     <table class="admin-table">
@@ -602,30 +446,27 @@ const AdminPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            ${recentOrders.length > 0 ? recentOrders.map(order => {
-        const customer = state.users.find(u => u.id === order.userId);
-        return `
+                            ${c.length>0?c.map(o=>{const p=e.users.find(b=>b.id===o.userId);return`
                                     <tr>
-                                        <td><strong>${order.id}</strong></td>
-                                        <td>${order.date}</td>
-                                        <td>${customer ? customer.name : 'Unknown'}</td>
-                                        <td>${order.items.length} items</td>
-                                        <td><strong>${formatCurrency(order.total)}</strong></td>
-                                        <td><span class="badge badge-success">${order.status}</span></td>
+                                        <td><strong>${o.id}</strong></td>
+                                        <td>${o.date}</td>
+                                        <td>${p?p.name:"Unknown"}</td>
+                                        <td>${o.items.length} items</td>
+                                        <td><strong>${d(o.total)}</strong></td>
+                                        <td><span class="badge badge-success">${o.status}</span></td>
                                     </tr>
-                                `;
-    }).join('') : '<tr><td colspan="6" class="text-center text-muted">No orders yet</td></tr>'}
+                                `}).join(""):'<tr><td colspan="6" class="text-center text-muted">No orders yet</td></tr>'}
                         </tbody>
                     </table>
                 </div>
             </div>
 
             <!-- Low Stock Products -->
-            ${lowStockProducts.length > 0 ? `
+            ${r.length>0?`
                 <div class="admin-section">
                     <div class="section-header">
                         <h3>📉 Low Stock Products</h3>
-                        <span class="badge badge-warning">${lowStockProducts.length}</span>
+                        <span class="badge badge-warning">${r.length}</span>
                     </div>
                     <div class="table-container">
                         <table class="admin-table">
@@ -639,39 +480,39 @@ const AdminPage = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                ${lowStockProducts.map(product => `
+                                ${r.map(o=>`
                                     <tr>
                                         <td>
                                             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                                <img src="${product.image}" style="width: 32px; height: 32px; object-fit: contain; background: #f1f5f9; border-radius: 4px;">
-                                                <span>${product.name}</span>
+                                                <img src="${o.image}" style="width: 32px; height: 32px; object-fit: contain; background: #f1f5f9; border-radius: 4px;">
+                                                <span>${o.name}</span>
                                             </div>
                                         </td>
-                                        <td>${product.category}</td>
+                                        <td>${o.category}</td>
                                         <td>
-                                            <span class="badge ${product.stock === 0 ? 'badge-danger' : 'badge-warning'}">
-                                                ${product.stock} units
+                                            <span class="badge ${o.stock===0?"badge-danger":"badge-warning"}">
+                                                ${o.stock} units
                                             </span>
                                         </td>
-                                        <td>${formatCurrency(product.price)}</td>
+                                        <td>${d(o.price)}</td>
                                         <td>
-                                            <button class="btn-small btn-accent" onclick="window.showToast('Restocking ${product.name}...')">
+                                            <button class="btn-small btn-accent" onclick="window.showToast('Restocking ${o.name}...')">
                                                 Restock
                                             </button>
                                         </td>
                                     </tr>
-                                `).join('')}
+                                `).join("")}
                             </tbody>
                         </table>
                     </div>
                 </div>
-            ` : ''}
+            `:""}
 
             <!-- All Products Inventory -->
             <div class="admin-section">
                 <div class="section-header">
                     <h3>📦 Full Inventory</h3>
-                    <span class="text-muted">${totalProducts} products</span>
+                    <span class="text-muted">${i} products</span>
                 </div>
                 <div class="table-container">
                     <table class="admin-table">
@@ -686,353 +527,58 @@ const AdminPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            ${state.products.map(product => `
+                            ${e.products.map(o=>`
                                 <tr>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                            <img src="${product.image}" style="width: 40px; height: 40px; object-fit: contain; background: #f1f5f9; border-radius: 6px; padding: 4px;">
-                                            <span>${product.name}</span>
+                                            <img src="${o.image}" style="width: 40px; height: 40px; object-fit: contain; background: #f1f5f9; border-radius: 6px; padding: 4px;">
+                                            <span>${o.name}</span>
                                         </div>
                                     </td>
-                                    <td><span class="category-tag">${product.category}</span></td>
-                                    <td>${formatCurrency(product.price)}</td>
+                                    <td><span class="category-tag">${o.category}</span></td>
+                                    <td>${d(o.price)}</td>
                                     <td>
-                                        <span class="stock-badge ${product.stock < 10 ? 'low' : ''} ${product.stock === 0 ? 'out' : ''}">
-                                            ${product.stock}
+                                        <span class="stock-badge ${o.stock<10?"low":""} ${o.stock===0?"out":""}">
+                                            ${o.stock}
                                         </span>
                                     </td>
-                                    <td>${formatCurrency(product.price * product.stock)}</td>
+                                    <td>${d(o.price*o.stock)}</td>
                                     <td>
-                                        <button class="btn-icon" onclick="window.showToast('Editing ${product.name}...')" title="Edit">
+                                        <button class="btn-icon" onclick="window.showToast('Editing ${o.name}...')" title="Edit">
                                             ✏️
                                         </button>
-                                        <button class="btn-icon danger" onclick="window.deleteProduct(${product.id})" title="Delete">
+                                        <button class="btn-icon danger" onclick="window.deleteProduct(${o.id})" title="Delete">
                                             🗑️
                                         </button>
                                     </td>
                                 </tr>
-                            `).join('')}
+                            `).join("")}
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-    `;
-};
-
-// --- Actions ---
-
-window.navigate = navigate;
-
-window.viewProduct = (productId) => {
-    state.currentProductId = productId;
-    navigate('product-detail');
-};
-
-window.adjustDetailQty = (change) => {
-    const qtyInput = document.getElementById('detailQty');
-    let newQty = parseInt(qtyInput.value) + change;
-    if (newQty < 1) newQty = 1;
-    // Check max stock if needed, though simple logic is fine
-    qtyInput.value = newQty;
-};
-
-window.addToCartFromDetail = (productId) => {
-    const qty = parseInt(document.getElementById('detailQty').value);
-    if (!state.currentUser) {
-        showToast('Please login to shop');
-        navigate('login');
-        return;
-    }
-
-    const product = state.products.find(p => p.id === productId);
-    const existingItem = state.cart.find(item => item.id === productId);
-
-    if (existingItem) {
-        existingItem.quantity += qty;
-    } else {
-        state.cart.push({ ...product, quantity: qty });
-    }
-
-    saveState();
-    showToast(`Added ${qty} item(s) to cart`);
-    // Optional: navigate to cart or stay on page
-};
-
-window.addToCart = (productId) => {
-    if (!state.currentUser) {
-        showToast('Please login to shop');
-        navigate('login');
-        return;
-    }
-
-    const product = state.products.find(p => p.id === productId);
-    const existingItem = state.cart.find(item => item.id === productId);
-
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        state.cart.push({ ...product, quantity: 1 });
-    }
-
-    saveState();
-    render();
-    showToast('Added to cart');
-};
-
-window.updateQuantity = (productId, newQuantity) => {
-    if (newQuantity < 1) {
-        window.removeFromCart(productId);
-        return;
-    }
-    const item = state.cart.find(item => item.id === productId);
-    if (item) {
-        item.quantity = newQuantity;
-        saveState();
-        render();
-    }
-};
-
-window.removeFromCart = (productId) => {
-    state.cart = state.cart.filter(item => item.id !== productId);
-    saveState();
-    render();
-};
-
-window.checkout = () => {
-    if (state.cart.length === 0) return;
-
-    const order = {
-        id: `ORD-${Date.now().toString().slice(-6)}`,
-        userId: state.currentUser.id,
-        date: new Date().toISOString().split('T')[0],
-        total: state.cart.reduce((acc, item) => acc + (item.price * item.quantity), 0),
-        status: 'Completed',
-        items: state.cart.map(item => ({ productId: item.id, quantity: item.quantity }))
-    };
-
-    state.orders.unshift(order);
-    state.cart = [];
-    saveState();
-    showToast('Order placed successfully!');
-    navigate('home');
-};
-
-// Advanced Search functionality with suggestions (optimized to not lose focus)
-window.handleSearchInput = (event) => {
-    const query = event.target.value;
-    state.searchQuery = query;
-
-    if (query.trim()) {
-        // Generate suggestions based on product names and categories
-        const suggestions = new Set();
-
-        state.products.forEach(product => {
-            const productName = product.name.toLowerCase();
-            const category = product.category.toLowerCase();
-            const queryLower = query.toLowerCase();
-
-            // Add product names that match
-            if (productName.includes(queryLower)) {
-                suggestions.add(product.name);
-            }
-
-            // Add categories that match
-            if (category.includes(queryLower)) {
-                suggestions.add(product.category);
-            }
-
-            // Add word-based suggestions
-            const words = productName.split(' ');
-            words.forEach(word => {
-                if (word.toLowerCase().startsWith(queryLower) && word.length > 2) {
-                    suggestions.add(word.charAt(0).toUpperCase() + word.slice(1));
-                }
-            });
-        });
-
-        state.searchSuggestions = Array.from(suggestions).slice(0, 8);
-        state.showSuggestions = true;
-    } else {
-        state.searchSuggestions = [];
-        state.showSuggestions = false;
-    }
-
-    // Update suggestions dropdown without full render
-    updateSuggestionsDropdown();
-};
-
-// Update only the suggestions dropdown (not the whole page)
-function updateSuggestionsDropdown() {
-    const searchContainer = document.querySelector('.search-container');
-    if (!searchContainer) return;
-
-    // Remove existing suggestions
-    const existingSuggestions = searchContainer.querySelector('.search-suggestions');
-    if (existingSuggestions) {
-        existingSuggestions.remove();
-    }
-
-    // Add new suggestions if needed
-    if (state.showSuggestions && state.searchQuery) {
-        const suggestionsHTML = `
+    `};window.navigate=l;window.viewProduct=t=>{e.currentProductId=t,l("product-detail")};window.adjustDetailQty=t=>{const s=document.getElementById("detailQty");let i=parseInt(s.value)+t;i<1&&(i=1),s.value=i};window.addToCartFromDetail=t=>{const s=parseInt(document.getElementById("detailQty").value);if(!e.currentUser){u("Please login to shop"),l("login");return}const i=e.products.find(r=>r.id===t),a=e.cart.find(r=>r.id===t);a?a.quantity+=s:e.cart.push({...i,quantity:s}),g(),u(`Added ${s} item(s) to cart`)};window.addToCart=t=>{if(!e.currentUser){u("Please login to shop"),l("login");return}const s=e.products.find(a=>a.id===t),i=e.cart.find(a=>a.id===t);i?i.quantity+=1:e.cart.push({...s,quantity:1}),g(),m(),u("Added to cart")};window.updateQuantity=(t,s)=>{if(s<1){window.removeFromCart(t);return}const i=e.cart.find(a=>a.id===t);i&&(i.quantity=s,g(),m())};window.removeFromCart=t=>{e.cart=e.cart.filter(s=>s.id!==t),g(),m()};window.checkout=()=>{if(e.cart.length===0)return;const t={id:`ORD-${Date.now().toString().slice(-6)}`,userId:e.currentUser.id,date:new Date().toISOString().split("T")[0],total:e.cart.reduce((s,i)=>s+i.price*i.quantity,0),status:"Completed",items:e.cart.map(s=>({productId:s.id,quantity:s.quantity}))};e.orders.unshift(t),e.cart=[],g(),u("Order placed successfully!"),l("home")};window.handleSearchInput=t=>{const s=t.target.value;if(e.searchQuery=s,s.trim()){const i=new Set;e.products.forEach(a=>{const r=a.name.toLowerCase(),n=a.category.toLowerCase(),c=s.toLowerCase();r.includes(c)&&i.add(a.name),n.includes(c)&&i.add(a.category),r.split(" ").forEach(v=>{v.toLowerCase().startsWith(c)&&v.length>2&&i.add(v.charAt(0).toUpperCase()+v.slice(1))})}),e.searchSuggestions=Array.from(i).slice(0,8),e.showSuggestions=!0}else e.searchSuggestions=[],e.showSuggestions=!1;f()};function f(){const t=document.querySelector(".search-container");if(!t)return;const s=t.querySelector(".search-suggestions");if(s&&s.remove(),e.showSuggestions&&e.searchQuery){const i=`
             <div class="search-suggestions" id="searchSuggestions">
                 <div class="suggestions-header">Suggestions</div>
-                ${state.searchSuggestions.slice(0, 5).map(suggestion => `
-                    <div class="suggestion-item" onclick="window.selectSuggestion('${suggestion.replace(/'/g, "\\'")}')"> 
+                ${e.searchSuggestions.slice(0,5).map(a=>`
+                    <div class="suggestion-item" onclick="window.selectSuggestion('${a.replace(/'/g,"\\'")}')"> 
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <span>${suggestion}</span>
+                        <span>${a}</span>
                     </div>
-                `).join('')}
-                ${state.searchQuery ? `
+                `).join("")}
+                ${e.searchQuery?`
                     <div class="suggestion-search-all" onclick="window.handleSearch()">
-                        Search for "${state.searchQuery}" →
+                        Search for "${e.searchQuery}" →
                     </div>
-                ` : ''}
+                `:""}
             </div>
-        `;
-
-        searchContainer.insertAdjacentHTML('beforeend', suggestionsHTML);
-    }
-}
-
-window.showSearchSuggestions = () => {
-    if (state.searchQuery) {
-        state.showSuggestions = true;
-        updateSuggestionsDropdown();
-    }
-};
-
-window.selectSuggestion = (suggestion) => {
-    state.searchQuery = suggestion;
-    state.showSuggestions = false;
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.value = suggestion;
-    }
-    handleSearch();
-};
-
-window.handleSearch = () => {
-    state.showSuggestions = false;
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        state.searchQuery = searchInput.value.trim();
-    }
-    navigate('home');
-    // Scroll to products section
-    setTimeout(() => {
-        const productsSection = document.querySelector('.product-grid');
-        if (productsSection) {
-            productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }, 100);
-};
-
-window.clearSearch = () => {
-    state.searchQuery = '';
-    state.showSuggestions = false;
-    state.searchSuggestions = [];
-    render();
-};
-
-// Close suggestions when clicking outside (only update dropdown, not full render)
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-container') && state.showSuggestions) {
-        state.showSuggestions = false;
-        // Remove suggestions dropdown without full render
-        const existingSuggestions = document.querySelector('.search-suggestions');
-        if (existingSuggestions) {
-            existingSuggestions.remove();
-        }
-    }
-});
-
-window.handleLogin = (e) => {
-    e.preventDefault();
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-
-    const user = state.users.find(u => u.email === email && u.password === password);
-
-    if (user) {
-        state.currentUser = user;
-        saveState();
-        showToast(`Welcome back, ${user.name}`);
-        navigate(user.role === 'admin' ? 'admin' : 'home');
-    } else {
-        showToast('Invalid credentials');
-    }
-};
-
-window.handleSignup = (e) => {
-    e.preventDefault();
-    const name = e.target.name.value;
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-
-    if (state.users.find(u => u.email === email)) {
-        showToast('Email already exists');
-        return;
-    }
-
-    const newUser = {
-        id: state.users.length + 1,
-        name,
-        email,
-        password,
-        role: 'customer'
-    };
-
-    state.users.push(newUser);
-    state.currentUser = newUser;
-    saveState();
-    showToast('Account created successfully');
-    navigate('home');
-};
-
-window.logout = () => {
-    state.currentUser = null;
-    state.cart = [];
-    saveState();
-    navigate('home');
-};
-
-window.deleteProduct = (productId) => {
-    if (confirm('Are you sure you want to remove this product?')) {
-        state.products = state.products.filter(p => p.id !== productId);
-        saveState();
-        render();
-        showToast('Product removed');
-    }
-};
-
-// --- Render ---
-const render = () => {
-    const app = document.getElementById('app');
-    let content = '';
-
-    switch (state.route) {
-        case 'home': content = HomePage(); break;
-        case 'products': content = ProductsPage(); break;
-        case 'product-detail': content = ProductDetailPage(); break;
-        case 'login': content = LoginPage(); break;
-        case 'signup': content = SignupPage(); break;
-        case 'cart': content = CartPage(); break;
-        case 'admin': content = AdminPage(); break;
-        default: content = HomePage();
-    }
-
-    app.innerHTML = `
-        ${Header()}
+        `;t.insertAdjacentHTML("beforeend",i)}}window.showSearchSuggestions=()=>{e.searchQuery&&(e.showSuggestions=!0,f())};window.selectSuggestion=t=>{e.searchQuery=t,e.showSuggestions=!1;const s=document.getElementById("searchInput");s&&(s.value=t),handleSearch()};window.handleSearch=()=>{e.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(e.searchQuery=t.value.trim()),l("home"),setTimeout(()=>{const s=document.querySelector(".product-grid");s&&s.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{e.searchQuery="",e.showSuggestions=!1,e.searchSuggestions=[],m()};document.addEventListener("click",t=>{if(!t.target.closest(".search-container")&&e.showSuggestions){e.showSuggestions=!1;const s=document.querySelector(".search-suggestions");s&&s.remove()}});window.handleLogin=t=>{t.preventDefault();const s=t.target.email.value,i=t.target.password.value,a=e.users.find(r=>r.email===s&&r.password===i);a?(e.currentUser=a,g(),u(`Welcome back, ${a.name}`),l(a.role==="admin"?"admin":"home")):u("Invalid credentials")};window.handleSignup=t=>{t.preventDefault();const s=t.target.name.value,i=t.target.email.value,a=t.target.password.value;if(e.users.find(n=>n.email===i)){u("Email already exists");return}const r={id:e.users.length+1,name:s,email:i,password:a,role:"customer"};e.users.push(r),e.currentUser=r,g(),u("Account created successfully"),l("home")};window.logout=()=>{e.currentUser=null,e.cart=[],g(),l("home")};window.deleteProduct=t=>{confirm("Are you sure you want to remove this product?")&&(e.products=e.products.filter(s=>s.id!==t),g(),m(),u("Product removed"))};const m=()=>{const t=document.getElementById("app");let s="";switch(e.route){case"home":s=y();break;case"products":s=C();break;case"product-detail":s=x();break;case"login":s=L();break;case"signup":s=M();break;case"cart":s=I();break;case"admin":s=A();break;default:s=y()}t.innerHTML=`
+        ${P()}
         <main>
-            ${content}
+            ${s}
         </main>
         <footer style="text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
             &copy; 2024 Lumina Electronics. All rights reserved.
         </footer>
-    `;
-};
-
-// Initial Render
-render();
+    `};m();
