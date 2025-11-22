@@ -305,83 +305,303 @@ const AdminPage = () => {
         return '';
     }
 
+    // Calculate metrics
     const totalSales = state.orders.reduce((acc, order) => acc + order.total, 0);
     const totalOrders = state.orders.length;
     const totalProducts = state.products.length;
+    const totalCustomers = state.users.filter(u => u.role === 'customer').length;
+
+    // Low stock products
+    const lowStockProducts = state.products.filter(p => p.stock < 10);
+    const outOfStockProducts = state.products.filter(p => p.stock === 0);
+
+    // Recent orders (last 5)
+    const recentOrders = state.orders.slice(0, 5);
+
+    // Average order value
+    const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
+
+    // Total inventory value
+    const inventoryValue = state.products.reduce((acc, p) => acc + (p.price * p.stock), 0);
 
     return `
-        <div>
-            <h2 class="mb-4">Admin Dashboard</h2>
-            
-            <div class="dashboard-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Total Sales</div>
-                    <div class="stat-value">${formatCurrency(totalSales)}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Total Orders</div>
-                    <div class="stat-value">${totalOrders}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Products in Stock</div>
-                    <div class="stat-value">${totalProducts}</div>
+        <div class="admin-container">
+            <div class="admin-header">
+                <h1>📊 Admin Dashboard</h1>
+                <div class="admin-actions">
+                    <button class="btn-action" onclick="window.showToast('Feature coming soon!')">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Add Product
+                    </button>
+                    <button class="btn-action" onclick="window.showToast('Report generated!')">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        Generate Report
+                    </button>
                 </div>
             </div>
 
-            <h3 class="mb-4">Inventory Management</h3>
-            <table class="inventory-table mb-4">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Category</th>
-                        <th>Price</th>
-                        <th>Stock</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${state.products.map(product => `
-                        <tr>
-                            <td>
-                                <div style="display: flex; align-items: center; gap: 1rem;">
-                                    <img src="${product.image}" style="width: 40px; height: 40px; object-fit: contain; background: #f1f5f9; border-radius: 4px;">
-                                    ${product.name}
-                                </div>
-                            </td>
-                            <td>${product.category}</td>
-                            <td>${formatCurrency(product.price)}</td>
-                            <td>${product.stock}</td>
-                            <td>
-                                <button class="btn btn-ghost" style="color: var(--danger)" onclick="window.deleteProduct(${product.id})">Delete</button>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+            <!-- Key Metrics -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-label">Total Revenue</div>
+                        <div class="metric-value">${formatCurrency(totalSales)}</div>
+                        <div class="metric-change positive">+15.3% from last month</div>
+                    </div>
+                </div>
 
-            <h3 class="mb-4">Recent Transactions</h3>
-            <table class="inventory-table">
-                <thead>
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Date</th>
-                        <th>Customer ID</th>
-                        <th>Total</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${state.orders.map(order => `
-                        <tr>
-                            <td>${order.id}</td>
-                            <td>${order.date}</td>
-                            <td>${order.userId}</td>
-                            <td>${formatCurrency(order.total)}</td>
-                            <td><span class="badge badge-success">${order.status}</span></td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                        <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-label">Total Orders</div>
+                        <div class="metric-value">${totalOrders}</div>
+                        <div class="metric-change positive">+8 new today</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                        <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-label">Total Customers</div>
+                        <div class="metric-value">${totalCustomers}</div>
+                        <div class="metric-change">2 new this week</div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                        <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    <div class="metric-content">
+                        <div class="metric-label">Avg. Order Value</div>
+                        <div class="metric-value">${formatCurrency(avgOrderValue)}</div>
+                        <div class="metric-change positive">+5.2% increase</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alerts & Inventory Status -->
+            <div class="admin-row">
+                <div class="admin-section alert-section">
+                    <div class="section-header">
+                        <h3>⚠️ Inventory Alerts</h3>
+                        <span class="badge badge-warning">${lowStockProducts.length + outOfStockProducts.length}</span>
+                    </div>
+                    <div class="alert-list">
+                        ${outOfStockProducts.length > 0 ? `
+                            <div class="alert-item critical">
+                                <div class="alert-icon">🔴</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">Out of Stock</div>
+                                    <div class="alert-desc">${outOfStockProducts.length} product(s) need restocking</div>
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${lowStockProducts.length > 0 ? `
+                            <div class="alert-item warning">
+                                <div class="alert-icon">⚠️</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">Low Stock Alert</div>
+                                    <div class="alert-desc">${lowStockProducts.length} product(s) running low (< 10 units)</div>
+                                </div>
+                            </div>
+                        ` : ''}
+                        ${lowStockProducts.length === 0 && outOfStockProducts.length === 0 ? `
+                            <div class="alert-item success">
+                                <div class="alert-icon">✅</div>
+                                <div class="alert-content">
+                                    <div class="alert-title">All Good!</div>
+                                    <div class="alert-desc">No inventory issues detected</div>
+                                </div>
+                            </div>
+                        ` : ''}
+                        <div class="alert-item info">
+                            <div class="alert-icon">📦</div>
+                            <div class="alert-content">
+                                <div class="alert-title">Inventory Value</div>
+                                <div class="alert-desc">${formatCurrency(inventoryValue)} total stock value</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-section quick-stats">
+                    <div class="section-header">
+                        <h3>📈 Quick Stats</h3>
+                    </div>
+                    <div class="stats-list">
+                        <div class="stat-item">
+                            <span class="stat-label">Products</span>
+                            <span class="stat-number">${totalProducts}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Categories</span>
+                            <span class="stat-number">${[...new Set(state.products.map(p => p.category))].length}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Conversion Rate</span>
+                            <span class="stat-number">3.2%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Today's Orders</span>
+                            <span class="stat-number">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Orders -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3>🛍️ Recent Orders</h3>
+                    <span class="text-muted">${recentOrders.length} orders</span>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${recentOrders.length > 0 ? recentOrders.map(order => {
+        const customer = state.users.find(u => u.id === order.userId);
+        return `
+                                    <tr>
+                                        <td><strong>${order.id}</strong></td>
+                                        <td>${order.date}</td>
+                                        <td>${customer ? customer.name : 'Unknown'}</td>
+                                        <td>${order.items.length} items</td>
+                                        <td><strong>${formatCurrency(order.total)}</strong></td>
+                                        <td><span class="badge badge-success">${order.status}</span></td>
+                                    </tr>
+                                `;
+    }).join('') : '<tr><td colspan="6" class="text-center text-muted">No orders yet</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Low Stock Products -->
+            ${lowStockProducts.length > 0 ? `
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h3>📉 Low Stock Products</h3>
+                        <span class="badge badge-warning">${lowStockProducts.length}</span>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th>Stock</th>
+                                    <th>Price</th>
+                                    <th>Action Required</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${lowStockProducts.map(product => `
+                                    <tr>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                                <img src="${product.image}" style="width: 32px; height: 32px; object-fit: contain; background: #f1f5f9; border-radius: 4px;">
+                                                <span>${product.name}</span>
+                                            </div>
+                                        </td>
+                                        <td>${product.category}</td>
+                                        <td>
+                                            <span class="badge ${product.stock === 0 ? 'badge-danger' : 'badge-warning'}">
+                                                ${product.stock} units
+                                            </span>
+                                        </td>
+                                        <td>${formatCurrency(product.price)}</td>
+                                        <td>
+                                            <button class="btn-small btn-accent" onclick="window.showToast('Restocking ${product.name}...')">
+                                                Restock
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            ` : ''}
+
+            <!-- All Products Inventory -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3>📦 Full Inventory</h3>
+                    <span class="text-muted">${totalProducts} products</span>
+                </div>
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Value</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${state.products.map(product => `
+                                <tr>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                            <img src="${product.image}" style="width: 40px; height: 40px; object-fit: contain; background: #f1f5f9; border-radius: 6px; padding: 4px;">
+                                            <span>${product.name}</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="category-tag">${product.category}</span></td>
+                                    <td>${formatCurrency(product.price)}</td>
+                                    <td>
+                                        <span class="stock-badge ${product.stock < 10 ? 'low' : ''} ${product.stock === 0 ? 'out' : ''}">
+                                            ${product.stock}
+                                        </span>
+                                    </td>
+                                    <td>${formatCurrency(product.price * product.stock)}</td>
+                                    <td>
+                                        <button class="btn-icon" onclick="window.showToast('Editing ${product.name}...')" title="Edit">
+                                            ✏️
+                                        </button>
+                                        <button class="btn-icon danger" onclick="window.deleteProduct(${product.id})" title="Delete">
+                                            🗑️
+                                        </button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     `;
 };
