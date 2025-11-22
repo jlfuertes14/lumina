@@ -2,6 +2,9 @@
 echo Building the site for GitHub Pages...
 call npm run build
 echo.
+echo Copying built files to root for GitHub Pages...
+xcopy /E /Y /I dist\* .
+echo.
 echo Build complete! Now push to GitHub:
 echo.
 echo   git add .
