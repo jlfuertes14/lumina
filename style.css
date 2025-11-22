@@ -11,6 +11,7 @@
     /* Very light gray, almost white */
     --surface: #FFFFFF;
     --surface-alt: #F1F5F9;
+    --deep-black: #000000;
     --text-main: #1A202C;
     --text-muted: #64748B;
     --border: #E2E8F0;
@@ -161,7 +162,7 @@ header {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(95deg, var(--surface-alt) 0%, #38434f 100%);
+    background: linear-gradient(95deg, var(--deep-black) 0%, #38434f 100%);
     padding: 4rem 2rem;
     position: relative;
     overflow: hidden;
