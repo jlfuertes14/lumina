@@ -58,28 +58,74 @@
             margin-top: 1rem;
             font-weight: 600;
         }
+
+        .instructions {
+            background: #f3f4f6;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .instructions ol {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .instructions li {
+            margin: 0.5rem 0;
+            color: #555;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>🔄 Clear Cache & Reload</h1>
-        <p>Click the button below to clear the localStorage cache and reload the website with fresh product images.</p>
+        <h1>🔄 Clear Browser Cache</h1>
+        <p>If images aren't loading, your browser may have cached old versions. Follow these steps:</p>
+
+        <div class="instructions">
+            <h3>Quick Fix:</h3>
+            <ol>
+                <li>Press <strong>Ctrl + Shift + R</strong> (Windows) or <strong>Cmd + Shift + R</strong> (Mac)</li>
+                <li>Or click the button below to clear localStorage and reload</li>
+            </ol>
+        </div>
+
         <button class="btn" onclick="clearAndReload()">Clear Cache & Reload</button>
         <div class="success" id="success">✅ Cache cleared! Redirecting...</div>
     </div>
 
     <script>
-        function clearAndReload() {
+        async function clearAndReload() {
             // Clear all localStorage data
             localStorage.clear();
+
+            // Clear sessionStorage
+            sessionStorage.clear();
+
+            // Clear Service Worker caches if available
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
 
             // Show success message
             document.getElementById('success').style.display = 'block';
 
-            // Redirect to home page after 1 second
+            // Force hard reload after 1 second
             setTimeout(() => {
-                window.location.href = '/';
+                window.location.href = '/lumina/';
+                // Force reload from server, not cache
+                window.location.reload(true);
             }, 1000);
         }
     </script>
