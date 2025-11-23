@@ -13,7 +13,8 @@ const state = {
     searchSuggestions: [], // current search suggestions
     currentProductId: null, // for product detail page
     sortBy: 'featured', // featured, price-asc, price-desc, name-asc, name-desc
-    filterCategory: null // null or category string
+    filterCategory: null, // null or category string
+    cartSearchQuery: '' // search within cart items
 };
 
 // --- Utilities ---
@@ -54,6 +55,7 @@ const Header = () => {
     const cartCount = state.cart.reduce((acc, item) => acc + item.quantity, 0);
     const isLoggedIn = !!state.currentUser;
     const isAdmin = state.currentUser?.role === 'admin';
+    const isCartPage = state.route === 'cart';
 
     return `
         <header>
@@ -62,39 +64,41 @@ const Header = () => {
                     Lumina<span>Electronics</span>
                 </a>
                 
-                <div class="search-bar">
-                    <div class="search-container">
-                        <input 
-                            type="text" 
-                            id="searchInput" 
-                            class="search-input" 
-                            placeholder="Search for Products..." 
-                            value="${state.searchQuery}"
-                            oninput="window.handleSearchInput(event)"
-                            onkeyup="if(event.key === 'Enter') window.handleSearch()"
-                            onfocus="window.showSearchSuggestions()"
-                        >
-                        <button class="search-btn" onclick="window.handleSearch()">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        </button>
-                        ${state.showSuggestions && state.searchQuery ? `
-                            <div class="search-suggestions" id="searchSuggestions">
-                                <div class="suggestions-header">Suggestions</div>
-                                ${state.searchSuggestions.slice(0, 5).map(suggestion => `
-                                    <div class="suggestion-item" onclick="window.selectSuggestion('${suggestion.replace(/'/g, "\\'")}')"> 
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                        <span>${suggestion}</span>
-                                    </div>
-                                `).join('')}
-                                ${state.searchQuery ? `
-                                    <div class="suggestion-search-all" onclick="window.handleSearch()">
-                                        Search for "${state.searchQuery}" →
-                                    </div>
-                                ` : ''}
-                            </div>
-                        ` : ''}
+                ${!isCartPage ? `
+                    <div class="search-bar">
+                        <div class="search-container">
+                            <input 
+                                type="text" 
+                                id="searchInput" 
+                                class="search-input" 
+                                placeholder="Search for Products..." 
+                                value="${state.searchQuery}"
+                                oninput="window.handleSearchInput(event)"
+                                onkeyup="if(event.key === 'Enter') window.handleSearch()"
+                                onfocus="window.showSearchSuggestions()"
+                            >
+                            <button class="search-btn" onclick="window.handleSearch()">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                            </button>
+                            ${state.showSuggestions && state.searchQuery ? `
+                                <div class="search-suggestions" id="searchSuggestions">
+                                    <div class="suggestions-header">Suggestions</div>
+                                    ${state.searchSuggestions.slice(0, 5).map(suggestion => `
+                                        <div class="suggestion-item" onclick="window.selectSuggestion('${suggestion.replace(/'/g, "\\'")}')"> 
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                            <span>${suggestion}</span>
+                                        </div>
+                                    `).join('')}
+                                    ${state.searchQuery ? `
+                                        <div class="suggestion-search-all" onclick="window.handleSearch()">
+                                            Search for "${state.searchQuery}" →
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
                     </div>
-                </div>
+                ` : ''}
 
                 <div class="nav-actions">
                     ${!isAdmin ? `
@@ -312,6 +316,16 @@ const ProductsPage = () => {
     // Apply filtering
     let displayedProducts = [...state.products];
 
+    // Apply search query filter
+    if (state.searchQuery) {
+        displayedProducts = displayedProducts.filter(product =>
+            product.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+            product.category.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
+            product.description.toLowerCase().includes(state.searchQuery.toLowerCase())
+        );
+    }
+
+    // Apply category filter
     if (state.filterCategory) {
         displayedProducts = displayedProducts.filter(p => p.category === state.filterCategory);
     }
@@ -367,6 +381,18 @@ const ProductsPage = () => {
                     </div>
                 </div>
             </div>
+
+            ${state.searchQuery ? `
+                <div style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--surface); border-radius: 8px; margin-bottom: 1.5rem;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <span>
+                        Showing results for <strong>"${state.searchQuery}"</strong>
+                    </span>
+                </div>
+            ` : ''}
 
             <div class="product-grid">
                 ${displayedProducts.map(ProductCard).join('')}
@@ -434,45 +460,231 @@ const CartPage = () => {
         `;
     }
 
+    // Filter cart items based on cart search query
+    let displayedCartItems = state.cart;
+    if (state.cartSearchQuery) {
+        displayedCartItems = state.cart.filter(item =>
+            item.name.toLowerCase().includes(state.cartSearchQuery.toLowerCase()) ||
+            item.category.toLowerCase().includes(state.cartSearchQuery.toLowerCase())
+        );
+    }
+
     const total = state.cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
     return `
-        <div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
+        <div style="margin: 2rem auto; padding: 0 2rem;">
             <button class="btn btn-outline" onclick="window.navigate('products')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
                 ← Continue Shopping
             </button>
+            
             <div class="cart-container">
-                <h2 class="mb-4">Shopping Cart</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0;">Shopping Cart</h2>
+                    
+                    ${state.cart.length > 0 ? `
+                        <div class="search-container" style="max-width: 400px; flex: 1;">
+                            <input 
+                                type="text" 
+                                id="cartSearchInput" 
+                                class="search-input" 
+                                placeholder="Search items in cart..." 
+                                value="${state.cartSearchQuery}"
+                                oninput="window.handleCartSearch(event)"
+                                style="width: 100%;"
+                            >
+                            <button class="search-btn" onclick="window.clearCartSearch()">
+                                ${state.cartSearchQuery ? `
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                ` : `
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                `}
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+                
+                <div class="cart-search-message" style="${state.cartSearchQuery && displayedCartItems.length === 0 ? '' : 'display: none;'}">
+                    ${state.cartSearchQuery && displayedCartItems.length === 0 ? `
+                        <p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
+                            No items found for "${state.cartSearchQuery}"
+                        </p>
+                    ` : ''}
+                </div>
+                
             <div class="cart-items">
-                ${state.cart.map(item => `
-                    <div class="cart-item">
-                        <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
-                        <div style="flex: 1;">
-                            <h3 style="font-size: 1rem;">${item.name}</h3>
-                            <p class="text-muted">${formatCurrency(item.price)}</p>
+                ${displayedCartItems.map(item => {
+        // Find similar products based on category
+        const similarProducts = state.products
+            .filter(p => p.category === item.category && p.id !== item.id)
+            .slice(0, 4); // Show up to 4 similar items
+
+        return `
+                    <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
+                        <div class="cart-item" style="border-bottom: none;">
+                            <input type="checkbox" 
+                                style="width: 20px; height: 20px; margin-right: 1rem; cursor: pointer; accent-color: var(--primary);"
+                                ${item.selected !== false ? 'checked' : ''}
+                                onchange="window.toggleCartItem(${item.id})"
+                            >
+                            <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
+                            <div style="flex: 1;">
+                                <h3 style="font-size: 1rem;">${item.name}</h3>
+                                <p class="text-muted">${formatCurrency(item.price)}</p>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
+                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                                <span>${item.quantity}</span>
+                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                            </div>
+                            
+                            <div class="cart-item-actions">
+                                <button class="btn-delete" onclick="window.removeFromCart(${item.id})">Delete</button>
+                                <button class="btn-find-similar" onclick="window.toggleFindSimilar(${item.id})">
+                                    Find Similar 
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${item.showSimilar ? 'rotate(180deg)' : 'rotate(0deg)'}; transition: transform 0.2s;">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 1rem;">
-                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
-                            <span>${item.quantity}</span>
-                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+
+                        <div class="similar-products-dropdown ${item.showSimilar ? 'show' : ''}">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h4 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Similar Products</h4>
+                                <button onclick="window.toggleFindSimilar(${item.id})" style="background: none; border: none; cursor: pointer;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </button>
+                            </div>
+                            ${similarProducts.length > 0 ? `
+                                <div class="similar-products-grid">
+                                    ${similarProducts.map(p => `
+                                        <div class="similar-product-card" onclick="window.viewProduct(${p.id})">
+                                            <img src="${p.image}" alt="${p.name}" class="similar-product-image">
+                                            <div class="similar-product-title" title="${p.name}">${p.name}</div>
+                                            <div class="similar-product-price">${formatCurrency(p.price)}</div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : '<p class="text-muted text-center">No similar products found.</p>'}
                         </div>
-                        <button class="btn btn-ghost" style="color: var(--danger);" onclick="window.removeFromCart(${item.id})">Remove</button>
                     </div>
-                `).join('')}
+                `;
+    }).join('')}
             </div>
             <div class="cart-summary">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                     <span>Total</span>
-                    <span>${formatCurrency(total)}</span>
+                    <span>${formatCurrency(state.cart.reduce((acc, item) => acc + (item.selected !== false ? item.price * item.quantity : 0), 0))}</span>
                 </div>
                 <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
-                    Proceed to Checkout
+                    Proceed to Checkout (${state.cart.filter(i => i.selected !== false).length})
                 </button>
 
             </div>
         </div>
         </div>
     `;
+};
+
+// --- Admin Helpers ---
+window.updateOrderStatus = (orderId, newStatus) => {
+    const order = state.orders.find(o => o.id === orderId);
+    if (order) {
+        order.status = newStatus;
+        saveState();
+        showToast(`Order #${orderId} updated to ${newStatus}`);
+        render(); // Re-render to reflect changes
+    }
+};
+
+window.toggleSelectAll = (source) => {
+    const checkboxes = document.querySelectorAll('.product-checkbox');
+    checkboxes.forEach(cb => cb.checked = source.checked);
+};
+
+window.bulkAction = (action) => {
+    const checkboxes = document.querySelectorAll('.product-checkbox:checked');
+    const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+    if (selectedIds.length === 0) {
+        showToast('No products selected');
+        return;
+    }
+
+    if (action === 'delete') {
+        if (confirm(`Delete ${selectedIds.length} products?`)) {
+            state.products = state.products.filter(p => !selectedIds.includes(p.id));
+            saveState();
+            render();
+            showToast('Products deleted');
+        }
+    } else if (action === 'restock') {
+        state.products.forEach(p => {
+            if (selectedIds.includes(p.id)) {
+                p.stock += 10; // Mock restock
+            }
+        });
+        saveState();
+        render();
+        showToast('Products restocked');
+    }
+};
+
+window.viewOrderDetails = (orderId) => {
+    const order = state.orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    const customer = state.users.find(u => u.id === order.userId);
+
+    const modalHTML = `
+        <div class="modal-overlay show" id="orderModal" onclick="if(event.target === this) window.closeModal()">
+            <div class="modal-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>Order #${order.id}</h3>
+                    <button class="btn-icon" onclick="window.closeModal()">✕</button>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <p><strong>Customer:</strong> ${customer ? customer.name : 'Unknown'}</p>
+                    <p><strong>Date:</strong> ${order.date}</p>
+                    <p><strong>Status:</strong> <span class="badge badge-${order.status === 'Delivered' ? 'success' : 'warning'}">${order.status}</span></p>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+                            <th style="padding: 0.5rem;">Item</th>
+                            <th style="padding: 0.5rem;">Qty</th>
+                            <th style="padding: 0.5rem;">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${order.items.map(item => `
+                            <tr style="border-bottom: 1px solid var(--border);">
+                                <td style="padding: 0.5rem;">${item.name}</td>
+                                <td style="padding: 0.5rem;">${item.quantity}</td>
+                                <td style="padding: 0.5rem;">${formatCurrency(item.price)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <div style="text-align: right; font-size: 1.25rem; font-weight: bold;">
+                    Total: ${formatCurrency(order.total)}
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+};
+
+window.closeModal = () => {
+    const modal = document.getElementById('orderModal');
+    if (modal) modal.remove();
 };
 
 const AdminPage = () => {
@@ -497,159 +709,139 @@ const AdminPage = () => {
     // Average order value
     const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
-    // Total inventory value
-    const inventoryValue = state.products.reduce((acc, p) => acc + (p.price * p.stock), 0);
+    // Category Distribution Data
+    const categories = {};
+    state.products.forEach(p => {
+        categories[p.category] = (categories[p.category] || 0) + 1;
+    });
+    const categoryData = Object.entries(categories).map(([name, count]) => ({ name, count }));
+
+    // Mock Revenue Data (Last 7 Days)
+    const revenueData = [450, 720, 550, 890, 600, 950, 1200];
+    const maxRevenue = Math.max(...revenueData);
 
     return `
         <div class="admin-container">
             <div class="admin-header">
-                <h1>📊 Admin Dashboard</h1>
-                <div class="admin-actions">
-                    <button class="btn-action" onclick="window.showToast('Feature coming soon!')">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Add Product
+                <div style="display: flex; align-items: center;">
+                    <h1>📊 Admin Dashboard</h1>
+                </div>
+                <div class="admin-actions" style="display: flex; align-items: center;">
+                    <div class="notification-bell" onclick="window.showToast('No new notifications')">
+                        🔔
+                        ${lowStockProducts.length > 0 ? `<span class="notification-badge">${lowStockProducts.length}</span>` : ''}
+                    </div>
+                    <button class="btn-action" onclick="window.showToast('Exporting data...')">
+                        📥 Export CSV
                     </button>
                     <button class="btn-action" onclick="window.showToast('Report generated!')">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
                         Generate Report
                     </button>
+                </div>
+            </div>
+
+            <!-- Analytics Overview -->
+            <div class="analytics-grid">
+                <!-- Revenue Trend -->
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h3>📈 Revenue Trend (7 Days)</h3>
+                    </div>
+                    <div class="chart-container">
+                        ${revenueData.map(val => `
+                            <div class="chart-bar" style="height: ${(val / maxRevenue) * 100}%" data-value="${formatCurrency(val)}"></div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Category Distribution -->
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h3>🥧 Categories</h3>
+                    </div>
+                    <div class="donut-chart">
+                        <div class="donut-hole">
+                            ${categoryData.length} Cats
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                        ${categoryData.slice(0, 3).map(c => `<span class="badge badge-info">${c.name}: ${c.count}</span>`).join('')}
+                    </div>
+                </div>
+
+                <!-- Top Products -->
+                <div class="admin-section">
+                    <div class="section-header">
+                        <h3>🏆 Top Products</h3>
+                    </div>
+                    <div class="top-products-list">
+                        ${state.products.slice(0, 4).map(p => `
+                            <div class="top-product-item">
+                                <img src="${p.image}" style="width: 32px; height: 32px; object-fit: contain;">
+                                <div style="flex: 1;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                                        <span>${p.name}</span>
+                                        <span>${formatCurrency(p.price)}</span>
+                                    </div>
+                                    <div class="progress-bar-bg">
+                                        <div class="progress-bar-fill" style="width: ${Math.random() * 40 + 60}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
 
             <!-- Key Metrics -->
             <div class="metrics-grid">
                 <div class="metric-card">
-                    <div class="metric-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                    </div>
+                    <div class="metric-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">💰</div>
                     <div class="metric-content">
                         <div class="metric-label">Total Revenue</div>
                         <div class="metric-value">${formatCurrency(totalSales)}</div>
-                        <div class="metric-change positive">+15.3% from last month</div>
+                        <div class="metric-change positive">+15.3%</div>
                     </div>
                 </div>
-
                 <div class="metric-card">
-                    <div class="metric-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                        <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                        </svg>
-                    </div>
+                    <div class="metric-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🛍️</div>
                     <div class="metric-content">
                         <div class="metric-label">Total Orders</div>
                         <div class="metric-value">${totalOrders}</div>
                         <div class="metric-change positive">+8 new today</div>
                     </div>
                 </div>
-
                 <div class="metric-card">
-                    <div class="metric-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-                        <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                        </svg>
-                    </div>
+                    <div class="metric-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">👥</div>
                     <div class="metric-content">
                         <div class="metric-label">Total Customers</div>
                         <div class="metric-value">${totalCustomers}</div>
                         <div class="metric-change">2 new this week</div>
                     </div>
                 </div>
-
                 <div class="metric-card">
-                    <div class="metric-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                        <svg width="24" height="24" fill="none" stroke="white" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
+                    <div class="metric-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">📊</div>
                     <div class="metric-content">
                         <div class="metric-label">Avg. Order Value</div>
                         <div class="metric-value">${formatCurrency(avgOrderValue)}</div>
-                        <div class="metric-change positive">+5.2% increase</div>
+                        <div class="metric-change positive">+5.2%</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Alerts & Inventory Status -->
-            <div class="admin-row">
-                <div class="admin-section alert-section">
-                    <div class="section-header">
-                        <h3>⚠️ Inventory Alerts</h3>
-                        <span class="badge badge-warning">${lowStockProducts.length + outOfStockProducts.length}</span>
-                    </div>
-                    <div class="alert-list">
-                        ${outOfStockProducts.length > 0 ? `
-                            <div class="alert-item critical">
-                                <div class="alert-icon">🔴</div>
-                                <div class="alert-content">
-                                    <div class="alert-title">Out of Stock</div>
-                                    <div class="alert-desc">${outOfStockProducts.length} product(s) need restocking</div>
-                                </div>
-                            </div>
-                        ` : ''}
-                        ${lowStockProducts.length > 0 ? `
-                            <div class="alert-item warning">
-                                <div class="alert-icon">⚠️</div>
-                                <div class="alert-content">
-                                    <div class="alert-title">Low Stock Alert</div>
-                                    <div class="alert-desc">${lowStockProducts.length} product(s) running low (< 10 units)</div>
-                                </div>
-                            </div>
-                        ` : ''}
-                        ${lowStockProducts.length === 0 && outOfStockProducts.length === 0 ? `
-                            <div class="alert-item success">
-                                <div class="alert-icon">✅</div>
-                                <div class="alert-content">
-                                    <div class="alert-title">All Good!</div>
-                                    <div class="alert-desc">No inventory issues detected</div>
-                                </div>
-                            </div>
-                        ` : ''}
-                        <div class="alert-item info">
-                            <div class="alert-icon">📦</div>
-                            <div class="alert-content">
-                                <div class="alert-title">Inventory Value</div>
-                                <div class="alert-desc">${formatCurrency(inventoryValue)} total stock value</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="admin-section quick-stats">
-                    <div class="section-header">
-                        <h3>📈 Quick Stats</h3>
-                    </div>
-                    <div class="stats-list">
-                        <div class="stat-item">
-                            <span class="stat-label">Products</span>
-                            <span class="stat-number">${totalProducts}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Categories</span>
-                            <span class="stat-number">${[...new Set(state.products.map(p => p.category))].length}</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Conversion Rate</span>
-                            <span class="stat-number">3.2%</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Today's Orders</span>
-                            <span class="stat-number">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Orders -->
+            <!-- Order Management -->
             <div class="admin-section">
                 <div class="section-header">
-                    <h3>🛍️ Recent Orders</h3>
-                    <span class="text-muted">${recentOrders.length} orders</span>
+                    <h3>🛍️ Order Management</h3>
+                    <div class="filter-bar" style="margin-bottom: 0;">
+                        <input type="date" class="filter-input">
+                        <select class="filter-input">
+                            <option value="">All Status</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="table-container">
                     <table class="admin-table">
@@ -661,6 +853,7 @@ const AdminPage = () => {
                                 <th>Items</th>
                                 <th>Total</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -668,88 +861,55 @@ const AdminPage = () => {
         const customer = state.users.find(u => u.id === order.userId);
         return `
                                     <tr>
-                                        <td><strong>${order.id}</strong></td>
+                                        <td><strong>#${order.id}</strong></td>
                                         <td>${order.date}</td>
                                         <td>${customer ? customer.name : 'Unknown'}</td>
                                         <td>${order.items.length} items</td>
                                         <td><strong>${formatCurrency(order.total)}</strong></td>
-                                        <td><span class="badge badge-success">${order.status}</span></td>
+                                        <td>
+                                            <select class="status-select" onchange="window.updateOrderStatus(${order.id}, this.value)">
+                                                <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                                <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                                                <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <button class="btn-icon" onclick="window.viewOrderDetails(${order.id})" title="Quick View">👁️</button>
+                                        </td>
                                     </tr>
                                 `;
-    }).join('') : '<tr><td colspan="6" class="text-center text-muted">No orders yet</td></tr>'}
+    }).join('') : '<tr><td colspan="7" class="text-center text-muted">No orders yet</td></tr>'}
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Low Stock Products -->
-            ${lowStockProducts.length > 0 ? `
-                <div class="admin-section">
-                    <div class="section-header">
-                        <h3>📉 Low Stock Products</h3>
-                        <span class="badge badge-warning">${lowStockProducts.length}</span>
-                    </div>
-                    <div class="table-container">
-                        <table class="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Product</th>
-                                    <th>Category</th>
-                                    <th>Stock</th>
-                                    <th>Price</th>
-                                    <th>Action Required</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${lowStockProducts.map(product => `
-                                    <tr>
-                                        <td>
-                                            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                                <img src="${product.image}" style="width: 32px; height: 32px; object-fit: contain; background: #f1f5f9; border-radius: 4px;">
-                                                <span>${product.name}</span>
-                                            </div>
-                                        </td>
-                                        <td>${product.category}</td>
-                                        <td>
-                                            <span class="badge ${product.stock === 0 ? 'badge-danger' : 'badge-warning'}">
-                                                ${product.stock} units
-                                            </span>
-                                        </td>
-                                        <td>${formatCurrency(product.price)}</td>
-                                        <td>
-                                            <button class="btn-small btn-accent" onclick="window.showToast('Restocking ${product.name}...')">
-                                                Restock
-                                            </button>
-                                        </td>
-                                    </tr>
-                                `).join('')}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            ` : ''}
-
-            <!-- All Products Inventory -->
+            <!-- Inventory Management -->
             <div class="admin-section">
                 <div class="section-header">
-                    <h3>📦 Full Inventory</h3>
-                    <span class="text-muted">${totalProducts} products</span>
+                    <h3>📦 Inventory Management</h3>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-small btn-accent" onclick="window.bulkAction('restock')">Restock Selected</button>
+                        <button class="btn-small" style="background: var(--danger); color: white;" onclick="window.bulkAction('delete')">Delete Selected</button>
+                    </div>
                 </div>
                 <div class="table-container">
                     <table class="admin-table">
                         <thead>
                             <tr>
+                                <th style="width: 40px;"><input type="checkbox" onclick="window.toggleSelectAll(this)"></th>
                                 <th>Product</th>
                                 <th>Category</th>
                                 <th>Price</th>
                                 <th>Stock</th>
-                                <th>Value</th>
+                                <th>Est. Days Left</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${state.products.map(product => `
                                 <tr>
+                                    <td><input type="checkbox" class="product-checkbox" value="${product.id}"></td>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                                             <img src="${product.image}" style="width: 40px; height: 40px; object-fit: contain; background: #f1f5f9; border-radius: 6px; padding: 4px;">
@@ -759,23 +919,45 @@ const AdminPage = () => {
                                     <td><span class="category-tag">${product.category}</span></td>
                                     <td>${formatCurrency(product.price)}</td>
                                     <td>
-                                        <span class="stock-badge ${product.stock < 10 ? 'low' : ''} ${product.stock === 0 ? 'out' : ''}">
+                                        <span class="stock-badge ${product.stock < 10 ? 'low' : ''} ${product.stock === 0 ? 'out' : ''}" style="${product.stock < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">
                                             ${product.stock}
                                         </span>
                                     </td>
-                                    <td>${formatCurrency(product.price * product.stock)}</td>
+                                    <td>${product.stock > 0 ? Math.floor(product.stock / 2) + ' days' : 'Out of Stock'}</td>
                                     <td>
-                                        <button class="btn-icon" onclick="window.showToast('Editing ${product.name}...')" title="Edit">
-                                            ✏️
-                                        </button>
-                                        <button class="btn-icon danger" onclick="window.deleteProduct(${product.id})" title="Delete">
-                                            🗑️
-                                        </button>
+                                        <button class="btn-icon" onclick="window.showToast('Editing ${product.name}...')" title="Edit">✏️</button>
+                                        <button class="btn-icon danger" onclick="window.deleteProduct(${product.id})" title="Delete">🗑️</button>
                                     </td>
                                 </tr>
                             `).join('')}
                         </tbody>
                     </table>
+                </div>
+            </div>
+            
+            <!-- Customer Insights (New) -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h3>👥 Customer Insights</h3>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <h4>Top Spenders</h4>
+                        <ul style="list-style: none; padding: 0; margin-top: 1rem;">
+                            ${state.users.filter(u => u.role === 'customer').slice(0, 3).map(u => `
+                                <li style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
+                                    <span>${u.name}</span>
+                                    <span style="font-weight: bold; color: var(--primary);">$${(Math.random() * 500 + 100).toFixed(2)}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Geographic Distribution</h4>
+                        <div class="map-widget">
+                            Map Widget Placeholder
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -923,6 +1105,11 @@ window.handleSearchInput = (event) => {
     } else {
         state.searchSuggestions = [];
         state.showSuggestions = false;
+        // When search is cleared, re-render to show default page
+        if (state.route === 'home' || state.route === 'products') {
+            render();
+            return; // Exit early to avoid double render
+        }
     }
 
     // Update suggestions dropdown without full render
@@ -986,7 +1173,7 @@ window.handleSearch = () => {
     if (searchInput) {
         state.searchQuery = searchInput.value.trim();
     }
-    navigate('home');
+    navigate('products');
     // Scroll to products section
     setTimeout(() => {
         const productsSection = document.querySelector('.product-grid');
@@ -1100,6 +1287,163 @@ const render = () => {
         </footer>
     `;
 };
+
+// Cart search handlers - update only cart items, not full page
+window.handleCartSearch = (event) => {
+    state.cartSearchQuery = event.target.value;
+    updateCartItems();
+};
+
+window.clearCartSearch = () => {
+    state.cartSearchQuery = '';
+    updateCartItems();
+};
+
+window.toggleCartItem = (id) => {
+    const item = state.cart.find(i => i.id === id);
+    if (item) {
+        item.selected = item.selected === false ? true : false;
+        saveState();
+        updateCartItems();
+    }
+};
+
+window.toggleFindSimilar = (id) => {
+    const item = state.cart.find(i => i.id === id);
+    if (item) {
+        // Close other dropdowns first (optional, but good UX)
+        state.cart.forEach(i => {
+            if (i.id !== id) i.showSimilar = false;
+        });
+
+        item.showSimilar = !item.showSimilar;
+        saveState();
+        updateCartItems();
+    }
+};
+
+// Update only the cart items display without full re-render
+function updateCartItems() {
+    const cartItemsContainer = document.querySelector('.cart-items');
+    const cartSummaryContainer = document.querySelector('.cart-summary');
+    const searchMessageContainer = document.querySelector('.cart-search-message');
+
+    if (!cartItemsContainer) return;
+
+    // Filter cart items based on search query
+    let displayedCartItems = state.cart;
+    if (state.cartSearchQuery) {
+        displayedCartItems = state.cart.filter(item =>
+            item.name.toLowerCase().includes(state.cartSearchQuery.toLowerCase()) ||
+            item.category.toLowerCase().includes(state.cartSearchQuery.toLowerCase())
+        );
+    }
+
+    // Update cart items
+    cartItemsContainer.innerHTML = displayedCartItems.map(item => {
+        // Find similar products based on category
+        const similarProducts = state.products
+            .filter(p => p.category === item.category && p.id !== item.id)
+            .slice(0, 4); // Show up to 4 similar items
+
+        return `
+        <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
+            <div class="cart-item" style="border-bottom: none;">
+                <input type="checkbox" 
+                    style="width: 20px; height: 20px; margin-right: 1rem; cursor: pointer; accent-color: var(--primary);"
+                    ${item.selected !== false ? 'checked' : ''}
+                    onchange="window.toggleCartItem(${item.id})"
+                >
+                <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
+                <div style="flex: 1;">
+                    <h3 style="font-size: 1rem;">${item.name}</h3>
+                    <p class="text-muted">${formatCurrency(item.price)}</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
+                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                    <span>${item.quantity}</span>
+                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                </div>
+                
+                <div class="cart-item-actions">
+                    <button class="btn-delete" onclick="window.removeFromCart(${item.id})">Delete</button>
+                    <button class="btn-find-similar" onclick="window.toggleFindSimilar(${item.id})">
+                        Find Similar 
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${item.showSimilar ? 'rotate(180deg)' : 'rotate(0deg)'}; transition: transform 0.2s;">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="similar-products-dropdown ${item.showSimilar ? 'show' : ''}">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h4 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Similar Products</h4>
+                    <button onclick="window.toggleFindSimilar(${item.id})" style="background: none; border: none; cursor: pointer;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                ${similarProducts.length > 0 ? `
+                    <div class="similar-products-grid">
+                        ${similarProducts.map(p => `
+                            <div class="similar-product-card" onclick="window.viewProduct(${p.id})">
+                                <img src="${p.image}" alt="${p.name}" class="similar-product-image">
+                                <div class="similar-product-title" title="${p.name}">${p.name}</div>
+                                <div class="similar-product-price">${formatCurrency(p.price)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : '<p class="text-muted text-center">No similar products found.</p>'}
+            </div>
+        </div>
+    `}).join('');
+
+    // Update summary with selected items total
+    if (cartSummaryContainer) {
+        const selectedTotal = state.cart.reduce((acc, item) => acc + (item.selected !== false ? item.price * item.quantity : 0), 0);
+        const selectedCount = state.cart.filter(i => i.selected !== false).length;
+
+        cartSummaryContainer.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
+                <span>Total</span>
+                <span>${formatCurrency(selectedTotal)}</span>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
+                Proceed to Checkout (${selectedCount})
+            </button>
+        `;
+    }
+
+    // Update search message
+    if (searchMessageContainer) {
+        if (state.cartSearchQuery && displayedCartItems.length === 0) {
+            searchMessageContainer.innerHTML = `
+                <p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
+                    No items found for "${state.cartSearchQuery}"
+                </p>
+            `;
+            searchMessageContainer.style.display = 'block';
+        } else {
+            searchMessageContainer.style.display = 'none';
+        }
+    }
+
+    // Update search button icon
+    const searchBtn = document.querySelector('#cartSearchInput + .search-btn');
+    if (searchBtn) {
+        searchBtn.innerHTML = state.cartSearchQuery ? `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        ` : `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+        `;
+    }
+}
 
 // Initial Render
 render();
