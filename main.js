@@ -429,7 +429,7 @@ const CartPage = () => {
             <div class="text-center" style="padding: 4rem;">
                 <h2>Your cart is empty</h2>
                 <p class="text-muted mb-4">Looks like you haven't added anything yet.</p>
-                <button class="btn btn-primary" onclick="window.navigate('home')">Start Shopping</button>
+                <button class="btn btn-primary" onclick="window.navigate('products')">Start Shopping</button>
             </div>
         `;
     }
@@ -437,8 +437,12 @@ const CartPage = () => {
     const total = state.cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
     return `
-        <div class="cart-container">
-            <h2 class="mb-4">Shopping Cart</h2>
+        <div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
+            <button class="btn btn-outline" onclick="window.navigate('products')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
+                ← Continue Shopping
+            </button>
+            <div class="cart-container">
+                <h2 class="mb-4">Shopping Cart</h2>
             <div class="cart-items">
                 ${state.cart.map(item => `
                     <div class="cart-item">
@@ -464,7 +468,9 @@ const CartPage = () => {
                 <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
                     Proceed to Checkout
                 </button>
+
             </div>
+        </div>
         </div>
     `;
 };
