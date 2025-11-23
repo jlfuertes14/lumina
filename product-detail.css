@@ -114,6 +114,7 @@
     font-size: 1.1rem;
     padding: 0.75rem 0;
     -moz-appearance: textfield;
+    appearance: textfield;
 }
 
 .qty-input::-webkit-outer-spin-button,
