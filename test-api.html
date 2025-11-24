@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test - Lumina Electronics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .test-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .test-card h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            margin-bottom: 1rem;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .status.success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧪 API Testing Dashboard</h1>
+
+        <div class="test-grid">
+            <!-- Health Check -->
+            <div class="test-card">
+                <h3>🏥 Health Check</h3>
+                <button onclick="testAPI('/api/health', 'health')">Test Health Endpoint</button>
+                <div id="health-result" class="result"></div>
+            </div>
+
+            <!-- Get All Products -->
+            <div class="test-card">
+                <h3>📦 Get All Products</h3>
+                <button onclick="testAPI('/api/products', 'products')">Fetch Products</button>
+                <div id="products-result" class="result"></div>
+            </div>
+
+            <!-- Get Single Product -->
+            <div class="test-card">
+                <h3>🔍 Get Single Product</h3>
+                <button onclick="testAPI('/api/products/1', 'product')">Get Product #1</button>
+                <div id="product-result" class="result"></div>
+            </div>
+
+            <!-- Search Products -->
+            <div class="test-card">
+                <h3>🔎 Search Products</h3>
+                <button onclick="testAPI('/api/products?search=esp32', 'search')">Search "ESP32"</button>
+                <div id="search-result" class="result"></div>
+            </div>
+
+            <!-- Categories -->
+            <div class="test-card">
+                <h3>🏷️ Get Categories</h3>
+                <button onclick="testAPI('/api/products/meta/categories', 'categories')">Fetch Categories</button>
+                <div id="categories-result" class="result"></div>
+            </div>
+
+            <!-- Low Stock -->
+            <div class="test-card">
+                <h3>⚠️ Low Stock Products</h3>
+                <button onclick="testAPI('/api/products/alerts/low-stock', 'lowstock')">Get Low Stock</button>
+                <div id="lowstock-result" class="result"></div>
+            </div>
+
+            <!-- Dashboard Analytics -->
+            <div class="test-card">
+                <h3>📊 Dashboard Analytics</h3>
+                <button onclick="testAPI('/api/analytics/dashboard', 'dashboard')">Get Dashboard Data</button>
+                <div id="dashboard-result" class="result"></div>
+            </div>
+
+            <!-- Order Stats -->
+            <div class="test-card">
+                <h3>📋 Order Statistics</h3>
+                <button onclick="testAPI('/api/orders/stats/summary', 'orderstats')">Get Order Stats</button>
+                <div id="orderstats--result" class="result"></div>
+            </div>
+
+            <!-- All Orders -->
+            <div class="test-card">
+                <h3>🛒 All Orders</h3>
+                <button onclick="testAPI('/api/orders', 'orders')">Fetch Orders</button>
+                <div id="orders-result" class="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+
+        async function testAPI(endpoint, resultId) {
+            const resultDiv = document.getElementById(`${resultId}-result`);
+            resultDiv.innerHTML = '<div class="status">Loading...</div>';
+
+            try {
+                const response = await fetch(API_BASE + endpoint);
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="status success">✓ Success (${response.status})</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="status error">✗ Error (${response.status})</div>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="status error">✗ Network Error</div>
+                    <pre>${error.message}</pre>
+                    <p style="margin-top: 1rem; color: #e53e3e;">
+                        Make sure the server is running on port 3000:
+                        <code>npm run server</code>
+                    </p>
+                `;
+            }
+        }
+
+        // Auto-test health check on load
+        window.onload = () => {
+            testAPI('/api/health', 'health');
+        };
+    </script>
+</body>
+
+</html>
