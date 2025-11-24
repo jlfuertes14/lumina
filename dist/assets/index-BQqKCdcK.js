@@ -199,7 +199,7 @@
                 ${t.products.filter(r=>s.includes(r.id)).sort((r,o)=>s.indexOf(r.id)-s.indexOf(o.id)).map(f).join("")}
             </div>
         </div>
-    `},D=()=>{let s=[...t.products];switch(t.searchQuery&&(s=s.filter(e=>e.name.toLowerCase().includes(t.searchQuery.toLowerCase())||e.category.toLowerCase().includes(t.searchQuery.toLowerCase())||e.description.toLowerCase().includes(t.searchQuery.toLowerCase()))),t.sortBy){case"price-asc":s.sort((e,r)=>e.price-r.price);break;case"price-desc":s.sort((e,r)=>r.price-e.price);break;case"name-asc":s.sort((e,r)=>e.name.localeCompare(r.name));break;case"name-desc":s.sort((e,r)=>r.name.localeCompare(e.name));break;case"featured":default:s.sort((e,r)=>e.id-r.id);break}return`
+    `},j=()=>{let s=[...t.products];switch(t.searchQuery&&(s=s.filter(e=>e.name.toLowerCase().includes(t.searchQuery.toLowerCase())||e.category.toLowerCase().includes(t.searchQuery.toLowerCase())||e.description.toLowerCase().includes(t.searchQuery.toLowerCase()))),t.sortBy){case"price-asc":s.sort((e,r)=>e.price-r.price);break;case"price-desc":s.sort((e,r)=>r.price-e.price);break;case"name-asc":s.sort((e,r)=>e.name.localeCompare(r.name));break;case"name-desc":s.sort((e,r)=>r.name.localeCompare(e.name));break;case"featured":default:s.sort((e,r)=>e.id-r.id);break}return`
         <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
             <div class="products-header">
                 <div class="breadcrumbs">
@@ -246,7 +246,7 @@
                 ${s.map(f).join("")}
             </div>
         </div>
-    `},j=()=>`
+    `},D=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Welcome Back</h2>
             <form onsubmit="window.handleLogin(event)">
@@ -691,7 +691,7 @@
                     </div>
                 `:""}
             </div>
-        `;s.insertAdjacentHTML("beforeend",r)}}window.showSearchSuggestions=()=>{t.searchQuery&&(t.showSuggestions=!0,S())};window.selectSuggestion=s=>{t.searchQuery=s,t.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=s),handleSearch()};window.handleSearch=()=>{t.showSuggestions=!1;const s=document.getElementById("searchInput");s&&(t.searchQuery=s.value.trim()),g("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{t.searchQuery="",t.showSuggestions=!1,t.searchSuggestions=[],p()};document.addEventListener("click",s=>{if(!s.target.closest(".search-container")&&t.showSuggestions){t.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async s=>{console.log("Login attempt started"),s.preventDefault();const e=s.target.email.value,r=s.target.password.value;console.log("Credentials:",{email:e,password:r});try{await h.login(e,r),console.log("Login successful")}catch(o){console.error("Login error:",o)}};window.handleSignup=async s=>{console.log("Signup attempt started"),s.preventDefault();const e=s.target.name.value,r=s.target.email.value,o=s.target.password.value;try{await h.register(e,r,o)}catch(i){console.error("Signup error:",i)}};window.logout=()=>{t.currentUser=null,t.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),l("Logged out successfully"),g("home")};window.deleteProduct=s=>{confirm("Are you sure you want to remove this product?")&&(t.products=t.products.filter(e=>e.id!==s),v(),p(),l("Product removed"))};window.viewOrderDetails=s=>{console.log("viewOrderDetails called with ID:",s);const e=t.orders.find(c=>c.orderId===s);if(console.log("Found order:",e),!e){console.error("Order not found in state.orders:",t.orders),l("Order not found");return}const r=t.users.find(c=>c.id===e.userId),o=r?r.name:`User ID: ${e.userId}`,i=document.createElement("div");i.className="order-details-modal",i.innerHTML=`
+        `;s.insertAdjacentHTML("beforeend",r)}}window.showSearchSuggestions=()=>{t.searchQuery&&(t.showSuggestions=!0,S())};window.selectSuggestion=s=>{t.searchQuery=s,t.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=s),handleSearch()};window.handleSearch=()=>{t.showSuggestions=!1;const s=document.getElementById("searchInput");s&&(t.searchQuery=s.value.trim()),g("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{t.searchQuery="",t.showSuggestions=!1,t.searchSuggestions=[],p()};document.addEventListener("click",s=>{if(!s.target.closest(".search-container")&&t.showSuggestions){t.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async s=>{console.log("Login attempt started"),s.preventDefault();const e=s.target.email.value,r=s.target.password.value;console.log("Credentials:",{email:e,password:r});try{await h.login(e,r),console.log("Login successful")}catch(o){console.error("Login error:",o)}};window.handleSignup=async s=>{console.log("Signup attempt started"),s.preventDefault();const e=s.target.name.value,r=s.target.email.value,o=s.target.password.value;try{await h.register(e,r,o)}catch(i){console.error("Signup error:",i)}};window.logout=()=>{t.currentUser=null,t.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),l("Logged out successfully"),g("home")};window.deleteProduct=s=>{confirm("Are you sure you want to remove this product?")&&(t.products=t.products.filter(e=>e.id!==s),v(),p(),l("Product removed"))};window.viewOrderDetails=s=>{const e=t.orders.find(c=>c.orderId===s);if(!e){l("Order not found");return}const r=t.users.find(c=>c.id===e.userId),o=r?r.name:`User ID: ${e.userId}`,i=document.createElement("div");i.className="order-details-modal",i.innerHTML=`
         <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -739,7 +739,7 @@
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(i);const n=c=>{c.key==="Escape"&&(i.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const p=()=>{const s=document.getElementById("app");let e="";switch(t.route){case"home":e=x();break;case"products":e=D();break;case"product-detail":e=O();break;case"login":e=j();break;case"signup":e=A();break;case"cart":e=T();break;case"admin":e=q();break;default:e=x()}s.innerHTML=`
+    `,document.body.appendChild(i);const n=c=>{c.key==="Escape"&&(i.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const p=()=>{const s=document.getElementById("app");let e="";switch(t.route){case"home":e=x();break;case"products":e=j();break;case"product-detail":e=O();break;case"login":e=D();break;case"signup":e=A();break;case"cart":e=T();break;case"admin":e=q();break;default:e=x()}s.innerHTML=`
         ${Q()}
         <main>
             ${e}
