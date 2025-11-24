@@ -46,6 +46,7 @@ const api = {
             navigate('home');
         } catch (error) {
             showToast(error.message || 'Login failed');
+            throw error; // Re-throw to handle in caller
         }
     },
 
@@ -61,6 +62,7 @@ const api = {
             navigate('home');
         } catch (error) {
             showToast(error.message || 'Registration failed');
+            throw error; // Re-throw to handle in caller
         }
     },
 

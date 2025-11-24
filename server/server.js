@@ -9,15 +9,9 @@ const cors = require('cors');
 
 const app = express();
 
-// Middleware - CORS configuration for GitHub Pages
 app.use(cors({
-    origin: [
-        'http://localhost:5173',  // Vite dev server
-        'http://localhost:5174',  // Alternative port
-        'http://localhost:3000',  // Local testing
-        'https://jlfuertes14.github.io'  // GitHub Pages production
-    ],
-    credentials: true,
+    origin: '*', // Allow all origins for debugging
+    // credentials: true, // Not needed since we aren't using cookies yet
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
