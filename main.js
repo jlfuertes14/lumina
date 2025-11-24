@@ -1141,6 +1141,7 @@ window.checkout = async () => {
     }
 
     const orderData = {
+        userId: state.currentUser.id,
         items: selectedItems.map(item => ({
             productId: item.id,
             quantity: item.quantity,
