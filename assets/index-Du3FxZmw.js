@@ -453,7 +453,7 @@
                     <div class="admin-section">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">💳 Payment Method</h2>
                         <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem;">
-                            ${[{id:"cod",label:"Cash on Delivery",image:"/images/payment/cod.png"},{id:"gcash",label:"GCash",image:"/images/payment/gcash.png"},{id:"maya",label:"Maya",image:"/images/payment/maya.png"},{id:"card",label:"Credit/Debit Card",image:"/images/payment/card.png"},{id:"bank",label:"Bank Transfer",image:"/images/payment/bank.png"}].map(a=>`
+                            ${[{id:"cod",label:"Cash on Delivery",image:"images/payment/cod.png"},{id:"gcash",label:"GCash",image:"images/payment/gcash.png"},{id:"maya",label:"Maya",image:"images/payment/maya.png"},{id:"card",label:"Credit/Debit Card",image:"images/payment/card.png"},{id:"bank",label:"Bank Transfer",image:"images/payment/bank.png"}].map(a=>`
                                 <div class="payment-method-card" onclick="window.selectPaymentMethod('${a.id}')" style="padding: 0.75rem; border: 2px solid ${e.checkoutData.paymentMethod===a.id?"var(--primary)":"var(--border)"}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${e.checkoutData.paymentMethod===a.id?"rgba(0, 43, 91, 0.05)":"var(--surface)"};">
                                     <div style="height: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
                                         <img src="${a.image}" alt="${a.label}" style="max-width: 100%; max-height: 48px; object-fit: contain;">
