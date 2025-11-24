@@ -963,7 +963,7 @@ const AdminPage = () => {
                                             </select>
                                         </td>
                                         <td>
-                                            <button class="btn-icon view-order-btn" data-order-id="${order.orderId}" title="Quick View">👁️</button>
+                                            <button class="btn-icon" onclick="window.viewOrderDetails('${order.orderId}')" title="Quick View">👁️</button>
                                         </td>
                                     </tr>
                                 `;
@@ -972,19 +972,6 @@ const AdminPage = () => {
                     </table>
                 </div>
             </div>
-            
-            <script>
-            // Attach event listeners to view order buttons after render
-            setTimeout(() => {
-                document.querySelectorAll('.view-order-btn').forEach(btn => {
-                    btn.onclick = (e) => {
-                        e.preventDefault();
-                        const orderId = btn.getAttribute('data-order-id');
-                        window.viewOrderDetails(orderId);
-                    };
-                });
-            }, 100);
-            </script>
 
             <!-- Inventory Management -->
             <div class="admin-section">
