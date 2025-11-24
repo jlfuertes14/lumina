@@ -1886,7 +1886,7 @@ header {
     border-radius: var(--radius-md);
     width: 90%;
     max-width: 500px;
-    max-height: 70vh;
+    max-height: 40vh;
     overflow-y: auto;
     transform: translateY(20px);
     transition: transform 0.2s;
