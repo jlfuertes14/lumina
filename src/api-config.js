@@ -5,7 +5,7 @@
 // IMPORTANT: Replace 'YOUR-BACKEND-URL-HERE' with your actual deployed backend URL
 // after deploying to Railway or Render
 
-const PRODUCTION_API_URL = 'YOUR-BACKEND-URL-HERE';  // e.g., 'https://lumina-backend.railway.app'
+const PRODUCTION_API_URL = 'https://lumina-production-a4bb.up.railway.app';  // Railway backend
 const LOCAL_API_URL = 'http://localhost:3000';
 
 // Auto-detect environment
