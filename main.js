@@ -1,27 +1,102 @@
-import { products as initialProducts, users as initialUsers, orders as initialOrders } from './src/data.js';
+import { API_BASE_URL, apiCall } from './src/api-config.js';
 
 // --- State Management ---
 const state = {
-    products: JSON.parse(localStorage.getItem('products_v2')) || initialProducts,
-    users: JSON.parse(localStorage.getItem('users_v2')) || initialUsers,
-    orders: JSON.parse(localStorage.getItem('orders')) || initialOrders,
+    products: [], // Will be fetched from API
+    users: [], // Will be fetched from API (admin only)
+    orders: [], // Will be fetched from API
     currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
     cart: JSON.parse(localStorage.getItem('cart_v2')) || [],
-    route: 'home', // home, login, signup, cart, admin, checkout, product-detail, products
-    searchQuery: '', // search functionality
-    showSuggestions: false, // show/hide suggestions dropdown
-    searchSuggestions: [], // current search suggestions
-    currentProductId: null, // for product detail page
-    sortBy: 'featured', // featured, price-asc, price-desc, name-asc, name-desc
-    filterCategory: null, // null or category string
-    cartSearchQuery: '' // search within cart items
+    route: 'home',
+    searchQuery: '',
+    showSuggestions: false,
+    searchSuggestions: [],
+    currentProductId: null,
+    sortBy: 'featured',
+    filterCategory: null,
+    cartSearchQuery: '',
+    isLoading: false
+};
+
+// --- API Actions ---
+const api = {
+    // Products
+    getProducts: async () => {
+        try {
+            const response = await apiCall('/products');
+            state.products = response.data;
+            render();
+        } catch (error) {
+            console.error('Failed to load products:', error);
+            showToast('Failed to load products');
+        }
+    },
+
+    // Auth
+    login: async (email, password) => {
+        try {
+            const response = await apiCall('/users/login', {
+                method: 'POST',
+                body: JSON.stringify({ email, password })
+            });
+            state.currentUser = response.data;
+            localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
+            showToast(`Welcome back, ${state.currentUser.name}!`);
+            navigate('home');
+        } catch (error) {
+            showToast(error.message || 'Login failed');
+        }
+    },
+
+    register: async (name, email, password) => {
+        try {
+            const response = await apiCall('/users/register', {
+                method: 'POST',
+                body: JSON.stringify({ name, email, password })
+            });
+            state.currentUser = response.data;
+            localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
+            showToast('Account created successfully!');
+            navigate('home');
+        } catch (error) {
+            showToast(error.message || 'Registration failed');
+        }
+    },
+
+    // Orders
+    createOrder: async (orderData) => {
+        try {
+            const response = await apiCall('/orders', {
+                method: 'POST',
+                body: JSON.stringify(orderData)
+            });
+            state.cart = [];
+            saveState();
+            showToast('Order placed successfully!');
+            // Refresh orders if we're admin or viewing history
+            if (state.currentUser.role === 'admin') api.getOrders();
+            return response.data;
+        } catch (error) {
+            showToast(error.message || 'Failed to place order');
+            throw error;
+        }
+    },
+
+    getOrders: async () => {
+        if (!state.currentUser || state.currentUser.role !== 'admin') return;
+        try {
+            const response = await apiCall('/orders');
+            state.orders = response.data;
+            render();
+        } catch (error) {
+            console.error('Failed to load orders:', error);
+        }
+    }
 };
 
 // --- Utilities ---
 const saveState = () => {
-    localStorage.setItem('products_v2', JSON.stringify(state.products));
-    localStorage.setItem('users_v2', JSON.stringify(state.users));
-    localStorage.setItem('orders', JSON.stringify(state.orders));
+    // Only save cart and user session locally
     localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
     localStorage.setItem('cart_v2', JSON.stringify(state.cart));
 };
@@ -1048,23 +1123,36 @@ window.removeFromCart = (productId) => {
     render();
 };
 
-window.checkout = () => {
+window.checkout = async () => {
     if (state.cart.length === 0) return;
+    if (!state.currentUser) {
+        showToast('Please login to checkout');
+        navigate('login');
+        return;
+    }
 
-    const order = {
-        id: `ORD-${Date.now().toString().slice(-6)}`,
-        userId: state.currentUser.id,
-        date: new Date().toISOString().split('T')[0],
-        total: state.cart.reduce((acc, item) => acc + (item.price * item.quantity), 0),
-        status: 'Completed',
-        items: state.cart.map(item => ({ productId: item.id, quantity: item.quantity }))
+    const selectedItems = state.cart.filter(item => item.selected !== false);
+    if (selectedItems.length === 0) {
+        showToast('No items selected for checkout');
+        return;
+    }
+
+    const orderData = {
+        items: selectedItems.map(item => ({
+            productId: item.id,
+            quantity: item.quantity,
+            price: item.price,
+            name: item.name
+        })),
+        total: selectedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0)
     };
 
-    state.orders.unshift(order);
-    state.cart = [];
-    saveState();
-    showToast('Order placed successfully!');
-    navigate('home');
+    try {
+        await api.createOrder(orderData);
+        navigate('home');
+    } catch (error) {
+        // Error handled in api.createOrder
+    }
 };
 
 // Advanced Search functionality with suggestions (optimized to not lose focus)
@@ -1202,53 +1290,27 @@ document.addEventListener('click', (e) => {
     }
 });
 
-window.handleLogin = (e) => {
+window.handleLogin = async (e) => {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
-
-    const user = state.users.find(u => u.email === email && u.password === password);
-
-    if (user) {
-        state.currentUser = user;
-        saveState();
-        showToast(`Welcome back, ${user.name}`);
-        navigate(user.role === 'admin' ? 'admin' : 'home');
-    } else {
-        showToast('Invalid credentials');
-    }
+    await api.login(email, password);
 };
 
-window.handleSignup = (e) => {
+window.handleSignup = async (e) => {
     e.preventDefault();
     const name = e.target.name.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
-
-    if (state.users.find(u => u.email === email)) {
-        showToast('Email already exists');
-        return;
-    }
-
-    const newUser = {
-        id: state.users.length + 1,
-        name,
-        email,
-        password,
-        role: 'customer'
-    };
-
-    state.users.push(newUser);
-    state.currentUser = newUser;
-    saveState();
-    showToast('Account created successfully');
-    navigate('home');
+    await api.register(name, email, password);
 };
 
 window.logout = () => {
     state.currentUser = null;
     state.cart = [];
-    saveState();
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('cart_v2');
+    showToast('Logged out successfully');
     navigate('home');
 };
 
@@ -1445,5 +1507,14 @@ function updateCartItems() {
     }
 }
 
+// --- App Initialization ---
+const initApp = async () => {
+    await api.getProducts();
+    if (state.currentUser?.role === 'admin') {
+        await api.getOrders();
+    }
+    render();
+};
+
 // Initial Render
-render();
+initApp();
