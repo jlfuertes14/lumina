@@ -1350,6 +1350,81 @@ window.deleteProduct = (productId) => {
     }
 };
 
+window.viewOrderDetails = (orderId) => {
+    const order = state.orders.find(o => o.orderId === orderId);
+    if (!order) {
+        showToast('Order not found');
+        return;
+    }
+
+    const customer = state.users.find(u => u.id === order.userId);
+    const customerName = customer ? customer.name : `User ID: ${order.userId}`;
+
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'order-details-modal';
+    modal.innerHTML = `
+        <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Order Details</h2>
+                <button class="modal-close" onclick="this.closest('.order-details-modal').remove()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="order-info">
+                    <div class="info-row">
+                        <span class="info-label">Order ID:</span>
+                        <span class="info-value"><strong>#${order.orderId}</strong></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Customer:</span>
+                        <span class="info-value">${customerName}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Date:</span>
+                        <span class="info-value">${new Date(order.createdAt).toLocaleString()}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value">
+                            <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <h3 style="margin: 1.5rem 0 1rem 0; color: var(--primary);">Items Ordered</h3>
+                <div class="order-items-list">
+                    ${order.items.map(item => `
+                        <div class="order-item-row">
+                            <div class="item-details">
+                                <div class="item-name">${item.productName || 'Product ID: ' + item.productId}</div>
+                                <div class="item-meta">Quantity: ${item.quantity} × ${formatCurrency(item.price)}</div>
+                            </div>
+                            <div class="item-total">${formatCurrency(item.price * item.quantity)}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="order-total">
+                    <span>Total Amount:</span>
+                    <span class="total-amount">${formatCurrency(order.total)}</span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Close on Escape key
+    const handleEscape = (e) => {
+        if (e.key === 'Escape') {
+            modal.remove();
+            document.removeEventListener('keydown', handleEscape);
+        }
+    };
+    document.addEventListener('keydown', handleEscape);
+};
+
 // --- Render ---
 const render = () => {
     const app = document.getElementById('app');
