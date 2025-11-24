@@ -34,6 +34,7 @@ const api = {
 
     // Auth
     login: async (email, password) => {
+        console.log('Calling API login...');
         try {
             const response = await apiCall('/users/login', {
                 method: 'POST',
@@ -1291,18 +1292,30 @@ document.addEventListener('click', (e) => {
 });
 
 window.handleLogin = async (e) => {
+    console.log('Login attempt started');
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
-    await api.login(email, password);
+    console.log('Credentials:', { email, password });
+    try {
+        await api.login(email, password);
+        console.log('Login successful');
+    } catch (err) {
+        console.error('Login error:', err);
+    }
 };
 
 window.handleSignup = async (e) => {
+    console.log('Signup attempt started');
     e.preventDefault();
     const name = e.target.name.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
-    await api.register(name, email, password);
+    try {
+        await api.register(name, email, password);
+    } catch (err) {
+        console.error('Signup error:', err);
+    }
 };
 
 window.logout = () => {
