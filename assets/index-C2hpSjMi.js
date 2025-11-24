@@ -1,4 +1,4 @@
-(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const i of document.querySelectorAll('link[rel="modulepreload"]'))o(i);new MutationObserver(i=>{for(const n of i)if(n.type==="childList")for(const c of n.addedNodes)c.tagName==="LINK"&&c.rel==="modulepreload"&&o(c)}).observe(document,{childList:!0,subtree:!0});function r(i){const n={};return i.integrity&&(n.integrity=i.integrity),i.referrerPolicy&&(n.referrerPolicy=i.referrerPolicy),i.crossOrigin==="use-credentials"?n.credentials="include":i.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function o(i){if(i.ep)return;i.ep=!0;const n=r(i);fetch(i.href,n)}})();const L="https://lumina-production-a4bb.up.railway.app",I="http://localhost:3000",k=window.location.hostname==="jlfuertes14.github.io",$=k?`${L}/api`:`${I}/api`;async function y(s,e={}){const r=`${$}${s}`;try{const o=await fetch(r,{...e,headers:{"Content-Type":"application/json",...e.headers}}),i=await o.json();if(!o.ok)throw new Error(i.error||i.message||"API request failed");return i}catch(o){throw console.error("API Error:",o),o}}console.log(`🌍 Environment: ${k?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${$}`);const t={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:"home",searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1},h={getProducts:async()=>{try{const s=await y("/products");t.products=s.data,p()}catch(s){console.error("Failed to load products:",s),d("Failed to load products")}},login:async(s,e)=>{console.log("Calling API login...");try{const r=await y("/users/login",{method:"POST",body:JSON.stringify({email:s,password:e})});t.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),d(`Welcome back, ${t.currentUser.name}!`),g("home")}catch(r){throw d(r.message||"Login failed"),r}},register:async(s,e,r)=>{try{const o=await y("/users/register",{method:"POST",body:JSON.stringify({name:s,email:e,password:r})});t.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),d("Account created successfully!"),g("home")}catch(o){throw d(o.message||"Registration failed"),o}},createOrder:async s=>{try{const e=await y("/orders",{method:"POST",body:JSON.stringify(s)});return t.cart=[],v(),d("Order placed successfully!"),t.currentUser.role==="admin"&&h.getOrders(),e.data}catch(e){throw d(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!t.currentUser||t.currentUser.role!=="admin"))try{const s=await y("/orders");t.orders=s.data,p()}catch(s){console.error("Failed to load orders:",s)}},getUsers:async()=>{if(!(!t.currentUser||t.currentUser.role!=="admin"))try{const s=await y("/users");t.users=s.data,p()}catch(s){console.error("Failed to load users:",s)}}},v=()=>{localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(t.cart))},l=s=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(s),d=s=>{const e=document.createElement("div");e.className="toast",e.textContent=s,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)},g=s=>{t.route=s,p(),window.scrollTo(0,0)},Q=()=>{const s=t.cart.reduce((i,n)=>i+n.quantity,0),e=!!t.currentUser,r=t.currentUser?.role==="admin";return`
+(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const i of document.querySelectorAll('link[rel="modulepreload"]'))o(i);new MutationObserver(i=>{for(const n of i)if(n.type==="childList")for(const c of n.addedNodes)c.tagName==="LINK"&&c.rel==="modulepreload"&&o(c)}).observe(document,{childList:!0,subtree:!0});function r(i){const n={};return i.integrity&&(n.integrity=i.integrity),i.referrerPolicy&&(n.referrerPolicy=i.referrerPolicy),i.crossOrigin==="use-credentials"?n.credentials="include":i.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function o(i){if(i.ep)return;i.ep=!0;const n=r(i);fetch(i.href,n)}})();const L="https://lumina-production-a4bb.up.railway.app",I="http://localhost:3000",k=window.location.hostname==="jlfuertes14.github.io",$=k?`${L}/api`:`${I}/api`;async function y(s,e={}){const r=`${$}${s}`;try{const o=await fetch(r,{...e,headers:{"Content-Type":"application/json",...e.headers}}),i=await o.json();if(!o.ok)throw new Error(i.error||i.message||"API request failed");return i}catch(o){throw console.error("API Error:",o),o}}console.log(`🌍 Environment: ${k?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${$}`);const t={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:"home",searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1},h={getProducts:async()=>{try{const s=await y("/products");t.products=s.data,p()}catch(s){console.error("Failed to load products:",s),l("Failed to load products")}},login:async(s,e)=>{console.log("Calling API login...");try{const r=await y("/users/login",{method:"POST",body:JSON.stringify({email:s,password:e})});t.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),l(`Welcome back, ${t.currentUser.name}!`),g("home")}catch(r){throw l(r.message||"Login failed"),r}},register:async(s,e,r)=>{try{const o=await y("/users/register",{method:"POST",body:JSON.stringify({name:s,email:e,password:r})});t.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),l("Account created successfully!"),g("home")}catch(o){throw l(o.message||"Registration failed"),o}},createOrder:async s=>{try{const e=await y("/orders",{method:"POST",body:JSON.stringify(s)});return t.cart=[],v(),l("Order placed successfully!"),t.currentUser.role==="admin"&&h.getOrders(),e.data}catch(e){throw l(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!t.currentUser||t.currentUser.role!=="admin"))try{const s=await y("/orders");t.orders=s.data,p()}catch(s){console.error("Failed to load orders:",s)}},getUsers:async()=>{if(!(!t.currentUser||t.currentUser.role!=="admin"))try{const s=await y("/users");t.users=s.data,p()}catch(s){console.error("Failed to load users:",s)}}},v=()=>{localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(t.cart))},d=s=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(s),l=s=>{const e=document.createElement("div");e.className="toast",e.textContent=s,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)},g=s=>{t.route=s,p(),window.scrollTo(0,0)},Q=()=>{const s=t.cart.reduce((i,n)=>i+n.quantity,0),e=!!t.currentUser,r=t.currentUser?.role==="admin";return`
         <header>
             <div class="header-top">
                 <a href="#" class="logo" onclick="window.navigate('home'); return false;">
@@ -84,7 +84,7 @@
             <div class="product-info">
                 <div class="product-category">${s.category}</div>
                 <h3 class="product-title">${s.name}</h3>
-                <div class="product-price">${l(s.price)}</div>
+                <div class="product-price">${d(s.price)}</div>
                 <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${s.id})">
                     Add to Cart
                 </button>
@@ -106,7 +106,7 @@
                 <div class="product-details-info">
                     <div class="product-sku">SKU: LUM-${s.id.toString().padStart(4,"0")}</div>
                     <h1 class="detail-title">${s.name}</h1>
-                    <div class="detail-price">${l(s.price)}</div>
+                    <div class="detail-price">${d(s.price)}</div>
 
                     <div class="detail-section">
                         <span class="detail-label">Description</span>
@@ -199,7 +199,7 @@
                 ${t.products.filter(r=>s.includes(r.id)).sort((r,o)=>s.indexOf(r.id)-s.indexOf(o.id)).map(f).join("")}
             </div>
         </div>
-    `},A=()=>{let s=[...t.products];switch(t.searchQuery&&(s=s.filter(e=>e.name.toLowerCase().includes(t.searchQuery.toLowerCase())||e.category.toLowerCase().includes(t.searchQuery.toLowerCase())||e.description.toLowerCase().includes(t.searchQuery.toLowerCase()))),t.sortBy){case"price-asc":s.sort((e,r)=>e.price-r.price);break;case"price-desc":s.sort((e,r)=>r.price-e.price);break;case"name-asc":s.sort((e,r)=>e.name.localeCompare(r.name));break;case"name-desc":s.sort((e,r)=>r.name.localeCompare(e.name));break;case"featured":default:s.sort((e,r)=>e.id-r.id);break}return`
+    `},D=()=>{let s=[...t.products];switch(t.searchQuery&&(s=s.filter(e=>e.name.toLowerCase().includes(t.searchQuery.toLowerCase())||e.category.toLowerCase().includes(t.searchQuery.toLowerCase())||e.description.toLowerCase().includes(t.searchQuery.toLowerCase()))),t.sortBy){case"price-asc":s.sort((e,r)=>e.price-r.price);break;case"price-desc":s.sort((e,r)=>r.price-e.price);break;case"name-asc":s.sort((e,r)=>e.name.localeCompare(r.name));break;case"name-desc":s.sort((e,r)=>r.name.localeCompare(e.name));break;case"featured":default:s.sort((e,r)=>e.id-r.id);break}return`
         <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
             <div class="products-header">
                 <div class="breadcrumbs">
@@ -246,7 +246,7 @@
                 ${s.map(f).join("")}
             </div>
         </div>
-    `},D=()=>`
+    `},j=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Welcome Back</h2>
             <form onsubmit="window.handleLogin(event)">
@@ -264,7 +264,7 @@
                 Don't have an account? <a href="#" onclick="window.navigate('signup'); return false;" style="color: var(--accent)">Sign up</a>
             </p>
         </div>
-    `,j=()=>`
+    `,A=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Create Account</h2>
             <form onsubmit="window.handleSignup(event)">
@@ -350,7 +350,7 @@
                             <img src="${e.image}" alt="${e.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                             <div style="flex: 1;">
                                 <h3 style="font-size: 1rem;">${e.name}</h3>
-                                <p class="text-muted">${l(e.price)}</p>
+                                <p class="text-muted">${d(e.price)}</p>
                             </div>
                             <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
                                 <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${e.id}, ${e.quantity-1})">-</button>
@@ -382,7 +382,7 @@
                                         <div class="similar-product-card" onclick="window.viewProduct(${o.id})">
                                             <img src="${o.image}" alt="${o.name}" class="similar-product-image">
                                             <div class="similar-product-title" title="${o.name}">${o.name}</div>
-                                            <div class="similar-product-price">${l(o.price)}</div>
+                                            <div class="similar-product-price">${d(o.price)}</div>
                                         </div>
                                     `).join("")}
                                 </div>
@@ -394,7 +394,7 @@
             <div class="cart-summary">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                     <span>Total</span>
-                    <span>${l(t.cart.reduce((e,r)=>e+(r.selected!==!1?r.price*r.quantity:0),0))}</span>
+                    <span>${d(t.cart.reduce((e,r)=>e+(r.selected!==!1?r.price*r.quantity:0),0))}</span>
                 </div>
                 <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
                     Proceed to Checkout (${t.cart.filter(e=>e.selected!==!1).length})
@@ -403,7 +403,7 @@
             </div>
         </div>
         </div>
-    `};window.updateOrderStatus=(s,e)=>{const r=t.orders.find(o=>o.id===s);r&&(r.status=e,v(),d(`Order #${s} updated to ${e}`),p())};window.toggleSelectAll=s=>{document.querySelectorAll(".product-checkbox").forEach(r=>r.checked=s.checked)};window.bulkAction=s=>{const e=document.querySelectorAll(".product-checkbox:checked"),r=Array.from(e).map(o=>parseInt(o.value));if(r.length===0){d("No products selected");return}s==="delete"?confirm(`Delete ${r.length} products?`)&&(t.products=t.products.filter(o=>!r.includes(o.id)),v(),p(),d("Products deleted")):s==="restock"&&(t.products.forEach(o=>{r.includes(o.id)&&(o.stock+=10)}),v(),p(),d("Products restocked"))};window.viewOrderDetails=s=>{const e=t.orders.find(i=>i.id===s);if(!e)return;const r=t.users.find(i=>i.id===e.userId),o=`
+    `};window.updateOrderStatus=(s,e)=>{const r=t.orders.find(o=>o.id===s);r&&(r.status=e,v(),l(`Order #${s} updated to ${e}`),p())};window.toggleSelectAll=s=>{document.querySelectorAll(".product-checkbox").forEach(r=>r.checked=s.checked)};window.bulkAction=s=>{const e=document.querySelectorAll(".product-checkbox:checked"),r=Array.from(e).map(o=>parseInt(o.value));if(r.length===0){l("No products selected");return}s==="delete"?confirm(`Delete ${r.length} products?`)&&(t.products=t.products.filter(o=>!r.includes(o.id)),v(),p(),l("Products deleted")):s==="restock"&&(t.products.forEach(o=>{r.includes(o.id)&&(o.stock+=10)}),v(),p(),l("Products restocked"))};window.viewOrderDetails=s=>{const e=t.orders.find(i=>i.id===s);if(!e)return;const r=t.users.find(i=>i.id===e.userId),o=`
         <div class="modal-overlay show" id="orderModal" onclick="if(event.target === this) window.closeModal()">
             <div class="modal-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -428,13 +428,13 @@
                             <tr style="border-bottom: 1px solid var(--border);">
                                 <td style="padding: 0.5rem;">${i.name}</td>
                                 <td style="padding: 0.5rem;">${i.quantity}</td>
-                                <td style="padding: 0.5rem;">${l(i.price)}</td>
+                                <td style="padding: 0.5rem;">${d(i.price)}</td>
                             </tr>
                         `).join("")}
                     </tbody>
                 </table>
                 <div style="text-align: right; font-size: 1.25rem; font-weight: bold;">
-                    Total: ${l(e.total)}
+                    Total: ${d(e.total)}
                 </div>
             </div>
         </div>
@@ -467,7 +467,7 @@
                     </div>
                     <div class="chart-container">
                         ${m.map(a=>`
-                            <div class="chart-bar" style="height: ${a/C*100}%" data-value="${l(a)}"></div>
+                            <div class="chart-bar" style="height: ${a/C*100}%" data-value="${d(a)}"></div>
                         `).join("")}
                     </div>
                 </div>
@@ -499,7 +499,7 @@
                                 <div style="flex: 1;">
                                     <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
                                         <span>${a.name}</span>
-                                        <span>${l(a.price)}</span>
+                                        <span>${d(a.price)}</span>
                                     </div>
                                     <div class="progress-bar-bg">
                                         <div class="progress-bar-fill" style="width: ${Math.random()*40+60}%"></div>
@@ -517,7 +517,7 @@
                     <div class="metric-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">💰</div>
                     <div class="metric-content">
                         <div class="metric-label">Total Revenue</div>
-                        <div class="metric-value">${l(s)}</div>
+                        <div class="metric-value">${d(s)}</div>
                         <div class="metric-change positive">+15.3%</div>
                     </div>
                 </div>
@@ -541,7 +541,7 @@
                     <div class="metric-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">📊</div>
                     <div class="metric-content">
                         <div class="metric-label">Avg. Order Value</div>
-                        <div class="metric-value">${l(n)}</div>
+                        <div class="metric-value">${d(n)}</div>
                         <div class="metric-change positive">+5.2%</div>
                     </div>
                 </div>
@@ -581,7 +581,7 @@
                                         <td>${new Date(a.createdAt).toLocaleDateString()}</td>
                                         <td>${w?w.name:"Unknown (ID: "+a.userId+")"}</td>
                                         <td>${a.items.length} items</td>
-                                        <td><strong>${l(a.total)}</strong></td>
+                                        <td><strong>${d(a.total)}</strong></td>
                                         <td>
                                             <select class="status-select" onchange="window.updateOrderStatus('${a.orderId}', this.value)">
                                                 <option value="Pending" ${a.status==="Pending"?"selected":""}>Pending</option>
@@ -590,7 +590,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <button class="btn-icon view-order-btn" data-order-id="${a.orderId}" title="Quick View">👁️</button>
+                                            <button class="btn-icon" onclick="window.viewOrderDetails('${a.orderId}')" title="Quick View">👁️</button>
                                         </td>
                                     </tr>
                                 `}).join(""):'<tr><td colspan="7" class="text-center text-muted">No orders yet</td></tr>'}
@@ -598,19 +598,6 @@
                     </table>
                 </div>
             </div>
-            
-            <script>
-            // Attach event listeners to view order buttons after render
-            setTimeout(() => {
-                document.querySelectorAll('.view-order-btn').forEach(btn => {
-                    btn.onclick = (e) => {
-                        e.preventDefault();
-                        const orderId = btn.getAttribute('data-order-id');
-                        window.viewOrderDetails(orderId);
-                    };
-                });
-            }, 100);
-            <\/script>
 
             <!-- Inventory Management -->
             <div class="admin-section">
@@ -645,7 +632,7 @@
                                         </div>
                                     </td>
                                     <td><span class="category-tag">${a.category}</span></td>
-                                    <td>${l(a.price)}</td>
+                                    <td>${d(a.price)}</td>
                                     <td>
                                         <span class="stock-badge ${a.stock<10?"low":""} ${a.stock===0?"out":""}" style="${a.stock<10?"color: var(--danger); font-weight: bold;":""}">
                                             ${a.stock}
@@ -689,7 +676,7 @@
                 </div>
             </div>
         </div>
-    `};window.navigate=g;window.handleSort=s=>{t.sortBy=s,p()};window.viewProduct=s=>{t.currentProductId=s,g("product-detail")};window.adjustDetailQty=s=>{const e=document.getElementById("detailQty");let r=parseInt(e.value)+s;r<1&&(r=1),e.value=r};window.addToCartFromDetail=s=>{const e=parseInt(document.getElementById("detailQty").value);if(!t.currentUser){d("Please login to shop"),g("login");return}const r=t.products.find(i=>i.id===s),o=t.cart.find(i=>i.id===s);o?o.quantity+=e:t.cart.push({...r,quantity:e}),v(),d(`Added ${e} item(s) to cart`)};window.addToCart=s=>{if(!t.currentUser){d("Please login to shop"),g("login");return}const e=t.products.find(o=>o.id===s),r=t.cart.find(o=>o.id===s);r?r.quantity+=1:t.cart.push({...e,quantity:1}),v(),p(),d("Added to cart")};window.updateQuantity=(s,e)=>{if(e<1){window.removeFromCart(s);return}const r=t.cart.find(o=>o.id===s);r&&(r.quantity=e,v(),p())};window.removeFromCart=s=>{t.cart=t.cart.filter(e=>e.id!==s),v(),p()};window.checkout=async()=>{if(t.cart.length===0)return;if(!t.currentUser){d("Please login to checkout"),g("login");return}const s=t.cart.filter(r=>r.selected!==!1);if(s.length===0){d("No items selected for checkout");return}const e={userId:t.currentUser.id,items:s.map(r=>({productId:r.id,quantity:r.quantity,price:r.price,name:r.name})),total:s.reduce((r,o)=>r+o.price*o.quantity,0)};try{await h.createOrder(e),g("home")}catch{}};window.handleSearchInput=s=>{const e=s.target.value;if(t.searchQuery=e,e.trim()){const r=new Set;t.products.forEach(o=>{const i=o.name.toLowerCase(),n=o.category.toLowerCase(),c=e.toLowerCase();i.includes(c)&&r.add(o.name),n.includes(c)&&r.add(o.category),i.split(" ").forEach(m=>{m.toLowerCase().startsWith(c)&&m.length>2&&r.add(m.charAt(0).toUpperCase()+m.slice(1))})}),t.searchSuggestions=Array.from(r).slice(0,8),t.showSuggestions=!0}else if(t.searchSuggestions=[],t.showSuggestions=!1,t.route==="home"||t.route==="products"){p();return}S()};function S(){const s=document.querySelector(".search-container");if(!s)return;const e=s.querySelector(".search-suggestions");if(e&&e.remove(),t.showSuggestions&&t.searchQuery){const r=`
+    `};window.navigate=g;window.handleSort=s=>{t.sortBy=s,p()};window.viewProduct=s=>{t.currentProductId=s,g("product-detail")};window.adjustDetailQty=s=>{const e=document.getElementById("detailQty");let r=parseInt(e.value)+s;r<1&&(r=1),e.value=r};window.addToCartFromDetail=s=>{const e=parseInt(document.getElementById("detailQty").value);if(!t.currentUser){l("Please login to shop"),g("login");return}const r=t.products.find(i=>i.id===s),o=t.cart.find(i=>i.id===s);o?o.quantity+=e:t.cart.push({...r,quantity:e}),v(),l(`Added ${e} item(s) to cart`)};window.addToCart=s=>{if(!t.currentUser){l("Please login to shop"),g("login");return}const e=t.products.find(o=>o.id===s),r=t.cart.find(o=>o.id===s);r?r.quantity+=1:t.cart.push({...e,quantity:1}),v(),p(),l("Added to cart")};window.updateQuantity=(s,e)=>{if(e<1){window.removeFromCart(s);return}const r=t.cart.find(o=>o.id===s);r&&(r.quantity=e,v(),p())};window.removeFromCart=s=>{t.cart=t.cart.filter(e=>e.id!==s),v(),p()};window.checkout=async()=>{if(t.cart.length===0)return;if(!t.currentUser){l("Please login to checkout"),g("login");return}const s=t.cart.filter(r=>r.selected!==!1);if(s.length===0){l("No items selected for checkout");return}const e={userId:t.currentUser.id,items:s.map(r=>({productId:r.id,quantity:r.quantity,price:r.price,name:r.name})),total:s.reduce((r,o)=>r+o.price*o.quantity,0)};try{await h.createOrder(e),g("home")}catch{}};window.handleSearchInput=s=>{const e=s.target.value;if(t.searchQuery=e,e.trim()){const r=new Set;t.products.forEach(o=>{const i=o.name.toLowerCase(),n=o.category.toLowerCase(),c=e.toLowerCase();i.includes(c)&&r.add(o.name),n.includes(c)&&r.add(o.category),i.split(" ").forEach(m=>{m.toLowerCase().startsWith(c)&&m.length>2&&r.add(m.charAt(0).toUpperCase()+m.slice(1))})}),t.searchSuggestions=Array.from(r).slice(0,8),t.showSuggestions=!0}else if(t.searchSuggestions=[],t.showSuggestions=!1,t.route==="home"||t.route==="products"){p();return}S()};function S(){const s=document.querySelector(".search-container");if(!s)return;const e=s.querySelector(".search-suggestions");if(e&&e.remove(),t.showSuggestions&&t.searchQuery){const r=`
             <div class="search-suggestions" id="searchSuggestions">
                 <div class="suggestions-header">Suggestions</div>
                 ${t.searchSuggestions.slice(0,5).map(o=>`
@@ -704,7 +691,7 @@
                     </div>
                 `:""}
             </div>
-        `;s.insertAdjacentHTML("beforeend",r)}}window.showSearchSuggestions=()=>{t.searchQuery&&(t.showSuggestions=!0,S())};window.selectSuggestion=s=>{t.searchQuery=s,t.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=s),handleSearch()};window.handleSearch=()=>{t.showSuggestions=!1;const s=document.getElementById("searchInput");s&&(t.searchQuery=s.value.trim()),g("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{t.searchQuery="",t.showSuggestions=!1,t.searchSuggestions=[],p()};document.addEventListener("click",s=>{if(!s.target.closest(".search-container")&&t.showSuggestions){t.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async s=>{console.log("Login attempt started"),s.preventDefault();const e=s.target.email.value,r=s.target.password.value;console.log("Credentials:",{email:e,password:r});try{await h.login(e,r),console.log("Login successful")}catch(o){console.error("Login error:",o)}};window.handleSignup=async s=>{console.log("Signup attempt started"),s.preventDefault();const e=s.target.name.value,r=s.target.email.value,o=s.target.password.value;try{await h.register(e,r,o)}catch(i){console.error("Signup error:",i)}};window.logout=()=>{t.currentUser=null,t.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),d("Logged out successfully"),g("home")};window.deleteProduct=s=>{confirm("Are you sure you want to remove this product?")&&(t.products=t.products.filter(e=>e.id!==s),v(),p(),d("Product removed"))};window.viewOrderDetails=s=>{const e=t.orders.find(c=>c.orderId===s);if(!e){d("Order not found");return}const r=t.users.find(c=>c.id===e.userId),o=r?r.name:`User ID: ${e.userId}`,i=document.createElement("div");i.className="order-details-modal",i.innerHTML=`
+        `;s.insertAdjacentHTML("beforeend",r)}}window.showSearchSuggestions=()=>{t.searchQuery&&(t.showSuggestions=!0,S())};window.selectSuggestion=s=>{t.searchQuery=s,t.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=s),handleSearch()};window.handleSearch=()=>{t.showSuggestions=!1;const s=document.getElementById("searchInput");s&&(t.searchQuery=s.value.trim()),g("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{t.searchQuery="",t.showSuggestions=!1,t.searchSuggestions=[],p()};document.addEventListener("click",s=>{if(!s.target.closest(".search-container")&&t.showSuggestions){t.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async s=>{console.log("Login attempt started"),s.preventDefault();const e=s.target.email.value,r=s.target.password.value;console.log("Credentials:",{email:e,password:r});try{await h.login(e,r),console.log("Login successful")}catch(o){console.error("Login error:",o)}};window.handleSignup=async s=>{console.log("Signup attempt started"),s.preventDefault();const e=s.target.name.value,r=s.target.email.value,o=s.target.password.value;try{await h.register(e,r,o)}catch(i){console.error("Signup error:",i)}};window.logout=()=>{t.currentUser=null,t.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),l("Logged out successfully"),g("home")};window.deleteProduct=s=>{confirm("Are you sure you want to remove this product?")&&(t.products=t.products.filter(e=>e.id!==s),v(),p(),l("Product removed"))};window.viewOrderDetails=s=>{console.log("viewOrderDetails called with ID:",s);const e=t.orders.find(c=>c.orderId===s);if(console.log("Found order:",e),!e){console.error("Order not found in state.orders:",t.orders),l("Order not found");return}const r=t.users.find(c=>c.id===e.userId),o=r?r.name:`User ID: ${e.userId}`,i=document.createElement("div");i.className="order-details-modal",i.innerHTML=`
         <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -739,20 +726,20 @@
                         <div class="order-item-row">
                             <div class="item-details">
                                 <div class="item-name">${c.productName||"Product ID: "+c.productId}</div>
-                                <div class="item-meta">Quantity: ${c.quantity} × ${l(c.price)}</div>
+                                <div class="item-meta">Quantity: ${c.quantity} × ${d(c.price)}</div>
                             </div>
-                            <div class="item-total">${l(c.price*c.quantity)}</div>
+                            <div class="item-total">${d(c.price*c.quantity)}</div>
                         </div>
                     `).join("")}
                 </div>
                 
                 <div class="order-total">
                     <span>Total Amount:</span>
-                    <span class="total-amount">${l(e.total)}</span>
+                    <span class="total-amount">${d(e.total)}</span>
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(i);const n=c=>{c.key==="Escape"&&(i.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const p=()=>{const s=document.getElementById("app");let e="";switch(t.route){case"home":e=x();break;case"products":e=A();break;case"product-detail":e=O();break;case"login":e=D();break;case"signup":e=j();break;case"cart":e=T();break;case"admin":e=q();break;default:e=x()}s.innerHTML=`
+    `,document.body.appendChild(i);const n=c=>{c.key==="Escape"&&(i.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const p=()=>{const s=document.getElementById("app");let e="";switch(t.route){case"home":e=x();break;case"products":e=D();break;case"product-detail":e=O();break;case"login":e=j();break;case"signup":e=A();break;case"cart":e=T();break;case"admin":e=q();break;default:e=x()}s.innerHTML=`
         ${Q()}
         <main>
             ${e}
@@ -771,7 +758,7 @@
                 <img src="${n.image}" alt="${n.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                 <div style="flex: 1;">
                     <h3 style="font-size: 1rem;">${n.name}</h3>
-                    <p class="text-muted">${l(n.price)}</p>
+                    <p class="text-muted">${d(n.price)}</p>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
                     <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${n.id}, ${n.quantity-1})">-</button>
@@ -803,7 +790,7 @@
                             <div class="similar-product-card" onclick="window.viewProduct(${u.id})">
                                 <img src="${u.image}" alt="${u.name}" class="similar-product-image">
                                 <div class="similar-product-title" title="${u.name}">${u.name}</div>
-                                <div class="similar-product-price">${l(u.price)}</div>
+                                <div class="similar-product-price">${d(u.price)}</div>
                             </div>
                         `).join("")}
                     </div>
@@ -813,7 +800,7 @@
     `}).join(""),e){const n=t.cart.reduce((u,m)=>u+(m.selected!==!1?m.price*m.quantity:0),0),c=t.cart.filter(u=>u.selected!==!1).length;e.innerHTML=`
             <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                 <span>Total</span>
-                <span>${l(n)}</span>
+                <span>${d(n)}</span>
             </div>
             <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
                 Proceed to Checkout (${c})
