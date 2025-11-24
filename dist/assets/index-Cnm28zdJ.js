@@ -1,4 +1,4 @@
-(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const o of document.querySelectorAll('link[rel="modulepreload"]'))s(o);new MutationObserver(o=>{for(const a of o)if(a.type==="childList")for(const c of a.addedNodes)c.tagName==="LINK"&&c.rel==="modulepreload"&&s(c)}).observe(document,{childList:!0,subtree:!0});function i(o){const a={};return o.integrity&&(a.integrity=o.integrity),o.referrerPolicy&&(a.referrerPolicy=o.referrerPolicy),o.crossOrigin==="use-credentials"?a.credentials="include":o.crossOrigin==="anonymous"?a.credentials="omit":a.credentials="same-origin",a}function s(o){if(o.ep)return;o.ep=!0;const a=i(o);fetch(o.href,a)}})();const I="https://lumina-production-a4bb.up.railway.app",D="http://localhost:3000",k=window.location.hostname==="jlfuertes14.github.io",$=k?`${I}/api`:`${D}/api`;async function w(r,t={}){const i=`${$}${r}`;try{const s=await fetch(i,{...t,headers:{"Content-Type":"application/json",...t.headers}}),o=await s.json();if(!s.ok)throw new Error(o.error||o.message||"API request failed");return o}catch(s){throw console.error("API Error:",s),s}}console.log(`🌍 Environment: ${k?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${$}`);const e={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:"home",searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null},h={getProducts:async()=>{try{const r=await w("/products");e.products=r.data,m()}catch(r){console.error("Failed to load products:",r),l("Failed to load products")}},login:async(r,t)=>{console.log("Calling API login...");try{const i=await w("/users/login",{method:"POST",body:JSON.stringify({email:r,password:t})});e.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),l(`Welcome back, ${e.currentUser.name}!`),p("home")}catch(i){throw l(i.message||"Login failed"),i}},register:async(r,t,i)=>{try{const s=await w("/users/register",{method:"POST",body:JSON.stringify({name:r,email:t,password:i})});e.currentUser=s.data,localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),l("Account created successfully!"),p("home")}catch(s){throw l(s.message||"Registration failed"),s}},createOrder:async r=>{try{const t=await w("/orders",{method:"POST",body:JSON.stringify(r)});return e.cart=[],g(),l("Order placed successfully!"),e.currentUser.role==="admin"&&h.getOrders(),t.data}catch(t){throw l(t.message||"Failed to place order"),t}},getOrders:async()=>{if(!(!e.currentUser||e.currentUser.role!=="admin"))try{const r=await w("/orders");e.orders=r.data,m()}catch(r){console.error("Failed to load orders:",r)}},getUsers:async()=>{if(!(!e.currentUser||e.currentUser.role!=="admin"))try{const r=await w("/users");e.users=r.data,m()}catch(r){console.error("Failed to load users:",r)}}},g=()=>{localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(e.cart))},d=r=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(r),l=r=>{const t=document.createElement("div");t.className="toast",t.textContent=r,document.body.appendChild(t),setTimeout(()=>t.classList.add("show"),100),setTimeout(()=>{t.classList.remove("show"),setTimeout(()=>t.remove(),300)},3e3)},p=r=>{e.route=r,m(),window.scrollTo(0,0)},L=()=>{const r=e.cart.reduce((o,a)=>o+a.quantity,0),t=!!e.currentUser,i=e.currentUser?.role==="admin";return`
+(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))s(a);new MutationObserver(a=>{for(const o of a)if(o.type==="childList")for(const c of o.addedNodes)c.tagName==="LINK"&&c.rel==="modulepreload"&&s(c)}).observe(document,{childList:!0,subtree:!0});function i(a){const o={};return a.integrity&&(o.integrity=a.integrity),a.referrerPolicy&&(o.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?o.credentials="include":a.crossOrigin==="anonymous"?o.credentials="omit":o.credentials="same-origin",o}function s(a){if(a.ep)return;a.ep=!0;const o=i(a);fetch(a.href,o)}})();const I="https://lumina-production-a4bb.up.railway.app",D="http://localhost:3000",k=window.location.hostname==="jlfuertes14.github.io",$=k?`${I}/api`:`${D}/api`;async function w(r,t={}){const i=`${$}${r}`;try{const s=await fetch(i,{...t,headers:{"Content-Type":"application/json",...t.headers}}),a=await s.json();if(!s.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(s){throw console.error("API Error:",s),s}}console.log(`🌍 Environment: ${k?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${$}`);const e={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:"home",searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null},h={getProducts:async()=>{try{const r=await w("/products");e.products=r.data,m()}catch(r){console.error("Failed to load products:",r),l("Failed to load products")}},login:async(r,t)=>{console.log("Calling API login...");try{const i=await w("/users/login",{method:"POST",body:JSON.stringify({email:r,password:t})});e.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),l(`Welcome back, ${e.currentUser.name}!`),p("home")}catch(i){throw l(i.message||"Login failed"),i}},register:async(r,t,i)=>{try{const s=await w("/users/register",{method:"POST",body:JSON.stringify({name:r,email:t,password:i})});e.currentUser=s.data,localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),l("Account created successfully!"),p("home")}catch(s){throw l(s.message||"Registration failed"),s}},createOrder:async r=>{try{const t=await w("/orders",{method:"POST",body:JSON.stringify(r)});return e.cart=[],g(),l("Order placed successfully!"),e.currentUser.role==="admin"&&h.getOrders(),t.data}catch(t){throw l(t.message||"Failed to place order"),t}},getOrders:async()=>{if(!(!e.currentUser||e.currentUser.role!=="admin"))try{const r=await w("/orders");e.orders=r.data,m()}catch(r){console.error("Failed to load orders:",r)}},getUsers:async()=>{if(!(!e.currentUser||e.currentUser.role!=="admin"))try{const r=await w("/users");e.users=r.data,m()}catch(r){console.error("Failed to load users:",r)}}},g=()=>{localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(e.cart))},d=r=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(r),l=r=>{const t=document.createElement("div");t.className="toast",t.textContent=r,document.body.appendChild(t),setTimeout(()=>t.classList.add("show"),100),setTimeout(()=>{t.classList.remove("show"),setTimeout(()=>t.remove(),300)},3e3)},p=r=>{e.route=r,m(),window.scrollTo(0,0)},L=()=>{const r=e.cart.reduce((a,o)=>a+o.quantity,0),t=!!e.currentUser,i=e.currentUser?.role==="admin";return`
         <header>
             <div class="header-top">
                 <a href="#" class="logo" onclick="window.navigate('home'); return false;">
@@ -24,10 +24,10 @@
                             ${e.showSuggestions&&e.searchQuery?`
                                 <div class="search-suggestions" id="searchSuggestions">
                                     <div class="suggestions-header">Suggestions</div>
-                                    ${e.searchSuggestions.slice(0,5).map(o=>`
-                                        <div class="suggestion-item" onclick="window.selectSuggestion('${o.replace(/'/g,"\\'")}')"> 
+                                    ${e.searchSuggestions.slice(0,5).map(a=>`
+                                        <div class="suggestion-item" onclick="window.selectSuggestion('${a.replace(/'/g,"\\'")}')"> 
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                            <span>${o}</span>
+                                            <span>${a}</span>
                                         </div>
                                     `).join("")}
                                     ${e.searchQuery?`
@@ -90,7 +90,7 @@
                 </button>
             </div>
         </div>
-    `},O=()=>{const r=e.products.find(o=>o.id===e.currentProductId);if(!r)return p("home"),"";r.stock<10;const t=r.stock>0?"In Stock":"Out of Stock",i=r.stock>0?"var(--success)":"var(--danger)",s=e.products.filter(o=>o.id!==r.id).sort(()=>.5-Math.random()).slice(0,4);return`
+    `},O=()=>{const r=e.products.find(a=>a.id===e.currentProductId);if(!r)return p("home"),"";r.stock<10;const t=r.stock>0?"In Stock":"Out of Stock",i=r.stock>0?"var(--success)":"var(--danger)",s=e.products.filter(a=>a.id!==r.id).sort(()=>.5-Math.random()).slice(0,4);return`
         <div class="product-detail-container">
             <div class="breadcrumbs">
                 <a href="#" onclick="window.navigate('home'); return false;">Home</a> &gt; 
@@ -403,7 +403,7 @@
             </div>
         </div>
         </div>
-    `},T=()=>{if(!e.currentUser)return p("login"),"";const r=e.cart.filter(o=>o.selected!==!1);if(r.length===0)return l("No items selected for checkout"),p("cart"),"";const t=r.reduce((o,a)=>o+a.price*a.quantity,0),i=e.checkoutData.shippingFee,s=t+i;return`
+    `},T=()=>{if(!e.currentUser)return p("login"),"";const r=e.cart.filter(a=>a.selected!==!1);if(r.length===0)return l("No items selected for checkout"),p("cart"),"";const t=r.reduce((a,o)=>a+o.price*o.quantity,0),i=e.checkoutData.shippingFee,s=t+i;return`
         <div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <button class="btn btn-outline" onclick="window.navigate('cart')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
                 ← Back to Cart
@@ -452,11 +452,13 @@
                     </div>
                     <div class="admin-section">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">💳 Payment Method</h2>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
-                            ${[{id:"cod",label:"Cash on Delivery",icon:"💵"},{id:"gcash",label:"GCash",icon:"💙"},{id:"maya",label:"Maya",icon:"💚"},{id:"card",label:"Credit/Debit Card",icon:"💳"},{id:"bank",label:"Bank Transfer",icon:"🏦"}].map(o=>`
-                                <div class="payment-method-card" onclick="window.selectPaymentMethod('${o.id}')" style="padding: 1rem; border: 2px solid ${e.checkoutData.paymentMethod===o.id?"var(--primary)":"var(--border)"}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${e.checkoutData.paymentMethod===o.id?"rgba(0, 43, 91, 0.05)":"var(--surface)"};">
-                                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">${o.icon}</div>
-                                    <div style="font-size: 0.875rem; font-weight: 600;">${o.label}</div>
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem;">
+                            ${[{id:"cod",label:"Cash on Delivery",image:"/images/payment/cod.png"},{id:"gcash",label:"GCash",image:"/images/payment/gcash.png"},{id:"maya",label:"Maya",image:"/images/payment/maya.png"},{id:"card",label:"Credit/Debit Card",image:"/images/payment/card.png"},{id:"bank",label:"Bank Transfer",image:"/images/payment/bank.png"}].map(a=>`
+                                <div class="payment-method-card" onclick="window.selectPaymentMethod('${a.id}')" style="padding: 0.75rem; border: 2px solid ${e.checkoutData.paymentMethod===a.id?"var(--primary)":"var(--border)"}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${e.checkoutData.paymentMethod===a.id?"rgba(0, 43, 91, 0.05)":"var(--surface)"};">
+                                    <div style="height: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+                                        <img src="${a.image}" alt="${a.label}" style="max-width: 100%; max-height: 48px; object-fit: contain;">
+                                    </div>
+                                    <div style="font-size: 0.75rem; font-weight: 600; line-height: 1.2;">${a.label}</div>
                                 </div>
                             `).join("")}
                         </div>
@@ -466,14 +468,14 @@
                     <div class="cart-summary" style="position: sticky; top: 2rem;">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Order Summary</h2>
                         <div style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
-                            ${r.map(o=>`
+                            ${r.map(a=>`
                                 <div style="display: flex; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
-                                    <img src="${o.image}" alt="${o.name}" style="width: 60px; height: 60px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
+                                    <img src="${a.image}" alt="${a.name}" style="width: 60px; height: 60px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                                     <div style="flex: 1;">
-                                        <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem;">${o.name}</div>
-                                        <div style="font-size: 0.875rem; color: var(--text-muted);">Qty: ${o.quantity}</div>
+                                        <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem;">${a.name}</div>
+                                        <div style="font-size: 0.875rem; color: var(--text-muted);">Qty: ${a.quantity}</div>
                                     </div>
-                                    <div style="font-weight: 700; color: var(--primary);">${d(o.price*o.quantity)}</div>
+                                    <div style="font-weight: 700; color: var(--primary);">${d(a.price*a.quantity)}</div>
                                 </div>
                             `).join("")}
                         </div>
@@ -497,7 +499,7 @@
                 </div>
             </div>
         </div>
-    `},U=()=>{if(!e.lastOrderId)return p("home"),"";const r=e.orders.find(a=>a.orderId===e.lastOrderId);if(!r)return p("home"),"";const t=new Date,i=new Date(t);i.setDate(t.getDate()+3);const s=new Date(t);s.setDate(t.getDate()+5);const o=`${i.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${s.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`;return`
+    `},U=()=>{if(!e.lastOrderId)return p("home"),"";const r=e.orders.find(o=>o.orderId===e.lastOrderId);if(!r)return p("home"),"";const t=new Date,i=new Date(t);i.setDate(t.getDate()+3);const s=new Date(t);s.setDate(t.getDate()+5);const a=`${i.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${s.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`;return`
         <div style="max-width: 800px; margin: 4rem auto; padding: 0 2rem;">
             <div style="text-align: center; margin-bottom: 3rem;">
                 <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">✓</div>
@@ -524,7 +526,7 @@
                         <div style="width: 24px; height: 24px; background: var(--success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;">1</div>
                         <div style="font-weight: 600;">Estimated Delivery</div>
                     </div>
-                    <div style="padding-left: 2rem; color: var(--text-muted);">${o}</div>
+                    <div style="padding-left: 2rem; color: var(--text-muted);">${a}</div>
                 </div>
 
                 <div style="margin-bottom: 1.5rem;">
@@ -555,13 +557,13 @@
 
             <div class="admin-section" style="margin-bottom: 2rem;">
                 <h3 style="margin-bottom: 1rem;">Order Items</h3>
-                ${r.items.map(a=>`
+                ${r.items.map(o=>`
                     <div style="display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border);">
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${a.productName||a.name}</div>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">Quantity: ${a.quantity}</div>
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${o.productName||o.name}</div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Quantity: ${o.quantity}</div>
                         </div>
-                        <div style="font-weight: 700; color: var(--primary);">${d(a.price*a.quantity)}</div>
+                        <div style="font-weight: 700; color: var(--primary);">${d(o.price*o.quantity)}</div>
                     </div>
                 `).join("")}
                 <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
@@ -580,7 +582,7 @@
                 <p style="font-size: 0.875rem; color: var(--text-muted);">Questions? Contact us at support@luminaelectronics.com</p>
             </div>
         </div>
-    `};window.updateOrderStatus=(r,t)=>{const i=e.orders.find(s=>s.id===r);i&&(i.status=t,g(),l(`Order #${r} updated to ${t}`),m())};window.toggleSelectAll=r=>{document.querySelectorAll(".product-checkbox").forEach(i=>i.checked=r.checked)};window.bulkAction=r=>{const t=document.querySelectorAll(".product-checkbox:checked"),i=Array.from(t).map(s=>parseInt(s.value));if(i.length===0){l("No products selected");return}r==="delete"?confirm(`Delete ${i.length} products?`)&&(e.products=e.products.filter(s=>!i.includes(s.id)),g(),m(),l("Products deleted")):r==="restock"&&(e.products.forEach(s=>{i.includes(s.id)&&(s.stock+=10)}),g(),m(),l("Products restocked"))};window.viewOrderDetails=r=>{const t=e.orders.find(o=>o.id===r);if(!t)return;const i=e.users.find(o=>o.id===t.userId),s=`
+    `};window.updateOrderStatus=(r,t)=>{const i=e.orders.find(s=>s.id===r);i&&(i.status=t,g(),l(`Order #${r} updated to ${t}`),m())};window.toggleSelectAll=r=>{document.querySelectorAll(".product-checkbox").forEach(i=>i.checked=r.checked)};window.bulkAction=r=>{const t=document.querySelectorAll(".product-checkbox:checked"),i=Array.from(t).map(s=>parseInt(s.value));if(i.length===0){l("No products selected");return}r==="delete"?confirm(`Delete ${i.length} products?`)&&(e.products=e.products.filter(s=>!i.includes(s.id)),g(),m(),l("Products deleted")):r==="restock"&&(e.products.forEach(s=>{i.includes(s.id)&&(s.stock+=10)}),g(),m(),l("Products restocked"))};window.viewOrderDetails=r=>{const t=e.orders.find(a=>a.id===r);if(!t)return;const i=e.users.find(a=>a.id===t.userId),s=`
         <div class="modal-overlay show" id="orderModal" onclick="if(event.target === this) window.closeModal()">
             <div class="modal-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -601,11 +603,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${t.items.map(o=>`
+                        ${t.items.map(a=>`
                             <tr style="border-bottom: 1px solid var(--border);">
-                                <td style="padding: 0.5rem;">${o.name}</td>
-                                <td style="padding: 0.5rem;">${o.quantity}</td>
-                                <td style="padding: 0.5rem;">${d(o.price)}</td>
+                                <td style="padding: 0.5rem;">${a.name}</td>
+                                <td style="padding: 0.5rem;">${a.quantity}</td>
+                                <td style="padding: 0.5rem;">${d(a.price)}</td>
                             </tr>
                         `).join("")}
                     </tbody>
@@ -615,7 +617,7 @@
                 </div>
             </div>
         </div>
-    `;document.body.insertAdjacentHTML("beforeend",s)};window.closeModal=()=>{const r=document.getElementById("orderModal");r&&r.remove()};const M=()=>{if(!e.currentUser||e.currentUser.role!=="admin")return p("home"),"";const r=e.orders.reduce((n,y)=>n+y.total,0),t=e.orders.length;e.products.length;const i=e.users.filter(n=>n.role==="customer").length,s=e.products.filter(n=>n.stock<10);e.products.filter(n=>n.stock===0);const o=e.orders.slice(0,5),a=t>0?r/t:0,c={};e.products.forEach(n=>{c[n.category]=(c[n.category]||0)+1});const u=Object.entries(c).map(([n,y])=>({name:n,count:y})),v=[450,720,550,890,600,950,1200],C=Math.max(...v);return`
+    `;document.body.insertAdjacentHTML("beforeend",s)};window.closeModal=()=>{const r=document.getElementById("orderModal");r&&r.remove()};const M=()=>{if(!e.currentUser||e.currentUser.role!=="admin")return p("home"),"";const r=e.orders.reduce((n,y)=>n+y.total,0),t=e.orders.length;e.products.length;const i=e.users.filter(n=>n.role==="customer").length,s=e.products.filter(n=>n.stock<10);e.products.filter(n=>n.stock===0);const a=e.orders.slice(0,5),o=t>0?r/t:0,c={};e.products.forEach(n=>{c[n.category]=(c[n.category]||0)+1});const u=Object.entries(c).map(([n,y])=>({name:n,count:y})),v=[450,720,550,890,600,950,1200],C=Math.max(...v);return`
         <div class="admin-container">
             <div class="admin-header">
                 <div style="display: flex; align-items: center;">
@@ -718,7 +720,7 @@
                     <div class="metric-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">📊</div>
                     <div class="metric-content">
                         <div class="metric-label">Avg. Order Value</div>
-                        <div class="metric-value">${d(a)}</div>
+                        <div class="metric-value">${d(o)}</div>
                         <div class="metric-change positive">+5.2%</div>
                     </div>
                 </div>
@@ -752,7 +754,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            ${o.length>0?o.map(n=>{const y=e.users.find(P=>P.id===n.userId);return`
+                            ${a.length>0?a.map(n=>{const y=e.users.find(P=>P.id===n.userId);return`
                                     <tr>
                                         <td><strong>#${n.orderId}</strong></td>
                                         <td>${new Date(n.createdAt).toLocaleDateString()}</td>
@@ -853,7 +855,7 @@
                 </div>
             </div>
         </div>
-    `};window.navigate=p;window.handleSort=r=>{e.sortBy=r,m()};window.viewProduct=r=>{e.currentProductId=r,p("product-detail")};window.adjustDetailQty=r=>{const t=document.getElementById("detailQty");let i=parseInt(t.value)+r;i<1&&(i=1),t.value=i};window.addToCartFromDetail=r=>{const t=parseInt(document.getElementById("detailQty").value);if(!e.currentUser){l("Please login to shop"),p("login");return}const i=e.products.find(o=>o.id===r),s=e.cart.find(o=>o.id===r);s?s.quantity+=t:e.cart.push({...i,quantity:t}),g(),l(`Added ${t} item(s) to cart`)};window.addToCart=r=>{if(!e.currentUser){l("Please login to shop"),p("login");return}const t=e.products.find(s=>s.id===r),i=e.cart.find(s=>s.id===r);i?i.quantity+=1:e.cart.push({...t,quantity:1}),g(),m(),l("Added to cart")};window.updateQuantity=(r,t)=>{if(t<1){window.removeFromCart(r);return}const i=e.cart.find(s=>s.id===r);i&&(i.quantity=t,g(),m())};window.removeFromCart=r=>{e.cart=e.cart.filter(t=>t.id!==r),g(),m()};window.checkout=async()=>{if(e.cart.length===0)return;if(!e.currentUser){l("Please login to checkout"),p("login");return}if(e.cart.filter(t=>t.selected!==!1).length===0){l("No items selected for checkout");return}p("checkout")};window.updateShippingInfo=(r,t)=>{e.checkoutData.shipping[r]=t};window.selectPaymentMethod=r=>{e.checkoutData.paymentMethod=r,m()};window.placeOrder=async()=>{const r=e.checkoutData.shipping;if(!r.fullName||!r.phone||!r.address||!r.city||!r.province){l("Please fill in all required shipping fields");return}const t=e.cart.filter(s=>s.selected!==!1),i={userId:e.currentUser.id,items:t.map(s=>({productId:s.id,quantity:s.quantity,price:s.price,name:s.name})),total:t.reduce((s,o)=>s+o.price*o.quantity,0)+e.checkoutData.shippingFee,shippingInfo:e.checkoutData.shipping,paymentMethod:e.checkoutData.paymentMethod,shippingFee:e.checkoutData.shippingFee};try{const s=await h.createOrder(i);e.lastOrderId=s.orderId,e.cart=e.cart.filter(o=>o.selected===!1),g(),p("order-confirmation")}catch{}};window.printReceipt=()=>{window.print()};window.handleSearchInput=r=>{const t=r.target.value;if(e.searchQuery=t,t.trim()){const i=new Set;e.products.forEach(s=>{const o=s.name.toLowerCase(),a=s.category.toLowerCase(),c=t.toLowerCase();o.includes(c)&&i.add(s.name),a.includes(c)&&i.add(s.category),o.split(" ").forEach(v=>{v.toLowerCase().startsWith(c)&&v.length>2&&i.add(v.charAt(0).toUpperCase()+v.slice(1))})}),e.searchSuggestions=Array.from(i).slice(0,8),e.showSuggestions=!0}else if(e.searchSuggestions=[],e.showSuggestions=!1,e.route==="home"||e.route==="products"){m();return}S()};function S(){const r=document.querySelector(".search-container");if(!r)return;const t=r.querySelector(".search-suggestions");if(t&&t.remove(),e.showSuggestions&&e.searchQuery){const i=`
+    `};window.navigate=p;window.handleSort=r=>{e.sortBy=r,m()};window.viewProduct=r=>{e.currentProductId=r,p("product-detail")};window.adjustDetailQty=r=>{const t=document.getElementById("detailQty");let i=parseInt(t.value)+r;i<1&&(i=1),t.value=i};window.addToCartFromDetail=r=>{const t=parseInt(document.getElementById("detailQty").value);if(!e.currentUser){l("Please login to shop"),p("login");return}const i=e.products.find(a=>a.id===r),s=e.cart.find(a=>a.id===r);s?s.quantity+=t:e.cart.push({...i,quantity:t}),g(),l(`Added ${t} item(s) to cart`)};window.addToCart=r=>{if(!e.currentUser){l("Please login to shop"),p("login");return}const t=e.products.find(s=>s.id===r),i=e.cart.find(s=>s.id===r);i?i.quantity+=1:e.cart.push({...t,quantity:1}),g(),m(),l("Added to cart")};window.updateQuantity=(r,t)=>{if(t<1){window.removeFromCart(r);return}const i=e.cart.find(s=>s.id===r);i&&(i.quantity=t,g(),m())};window.removeFromCart=r=>{e.cart=e.cart.filter(t=>t.id!==r),g(),m()};window.checkout=async()=>{if(e.cart.length===0)return;if(!e.currentUser){l("Please login to checkout"),p("login");return}if(e.cart.filter(t=>t.selected!==!1).length===0){l("No items selected for checkout");return}p("checkout")};window.updateShippingInfo=(r,t)=>{e.checkoutData.shipping[r]=t};window.selectPaymentMethod=r=>{e.checkoutData.paymentMethod=r,m()};window.placeOrder=async()=>{const r=e.checkoutData.shipping;if(!r.fullName||!r.phone||!r.address||!r.city||!r.province){l("Please fill in all required shipping fields");return}const t=e.cart.filter(s=>s.selected!==!1),i={userId:e.currentUser.id,items:t.map(s=>({productId:s.id,quantity:s.quantity,price:s.price,name:s.name})),total:t.reduce((s,a)=>s+a.price*a.quantity,0)+e.checkoutData.shippingFee,shippingInfo:e.checkoutData.shipping,paymentMethod:e.checkoutData.paymentMethod,shippingFee:e.checkoutData.shippingFee};try{const s=await h.createOrder(i);e.lastOrderId=s.orderId,e.cart=e.cart.filter(a=>a.selected===!1),g(),p("order-confirmation")}catch{}};window.printReceipt=()=>{window.print()};window.handleSearchInput=r=>{const t=r.target.value;if(e.searchQuery=t,t.trim()){const i=new Set;e.products.forEach(s=>{const a=s.name.toLowerCase(),o=s.category.toLowerCase(),c=t.toLowerCase();a.includes(c)&&i.add(s.name),o.includes(c)&&i.add(s.category),a.split(" ").forEach(v=>{v.toLowerCase().startsWith(c)&&v.length>2&&i.add(v.charAt(0).toUpperCase()+v.slice(1))})}),e.searchSuggestions=Array.from(i).slice(0,8),e.showSuggestions=!0}else if(e.searchSuggestions=[],e.showSuggestions=!1,e.route==="home"||e.route==="products"){m();return}S()};function S(){const r=document.querySelector(".search-container");if(!r)return;const t=r.querySelector(".search-suggestions");if(t&&t.remove(),e.showSuggestions&&e.searchQuery){const i=`
             <div class="search-suggestions" id="searchSuggestions">
                 <div class="suggestions-header">Suggestions</div>
                 ${e.searchSuggestions.slice(0,5).map(s=>`
@@ -868,7 +870,7 @@
                     </div>
                 `:""}
             </div>
-        `;r.insertAdjacentHTML("beforeend",i)}}window.showSearchSuggestions=()=>{e.searchQuery&&(e.showSuggestions=!0,S())};window.selectSuggestion=r=>{e.searchQuery=r,e.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(t.value=r),handleSearch()};window.handleSearch=()=>{e.showSuggestions=!1;const r=document.getElementById("searchInput");r&&(e.searchQuery=r.value.trim()),p("products"),setTimeout(()=>{const t=document.querySelector(".product-grid");t&&t.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{e.searchQuery="",e.showSuggestions=!1,e.searchSuggestions=[],m()};document.addEventListener("click",r=>{if(!r.target.closest(".search-container")&&e.showSuggestions){e.showSuggestions=!1;const t=document.querySelector(".search-suggestions");t&&t.remove()}});window.handleLogin=async r=>{console.log("Login attempt started"),r.preventDefault();const t=r.target.email.value,i=r.target.password.value;console.log("Credentials:",{email:t,password:i});try{await h.login(t,i),console.log("Login successful")}catch(s){console.error("Login error:",s)}};window.handleSignup=async r=>{console.log("Signup attempt started"),r.preventDefault();const t=r.target.name.value,i=r.target.email.value,s=r.target.password.value;try{await h.register(t,i,s)}catch(o){console.error("Signup error:",o)}};window.logout=()=>{e.currentUser=null,e.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),l("Logged out successfully"),p("home")};window.deleteProduct=r=>{confirm("Are you sure you want to remove this product?")&&(e.products=e.products.filter(t=>t.id!==r),g(),m(),l("Product removed"))};window.viewOrderDetails=r=>{const t=e.orders.find(c=>c.orderId===r);if(!t){l("Order not found");return}const i=e.users.find(c=>c.id===t.userId),s=i?i.name:`User ID: ${t.userId}`,o=document.createElement("div");o.className="order-details-modal",o.innerHTML=`
+        `;r.insertAdjacentHTML("beforeend",i)}}window.showSearchSuggestions=()=>{e.searchQuery&&(e.showSuggestions=!0,S())};window.selectSuggestion=r=>{e.searchQuery=r,e.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(t.value=r),handleSearch()};window.handleSearch=()=>{e.showSuggestions=!1;const r=document.getElementById("searchInput");r&&(e.searchQuery=r.value.trim()),p("products"),setTimeout(()=>{const t=document.querySelector(".product-grid");t&&t.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{e.searchQuery="",e.showSuggestions=!1,e.searchSuggestions=[],m()};document.addEventListener("click",r=>{if(!r.target.closest(".search-container")&&e.showSuggestions){e.showSuggestions=!1;const t=document.querySelector(".search-suggestions");t&&t.remove()}});window.handleLogin=async r=>{console.log("Login attempt started"),r.preventDefault();const t=r.target.email.value,i=r.target.password.value;console.log("Credentials:",{email:t,password:i});try{await h.login(t,i),console.log("Login successful")}catch(s){console.error("Login error:",s)}};window.handleSignup=async r=>{console.log("Signup attempt started"),r.preventDefault();const t=r.target.name.value,i=r.target.email.value,s=r.target.password.value;try{await h.register(t,i,s)}catch(a){console.error("Signup error:",a)}};window.logout=()=>{e.currentUser=null,e.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),l("Logged out successfully"),p("home")};window.deleteProduct=r=>{confirm("Are you sure you want to remove this product?")&&(e.products=e.products.filter(t=>t.id!==r),g(),m(),l("Product removed"))};window.viewOrderDetails=r=>{const t=e.orders.find(c=>c.orderId===r);if(!t){l("Order not found");return}const i=e.users.find(c=>c.id===t.userId),s=i?i.name:`User ID: ${t.userId}`,a=document.createElement("div");a.className="order-details-modal",a.innerHTML=`
         <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -916,7 +918,7 @@
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(o);const a=c=>{c.key==="Escape"&&(o.remove(),document.removeEventListener("keydown",a))};document.addEventListener("keydown",a)};const m=()=>{const r=document.getElementById("app");let t="";switch(e.route){case"home":t=x();break;case"products":t=j();break;case"product-detail":t=O();break;case"login":t=Q();break;case"signup":t=q();break;case"cart":t=A();break;case"checkout":t=T();break;case"order-confirmation":t=U();break;case"admin":t=M();break;default:t=x()}r.innerHTML=`
+    `,document.body.appendChild(a);const o=c=>{c.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",o))};document.addEventListener("keydown",o)};const m=()=>{const r=document.getElementById("app");let t="";switch(e.route){case"home":t=x();break;case"products":t=j();break;case"product-detail":t=O();break;case"login":t=Q();break;case"signup":t=q();break;case"cart":t=A();break;case"checkout":t=T();break;case"order-confirmation":t=U();break;case"admin":t=M();break;default:t=x()}r.innerHTML=`
         ${L()}
         <main>
             ${t}
@@ -924,40 +926,40 @@
         <footer style="text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
             &copy; 2024 Lumina Electronics. All rights reserved.
         </footer>
-    `};window.handleCartSearch=r=>{e.cartSearchQuery=r.target.value,b()};window.clearCartSearch=()=>{e.cartSearchQuery="",b()};window.toggleCartItem=r=>{const t=e.cart.find(i=>i.id===r);t&&(t.selected=t.selected===!1,g(),b())};window.toggleFindSimilar=r=>{const t=e.cart.find(i=>i.id===r);t&&(e.cart.forEach(i=>{i.id!==r&&(i.showSimilar=!1)}),t.showSimilar=!t.showSimilar,g(),b())};function b(){const r=document.querySelector(".cart-items"),t=document.querySelector(".cart-summary"),i=document.querySelector(".cart-search-message");if(!r)return;let s=e.cart;if(e.cartSearchQuery&&(s=e.cart.filter(a=>a.name.toLowerCase().includes(e.cartSearchQuery.toLowerCase())||a.category.toLowerCase().includes(e.cartSearchQuery.toLowerCase()))),r.innerHTML=s.map(a=>{const c=e.products.filter(u=>u.category===a.category&&u.id!==a.id).slice(0,4);return`
+    `};window.handleCartSearch=r=>{e.cartSearchQuery=r.target.value,b()};window.clearCartSearch=()=>{e.cartSearchQuery="",b()};window.toggleCartItem=r=>{const t=e.cart.find(i=>i.id===r);t&&(t.selected=t.selected===!1,g(),b())};window.toggleFindSimilar=r=>{const t=e.cart.find(i=>i.id===r);t&&(e.cart.forEach(i=>{i.id!==r&&(i.showSimilar=!1)}),t.showSimilar=!t.showSimilar,g(),b())};function b(){const r=document.querySelector(".cart-items"),t=document.querySelector(".cart-summary"),i=document.querySelector(".cart-search-message");if(!r)return;let s=e.cart;if(e.cartSearchQuery&&(s=e.cart.filter(o=>o.name.toLowerCase().includes(e.cartSearchQuery.toLowerCase())||o.category.toLowerCase().includes(e.cartSearchQuery.toLowerCase()))),r.innerHTML=s.map(o=>{const c=e.products.filter(u=>u.category===o.category&&u.id!==o.id).slice(0,4);return`
         <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
             <div class="cart-item" style="border-bottom: none;">
                 <input type="checkbox" 
                     style="width: 20px; height: 20px; margin-right: 1rem; cursor: pointer; accent-color: var(--primary);"
-                    ${a.selected!==!1?"checked":""}
-                    onchange="window.toggleCartItem(${a.id})"
+                    ${o.selected!==!1?"checked":""}
+                    onchange="window.toggleCartItem(${o.id})"
                 >
-                <img src="${a.image}" alt="${a.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
+                <img src="${o.image}" alt="${o.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                 <div style="flex: 1;">
-                    <h3 style="font-size: 1rem;">${a.name}</h3>
-                    <p class="text-muted">${d(a.price)}</p>
+                    <h3 style="font-size: 1rem;">${o.name}</h3>
+                    <p class="text-muted">${d(o.price)}</p>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
-                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${a.id}, ${a.quantity-1})">-</button>
-                    <span>${a.quantity}</span>
-                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${a.id}, ${a.quantity+1})">+</button>
+                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${o.id}, ${o.quantity-1})">-</button>
+                    <span>${o.quantity}</span>
+                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${o.id}, ${o.quantity+1})">+</button>
                 </div>
                 
                 <div class="cart-item-actions">
-                    <button class="btn-delete" onclick="window.removeFromCart(${a.id})">Delete</button>
-                    <button class="btn-find-similar" onclick="window.toggleFindSimilar(${a.id})">
+                    <button class="btn-delete" onclick="window.removeFromCart(${o.id})">Delete</button>
+                    <button class="btn-find-similar" onclick="window.toggleFindSimilar(${o.id})">
                         Find Similar 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${a.showSimilar?"rotate(180deg)":"rotate(0deg)"}; transition: transform 0.2s;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${o.showSimilar?"rotate(180deg)":"rotate(0deg)"}; transition: transform 0.2s;">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </button>
                 </div>
             </div>
 
-            <div class="similar-products-dropdown ${a.showSimilar?"show":""}">
+            <div class="similar-products-dropdown ${o.showSimilar?"show":""}">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h4 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Similar Products</h4>
-                    <button onclick="window.toggleFindSimilar(${a.id})" style="background: none; border: none; cursor: pointer;">
+                    <button onclick="window.toggleFindSimilar(${o.id})" style="background: none; border: none; cursor: pointer;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
@@ -974,10 +976,10 @@
                 `:'<p class="text-muted text-center">No similar products found.</p>'}
             </div>
         </div>
-    `}).join(""),t){const a=e.cart.reduce((u,v)=>u+(v.selected!==!1?v.price*v.quantity:0),0),c=e.cart.filter(u=>u.selected!==!1).length;t.innerHTML=`
+    `}).join(""),t){const o=e.cart.reduce((u,v)=>u+(v.selected!==!1?v.price*v.quantity:0),0),c=e.cart.filter(u=>u.selected!==!1).length;t.innerHTML=`
             <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                 <span>Total</span>
-                <span>${d(a)}</span>
+                <span>${d(o)}</span>
             </div>
             <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
                 Proceed to Checkout (${c})
@@ -986,7 +988,7 @@
                 <p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
                     No items found for "${e.cartSearchQuery}"
                 </p>
-            `,i.style.display="block"):i.style.display="none");const o=document.querySelector("#cartSearchInput + .search-btn");o&&(o.innerHTML=e.cartSearchQuery?`
+            `,i.style.display="block"):i.style.display="none");const a=document.querySelector("#cartSearchInput + .search-btn");a&&(a.innerHTML=e.cartSearchQuery?`
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>

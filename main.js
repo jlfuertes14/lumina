@@ -761,17 +761,19 @@ const CheckoutPage = () => {
                     </div>
                     <div class="admin-section">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">💳 Payment Method</h2>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem;">
                             ${[
-            { id: 'cod', label: 'Cash on Delivery', icon: '💵' },
-            { id: 'gcash', label: 'GCash', icon: '💙' },
-            { id: 'maya', label: 'Maya', icon: '💚' },
-            { id: 'card', label: 'Credit/Debit Card', icon: '💳' },
-            { id: 'bank', label: 'Bank Transfer', icon: '🏦' }
+            { id: 'cod', label: 'Cash on Delivery', image: '/images/payment/cod.png' },
+            { id: 'gcash', label: 'GCash', image: '/images/payment/gcash.png' },
+            { id: 'maya', label: 'Maya', image: '/images/payment/maya.png' },
+            { id: 'card', label: 'Credit/Debit Card', image: '/images/payment/card.png' },
+            { id: 'bank', label: 'Bank Transfer', image: '/images/payment/bank.png' }
         ].map(method => `
-                                <div class="payment-method-card" onclick="window.selectPaymentMethod('${method.id}')" style="padding: 1rem; border: 2px solid ${state.checkoutData.paymentMethod === method.id ? 'var(--primary)' : 'var(--border)'}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${state.checkoutData.paymentMethod === method.id ? 'rgba(0, 43, 91, 0.05)' : 'var(--surface)'};">
-                                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">${method.icon}</div>
-                                    <div style="font-size: 0.875rem; font-weight: 600;">${method.label}</div>
+                                <div class="payment-method-card" onclick="window.selectPaymentMethod('${method.id}')" style="padding: 0.75rem; border: 2px solid ${state.checkoutData.paymentMethod === method.id ? 'var(--primary)' : 'var(--border)'}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${state.checkoutData.paymentMethod === method.id ? 'rgba(0, 43, 91, 0.05)' : 'var(--surface)'};">
+                                    <div style="height: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+                                        <img src="${method.image}" alt="${method.label}" style="max-width: 100%; max-height: 48px; object-fit: contain;">
+                                    </div>
+                                    <div style="font-size: 0.75rem; font-weight: 600; line-height: 1.2;">${method.label}</div>
                                 </div>
                             `).join('')}
                         </div>
