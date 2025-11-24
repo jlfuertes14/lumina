@@ -1,4 +1,4 @@
-(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))i(a);new MutationObserver(a=>{for(const n of a)if(n.type==="childList")for(const d of n.addedNodes)d.tagName==="LINK"&&d.rel==="modulepreload"&&i(d)}).observe(document,{childList:!0,subtree:!0});function r(a){const n={};return a.integrity&&(n.integrity=a.integrity),a.referrerPolicy&&(n.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?n.credentials="include":a.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function i(a){if(a.ep)return;a.ep=!0;const n=r(a);fetch(a.href,n)}})();const L="https://lumina-production-a4bb.up.railway.app",I="http://localhost:3000",k=window.location.hostname==="jlfuertes14.github.io",$=k?`${L}/api`:`${I}/api`;async function y(s,e={}){const r=`${$}${s}`;try{const i=await fetch(r,{...e,headers:{"Content-Type":"application/json",...e.headers}}),a=await i.json();if(!i.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(i){throw console.error("API Error:",i),i}}console.log(`🌍 Environment: ${k?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${$}`);const t={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:"home",searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1},w={getProducts:async()=>{try{const s=await y("/products");t.products=s.data,p()}catch(s){console.error("Failed to load products:",s),c("Failed to load products")}},login:async(s,e)=>{try{const r=await y("/users/login",{method:"POST",body:JSON.stringify({email:s,password:e})});t.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),c(`Welcome back, ${t.currentUser.name}!`),g("home")}catch(r){c(r.message||"Login failed")}},register:async(s,e,r)=>{try{const i=await y("/users/register",{method:"POST",body:JSON.stringify({name:s,email:e,password:r})});t.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),c("Account created successfully!"),g("home")}catch(i){c(i.message||"Registration failed")}},createOrder:async s=>{try{const e=await y("/orders",{method:"POST",body:JSON.stringify(s)});return t.cart=[],m(),c("Order placed successfully!"),t.currentUser.role==="admin"&&w.getOrders(),e.data}catch(e){throw c(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!t.currentUser||t.currentUser.role!=="admin"))try{const s=await y("/orders");t.orders=s.data,p()}catch(s){console.error("Failed to load orders:",s)}}},m=()=>{localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(t.cart))},u=s=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(s),c=s=>{const e=document.createElement("div");e.className="toast",e.textContent=s,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)},g=s=>{t.route=s,p(),window.scrollTo(0,0)},Q=()=>{const s=t.cart.reduce((a,n)=>a+n.quantity,0),e=!!t.currentUser,r=t.currentUser?.role==="admin";return`
+(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const o of document.querySelectorAll('link[rel="modulepreload"]'))i(o);new MutationObserver(o=>{for(const n of o)if(n.type==="childList")for(const d of n.addedNodes)d.tagName==="LINK"&&d.rel==="modulepreload"&&i(d)}).observe(document,{childList:!0,subtree:!0});function r(o){const n={};return o.integrity&&(n.integrity=o.integrity),o.referrerPolicy&&(n.referrerPolicy=o.referrerPolicy),o.crossOrigin==="use-credentials"?n.credentials="include":o.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function i(o){if(o.ep)return;o.ep=!0;const n=r(o);fetch(o.href,n)}})();const L="https://lumina-production-a4bb.up.railway.app",I="http://localhost:3000",k=window.location.hostname==="jlfuertes14.github.io",$=k?`${L}/api`:`${I}/api`;async function y(s,e={}){const r=`${$}${s}`;try{const i=await fetch(r,{...e,headers:{"Content-Type":"application/json",...e.headers}}),o=await i.json();if(!i.ok)throw new Error(o.error||o.message||"API request failed");return o}catch(i){throw console.error("API Error:",i),i}}console.log(`🌍 Environment: ${k?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${$}`);const t={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:"home",searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1},w={getProducts:async()=>{try{const s=await y("/products");t.products=s.data,p()}catch(s){console.error("Failed to load products:",s),c("Failed to load products")}},login:async(s,e)=>{console.log("Calling API login...");try{const r=await y("/users/login",{method:"POST",body:JSON.stringify({email:s,password:e})});t.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),c(`Welcome back, ${t.currentUser.name}!`),g("home")}catch(r){c(r.message||"Login failed")}},register:async(s,e,r)=>{try{const i=await y("/users/register",{method:"POST",body:JSON.stringify({name:s,email:e,password:r})});t.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),c("Account created successfully!"),g("home")}catch(i){c(i.message||"Registration failed")}},createOrder:async s=>{try{const e=await y("/orders",{method:"POST",body:JSON.stringify(s)});return t.cart=[],m(),c("Order placed successfully!"),t.currentUser.role==="admin"&&w.getOrders(),e.data}catch(e){throw c(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!t.currentUser||t.currentUser.role!=="admin"))try{const s=await y("/orders");t.orders=s.data,p()}catch(s){console.error("Failed to load orders:",s)}}},m=()=>{localStorage.setItem("currentUser",JSON.stringify(t.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(t.cart))},u=s=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(s),c=s=>{const e=document.createElement("div");e.className="toast",e.textContent=s,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)},g=s=>{t.route=s,p(),window.scrollTo(0,0)},Q=()=>{const s=t.cart.reduce((o,n)=>o+n.quantity,0),e=!!t.currentUser,r=t.currentUser?.role==="admin";return`
         <header>
             <div class="header-top">
                 <a href="#" class="logo" onclick="window.navigate('home'); return false;">
@@ -24,10 +24,10 @@
                             ${t.showSuggestions&&t.searchQuery?`
                                 <div class="search-suggestions" id="searchSuggestions">
                                     <div class="suggestions-header">Suggestions</div>
-                                    ${t.searchSuggestions.slice(0,5).map(a=>`
-                                        <div class="suggestion-item" onclick="window.selectSuggestion('${a.replace(/'/g,"\\'")}')"> 
+                                    ${t.searchSuggestions.slice(0,5).map(o=>`
+                                        <div class="suggestion-item" onclick="window.selectSuggestion('${o.replace(/'/g,"\\'")}')"> 
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                            <span>${a}</span>
+                                            <span>${o}</span>
                                         </div>
                                     `).join("")}
                                     ${t.searchQuery?`
@@ -90,7 +90,7 @@
                 </button>
             </div>
         </div>
-    `},O=()=>{const s=t.products.find(a=>a.id===t.currentProductId);if(!s)return g("home"),"";s.stock<10;const e=s.stock>0?"In Stock":"Out of Stock",r=s.stock>0?"var(--success)":"var(--danger)",i=t.products.filter(a=>a.id!==s.id).sort(()=>.5-Math.random()).slice(0,4);return`
+    `},O=()=>{const s=t.products.find(o=>o.id===t.currentProductId);if(!s)return g("home"),"";s.stock<10;const e=s.stock>0?"In Stock":"Out of Stock",r=s.stock>0?"var(--success)":"var(--danger)",i=t.products.filter(o=>o.id!==s.id).sort(()=>.5-Math.random()).slice(0,4);return`
         <div class="product-detail-container">
             <div class="breadcrumbs">
                 <a href="#" onclick="window.navigate('home'); return false;">Home</a> &gt; 
@@ -403,7 +403,7 @@
             </div>
         </div>
         </div>
-    `};window.updateOrderStatus=(s,e)=>{const r=t.orders.find(i=>i.id===s);r&&(r.status=e,m(),c(`Order #${s} updated to ${e}`),p())};window.toggleSelectAll=s=>{document.querySelectorAll(".product-checkbox").forEach(r=>r.checked=s.checked)};window.bulkAction=s=>{const e=document.querySelectorAll(".product-checkbox:checked"),r=Array.from(e).map(i=>parseInt(i.value));if(r.length===0){c("No products selected");return}s==="delete"?confirm(`Delete ${r.length} products?`)&&(t.products=t.products.filter(i=>!r.includes(i.id)),m(),p(),c("Products deleted")):s==="restock"&&(t.products.forEach(i=>{r.includes(i.id)&&(i.stock+=10)}),m(),p(),c("Products restocked"))};window.viewOrderDetails=s=>{const e=t.orders.find(a=>a.id===s);if(!e)return;const r=t.users.find(a=>a.id===e.userId),i=`
+    `};window.updateOrderStatus=(s,e)=>{const r=t.orders.find(i=>i.id===s);r&&(r.status=e,m(),c(`Order #${s} updated to ${e}`),p())};window.toggleSelectAll=s=>{document.querySelectorAll(".product-checkbox").forEach(r=>r.checked=s.checked)};window.bulkAction=s=>{const e=document.querySelectorAll(".product-checkbox:checked"),r=Array.from(e).map(i=>parseInt(i.value));if(r.length===0){c("No products selected");return}s==="delete"?confirm(`Delete ${r.length} products?`)&&(t.products=t.products.filter(i=>!r.includes(i.id)),m(),p(),c("Products deleted")):s==="restock"&&(t.products.forEach(i=>{r.includes(i.id)&&(i.stock+=10)}),m(),p(),c("Products restocked"))};window.viewOrderDetails=s=>{const e=t.orders.find(o=>o.id===s);if(!e)return;const r=t.users.find(o=>o.id===e.userId),i=`
         <div class="modal-overlay show" id="orderModal" onclick="if(event.target === this) window.closeModal()">
             <div class="modal-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -424,11 +424,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${e.items.map(a=>`
+                        ${e.items.map(o=>`
                             <tr style="border-bottom: 1px solid var(--border);">
-                                <td style="padding: 0.5rem;">${a.name}</td>
-                                <td style="padding: 0.5rem;">${a.quantity}</td>
-                                <td style="padding: 0.5rem;">${u(a.price)}</td>
+                                <td style="padding: 0.5rem;">${o.name}</td>
+                                <td style="padding: 0.5rem;">${o.quantity}</td>
+                                <td style="padding: 0.5rem;">${u(o.price)}</td>
                             </tr>
                         `).join("")}
                     </tbody>
@@ -438,7 +438,7 @@
                 </div>
             </div>
         </div>
-    `;document.body.insertAdjacentHTML("beforeend",i)};window.closeModal=()=>{const s=document.getElementById("orderModal");s&&s.remove()};const D=()=>{if(!t.currentUser||t.currentUser.role!=="admin")return g("home"),"";const s=t.orders.reduce((o,v)=>o+v.total,0),e=t.orders.length;t.products.length;const r=t.users.filter(o=>o.role==="customer").length,i=t.products.filter(o=>o.stock<10);t.products.filter(o=>o.stock===0);const a=t.orders.slice(0,5),n=e>0?s/e:0,d={};t.products.forEach(o=>{d[o.category]=(d[o.category]||0)+1});const l=Object.entries(d).map(([o,v])=>({name:o,count:v})),h=[450,720,550,890,600,950,1200],C=Math.max(...h);return`
+    `;document.body.insertAdjacentHTML("beforeend",i)};window.closeModal=()=>{const s=document.getElementById("orderModal");s&&s.remove()};const D=()=>{if(!t.currentUser||t.currentUser.role!=="admin")return g("home"),"";const s=t.orders.reduce((a,v)=>a+v.total,0),e=t.orders.length;t.products.length;const r=t.users.filter(a=>a.role==="customer").length,i=t.products.filter(a=>a.stock<10);t.products.filter(a=>a.stock===0);const o=t.orders.slice(0,5),n=e>0?s/e:0,d={};t.products.forEach(a=>{d[a.category]=(d[a.category]||0)+1});const l=Object.entries(d).map(([a,v])=>({name:a,count:v})),h=[450,720,550,890,600,950,1200],C=Math.max(...h);return`
         <div class="admin-container">
             <div class="admin-header">
                 <div style="display: flex; align-items: center;">
@@ -466,8 +466,8 @@
                         <h3>📈 Revenue Trend (7 Days)</h3>
                     </div>
                     <div class="chart-container">
-                        ${h.map(o=>`
-                            <div class="chart-bar" style="height: ${o/C*100}%" data-value="${u(o)}"></div>
+                        ${h.map(a=>`
+                            <div class="chart-bar" style="height: ${a/C*100}%" data-value="${u(a)}"></div>
                         `).join("")}
                     </div>
                 </div>
@@ -483,7 +483,7 @@
                         </div>
                     </div>
                     <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-                        ${l.slice(0,3).map(o=>`<span class="badge badge-info">${o.name}: ${o.count}</span>`).join("")}
+                        ${l.slice(0,3).map(a=>`<span class="badge badge-info">${a.name}: ${a.count}</span>`).join("")}
                     </div>
                 </div>
 
@@ -493,13 +493,13 @@
                         <h3>🏆 Top Products</h3>
                     </div>
                     <div class="top-products-list">
-                        ${t.products.slice(0,4).map(o=>`
+                        ${t.products.slice(0,4).map(a=>`
                             <div class="top-product-item">
-                                <img src="${o.image}" style="width: 32px; height: 32px; object-fit: contain;">
+                                <img src="${a.image}" style="width: 32px; height: 32px; object-fit: contain;">
                                 <div style="flex: 1;">
                                     <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                                        <span>${o.name}</span>
-                                        <span>${u(o.price)}</span>
+                                        <span>${a.name}</span>
+                                        <span>${u(a.price)}</span>
                                     </div>
                                     <div class="progress-bar-bg">
                                         <div class="progress-bar-fill" style="width: ${Math.random()*40+60}%"></div>
@@ -575,22 +575,22 @@
                             </tr>
                         </thead>
                         <tbody>
-                            ${a.length>0?a.map(o=>{const v=t.users.find(P=>P.id===o.userId);return`
+                            ${o.length>0?o.map(a=>{const v=t.users.find(P=>P.id===a.userId);return`
                                     <tr>
-                                        <td><strong>#${o.id}</strong></td>
-                                        <td>${o.date}</td>
+                                        <td><strong>#${a.id}</strong></td>
+                                        <td>${a.date}</td>
                                         <td>${v?v.name:"Unknown"}</td>
-                                        <td>${o.items.length} items</td>
-                                        <td><strong>${u(o.total)}</strong></td>
+                                        <td>${a.items.length} items</td>
+                                        <td><strong>${u(a.total)}</strong></td>
                                         <td>
-                                            <select class="status-select" onchange="window.updateOrderStatus(${o.id}, this.value)">
-                                                <option value="Pending" ${o.status==="Pending"?"selected":""}>Pending</option>
-                                                <option value="Shipped" ${o.status==="Shipped"?"selected":""}>Shipped</option>
-                                                <option value="Delivered" ${o.status==="Delivered"?"selected":""}>Delivered</option>
+                                            <select class="status-select" onchange="window.updateOrderStatus(${a.id}, this.value)">
+                                                <option value="Pending" ${a.status==="Pending"?"selected":""}>Pending</option>
+                                                <option value="Shipped" ${a.status==="Shipped"?"selected":""}>Shipped</option>
+                                                <option value="Delivered" ${a.status==="Delivered"?"selected":""}>Delivered</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <button class="btn-icon" onclick="window.viewOrderDetails(${o.id})" title="Quick View">👁️</button>
+                                            <button class="btn-icon" onclick="window.viewOrderDetails(${a.id})" title="Quick View">👁️</button>
                                         </td>
                                     </tr>
                                 `}).join(""):'<tr><td colspan="7" class="text-center text-muted">No orders yet</td></tr>'}
@@ -622,26 +622,26 @@
                             </tr>
                         </thead>
                         <tbody>
-                            ${t.products.map(o=>`
+                            ${t.products.map(a=>`
                                 <tr>
-                                    <td><input type="checkbox" class="product-checkbox" value="${o.id}"></td>
+                                    <td><input type="checkbox" class="product-checkbox" value="${a.id}"></td>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                            <img src="${o.image}" style="width: 40px; height: 40px; object-fit: contain; background: #f1f5f9; border-radius: 6px; padding: 4px;">
-                                            <span>${o.name}</span>
+                                            <img src="${a.image}" style="width: 40px; height: 40px; object-fit: contain; background: #f1f5f9; border-radius: 6px; padding: 4px;">
+                                            <span>${a.name}</span>
                                         </div>
                                     </td>
-                                    <td><span class="category-tag">${o.category}</span></td>
-                                    <td>${u(o.price)}</td>
+                                    <td><span class="category-tag">${a.category}</span></td>
+                                    <td>${u(a.price)}</td>
                                     <td>
-                                        <span class="stock-badge ${o.stock<10?"low":""} ${o.stock===0?"out":""}" style="${o.stock<10?"color: var(--danger); font-weight: bold;":""}">
-                                            ${o.stock}
+                                        <span class="stock-badge ${a.stock<10?"low":""} ${a.stock===0?"out":""}" style="${a.stock<10?"color: var(--danger); font-weight: bold;":""}">
+                                            ${a.stock}
                                         </span>
                                     </td>
-                                    <td>${o.stock>0?Math.floor(o.stock/2)+" days":"Out of Stock"}</td>
+                                    <td>${a.stock>0?Math.floor(a.stock/2)+" days":"Out of Stock"}</td>
                                     <td>
-                                        <button class="btn-icon" onclick="window.showToast('Editing ${o.name}...')" title="Edit">✏️</button>
-                                        <button class="btn-icon danger" onclick="window.deleteProduct(${o.id})" title="Delete">🗑️</button>
+                                        <button class="btn-icon" onclick="window.showToast('Editing ${a.name}...')" title="Edit">✏️</button>
+                                        <button class="btn-icon danger" onclick="window.deleteProduct(${a.id})" title="Delete">🗑️</button>
                                     </td>
                                 </tr>
                             `).join("")}
@@ -659,9 +659,9 @@
                     <div>
                         <h4>Top Spenders</h4>
                         <ul style="list-style: none; padding: 0; margin-top: 1rem;">
-                            ${t.users.filter(o=>o.role==="customer").slice(0,3).map(o=>`
+                            ${t.users.filter(a=>a.role==="customer").slice(0,3).map(a=>`
                                 <li style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
-                                    <span>${o.name}</span>
+                                    <span>${a.name}</span>
                                     <span style="font-weight: bold; color: var(--primary);">$${(Math.random()*500+100).toFixed(2)}</span>
                                 </li>
                             `).join("")}
@@ -676,7 +676,7 @@
                 </div>
             </div>
         </div>
-    `};window.navigate=g;window.handleSort=s=>{t.sortBy=s,p()};window.viewProduct=s=>{t.currentProductId=s,g("product-detail")};window.adjustDetailQty=s=>{const e=document.getElementById("detailQty");let r=parseInt(e.value)+s;r<1&&(r=1),e.value=r};window.addToCartFromDetail=s=>{const e=parseInt(document.getElementById("detailQty").value);if(!t.currentUser){c("Please login to shop"),g("login");return}const r=t.products.find(a=>a.id===s),i=t.cart.find(a=>a.id===s);i?i.quantity+=e:t.cart.push({...r,quantity:e}),m(),c(`Added ${e} item(s) to cart`)};window.addToCart=s=>{if(!t.currentUser){c("Please login to shop"),g("login");return}const e=t.products.find(i=>i.id===s),r=t.cart.find(i=>i.id===s);r?r.quantity+=1:t.cart.push({...e,quantity:1}),m(),p(),c("Added to cart")};window.updateQuantity=(s,e)=>{if(e<1){window.removeFromCart(s);return}const r=t.cart.find(i=>i.id===s);r&&(r.quantity=e,m(),p())};window.removeFromCart=s=>{t.cart=t.cart.filter(e=>e.id!==s),m(),p()};window.checkout=async()=>{if(t.cart.length===0)return;if(!t.currentUser){c("Please login to checkout"),g("login");return}const s=t.cart.filter(r=>r.selected!==!1);if(s.length===0){c("No items selected for checkout");return}const e={items:s.map(r=>({productId:r.id,quantity:r.quantity,price:r.price,name:r.name})),total:s.reduce((r,i)=>r+i.price*i.quantity,0)};try{await w.createOrder(e),g("home")}catch{}};window.handleSearchInput=s=>{const e=s.target.value;if(t.searchQuery=e,e.trim()){const r=new Set;t.products.forEach(i=>{const a=i.name.toLowerCase(),n=i.category.toLowerCase(),d=e.toLowerCase();a.includes(d)&&r.add(i.name),n.includes(d)&&r.add(i.category),a.split(" ").forEach(h=>{h.toLowerCase().startsWith(d)&&h.length>2&&r.add(h.charAt(0).toUpperCase()+h.slice(1))})}),t.searchSuggestions=Array.from(r).slice(0,8),t.showSuggestions=!0}else if(t.searchSuggestions=[],t.showSuggestions=!1,t.route==="home"||t.route==="products"){p();return}S()};function S(){const s=document.querySelector(".search-container");if(!s)return;const e=s.querySelector(".search-suggestions");if(e&&e.remove(),t.showSuggestions&&t.searchQuery){const r=`
+    `};window.navigate=g;window.handleSort=s=>{t.sortBy=s,p()};window.viewProduct=s=>{t.currentProductId=s,g("product-detail")};window.adjustDetailQty=s=>{const e=document.getElementById("detailQty");let r=parseInt(e.value)+s;r<1&&(r=1),e.value=r};window.addToCartFromDetail=s=>{const e=parseInt(document.getElementById("detailQty").value);if(!t.currentUser){c("Please login to shop"),g("login");return}const r=t.products.find(o=>o.id===s),i=t.cart.find(o=>o.id===s);i?i.quantity+=e:t.cart.push({...r,quantity:e}),m(),c(`Added ${e} item(s) to cart`)};window.addToCart=s=>{if(!t.currentUser){c("Please login to shop"),g("login");return}const e=t.products.find(i=>i.id===s),r=t.cart.find(i=>i.id===s);r?r.quantity+=1:t.cart.push({...e,quantity:1}),m(),p(),c("Added to cart")};window.updateQuantity=(s,e)=>{if(e<1){window.removeFromCart(s);return}const r=t.cart.find(i=>i.id===s);r&&(r.quantity=e,m(),p())};window.removeFromCart=s=>{t.cart=t.cart.filter(e=>e.id!==s),m(),p()};window.checkout=async()=>{if(t.cart.length===0)return;if(!t.currentUser){c("Please login to checkout"),g("login");return}const s=t.cart.filter(r=>r.selected!==!1);if(s.length===0){c("No items selected for checkout");return}const e={items:s.map(r=>({productId:r.id,quantity:r.quantity,price:r.price,name:r.name})),total:s.reduce((r,i)=>r+i.price*i.quantity,0)};try{await w.createOrder(e),g("home")}catch{}};window.handleSearchInput=s=>{const e=s.target.value;if(t.searchQuery=e,e.trim()){const r=new Set;t.products.forEach(i=>{const o=i.name.toLowerCase(),n=i.category.toLowerCase(),d=e.toLowerCase();o.includes(d)&&r.add(i.name),n.includes(d)&&r.add(i.category),o.split(" ").forEach(h=>{h.toLowerCase().startsWith(d)&&h.length>2&&r.add(h.charAt(0).toUpperCase()+h.slice(1))})}),t.searchSuggestions=Array.from(r).slice(0,8),t.showSuggestions=!0}else if(t.searchSuggestions=[],t.showSuggestions=!1,t.route==="home"||t.route==="products"){p();return}S()};function S(){const s=document.querySelector(".search-container");if(!s)return;const e=s.querySelector(".search-suggestions");if(e&&e.remove(),t.showSuggestions&&t.searchQuery){const r=`
             <div class="search-suggestions" id="searchSuggestions">
                 <div class="suggestions-header">Suggestions</div>
                 ${t.searchSuggestions.slice(0,5).map(i=>`
@@ -691,7 +691,7 @@
                     </div>
                 `:""}
             </div>
-        `;s.insertAdjacentHTML("beforeend",r)}}window.showSearchSuggestions=()=>{t.searchQuery&&(t.showSuggestions=!0,S())};window.selectSuggestion=s=>{t.searchQuery=s,t.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=s),handleSearch()};window.handleSearch=()=>{t.showSuggestions=!1;const s=document.getElementById("searchInput");s&&(t.searchQuery=s.value.trim()),g("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{t.searchQuery="",t.showSuggestions=!1,t.searchSuggestions=[],p()};document.addEventListener("click",s=>{if(!s.target.closest(".search-container")&&t.showSuggestions){t.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async s=>{s.preventDefault();const e=s.target.email.value,r=s.target.password.value;await w.login(e,r)};window.handleSignup=async s=>{s.preventDefault();const e=s.target.name.value,r=s.target.email.value,i=s.target.password.value;await w.register(e,r,i)};window.logout=()=>{t.currentUser=null,t.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),c("Logged out successfully"),g("home")};window.deleteProduct=s=>{confirm("Are you sure you want to remove this product?")&&(t.products=t.products.filter(e=>e.id!==s),m(),p(),c("Product removed"))};const p=()=>{const s=document.getElementById("app");let e="";switch(t.route){case"home":e=x();break;case"products":e=j();break;case"product-detail":e=O();break;case"login":e=T();break;case"signup":e=q();break;case"cart":e=A();break;case"admin":e=D();break;default:e=x()}s.innerHTML=`
+        `;s.insertAdjacentHTML("beforeend",r)}}window.showSearchSuggestions=()=>{t.searchQuery&&(t.showSuggestions=!0,S())};window.selectSuggestion=s=>{t.searchQuery=s,t.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=s),handleSearch()};window.handleSearch=()=>{t.showSuggestions=!1;const s=document.getElementById("searchInput");s&&(t.searchQuery=s.value.trim()),g("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{t.searchQuery="",t.showSuggestions=!1,t.searchSuggestions=[],p()};document.addEventListener("click",s=>{if(!s.target.closest(".search-container")&&t.showSuggestions){t.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async s=>{console.log("Login attempt started"),s.preventDefault();const e=s.target.email.value,r=s.target.password.value;console.log("Credentials:",{email:e,password:r});try{await w.login(e,r),console.log("Login successful")}catch(i){console.error("Login error:",i)}};window.handleSignup=async s=>{console.log("Signup attempt started"),s.preventDefault();const e=s.target.name.value,r=s.target.email.value,i=s.target.password.value;try{await w.register(e,r,i)}catch(o){console.error("Signup error:",o)}};window.logout=()=>{t.currentUser=null,t.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),c("Logged out successfully"),g("home")};window.deleteProduct=s=>{confirm("Are you sure you want to remove this product?")&&(t.products=t.products.filter(e=>e.id!==s),m(),p(),c("Product removed"))};const p=()=>{const s=document.getElementById("app");let e="";switch(t.route){case"home":e=x();break;case"products":e=j();break;case"product-detail":e=O();break;case"login":e=T();break;case"signup":e=q();break;case"cart":e=A();break;case"admin":e=D();break;default:e=x()}s.innerHTML=`
         ${Q()}
         <main>
             ${e}
@@ -761,7 +761,7 @@
                 <p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
                     No items found for "${t.cartSearchQuery}"
                 </p>
-            `,r.style.display="block"):r.style.display="none");const a=document.querySelector("#cartSearchInput + .search-btn");a&&(a.innerHTML=t.cartSearchQuery?`
+            `,r.style.display="block"):r.style.display="none");const o=document.querySelector("#cartSearchInput + .search-btn");o&&(o.innerHTML=t.cartSearchQuery?`
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
