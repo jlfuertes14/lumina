@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server/server.js",
     "dev": "vite",
-    "build": "vite build",
+    "build:frontend": "vite build",
     "preview": "vite preview",
     "server": "node server/server.js",
     "seed": "node server/seed.js",

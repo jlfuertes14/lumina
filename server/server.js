@@ -5,8 +5,18 @@ const cors = require('cors');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Middleware - CORS configuration for GitHub Pages
+app.use(cors({
+    origin: [
+        'http://localhost:5173',  // Vite dev server
+        'http://localhost:5174',  // Alternative port
+        'http://localhost:3000',  // Local testing
+        'https://jlfuertes14.github.io'  // GitHub Pages production
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
