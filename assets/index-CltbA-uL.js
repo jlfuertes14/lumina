@@ -447,21 +447,6 @@
                             <div class="form-group">
                                 <label class="form-label">Delivery Instructions (Optional)</label>
                                 <textarea name="instructions" class="form-input" rows="3" placeholder="Floor number, landmark, etc." oninput="window.updateShippingInfo('instructions', this.value)">${e.checkoutData.shipping.instructions}</textarea>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="admin-section">
-                        <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">💳 Payment Method</h2>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
-                            ${[{id:"cod",label:"Cash on Delivery",icon:"💵"},{id:"gcash",label:"GCash",icon:"💙"},{id:"maya",label:"Maya",icon:"💚"},{id:"card",label:"Credit/Debit Card",icon:"💳"},{id:"bank",label:"Bank Transfer",icon:"🏦"}].map(o=>`
-                                <div class="payment-method-card" onclick="window.selectPaymentMethod('${o.id}')" style="padding: 1rem; border: 2px solid ${e.checkoutData.paymentMethod===o.id?"var(--primary)":"var(--border)"}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${e.checkoutData.paymentMethod===o.id?"rgba(0, 43, 91, 0.05)":"var(--surface)"};">
-                                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">${o.icon}</div>
-                                    <div style="font-size: 0.875rem; font-weight: 600;">${o.label}</div>
-                                </div>
-                            `).join("")}
-                        </div>
-                    </div>
-                </div>
                 <div>
                     <div class="cart-summary" style="position: sticky; top: 2rem;">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Order Summary</h2>
@@ -615,7 +600,7 @@
                 </div>
             </div>
         </div>
-    `;document.body.insertAdjacentHTML("beforeend",s)};window.closeModal=()=>{const r=document.getElementById("orderModal");r&&r.remove()};const M=()=>{if(!e.currentUser||e.currentUser.role!=="admin")return p("home"),"";const r=e.orders.reduce((n,y)=>n+y.total,0),t=e.orders.length;e.products.length;const i=e.users.filter(n=>n.role==="customer").length,s=e.products.filter(n=>n.stock<10);e.products.filter(n=>n.stock===0);const o=e.orders.slice(0,5),a=t>0?r/t:0,c={};e.products.forEach(n=>{c[n.category]=(c[n.category]||0)+1});const u=Object.entries(c).map(([n,y])=>({name:n,count:y})),v=[450,720,550,890,600,950,1200],C=Math.max(...v);return`
+    `;document.body.insertAdjacentHTML("beforeend",s)};window.closeModal=()=>{const r=document.getElementById("orderModal");r&&r.remove()};const N=()=>{if(!e.currentUser||e.currentUser.role!=="admin")return p("home"),"";const r=e.orders.reduce((n,y)=>n+y.total,0),t=e.orders.length;e.products.length;const i=e.users.filter(n=>n.role==="customer").length,s=e.products.filter(n=>n.stock<10);e.products.filter(n=>n.stock===0);const o=e.orders.slice(0,5),a=t>0?r/t:0,c={};e.products.forEach(n=>{c[n.category]=(c[n.category]||0)+1});const u=Object.entries(c).map(([n,y])=>({name:n,count:y})),v=[450,720,550,890,600,950,1200],C=Math.max(...v);return`
         <div class="admin-container">
             <div class="admin-header">
                 <div style="display: flex; align-items: center;">
@@ -916,7 +901,7 @@
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(o);const a=c=>{c.key==="Escape"&&(o.remove(),document.removeEventListener("keydown",a))};document.addEventListener("keydown",a)};const m=()=>{const r=document.getElementById("app");let t="";switch(e.route){case"home":t=x();break;case"products":t=j();break;case"product-detail":t=O();break;case"login":t=Q();break;case"signup":t=q();break;case"cart":t=A();break;case"checkout":t=T();break;case"order-confirmation":t=U();break;case"admin":t=M();break;default:t=x()}r.innerHTML=`
+    `,document.body.appendChild(o);const a=c=>{c.key==="Escape"&&(o.remove(),document.removeEventListener("keydown",a))};document.addEventListener("keydown",a)};const m=()=>{const r=document.getElementById("app");let t="";switch(e.route){case"home":t=x();break;case"products":t=j();break;case"product-detail":t=O();break;case"login":t=Q();break;case"signup":t=q();break;case"cart":t=A();break;case"checkout":t=T();break;case"order-confirmation":t=U();break;case"admin":t=N();break;default:t=x()}r.innerHTML=`
         ${L()}
         <main>
             ${t}
@@ -996,4 +981,4 @@
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-        `)}const N=async()=>{await h.getProducts(),e.currentUser?.role==="admin"&&await Promise.all([h.getOrders(),h.getUsers()]),m()};N();
+        `)}const E=async()=>{await h.getProducts(),e.currentUser?.role==="admin"&&await Promise.all([h.getOrders(),h.getUsers()]),m()};E();
