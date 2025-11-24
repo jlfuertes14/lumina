@@ -2173,7 +2173,7 @@ header {
     box-shadow: var(--shadow-xl);
     max-width: 600px;
     width: 90%;
-    max-height: 90vh;
+    max-height: 65vh;
     overflow-y: auto;
     animation: slideUp 0.3s ease;
 }
