@@ -1351,12 +1351,8 @@ window.deleteProduct = (productId) => {
 };
 
 window.viewOrderDetails = (orderId) => {
-    console.log('viewOrderDetails called with ID:', orderId);
     const order = state.orders.find(o => o.orderId === orderId);
-    console.log('Found order:', order);
-
     if (!order) {
-        console.error('Order not found in state.orders:', state.orders);
         showToast('Order not found');
         return;
     }
