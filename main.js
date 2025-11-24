@@ -94,6 +94,17 @@ const api = {
         } catch (error) {
             console.error('Failed to load orders:', error);
         }
+    },
+
+    getUsers: async () => {
+        if (!state.currentUser || state.currentUser.role !== 'admin') return;
+        try {
+            const response = await apiCall('/users');
+            state.users = response.data;
+            render();
+        } catch (error) {
+            console.error('Failed to load users:', error);
+        }
     }
 };
 
@@ -939,20 +950,20 @@ const AdminPage = () => {
         const customer = state.users.find(u => u.id === order.userId);
         return `
                                     <tr>
-                                        <td><strong>#${order.id}</strong></td>
-                                        <td>${order.date}</td>
-                                        <td>${customer ? customer.name : 'Unknown'}</td>
+                                        <td><strong>#${order.orderId}</strong></td>
+                                        <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                                        <td>${customer ? customer.name : 'Unknown (ID: ' + order.userId + ')'}</td>
                                         <td>${order.items.length} items</td>
                                         <td><strong>${formatCurrency(order.total)}</strong></td>
                                         <td>
-                                            <select class="status-select" onchange="window.updateOrderStatus(${order.id}, this.value)">
+                                            <select class="status-select" onchange="window.updateOrderStatus('${order.orderId}', this.value)">
                                                 <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
                                                 <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
                                                 <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <button class="btn-icon" onclick="window.viewOrderDetails(${order.id})" title="Quick View">👁️</button>
+                                            <button class="btn-icon" onclick="window.viewOrderDetails('${order.orderId}')" title="Quick View">👁️</button>
                                         </td>
                                     </tr>
                                 `;
@@ -1527,7 +1538,10 @@ function updateCartItems() {
 const initApp = async () => {
     await api.getProducts();
     if (state.currentUser?.role === 'admin') {
-        await api.getOrders();
+        await Promise.all([
+            api.getOrders(),
+            api.getUsers()
+        ]);
     }
     render();
 };
