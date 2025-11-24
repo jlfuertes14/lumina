@@ -1,4 +1,8 @@
 require('dotenv').config();
+
+// Default to production if NODE_ENV not set
+process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
