@@ -1,4 +1,4 @@
-(function(){const i=document.createElement("link").relList;if(i&&i.supports&&i.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))s(a);new MutationObserver(a=>{for(const o of a)if(o.type==="childList")for(const c of o.addedNodes)c.tagName==="LINK"&&c.rel==="modulepreload"&&s(c)}).observe(document,{childList:!0,subtree:!0});function r(a){const o={};return a.integrity&&(o.integrity=a.integrity),a.referrerPolicy&&(o.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?o.credentials="include":a.crossOrigin==="anonymous"?o.credentials="omit":o.credentials="same-origin",o}function s(a){if(a.ep)return;a.ep=!0;const o=r(a);fetch(a.href,o)}})();const I="https://lumina-production-a4bb.up.railway.app",D="http://localhost:3000",$=window.location.hostname==="jlfuertes14.github.io",S=$?`${I}/api`:`${D}/api`;async function w(t,i={}){const r=`${S}${t}`;try{const s=await fetch(r,{...i,headers:{"Content-Type":"application/json",...i.headers}}),a=await s.json();if(!s.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(s){throw console.error("API Error:",s),s}}console.log(`🌍 Environment: ${$?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${S}`);const e={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:"home",searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null},h={getProducts:async()=>{try{const t=await w("/products");e.products=t.data,g()}catch(t){console.error("Failed to load products:",t),l("Failed to load products")}},login:async(t,i)=>{console.log("Calling API login...");try{const r=await w("/users/login",{method:"POST",body:JSON.stringify({email:t,password:i})});e.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),l(`Welcome back, ${e.currentUser.name}!`),m("home")}catch(r){throw l(r.message||"Login failed"),r}},register:async(t,i,r)=>{try{const s=await w("/users/register",{method:"POST",body:JSON.stringify({name:t,email:i,password:r})});e.currentUser=s.data,localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),l("Account created successfully!"),m("home")}catch(s){throw l(s.message||"Registration failed"),s}},createOrder:async t=>{try{const i=await w("/orders",{method:"POST",body:JSON.stringify(t)});return e.cart=[],v(),l("Order placed successfully!"),e.currentUser.role==="admin"&&h.getOrders(),i.data}catch(i){throw l(i.message||"Failed to place order"),i}},getOrders:async()=>{if(!(!e.currentUser||e.currentUser.role!=="admin"))try{const t=await w("/orders");e.orders=t.data,g()}catch(t){console.error("Failed to load orders:",t)}},getUsers:async()=>{if(!(!e.currentUser||e.currentUser.role!=="admin"))try{const t=await w("/users");e.users=t.data,g()}catch(t){console.error("Failed to load users:",t)}}},v=()=>{localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(e.cart))},d=t=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(t),l=t=>{const i=document.createElement("div");i.className="toast",i.textContent=t,document.body.appendChild(i),setTimeout(()=>i.classList.add("show"),100),setTimeout(()=>{i.classList.remove("show"),setTimeout(()=>i.remove(),300)},3e3)},m=t=>{e.route=t,g(),window.scrollTo(0,0)},L=()=>{const t=e.cart.reduce((a,o)=>a+o.quantity,0),i=!!e.currentUser,r=e.currentUser?.role==="admin";return`
+(function(){const i=document.createElement("link").relList;if(i&&i.supports&&i.supports("modulepreload"))return;for(const s of document.querySelectorAll('link[rel="modulepreload"]'))r(s);new MutationObserver(s=>{for(const o of s)if(o.type==="childList")for(const d of o.addedNodes)d.tagName==="LINK"&&d.rel==="modulepreload"&&r(d)}).observe(document,{childList:!0,subtree:!0});function a(s){const o={};return s.integrity&&(o.integrity=s.integrity),s.referrerPolicy&&(o.referrerPolicy=s.referrerPolicy),s.crossOrigin==="use-credentials"?o.credentials="include":s.crossOrigin==="anonymous"?o.credentials="omit":o.credentials="same-origin",o}function r(s){if(s.ep)return;s.ep=!0;const o=a(s);fetch(s.href,o)}})();const O="https://lumina-production-a4bb.up.railway.app",T="http://localhost:3000",I=window.location.hostname==="jlfuertes14.github.io",D=I?`${O}/api`:`${T}/api`;async function b(t,i={}){const a=`${D}${t}`;try{const r=await fetch(a,{...i,headers:{"Content-Type":"application/json",...i.headers}}),s=await r.json();if(!r.ok)throw new Error(s.error||s.message||"API request failed");return s}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${I?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${D}`);const e={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:"home",searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null},w={getProducts:async()=>{try{const t=await b("/products");e.products=t.data,v()}catch(t){console.error("Failed to load products:",t),u("Failed to load products")}},login:async(t,i)=>{console.log("Calling API login...");try{const a=await b("/users/login",{method:"POST",body:JSON.stringify({email:t,password:i})});e.currentUser=a.data,localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),u(`Welcome back, ${e.currentUser.name}!`),g("home")}catch(a){throw u(a.message||"Login failed"),a}},register:async(t,i,a)=>{try{const r=await b("/users/register",{method:"POST",body:JSON.stringify({name:t,email:i,password:a})});e.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),u("Account created successfully!"),g("home")}catch(r){throw u(r.message||"Registration failed"),r}},createOrder:async t=>{try{const i=await b("/orders",{method:"POST",body:JSON.stringify(t)});return e.cart=[],f(),u("Order placed successfully!"),e.currentUser.role==="admin"&&w.getOrders(),i.data}catch(i){throw u(i.message||"Failed to place order"),i}},getOrders:async()=>{if(!(!e.currentUser||e.currentUser.role!=="admin"))try{const t=await b("/orders");e.orders=t.data,v()}catch(t){console.error("Failed to load orders:",t)}},getUsers:async()=>{if(!(!e.currentUser||e.currentUser.role!=="admin"))try{const t=await b("/users");e.users=t.data,v()}catch(t){console.error("Failed to load users:",t)}}},f=()=>{localStorage.setItem("currentUser",JSON.stringify(e.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(e.cart))},c=t=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(t),u=t=>{const i=document.createElement("div");i.className="toast",i.textContent=t,document.body.appendChild(i),setTimeout(()=>i.classList.add("show"),100),setTimeout(()=>{i.classList.remove("show"),setTimeout(()=>i.remove(),300)},3e3)},g=t=>{e.route=t,v(),window.scrollTo(0,0)},j=()=>{const t=e.cart.reduce((s,o)=>s+o.quantity,0),i=!!e.currentUser,a=e.currentUser?.role==="admin";return`
         <header>
             <div class="header-top">
                 <a href="#" class="logo" onclick="window.navigate('home'); return false;">
@@ -24,10 +24,10 @@
                             ${e.showSuggestions&&e.searchQuery?`
                                 <div class="search-suggestions" id="searchSuggestions">
                                     <div class="suggestions-header">Suggestions</div>
-                                    ${e.searchSuggestions.slice(0,5).map(a=>`
-                                        <div class="suggestion-item" onclick="window.selectSuggestion('${a.replace(/'/g,"\\'")}')"> 
+                                    ${e.searchSuggestions.slice(0,5).map(s=>`
+                                        <div class="suggestion-item" onclick="window.selectSuggestion('${s.replace(/'/g,"\\'")}')"> 
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                            <span>${a}</span>
+                                            <span>${s}</span>
                                         </div>
                                     `).join("")}
                                     ${e.searchQuery?`
@@ -42,7 +42,7 @@
                 `}
 
                 <div class="nav-actions">
-                    ${r?"":`
+                    ${a?"":`
                     <a href="#" class="action-icon" onclick="window.navigate('cart'); return false;">
                         <div style="position: relative;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
@@ -72,25 +72,25 @@
                 <a href="#" class="nav-link">Brands</a>
                 <a href="#" class="nav-link">Deals</a>
                 <a href="#" class="nav-link">Support</a>
-                ${r?`<a href="#" class="nav-link ${e.route==="admin"?"active":""}" onclick="window.navigate('admin'); return false;">Admin Dashboard</a>`:""}
+                ${a?`<a href="#" class="nav-link ${e.route==="admin"?"active":""}" onclick="window.navigate('admin'); return false;">Admin Dashboard</a>`:""}
             </nav>
         </header>
-    `},b=t=>{const i=t.stock<10,r=i?"low-stock":"",s=i?"Low Stock":"In Stock";return`
+    `},k=t=>{const i=t.stock<10,a=i?"low-stock":"",r=i?"Low Stock":"In Stock";return`
         <div class="product-card" onclick="window.viewProduct(${t.id})" style="cursor: pointer;">
-            <div class="product-badge ${r}">${s}</div>
+            <div class="product-badge ${a}">${r}</div>
             <div class="product-image">
                 <img src="${t.image}" alt="${t.name}" />
             </div>
             <div class="product-info">
                 <div class="product-category">${t.category}</div>
                 <h3 class="product-title">${t.name}</h3>
-                <div class="product-price">${d(t.price)}</div>
+                <div class="product-price">${c(t.price)}</div>
                 <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${t.id})">
                     Add to Cart
                 </button>
             </div>
         </div>
-    `},O=()=>{const t=e.products.find(a=>a.id===e.currentProductId);if(!t)return m("home"),"";t.stock<10;const i=t.stock>0?"In Stock":"Out of Stock",r=t.stock>0?"var(--success)":"var(--danger)",s=e.products.filter(a=>a.id!==t.id).sort(()=>.5-Math.random()).slice(0,4);return`
+    `},E=()=>{const t=e.products.find(s=>s.id===e.currentProductId);if(!t)return g("home"),"";t.stock<10;const i=t.stock>0?"In Stock":"Out of Stock",a=t.stock>0?"var(--success)":"var(--danger)",r=e.products.filter(s=>s.id!==t.id).sort(()=>.5-Math.random()).slice(0,4);return`
         <div class="product-detail-container">
             <div class="breadcrumbs">
                 <a href="#" onclick="window.navigate('home'); return false;">Home</a> &gt; 
@@ -106,7 +106,7 @@
                 <div class="product-details-info">
                     <div class="product-sku">SKU: LUM-${t.id.toString().padStart(4,"0")}</div>
                     <h1 class="detail-title">${t.name}</h1>
-                    <div class="detail-price">${d(t.price)}</div>
+                    <div class="detail-price">${c(t.price)}</div>
 
                     <div class="detail-section">
                         <span class="detail-label">Description</span>
@@ -126,8 +126,8 @@
                         Add To Cart
                     </button>
 
-                    <div class="stock-status" style="color: ${r}">
-                        <span class="stock-dot" style="background-color: ${r}"></span>
+                    <div class="stock-status" style="color: ${a}">
+                        <span class="stock-dot" style="background-color: ${a}"></span>
                         ${i} (${t.stock} available)
                     </div>
                 </div>
@@ -136,11 +136,11 @@
             <div class="related-products">
                 <h3 class="related-title">You may also like</h3>
                 <div class="product-grid">
-                    ${s.map(b).join("")}
+                    ${r.map(k).join("")}
                 </div>
             </div>
         </div>
-    `},k=()=>{if(e.searchQuery){const r=e.products.filter(s=>s.name.toLowerCase().includes(e.searchQuery.toLowerCase())||s.category.toLowerCase().includes(e.searchQuery.toLowerCase())||s.description.toLowerCase().includes(e.searchQuery.toLowerCase()));return`
+    `},P=()=>{if(e.searchQuery){const a=e.products.filter(r=>r.name.toLowerCase().includes(e.searchQuery.toLowerCase())||r.category.toLowerCase().includes(e.searchQuery.toLowerCase())||r.description.toLowerCase().includes(e.searchQuery.toLowerCase()));return`
             <div class="hero">
                 <div class="hero-content">
                     <span class="hero-badge">Quality Components</span>
@@ -160,10 +160,10 @@
                 <div class="section-title">
                     <h2>Search Results</h2>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 1rem;">Found ${r.length} result${r.length!==1?"s":""} for "${e.searchQuery}"</p>
-                ${r.length>0?`
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">Found ${a.length} result${a.length!==1?"s":""} for "${e.searchQuery}"</p>
+                ${a.length>0?`
                     <div class="product-grid">
-                        ${r.map(b).join("")}
+                        ${a.map(k).join("")}
                     </div>
                 `:`
                     <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
@@ -196,10 +196,10 @@
                 <a href="#" onclick="window.navigate('products'); return false;" style="font-size: 0.9rem; color: var(--primary); font-weight: 600;">View All Products &rarr;</a>
             </div>
             <div class="product-grid">
-                ${e.products.filter(r=>t.includes(r.id)).sort((r,s)=>t.indexOf(r.id)-t.indexOf(s.id)).map(b).join("")}
+                ${e.products.filter(a=>t.includes(a.id)).sort((a,r)=>t.indexOf(a.id)-t.indexOf(r.id)).map(k).join("")}
             </div>
         </div>
-    `},T=()=>{let t=[...e.products];switch(e.searchQuery&&(t=t.filter(i=>i.name.toLowerCase().includes(e.searchQuery.toLowerCase())||i.category.toLowerCase().includes(e.searchQuery.toLowerCase())||i.description.toLowerCase().includes(e.searchQuery.toLowerCase()))),e.sortBy){case"price-asc":t.sort((i,r)=>i.price-r.price);break;case"price-desc":t.sort((i,r)=>r.price-i.price);break;case"name-asc":t.sort((i,r)=>i.name.localeCompare(r.name));break;case"name-desc":t.sort((i,r)=>r.name.localeCompare(i.name));break;case"featured":default:t.sort((i,r)=>i.id-r.id);break}return`
+    `},q=()=>{let t=[...e.products];switch(e.searchQuery&&(t=t.filter(i=>i.name.toLowerCase().includes(e.searchQuery.toLowerCase())||i.category.toLowerCase().includes(e.searchQuery.toLowerCase())||i.description.toLowerCase().includes(e.searchQuery.toLowerCase()))),e.sortBy){case"price-asc":t.sort((i,a)=>i.price-a.price);break;case"price-desc":t.sort((i,a)=>a.price-i.price);break;case"name-asc":t.sort((i,a)=>i.name.localeCompare(a.name));break;case"name-desc":t.sort((i,a)=>a.name.localeCompare(i.name));break;case"featured":default:t.sort((i,a)=>i.id-a.id);break}return`
         <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
             <div class="products-header">
                 <div class="breadcrumbs">
@@ -243,10 +243,10 @@
             `:""}
 
             <div class="product-grid">
-                ${t.map(b).join("")}
+                ${t.map(k).join("")}
             </div>
         </div>
-    `},j=()=>`
+    `},Q=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Welcome Back</h2>
             <form onsubmit="window.handleLogin(event)">
@@ -264,7 +264,7 @@
                 Don't have an account? <a href="#" onclick="window.navigate('signup'); return false;" style="color: var(--accent)">Sign up</a>
             </p>
         </div>
-    `,A=()=>`
+    `,M=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Create Account</h2>
             <form onsubmit="window.handleSignup(event)">
@@ -286,13 +286,13 @@
                 Already have an account? <a href="#" onclick="window.navigate('login'); return false;" style="color: var(--accent)">Login</a>
             </p>
         </div>
-    `,Q=()=>{if(e.cart.length===0)return`
+    `,A=()=>{if(e.cart.length===0)return`
             <div class="text-center" style="padding: 4rem;">
                 <h2>Your cart is empty</h2>
                 <p class="text-muted mb-4">Looks like you haven't added anything yet.</p>
                 <button class="btn btn-primary" onclick="window.navigate('products')">Start Shopping</button>
             </div>
-        `;let t=e.cart;return e.cartSearchQuery&&(t=e.cart.filter(i=>i.name.toLowerCase().includes(e.cartSearchQuery.toLowerCase())||i.category.toLowerCase().includes(e.cartSearchQuery.toLowerCase()))),e.cart.reduce((i,r)=>i+r.price*r.quantity,0),`
+        `;let t=e.cart;return e.cartSearchQuery&&(t=e.cart.filter(i=>i.name.toLowerCase().includes(e.cartSearchQuery.toLowerCase())||i.category.toLowerCase().includes(e.cartSearchQuery.toLowerCase()))),e.cart.reduce((i,a)=>i+a.price*a.quantity,0),`
         <div style="margin: 2rem auto; padding: 0 2rem;">
             <button class="btn btn-outline" onclick="window.navigate('products')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
                 ← Continue Shopping
@@ -339,7 +339,7 @@
                 </div>
                 
             <div class="cart-items">
-                ${t.map(i=>{const r=e.products.filter(s=>s.category===i.category&&s.id!==i.id).slice(0,4);return`
+                ${t.map(i=>{const a=e.products.filter(r=>r.category===i.category&&r.id!==i.id).slice(0,4);return`
                     <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
                         <div class="cart-item" style="border-bottom: none;">
                             <input type="checkbox" 
@@ -350,7 +350,7 @@
                             <img src="${i.image}" alt="${i.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                             <div style="flex: 1;">
                                 <h3 style="font-size: 1rem;">${i.name}</h3>
-                                <p class="text-muted">${d(i.price)}</p>
+                                <p class="text-muted">${c(i.price)}</p>
                             </div>
                             <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
                                 <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${i.id}, ${i.quantity-1})">-</button>
@@ -376,13 +376,13 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                 </button>
                             </div>
-                            ${r.length>0?`
+                            ${a.length>0?`
                                 <div class="similar-products-grid">
-                                    ${r.map(s=>`
-                                        <div class="similar-product-card" onclick="window.viewProduct(${s.id})">
-                                            <img src="${s.image}" alt="${s.name}" class="similar-product-image">
-                                            <div class="similar-product-title" title="${s.name}">${s.name}</div>
-                                            <div class="similar-product-price">${d(s.price)}</div>
+                                    ${a.map(r=>`
+                                        <div class="similar-product-card" onclick="window.viewProduct(${r.id})">
+                                            <img src="${r.image}" alt="${r.name}" class="similar-product-image">
+                                            <div class="similar-product-title" title="${r.name}">${r.name}</div>
+                                            <div class="similar-product-price">${c(r.price)}</div>
                                         </div>
                                     `).join("")}
                                 </div>
@@ -394,7 +394,7 @@
             <div class="cart-summary">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                     <span>Total</span>
-                    <span>${d(e.cart.reduce((i,r)=>i+(r.selected!==!1?r.price*r.quantity:0),0))}</span>
+                    <span>${c(e.cart.reduce((i,a)=>i+(a.selected!==!1?a.price*a.quantity:0),0))}</span>
                 </div>
                 <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
                     Proceed to Checkout (${e.cart.filter(i=>i.selected!==!1).length})
@@ -403,7 +403,7 @@
             </div>
         </div>
         </div>
-    `},q=()=>{if(!e.currentUser)return m("login"),"";const t=e.cart.filter(a=>a.selected!==!1);if(t.length===0)return l("No items selected for checkout"),m("cart"),"";const i=t.reduce((a,o)=>a+o.price*o.quantity,0),r=e.checkoutData.shippingFee,s=i+r;return`
+    `},N=()=>{if(!e.currentUser)return g("login"),"";const t=e.cart.filter(s=>s.selected!==!1);if(t.length===0)return u("No items selected for checkout"),g("cart"),"";const i=t.reduce((s,o)=>s+o.price*o.quantity,0),a=e.checkoutData.shippingFee,r=i+a;return`
         <div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <button class="btn btn-outline" onclick="window.navigate('cart')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
                 ← Back to Cart
@@ -453,12 +453,12 @@
                     <div class="admin-section">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">💳 Payment Method</h2>
                         <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem;">
-                            ${[{id:"cod",label:"Cash on Delivery",image:"/lumina/images/payment/cod.png"},{id:"gcash",label:"GCash",image:"/lumina/images/payment/gcash.png"},{id:"maya",label:"Maya",image:"/lumina/images/payment/maya.png"},{id:"card",label:"Credit/Debit Card",image:"/lumina/images/payment/card.png"},{id:"bank",label:"Bank Transfer",image:"/lumina/images/payment/bank.png"}].map(a=>`
-                                <div class="payment-method-card" onclick="window.selectPaymentMethod('${a.id}')" style="padding: 0.75rem; border: 2px solid ${e.checkoutData.paymentMethod===a.id?"var(--primary)":"var(--border)"}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${e.checkoutData.paymentMethod===a.id?"rgba(0, 43, 91, 0.05)":"var(--surface)"};">
+                            ${[{id:"cod",label:"Cash on Delivery",image:"/lumina/images/payment/cod.png"},{id:"gcash",label:"GCash",image:"/lumina/images/payment/gcash.png"},{id:"maya",label:"Maya",image:"/lumina/images/payment/maya.png"},{id:"card",label:"Credit/Debit Card",image:"/lumina/images/payment/card.png"},{id:"bank",label:"Bank Transfer",image:"/lumina/images/payment/bank.png"}].map(s=>`
+                                <div class="payment-method-card" onclick="window.selectPaymentMethod('${s.id}')" style="padding: 0.75rem; border: 2px solid ${e.checkoutData.paymentMethod===s.id?"var(--primary)":"var(--border)"}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${e.checkoutData.paymentMethod===s.id?"rgba(0, 43, 91, 0.05)":"var(--surface)"};">
                                     <div style="height: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
-                                        <img src="${a.image}" alt="${a.label}" style="max-width: 100%; max-height: 48px; object-fit: contain;">
+                                        <img src="${s.image}" alt="${s.label}" style="max-width: 100%; max-height: 48px; object-fit: contain;">
                                     </div>
-                                    <div style="font-size: 0.75rem; font-weight: 600; line-height: 1.2;">${a.label}</div>
+                                    <div style="font-size: 0.75rem; font-weight: 600; line-height: 1.2;">${s.label}</div>
                                 </div>
                             `).join("")}
                         </div>
@@ -468,29 +468,29 @@
                     <div class="cart-summary" style="position: sticky; top: 2rem;">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Order Summary</h2>
                         <div style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
-                            ${t.map(a=>`
+                            ${t.map(s=>`
                                 <div style="display: flex; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
-                                    <img src="${a.image}" alt="${a.name}" style="width: 60px; height: 60px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
+                                    <img src="${s.image}" alt="${s.name}" style="width: 60px; height: 60px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                                     <div style="flex: 1;">
-                                        <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem;">${a.name}</div>
-                                        <div style="font-size: 0.875rem; color: var(--text-muted);">Qty: ${a.quantity}</div>
+                                        <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem;">${s.name}</div>
+                                        <div style="font-size: 0.875rem; color: var(--text-muted);">Qty: ${s.quantity}</div>
                                     </div>
-                                    <div style="font-weight: 700; color: var(--primary);">${d(a.price*a.quantity)}</div>
+                                    <div style="font-weight: 700; color: var(--primary);">${c(s.price*s.quantity)}</div>
                                 </div>
                             `).join("")}
                         </div>
                         <div style="border-top: 1px solid var(--border); padding-top: 1rem; margin-bottom: 1rem;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span style="color: var(--text-muted);">Subtotal</span>
-                                <span>${d(i)}</span>
+                                <span>${c(i)}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span style="color: var(--text-muted);">Shipping Fee</span>
-                                <span>${d(r)}</span>
+                                <span>${c(a)}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
                                 <span>Total</span>
-                                <span style="color: var(--primary);">${d(s)}</span>
+                                <span style="color: var(--primary);">${c(r)}</span>
                             </div>
                         </div>
                         <button class="btn btn-primary" onclick="window.placeOrder()" style="width: 100%; padding: 1rem; font-size: 1rem;">Place Order</button>
@@ -499,7 +499,7 @@
                 </div>
             </div>
         </div>
-    `},N=()=>{if(!e.lastOrderId)return m("home"),"";const t=e.orders.find(o=>o.orderId===e.lastOrderId);if(!t)return m("home"),"";const i=new Date,r=new Date(i);r.setDate(i.getDate()+3);const s=new Date(i);s.setDate(i.getDate()+5);const a=`${r.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${s.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`;return`
+    `},U=()=>{if(!e.lastOrderId)return g("home"),"";const t=e.orders.find(o=>o.orderId===e.lastOrderId);if(!t)return g("home"),"";const i=new Date,a=new Date(i);a.setDate(i.getDate()+3);const r=new Date(i);r.setDate(i.getDate()+5);const s=`${a.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${r.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`;return`
         <div style="max-width: 800px; margin: 4rem auto; padding: 0 2rem;">
             <div style="text-align: center; margin-bottom: 3rem;">
                 <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">✓</div>
@@ -526,7 +526,7 @@
                         <div style="width: 24px; height: 24px; background: var(--success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;">1</div>
                         <div style="font-weight: 600;">Estimated Delivery</div>
                     </div>
-                    <div style="padding-left: 2rem; color: var(--text-muted);">${a}</div>
+                    <div style="padding-left: 2rem; color: var(--text-muted);">${s}</div>
                 </div>
 
                 <div style="margin-bottom: 1.5rem;">
@@ -563,12 +563,12 @@
                             <div style="font-weight: 600; margin-bottom: 0.25rem;">${o.productName||o.name}</div>
                             <div style="font-size: 0.875rem; color: var(--text-muted);">Quantity: ${o.quantity}</div>
                         </div>
-                        <div style="font-weight: 700; color: var(--primary);">${d(o.price*o.quantity)}</div>
+                        <div style="font-weight: 700; color: var(--primary);">${c(o.price*o.quantity)}</div>
                     </div>
                 `).join("")}
                 <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
                     <span>Total Amount</span>
-                    <span style="color: var(--primary);">${d(t.total)}</span>
+                    <span style="color: var(--primary);">${c(t.total)}</span>
                 </div>
             </div>
 
@@ -582,7 +582,7 @@
                 <p style="font-size: 0.875rem; color: var(--text-muted);">Questions? Contact us at support@luminaelectronics.com</p>
             </div>
         </div>
-    `};window.updateOrderStatus=(t,i)=>{const r=e.orders.find(s=>s.id===t);r&&(r.status=i,v(),l(`Order #${t} updated to ${i}`),g())};window.toggleSelectAll=t=>{document.querySelectorAll(".product-checkbox").forEach(r=>r.checked=t.checked)};window.bulkAction=t=>{const i=document.querySelectorAll(".product-checkbox:checked"),r=Array.from(i).map(s=>parseInt(s.value));if(r.length===0){l("No products selected");return}t==="delete"?confirm(`Delete ${r.length} products?`)&&(e.products=e.products.filter(s=>!r.includes(s.id)),v(),g(),l("Products deleted")):t==="restock"&&(e.products.forEach(s=>{r.includes(s.id)&&(s.stock+=10)}),v(),g(),l("Products restocked"))};window.viewOrderDetails=t=>{const i=e.orders.find(a=>a.id===t);if(!i)return;const r=e.users.find(a=>a.id===i.userId),s=`
+    `};window.updateOrderStatus=(t,i)=>{const a=e.orders.find(r=>r.id===t);a&&(a.status=i,f(),u(`Order #${t} updated to ${i}`),v())};window.toggleSelectAll=t=>{document.querySelectorAll(".product-checkbox").forEach(a=>a.checked=t.checked)};window.bulkAction=t=>{const i=document.querySelectorAll(".product-checkbox:checked"),a=Array.from(i).map(r=>parseInt(r.value));if(a.length===0){u("No products selected");return}t==="delete"?confirm(`Delete ${a.length} products?`)&&(e.products=e.products.filter(r=>!a.includes(r.id)),f(),v(),u("Products deleted")):t==="restock"&&(e.products.forEach(r=>{a.includes(r.id)&&(r.stock+=10)}),f(),v(),u("Products restocked"))};window.viewOrderDetails=t=>{const i=e.orders.find(s=>s.id===t);if(!i)return;const a=e.users.find(s=>s.id===i.userId),r=`
         <div class="modal-overlay show" id="orderModal" onclick="if(event.target === this) window.closeModal()">
             <div class="modal-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -590,7 +590,7 @@
                     <button class="btn-icon" onclick="window.closeModal()">✕</button>
                 </div>
                 <div style="margin-bottom: 1.5rem;">
-                    <p><strong>Customer:</strong> ${r?r.name:"Unknown"}</p>
+                    <p><strong>Customer:</strong> ${a?a.name:"Unknown"}</p>
                     <p><strong>Date:</strong> ${i.date}</p>
                     <p><strong>Status:</strong> <span class="badge badge-${i.status==="Delivered"?"success":"warning"}">${i.status}</span></p>
                 </div>
@@ -603,21 +603,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        ${i.items.map(a=>`
+                        ${i.items.map(s=>`
                             <tr style="border-bottom: 1px solid var(--border);">
-                                <td style="padding: 0.5rem;">${a.name}</td>
-                                <td style="padding: 0.5rem;">${a.quantity}</td>
-                                <td style="padding: 0.5rem;">${d(a.price)}</td>
+                                <td style="padding: 0.5rem;">${s.name}</td>
+                                <td style="padding: 0.5rem;">${s.quantity}</td>
+                                <td style="padding: 0.5rem;">${c(s.price)}</td>
                             </tr>
                         `).join("")}
                     </tbody>
                 </table>
                 <div style="text-align: right; font-size: 1.25rem; font-weight: bold;">
-                    Total: ${d(i.total)}
+                    Total: ${c(i.total)}
                 </div>
             </div>
         </div>
-    `;document.body.insertAdjacentHTML("beforeend",s)};window.closeModal=()=>{const t=document.getElementById("orderModal");t&&t.remove()};const U=()=>{if(!e.currentUser||e.currentUser.role!=="admin")return m("home"),"";const t=e.orders.reduce((n,f)=>n+f.total,0),i=e.orders.length;e.products.length;const r=e.users.filter(n=>n.role==="customer").length,s=e.products.filter(n=>n.stock<10);e.products.filter(n=>n.stock===0);const a=e.orders.slice(0,5),o=i>0?t/i:0,c={};e.products.forEach(n=>{c[n.category]=(c[n.category]||0)+1});const u=Object.entries(c).map(([n,f])=>({name:n,count:f})),p=[450,720,550,890,600,950,1200],y=Math.max(...p);return`
+    `;document.body.insertAdjacentHTML("beforeend",r)};window.closeModal=()=>{const t=document.getElementById("orderModal");t&&t.remove()};const B=()=>{if(!e.currentUser||e.currentUser.role!=="admin")return g("home"),"";const t=e.orders.reduce((n,m)=>n+m.total,0),i=e.orders.length;e.products.length;const a=e.users.filter(n=>n.role==="customer").length,r=e.products.filter(n=>n.stock<10);e.products.filter(n=>n.stock===0);const s=e.orders.slice(0,5),o=i>0?t/i:0,d={};e.products.forEach(n=>{d[n.category]=(d[n.category]||0)+1});const p=Object.entries(d).map(([n,m])=>({name:n,count:m})),l=[450,720,550,890,600,950,1200],h=Math.max(...l);return`
         <div class="admin-container">
             <div class="admin-header">
                 <div style="display: flex; align-items: center;">
@@ -626,7 +626,7 @@
                 <div class="admin-actions" style="display: flex; align-items: center;">
                     <div class="notification-bell" onclick="window.showToast('No new notifications')">
                         🔔
-                        ${s.length>0?`<span class="notification-badge">${s.length}</span>`:""}
+                        ${r.length>0?`<span class="notification-badge">${r.length}</span>`:""}
                     </div>
                     <button class="btn-action" onclick="window.showToast('Exporting data...')">
                         📥 Export CSV
@@ -645,8 +645,8 @@
                         <h3>📈 Revenue Trend (7 Days)</h3>
                     </div>
                     <div class="chart-container">
-                        ${p.map(n=>`
-                            <div class="chart-bar" style="height: ${n/y*100}%" data-value="${d(n)}"></div>
+                        ${l.map(n=>`
+                            <div class="chart-bar" style="height: ${n/h*100}%" data-value="${c(n)}"></div>
                         `).join("")}
                     </div>
                 </div>
@@ -658,11 +658,11 @@
                     </div>
                     <div class="donut-chart">
                         <div class="donut-hole">
-                            ${u.length} Cats
+                            ${p.length} Cats
                         </div>
                     </div>
                     <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-                        ${u.slice(0,3).map(n=>`<span class="badge badge-info">${n.name}: ${n.count}</span>`).join("")}
+                        ${p.slice(0,3).map(n=>`<span class="badge badge-info">${n.name}: ${n.count}</span>`).join("")}
                     </div>
                 </div>
 
@@ -678,7 +678,7 @@
                                 <div style="flex: 1;">
                                     <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
                                         <span>${n.name}</span>
-                                        <span>${d(n.price)}</span>
+                                        <span>${c(n.price)}</span>
                                     </div>
                                     <div class="progress-bar-bg">
                                         <div class="progress-bar-fill" style="width: ${Math.random()*40+60}%"></div>
@@ -696,7 +696,7 @@
                     <div class="metric-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">💰</div>
                     <div class="metric-content">
                         <div class="metric-label">Total Revenue</div>
-                        <div class="metric-value">${d(t)}</div>
+                        <div class="metric-value">${c(t)}</div>
                         <div class="metric-change positive">+15.3%</div>
                     </div>
                 </div>
@@ -712,7 +712,7 @@
                     <div class="metric-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">👥</div>
                     <div class="metric-content">
                         <div class="metric-label">Total Customers</div>
-                        <div class="metric-value">${r}</div>
+                        <div class="metric-value">${a}</div>
                         <div class="metric-change">2 new this week</div>
                     </div>
                 </div>
@@ -720,7 +720,7 @@
                     <div class="metric-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">📊</div>
                     <div class="metric-content">
                         <div class="metric-label">Avg. Order Value</div>
-                        <div class="metric-value">${d(o)}</div>
+                        <div class="metric-value">${c(o)}</div>
                         <div class="metric-change positive">+5.2%</div>
                     </div>
                 </div>
@@ -754,13 +754,13 @@
                             </tr>
                         </thead>
                         <tbody>
-                            ${a.length>0?a.map(n=>{const f=e.users.find(P=>P.id===n.userId);return`
+                            ${s.length>0?s.map(n=>{const m=e.users.find(y=>y.id===n.userId);return`
                                     <tr>
                                         <td><strong>#${n.orderId}</strong></td>
                                         <td>${new Date(n.createdAt).toLocaleDateString()}</td>
-                                        <td>${f?f.name:"Unknown (ID: "+n.userId+")"}</td>
+                                        <td>${m?m.name:"Unknown (ID: "+n.userId+")"}</td>
                                         <td>${n.items.length} items</td>
-                                        <td><strong>${d(n.total)}</strong></td>
+                                        <td><strong>${c(n.total)}</strong></td>
                                         <td>
                                             <select class="status-select" onchange="window.updateOrderStatus('${n.orderId}', this.value)">
                                                 <option value="Pending" ${n.status==="Pending"?"selected":""}>Pending</option>
@@ -811,7 +811,7 @@
                                         </div>
                                     </td>
                                     <td><span class="category-tag">${n.category}</span></td>
-                                    <td>${d(n.price)}</td>
+                                    <td>${c(n.price)}</td>
                                     <td>
                                         <span class="stock-badge ${n.stock<10?"low":""} ${n.stock===0?"out":""}" style="${n.stock<10?"color: var(--danger); font-weight: bold;":""}">
                                             ${n.stock}
@@ -855,11 +855,60 @@
                 </div>
             </div>
         </div>
-    `};window.navigate=m;window.handleSort=t=>{e.sortBy=t,g()};window.viewProduct=t=>{e.currentProductId=t,m("product-detail")};window.adjustDetailQty=t=>{const i=document.getElementById("detailQty");let r=parseInt(i.value)+t;r<1&&(r=1),i.value=r};window.addToCartFromDetail=t=>{const i=parseInt(document.getElementById("detailQty").value);if(!e.currentUser){l("Please login to shop"),m("login");return}const r=e.products.find(a=>a.id===t),s=e.cart.find(a=>a.id===t);s?s.quantity+=i:e.cart.push({...r,quantity:i}),v(),l(`Added ${i} item(s) to cart`)};window.addToCart=t=>{if(!e.currentUser){l("Please login to shop"),m("login");return}const i=e.products.find(s=>s.id===t),r=e.cart.find(s=>s.id===t);r?r.quantity+=1:e.cart.push({...i,quantity:1}),v(),g(),l("Added to cart")};window.updateQuantity=(t,i)=>{if(i<1){window.removeFromCart(t);return}const r=e.cart.find(s=>s.id===t);r&&(r.quantity=i,v(),g())};window.removeFromCart=t=>{e.cart=e.cart.filter(i=>i.id!==t),v(),g()};window.checkout=async()=>{if(e.cart.length===0)return;if(!e.currentUser){l("Please login to checkout"),m("login");return}if(e.cart.filter(i=>i.selected!==!1).length===0){l("No items selected for checkout");return}m("checkout")};window.updateShippingInfo=(t,i)=>{e.checkoutData.shipping[t]=i};window.selectPaymentMethod=t=>{e.checkoutData.paymentMethod=t,g()};window.handlePhoneInput=t=>{const i=t.value.replace(/[^0-9]/g,"");t.value=i,e.checkoutData.shipping.phone=i};window.placeOrder=async()=>{const t=e.checkoutData.shipping;if(!t.fullName||!t.fullName.trim()){l("Please enter your full name");return}if(!t.address||!t.address.trim()){l("Please enter your address");return}if(!t.city||!t.city.trim()){l("Please enter your city");return}if(!t.province||!t.province.trim()){l("Please enter your province");return}if(!t.phone||!t.phone.trim()){l("Please enter your phone number");return}if(!/^[0-9]+$/.test(t.phone)){l("Phone number must contain only numbers (no letters or special characters)");return}if(!e.checkoutData.paymentMethod){l("Please select a payment method");return}const r=e.cart.filter(p=>p.selected!==!1),a=r.reduce((p,y)=>p+y.price*y.quantity,0)+e.checkoutData.shippingFee;let o=null,c=0;if(e.checkoutData.paymentMethod==="cod"){const p=prompt(`Total amount to pay: ${d(a)}
-
-Please enter the amount you have:`,"");if(p===null)return;if(o=parseFloat(p),isNaN(o)||o<0){l("Please enter a valid amount");return}if(o<a){l(`Insufficient amount! You need ${d(a-o)} more.`);return}c=o-a,alert(`Total to Pay: ${d(a)}
-Amount Paid: ${d(o)}
-Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.id,quantity:p.quantity,price:p.price,name:p.name})),total:a,shippingInfo:e.checkoutData.shipping,paymentMethod:e.checkoutData.paymentMethod,shippingFee:e.checkoutData.shippingFee,amountPaid:o,change:c};try{const p=await h.createOrder(u);e.lastOrderId=p.orderId,e.lastOrderPayment={amountPaid:o,change:c},e.orders.push({orderId:p.orderId,...p,items:r,total:a,createdAt:new Date().toISOString(),userId:e.currentUser.id}),e.cart=e.cart.filter(y=>y.selected===!1),v(),m("order-confirmation")}catch{}};window.printReceipt=()=>{if(!e.lastOrderId){l("No order found to print");return}const t=e.orders.find(o=>o.orderId===e.lastOrderId);if(!t){l("Order not found");return}const i=e.lastOrderPayment||{},r=new Date,s=`
+    `};window.navigate=g;window.handleSort=t=>{e.sortBy=t,v()};window.viewProduct=t=>{e.currentProductId=t,g("product-detail")};window.adjustDetailQty=t=>{const i=document.getElementById("detailQty");let a=parseInt(i.value)+t;a<1&&(a=1),i.value=a};window.addToCartFromDetail=t=>{const i=parseInt(document.getElementById("detailQty").value);if(!e.currentUser){u("Please login to shop"),g("login");return}const a=e.products.find(s=>s.id===t),r=e.cart.find(s=>s.id===t);r?r.quantity+=i:e.cart.push({...a,quantity:i}),f(),u(`Added ${i} item(s) to cart`)};window.addToCart=t=>{if(!e.currentUser){u("Please login to shop"),g("login");return}const i=e.products.find(r=>r.id===t),a=e.cart.find(r=>r.id===t);a?a.quantity+=1:e.cart.push({...i,quantity:1}),f(),v(),u("Added to cart")};window.updateQuantity=(t,i)=>{if(i<1){window.removeFromCart(t);return}const a=e.cart.find(r=>r.id===t);a&&(a.quantity=i,f(),v())};window.removeFromCart=t=>{e.cart=e.cart.filter(i=>i.id!==t),f(),v()};window.checkout=async()=>{if(e.cart.length===0)return;if(!e.currentUser){u("Please login to checkout"),g("login");return}if(e.cart.filter(i=>i.selected!==!1).length===0){u("No items selected for checkout");return}g("checkout")};window.updateShippingInfo=(t,i)=>{e.checkoutData.shipping[t]=i};window.selectPaymentMethod=t=>{e.checkoutData.paymentMethod=t,v()};window.handlePhoneInput=t=>{const i=t.value.replace(/[^0-9]/g,"");t.value=i,e.checkoutData.shipping.phone=i};window.showPaymentModal=t=>new Promise(i=>{let a="";const r=`
+            <div class="payment-modal-overlay" id="paymentModalOverlay">
+                <div class="payment-modal">
+                    <div class="payment-modal-header">
+                        <h2>💳 Cash on Delivery Payment</h2>
+                        <p>Please enter the amount you have</p>
+                    </div>
+                    
+                    <div class="payment-modal-body">
+                        <div class="payment-summary">
+                            <div class="payment-summary-row">
+                                <span>Total Amount:</span>
+                                <span style="font-weight: 700;">${c(t)}</span>
+                            </div>
+                            <div class="payment-summary-row total">
+                                <span>To Pay:</span>
+                                <span>${c(t)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-input-group">
+                            <label>Enter Amount</label>
+                            <input 
+                                type="text" 
+                                id="paymentAmountInput" 
+                                class="payment-input" 
+                                placeholder="₱ 0.00"
+                                inputmode="decimal"
+                            >
+                            <div class="payment-error" id="paymentError"></div>
+                        </div>
+                        
+                        <div class="quick-amount-buttons">
+                            <button class="quick-amount-btn" data-amount="${t}">Exact</button>
+                            <button class="quick-amount-btn" data-amount="${t+50}">+₱50</button>
+                            <button class="quick-amount-btn" data-amount="${t+100}">+₱100</button>
+                            <button class="quick-amount-btn" data-amount="${Math.ceil(t/100)*100}">Round</button>
+                            <button class="quick-amount-btn" data-amount="${t+500}">+₱500</button>
+                            <button class="quick-amount-btn" data-amount="${t+1e3}">+₱1000</button>
+                        </div>
+                        
+                        <div class="payment-change-display" id="paymentChangeDisplay">
+                            <div class="change-label">Your Change</div>
+                            <div class="change-amount" id="changeAmount">₱ 0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-modal-footer">
+                        <button class="btn-cancel" id="paymentCancelBtn">Cancel</button>
+                        <button class="btn-confirm" id="paymentConfirmBtn" disabled>Confirm Payment</button>
+                    </div>
+                </div>
+            </div>
+        `;document.body.insertAdjacentHTML("beforeend",r);const s=document.getElementById("paymentModalOverlay"),o=document.getElementById("paymentAmountInput"),d=document.getElementById("paymentError"),p=document.getElementById("paymentChangeDisplay"),l=document.getElementById("changeAmount"),h=document.getElementById("paymentConfirmBtn"),n=document.getElementById("paymentCancelBtn");setTimeout(()=>o.focus(),100),o.addEventListener("input",m=>{let y=m.target.value.replace(/[^0-9.]/g,"");const S=y.split(".");S.length>2&&(y=S[0]+"."+S.slice(1).join("")),m.target.value=y,a=y;const x=parseFloat(y);if(!y||isNaN(x)||x<0){d.textContent="",d.classList.remove("show"),o.classList.remove("error"),h.disabled=!0,p.classList.remove("show");return}if(x<t){const C=t-x;d.textContent=`Insufficient! Need ${c(C)} more`,d.classList.add("show"),o.classList.add("error"),h.disabled=!0,p.classList.remove("show")}else{const C=x-t;d.classList.remove("show"),o.classList.remove("error"),h.disabled=!1,p.classList.add("show"),l.textContent=c(C)}}),document.querySelectorAll(".quick-amount-btn").forEach(m=>{m.addEventListener("click",()=>{const y=m.getAttribute("data-amount");o.value=y,o.dispatchEvent(new Event("input"))})}),n.addEventListener("click",()=>{s.remove(),i(null)}),s.addEventListener("click",m=>{m.target===s&&(s.remove(),i(null))}),h.addEventListener("click",()=>{const m=parseFloat(a);m>=t&&(s.remove(),i({amountPaid:m,change:m-t}))}),o.addEventListener("keypress",m=>{m.key==="Enter"&&!h.disabled&&h.click()}),document.addEventListener("keydown",function m(y){y.key==="Escape"&&(s.remove(),i(null),document.removeEventListener("keydown",m))})});window.placeOrder=async()=>{const t=e.checkoutData.shipping;if(!t.fullName||!t.fullName.trim()){u("Please enter your full name");return}if(!t.address||!t.address.trim()){u("Please enter your address");return}if(!t.city||!t.city.trim()){u("Please enter your city");return}if(!t.province||!t.province.trim()){u("Please enter your province");return}if(!t.phone||!t.phone.trim()){u("Please enter your phone number");return}if(!/^[0-9]+$/.test(t.phone)){u("Phone number must contain only numbers (no letters or special characters)");return}if(!e.checkoutData.paymentMethod){u("Please select a payment method");return}const a=e.cart.filter(l=>l.selected!==!1),s=a.reduce((l,h)=>l+h.price*h.quantity,0)+e.checkoutData.shippingFee;let o=null,d=0;if(e.checkoutData.paymentMethod==="cod"){const l=await showPaymentModal(s);if(!l)return;o=l.amountPaid,d=l.change}const p={userId:e.currentUser.id,items:a.map(l=>({productId:l.id,quantity:l.quantity,price:l.price,name:l.name})),total:s,shippingInfo:e.checkoutData.shipping,paymentMethod:e.checkoutData.paymentMethod,shippingFee:e.checkoutData.shippingFee,amountPaid:o,change:d};try{const l=await w.createOrder(p);e.lastOrderId=l.orderId,e.lastOrderPayment={amountPaid:o,change:d},e.orders.push({orderId:l.orderId,...l,items:a,total:s,createdAt:new Date().toISOString(),userId:e.currentUser.id}),e.cart=e.cart.filter(h=>h.selected===!1),f(),g("order-confirmation")}catch{}};window.printReceipt=()=>{if(!e.lastOrderId){u("No order found to print");return}const t=e.orders.find(o=>o.orderId===e.lastOrderId);if(!t){u("Order not found");return}const i=e.lastOrderPayment||{},a=new Date,r=`
         <!DOCTYPE html>
         <html>
         <head>
@@ -1036,11 +1085,11 @@ Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.
                 </div>
                 <div class="info-row">
                     <span>Date:</span>
-                    <span>${r.toLocaleDateString("en-PH",{year:"numeric",month:"short",day:"numeric"})}</span>
+                    <span>${a.toLocaleDateString("en-PH",{year:"numeric",month:"short",day:"numeric"})}</span>
                 </div>
                 <div class="info-row">
                     <span>Time:</span>
-                    <span>${r.toLocaleTimeString("en-PH",{hour:"2-digit",minute:"2-digit"})}</span>
+                    <span>${a.toLocaleTimeString("en-PH",{hour:"2-digit",minute:"2-digit"})}</span>
                 </div>
                 <div class="info-row">
                     <span>Cashier:</span>
@@ -1063,9 +1112,9 @@ Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.
                     <div class="item-row">
                         <div class="item-name">${o.productName||o.name}</div>
                         <div class="item-details">
-                            <div>${d(o.price)}</div>
+                            <div>${c(o.price)}</div>
                             <div class="text-center">x${o.quantity}</div>
-                            <div class="text-right"><strong>${d(o.price*o.quantity)}</strong></div>
+                            <div class="text-right"><strong>${c(o.price*o.quantity)}</strong></div>
                         </div>
                     </div>
                 `).join("")}
@@ -1074,15 +1123,15 @@ Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.
             <div class="totals-section">
                 <div class="total-row">
                     <span>Subtotal:</span>
-                    <span>${d(t.total-e.checkoutData.shippingFee)}</span>
+                    <span>${c(t.total-e.checkoutData.shippingFee)}</span>
                 </div>
                 <div class="total-row">
                     <span>Shipping Fee:</span>
-                    <span>${d(e.checkoutData.shippingFee)}</span>
+                    <span>${c(e.checkoutData.shippingFee)}</span>
                 </div>
                 <div class="total-row grand-total">
                     <span>TOTAL:</span>
-                    <span>${d(t.total)}</span>
+                    <span>${c(t.total)}</span>
                 </div>
             </div>
             
@@ -1090,11 +1139,11 @@ Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.
                 <div class="payment-section">
                     <div class="payment-row">
                         <span>Amount Paid:</span>
-                        <span>${d(i.amountPaid)}</span>
+                        <span>${c(i.amountPaid)}</span>
                     </div>
                     <div class="payment-row change-row">
                         <span>Change:</span>
-                        <span>${d(i.change)}</span>
+                        <span>${c(i.change)}</span>
                     </div>
                 </div>
             `:""}
@@ -1116,13 +1165,13 @@ Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.
             </div>
         </body>
         </html>
-    `,a=window.open("","_blank","width=300,height=600");a.document.write(s),a.document.close(),a.onload=function(){setTimeout(()=>{a.print()},250)}};window.handleSearchInput=t=>{const i=t.target.value;if(e.searchQuery=i,i.trim()){const r=new Set;e.products.forEach(s=>{const a=s.name.toLowerCase(),o=s.category.toLowerCase(),c=i.toLowerCase();a.includes(c)&&r.add(s.name),o.includes(c)&&r.add(s.category),a.split(" ").forEach(p=>{p.toLowerCase().startsWith(c)&&p.length>2&&r.add(p.charAt(0).toUpperCase()+p.slice(1))})}),e.searchSuggestions=Array.from(r).slice(0,8),e.showSuggestions=!0}else if(e.searchSuggestions=[],e.showSuggestions=!1,e.route==="home"||e.route==="products"){g();return}C()};function C(){const t=document.querySelector(".search-container");if(!t)return;const i=t.querySelector(".search-suggestions");if(i&&i.remove(),e.showSuggestions&&e.searchQuery){const r=`
+    `,s=window.open("","_blank","width=300,height=600");s.document.write(r),s.document.close(),s.onload=function(){setTimeout(()=>{s.print()},250)}};window.handleSearchInput=t=>{const i=t.target.value;if(e.searchQuery=i,i.trim()){const a=new Set;e.products.forEach(r=>{const s=r.name.toLowerCase(),o=r.category.toLowerCase(),d=i.toLowerCase();s.includes(d)&&a.add(r.name),o.includes(d)&&a.add(r.category),s.split(" ").forEach(l=>{l.toLowerCase().startsWith(d)&&l.length>2&&a.add(l.charAt(0).toUpperCase()+l.slice(1))})}),e.searchSuggestions=Array.from(a).slice(0,8),e.showSuggestions=!0}else if(e.searchSuggestions=[],e.showSuggestions=!1,e.route==="home"||e.route==="products"){v();return}L()};function L(){const t=document.querySelector(".search-container");if(!t)return;const i=t.querySelector(".search-suggestions");if(i&&i.remove(),e.showSuggestions&&e.searchQuery){const a=`
             <div class="search-suggestions" id="searchSuggestions">
                 <div class="suggestions-header">Suggestions</div>
-                ${e.searchSuggestions.slice(0,5).map(s=>`
-                    <div class="suggestion-item" onclick="window.selectSuggestion('${s.replace(/'/g,"\\'")}')"> 
+                ${e.searchSuggestions.slice(0,5).map(r=>`
+                    <div class="suggestion-item" onclick="window.selectSuggestion('${r.replace(/'/g,"\\'")}')"> 
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <span>${s}</span>
+                        <span>${r}</span>
                     </div>
                 `).join("")}
                 ${e.searchQuery?`
@@ -1131,7 +1180,7 @@ Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.
                     </div>
                 `:""}
             </div>
-        `;t.insertAdjacentHTML("beforeend",r)}}window.showSearchSuggestions=()=>{e.searchQuery&&(e.showSuggestions=!0,C())};window.selectSuggestion=t=>{e.searchQuery=t,e.showSuggestions=!1;const i=document.getElementById("searchInput");i&&(i.value=t),handleSearch()};window.handleSearch=()=>{e.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(e.searchQuery=t.value.trim()),m("products"),setTimeout(()=>{const i=document.querySelector(".product-grid");i&&i.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{e.searchQuery="",e.showSuggestions=!1,e.searchSuggestions=[],g()};document.addEventListener("click",t=>{if(!t.target.closest(".search-container")&&e.showSuggestions){e.showSuggestions=!1;const i=document.querySelector(".search-suggestions");i&&i.remove()}});window.handleLogin=async t=>{console.log("Login attempt started"),t.preventDefault();const i=t.target.email.value,r=t.target.password.value;console.log("Credentials:",{email:i,password:r});try{await h.login(i,r),console.log("Login successful")}catch(s){console.error("Login error:",s)}};window.handleSignup=async t=>{console.log("Signup attempt started"),t.preventDefault();const i=t.target.name.value,r=t.target.email.value,s=t.target.password.value;try{await h.register(i,r,s)}catch(a){console.error("Signup error:",a)}};window.logout=()=>{e.currentUser=null,e.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),l("Logged out successfully"),m("home")};window.deleteProduct=t=>{confirm("Are you sure you want to remove this product?")&&(e.products=e.products.filter(i=>i.id!==t),v(),g(),l("Product removed"))};window.viewOrderDetails=t=>{const i=e.orders.find(c=>c.orderId===t);if(!i){l("Order not found");return}const r=e.users.find(c=>c.id===i.userId),s=r?r.name:`User ID: ${i.userId}`,a=document.createElement("div");a.className="order-details-modal",a.innerHTML=`
+        `;t.insertAdjacentHTML("beforeend",a)}}window.showSearchSuggestions=()=>{e.searchQuery&&(e.showSuggestions=!0,L())};window.selectSuggestion=t=>{e.searchQuery=t,e.showSuggestions=!1;const i=document.getElementById("searchInput");i&&(i.value=t),handleSearch()};window.handleSearch=()=>{e.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(e.searchQuery=t.value.trim()),g("products"),setTimeout(()=>{const i=document.querySelector(".product-grid");i&&i.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{e.searchQuery="",e.showSuggestions=!1,e.searchSuggestions=[],v()};document.addEventListener("click",t=>{if(!t.target.closest(".search-container")&&e.showSuggestions){e.showSuggestions=!1;const i=document.querySelector(".search-suggestions");i&&i.remove()}});window.handleLogin=async t=>{console.log("Login attempt started"),t.preventDefault();const i=t.target.email.value,a=t.target.password.value;console.log("Credentials:",{email:i,password:a});try{await w.login(i,a),console.log("Login successful")}catch(r){console.error("Login error:",r)}};window.handleSignup=async t=>{console.log("Signup attempt started"),t.preventDefault();const i=t.target.name.value,a=t.target.email.value,r=t.target.password.value;try{await w.register(i,a,r)}catch(s){console.error("Signup error:",s)}};window.logout=()=>{e.currentUser=null,e.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),u("Logged out successfully"),g("home")};window.deleteProduct=t=>{confirm("Are you sure you want to remove this product?")&&(e.products=e.products.filter(i=>i.id!==t),f(),v(),u("Product removed"))};window.viewOrderDetails=t=>{const i=e.orders.find(d=>d.orderId===t);if(!i){u("Order not found");return}const a=e.users.find(d=>d.id===i.userId),r=a?a.name:`User ID: ${i.userId}`,s=document.createElement("div");s.className="order-details-modal",s.innerHTML=`
         <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -1146,7 +1195,7 @@ Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.
                     </div>
                     <div class="info-row">
                         <span class="info-label">Customer:</span>
-                        <span class="info-value">${s}</span>
+                        <span class="info-value">${r}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Date:</span>
@@ -1162,32 +1211,32 @@ Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.
                 
                 <h3 style="margin: 1.5rem 0 1rem 0; color: var(--primary);">Items Ordered</h3>
                 <div class="order-items-list">
-                    ${i.items.map(c=>`
+                    ${i.items.map(d=>`
                         <div class="order-item-row">
                             <div class="item-details">
-                                <div class="item-name">${c.productName||"Product ID: "+c.productId}</div>
-                                <div class="item-meta">Quantity: ${c.quantity} × ${d(c.price)}</div>
+                                <div class="item-name">${d.productName||"Product ID: "+d.productId}</div>
+                                <div class="item-meta">Quantity: ${d.quantity} × ${c(d.price)}</div>
                             </div>
-                            <div class="item-total">${d(c.price*c.quantity)}</div>
+                            <div class="item-total">${c(d.price*d.quantity)}</div>
                         </div>
                     `).join("")}
                 </div>
                 
                 <div class="order-total">
                     <span>Total Amount:</span>
-                    <span class="total-amount">${d(i.total)}</span>
+                    <span class="total-amount">${c(i.total)}</span>
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(a);const o=c=>{c.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",o))};document.addEventListener("keydown",o)};const g=()=>{const t=document.getElementById("app");let i="";switch(e.route){case"home":i=k();break;case"products":i=T();break;case"product-detail":i=O();break;case"login":i=j();break;case"signup":i=A();break;case"cart":i=Q();break;case"checkout":i=q();break;case"order-confirmation":i=N();break;case"admin":i=U();break;default:i=k()}t.innerHTML=`
-        ${L()}
+    `,document.body.appendChild(s);const o=d=>{d.key==="Escape"&&(s.remove(),document.removeEventListener("keydown",o))};document.addEventListener("keydown",o)};const v=()=>{const t=document.getElementById("app");let i="";switch(e.route){case"home":i=P();break;case"products":i=q();break;case"product-detail":i=E();break;case"login":i=Q();break;case"signup":i=M();break;case"cart":i=A();break;case"checkout":i=N();break;case"order-confirmation":i=U();break;case"admin":i=B();break;default:i=P()}t.innerHTML=`
+        ${j()}
         <main>
             ${i}
         </main>
         <footer style="text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
             &copy; 2024 Lumina Electronics. All rights reserved.
         </footer>
-    `};window.handleCartSearch=t=>{e.cartSearchQuery=t.target.value,x()};window.clearCartSearch=()=>{e.cartSearchQuery="",x()};window.toggleCartItem=t=>{const i=e.cart.find(r=>r.id===t);i&&(i.selected=i.selected===!1,v(),x())};window.toggleFindSimilar=t=>{const i=e.cart.find(r=>r.id===t);i&&(e.cart.forEach(r=>{r.id!==t&&(r.showSimilar=!1)}),i.showSimilar=!i.showSimilar,v(),x())};function x(){const t=document.querySelector(".cart-items"),i=document.querySelector(".cart-summary"),r=document.querySelector(".cart-search-message");if(!t)return;let s=e.cart;if(e.cartSearchQuery&&(s=e.cart.filter(o=>o.name.toLowerCase().includes(e.cartSearchQuery.toLowerCase())||o.category.toLowerCase().includes(e.cartSearchQuery.toLowerCase()))),t.innerHTML=s.map(o=>{const c=e.products.filter(u=>u.category===o.category&&u.id!==o.id).slice(0,4);return`
+    `};window.handleCartSearch=t=>{e.cartSearchQuery=t.target.value,$()};window.clearCartSearch=()=>{e.cartSearchQuery="",$()};window.toggleCartItem=t=>{const i=e.cart.find(a=>a.id===t);i&&(i.selected=i.selected===!1,f(),$())};window.toggleFindSimilar=t=>{const i=e.cart.find(a=>a.id===t);i&&(e.cart.forEach(a=>{a.id!==t&&(a.showSimilar=!1)}),i.showSimilar=!i.showSimilar,f(),$())};function $(){const t=document.querySelector(".cart-items"),i=document.querySelector(".cart-summary"),a=document.querySelector(".cart-search-message");if(!t)return;let r=e.cart;if(e.cartSearchQuery&&(r=e.cart.filter(o=>o.name.toLowerCase().includes(e.cartSearchQuery.toLowerCase())||o.category.toLowerCase().includes(e.cartSearchQuery.toLowerCase()))),t.innerHTML=r.map(o=>{const d=e.products.filter(p=>p.category===o.category&&p.id!==o.id).slice(0,4);return`
         <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
             <div class="cart-item" style="border-bottom: none;">
                 <input type="checkbox" 
@@ -1198,7 +1247,7 @@ Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.
                 <img src="${o.image}" alt="${o.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                 <div style="flex: 1;">
                     <h3 style="font-size: 1rem;">${o.name}</h3>
-                    <p class="text-muted">${d(o.price)}</p>
+                    <p class="text-muted">${c(o.price)}</p>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
                     <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${o.id}, ${o.quantity-1})">-</button>
@@ -1224,32 +1273,32 @@ Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
-                ${c.length>0?`
+                ${d.length>0?`
                     <div class="similar-products-grid">
-                        ${c.map(u=>`
-                            <div class="similar-product-card" onclick="window.viewProduct(${u.id})">
-                                <img src="${u.image}" alt="${u.name}" class="similar-product-image">
-                                <div class="similar-product-title" title="${u.name}">${u.name}</div>
-                                <div class="similar-product-price">${d(u.price)}</div>
+                        ${d.map(p=>`
+                            <div class="similar-product-card" onclick="window.viewProduct(${p.id})">
+                                <img src="${p.image}" alt="${p.name}" class="similar-product-image">
+                                <div class="similar-product-title" title="${p.name}">${p.name}</div>
+                                <div class="similar-product-price">${c(p.price)}</div>
                             </div>
                         `).join("")}
                     </div>
                 `:'<p class="text-muted text-center">No similar products found.</p>'}
             </div>
         </div>
-    `}).join(""),i){const o=e.cart.reduce((u,p)=>u+(p.selected!==!1?p.price*p.quantity:0),0),c=e.cart.filter(u=>u.selected!==!1).length;i.innerHTML=`
+    `}).join(""),i){const o=e.cart.reduce((p,l)=>p+(l.selected!==!1?l.price*l.quantity:0),0),d=e.cart.filter(p=>p.selected!==!1).length;i.innerHTML=`
             <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                 <span>Total</span>
-                <span>${d(o)}</span>
+                <span>${c(o)}</span>
             </div>
             <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
-                Proceed to Checkout (${c})
+                Proceed to Checkout (${d})
             </button>
-        `}r&&(e.cartSearchQuery&&s.length===0?(r.innerHTML=`
+        `}a&&(e.cartSearchQuery&&r.length===0?(a.innerHTML=`
                 <p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
                     No items found for "${e.cartSearchQuery}"
                 </p>
-            `,r.style.display="block"):r.style.display="none");const a=document.querySelector("#cartSearchInput + .search-btn");a&&(a.innerHTML=e.cartSearchQuery?`
+            `,a.style.display="block"):a.style.display="none");const s=document.querySelector("#cartSearchInput + .search-btn");s&&(s.innerHTML=e.cartSearchQuery?`
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -1259,4 +1308,4 @@ Change: ${d(c)}`)}const u={userId:e.currentUser.id,items:r.map(p=>({productId:p.
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-        `)}const M=async()=>{await h.getProducts(),e.currentUser?.role==="admin"&&await Promise.all([h.getOrders(),h.getUsers()]),g()};M();
+        `)}const z=async()=>{await w.getProducts(),e.currentUser?.role==="admin"&&await Promise.all([w.getOrders(),w.getUsers()]),v()};z();
