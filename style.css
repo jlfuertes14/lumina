@@ -583,33 +583,6 @@ header {
     color: #166534;
 }
 
-.badge-warning {
-    background-color: #fef9c3;
-    color: #854d0e;
-}
-
-/* Toast Notification */
-.toast {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    background: var(--primary);
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    color: white;
-    padding: 0.75rem;
-    border-radius: var(--radius-md);
-    font-weight: 600;
-    transition: all 0.2s;
-    opacity: 0;
-    transform: translateY(10px);
-}
-
-.product-card:hover .add-btn {
-    opacity: 1;
-    transform: translateY(0);
 }
 
 /* On mobile/touch, always show button */
@@ -778,29 +751,6 @@ header {
     color: #166534;
 }
 
-.badge-warning {
-    background-color: #fef9c3;
-    color: #854d0e;
-}
-
-/* Toast Notification */
-.toast {
-    position: fixed;
-    bottom: 2rem;
-    right: 2rem;
-    background: var(--primary);
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
-    transform: translateY(150%);
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: 100;
-}
-
-.toast.show {
-    transform: translateY(0);
-}
 
 /* ========================================
    ADMIN DASHBOARD STYLES

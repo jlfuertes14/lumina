@@ -1,0 +1,244 @@
+/* Payment Modal Styles */
+.payment-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.payment-modal {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    animation: scaleIn 0.3s forwards;
+}
+
+@keyframes scaleIn {
+    to {
+        transform: scale(1);
+    }
+}
+
+.payment-modal-header {
+    padding: 2rem 2rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+    text-align: center;
+}
+
+.payment-modal-header h2 {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.payment-modal-header p {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+.payment-modal-body {
+    padding: 2rem;
+}
+
+.payment-summary {
+    background: var(--surface-alt);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.payment-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+}
+
+.payment-summary-row:not(:last-child) {
+    border-bottom: 1px dashed var(--border);
+}
+
+.payment-summary-row.total {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    border-bottom: none;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    border-top: 2px solid var(--primary);
+}
+
+.payment-input-group {
+    margin-bottom: 1.5rem;
+}
+
+.payment-input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.payment-input {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1.25rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-weight: 700;
+    transition: all 0.2s;
+}
+
+.payment-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(0, 43, 91, 0.1);
+}
+
+.payment-input.error {
+    border-color: var(--danger);
+}
+
+.payment-error {
+    color: var(--danger);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    display: none;
+}
+
+.payment-error.show {
+    display: block;
+}
+
+.payment-change-display {
+    background: linear-gradient(135deg, #10B981, #059669);
+    color: white;
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    display: none;
+}
+
+.payment-change-display.show {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.payment-change-display .change-label {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+}
+
+.payment-change-display .change-amount {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.payment-modal-footer {
+    padding: 1.5rem 2rem 2rem 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.payment-modal-footer button {
+    flex: 1;
+    padding: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-cancel {
+    background: var(--surface-alt);
+    border: 2px solid var(--border);
+    color: var(--text-main);
+}
+
+.btn-cancel:hover {
+    background: var(--border);
+}
+
+.btn-confirm {
+    background: var(--primary);
+    border: 2px solid var(--primary);
+    color: white;
+}
+
+.btn-confirm:hover {
+    background: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 43, 91, 0.3);
+}
+
+.btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-confirm:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.quick-amount-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.quick-amount-btn {
+    padding: 0.75rem;
+    background: var(--surface-alt);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-amount-btn:hover {
+    border-color: var(--primary);
+    background: rgba(0, 43, 91, 0.05);
+}
+
+.quick-amount-btn:active {
+    transform: scale(0.95);
+}

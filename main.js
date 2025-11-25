@@ -1414,6 +1414,177 @@ window.handlePhoneInput = (input) => {
     state.checkoutData.shipping.phone = numbersOnly;
 };
 
+// Payment Modal Function
+window.showPaymentModal = (totalAmount) => {
+    return new Promise((resolve) => {
+        let currentAmount = '';
+
+        // Create modal HTML
+        const modalHTML = `
+            <div class="payment-modal-overlay" id="paymentModalOverlay">
+                <div class="payment-modal">
+                    <div class="payment-modal-header">
+                        <h2>💳 Cash on Delivery Payment</h2>
+                        <p>Please enter the amount you have</p>
+                    </div>
+                    
+                    <div class="payment-modal-body">
+                        <div class="payment-summary">
+                            <div class="payment-summary-row">
+                                <span>Total Amount:</span>
+                                <span style="font-weight: 700;">${formatCurrency(totalAmount)}</span>
+                            </div>
+                            <div class="payment-summary-row total">
+                                <span>To Pay:</span>
+                                <span>${formatCurrency(totalAmount)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-input-group">
+                            <label>Enter Amount</label>
+                            <input 
+                                type="text" 
+                                id="paymentAmountInput" 
+                                class="payment-input" 
+                                placeholder="₱ 0.00"
+                                inputmode="decimal"
+                            >
+                            <div class="payment-error" id="paymentError"></div>
+                        </div>
+                        
+                        <div class="quick-amount-buttons">
+                            <button class="quick-amount-btn" data-amount="${totalAmount}">Exact</button>
+                            <button class="quick-amount-btn" data-amount="${totalAmount + 50}">+₱50</button>
+                            <button class="quick-amount-btn" data-amount="${totalAmount + 100}">+₱100</button>
+                            <button class="quick-amount-btn" data-amount="${Math.ceil(totalAmount / 100) * 100}">Round</button>
+                            <button class="quick-amount-btn" data-amount="${totalAmount + 500}">+₱500</button>
+                            <button class="quick-amount-btn" data-amount="${totalAmount + 1000}">+₱1000</button>
+                        </div>
+                        
+                        <div class="payment-change-display" id="paymentChangeDisplay">
+                            <div class="change-label">Your Change</div>
+                            <div class="change-amount" id="changeAmount">₱ 0.00</div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-modal-footer">
+                        <button class="btn-cancel" id="paymentCancelBtn">Cancel</button>
+                        <button class="btn-confirm" id="paymentConfirmBtn" disabled>Confirm Payment</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        const overlay = document.getElementById('paymentModalOverlay');
+        const input = document.getElementById('paymentAmountInput');
+        const errorDiv = document.getElementById('paymentError');
+        const changeDisplay = document.getElementById('paymentChangeDisplay');
+        const changeAmount = document.getElementById('changeAmount');
+        const confirmBtn = document.getElementById('paymentConfirmBtn');
+        const cancelBtn = document.getElementById('paymentCancelBtn');
+
+        // Focus input
+        setTimeout(() => input.focus(), 100);
+
+        // Handle input
+        input.addEventListener('input', (e) => {
+            // Only allow numbers and decimal point
+            let value = e.target.value.replace(/[^0-9.]/g, '');
+
+            // Ensure only one decimal point
+            const parts = value.split('.');
+            if (parts.length > 2) {
+                value = parts[0] + '.' + parts.slice(1).join('');
+            }
+
+            e.target.value = value;
+            currentAmount = value;
+
+            // Validate
+            const amount = parseFloat(value);
+
+            if (!value || isNaN(amount) || amount < 0) {
+                errorDiv.textContent = '';
+                errorDiv.classList.remove('show');
+                input.classList.remove('error');
+                confirmBtn.disabled = true;
+                changeDisplay.classList.remove('show');
+                return;
+            }
+
+            if (amount < totalAmount) {
+                const shortfall = totalAmount - amount;
+                errorDiv.textContent = `Insufficient! Need ${formatCurrency(shortfall)} more`;
+                errorDiv.classList.add('show');
+                input.classList.add('error');
+                confirmBtn.disabled = true;
+                changeDisplay.classList.remove('show');
+            } else {
+                const change = amount - totalAmount;
+                errorDiv.classList.remove('show');
+                input.classList.remove('error');
+                confirmBtn.disabled = false;
+                changeDisplay.classList.add('show');
+                changeAmount.textContent = formatCurrency(change);
+            }
+        });
+
+        // Quick amount buttons
+        document.querySelectorAll('.quick-amount-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const amount = btn.getAttribute('data-amount');
+                input.value = amount;
+                input.dispatchEvent(new Event('input'));
+            });
+        });
+
+        // Cancel button
+        cancelBtn.addEventListener('click', () => {
+            overlay.remove();
+            resolve(null);
+        });
+
+        // Click overlay to close
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                resolve(null);
+            }
+        });
+
+        // Confirm button
+        confirmBtn.addEventListener('click', () => {
+            const amount = parseFloat(currentAmount);
+            if (amount >= totalAmount) {
+                overlay.remove();
+                resolve({
+                    amountPaid: amount,
+                    change: amount - totalAmount
+                });
+            }
+        });
+
+        // Enter key to confirm
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !confirmBtn.disabled) {
+                confirmBtn.click();
+            }
+        });
+
+        // Escape key to cancel
+        document.addEventListener('keydown', function escHandler(e) {
+            if (e.key === 'Escape') {
+                overlay.remove();
+                resolve(null);
+                document.removeEventListener('keydown', escHandler);
+            }
+        });
+    });
+};
+
 window.placeOrder = async () => {
     const shipping = state.checkoutData.shipping;
 
@@ -1465,30 +1636,16 @@ window.placeOrder = async () => {
     let change = 0;
 
     if (state.checkoutData.paymentMethod === 'cod') {
-        // Only prompt for cash payment for COD
-        const paymentPrompt = prompt(`Total amount to pay: ${formatCurrency(totalAmount)}\n\nPlease enter the amount you have:`, '');
+        // Show payment modal instead of prompt
+        const paymentResult = await showPaymentModal(totalAmount);
 
-        if (paymentPrompt === null) {
+        if (!paymentResult) {
             // User cancelled
             return;
         }
 
-        amountPaid = parseFloat(paymentPrompt);
-
-        if (isNaN(amountPaid) || amountPaid < 0) {
-            showToast('Please enter a valid amount');
-            return;
-        }
-
-        if (amountPaid < totalAmount) {
-            showToast(`Insufficient amount! You need ${formatCurrency(totalAmount - amountPaid)} more.`);
-            return;
-        }
-
-        change = amountPaid - totalAmount;
-
-        // Show payment details
-        alert(`Total to Pay: ${formatCurrency(totalAmount)}\nAmount Paid: ${formatCurrency(amountPaid)}\nChange: ${formatCurrency(change)}`);
+        amountPaid = paymentResult.amountPaid;
+        change = paymentResult.change;
     }
 
     const orderData = {
@@ -1516,6 +1673,16 @@ window.placeOrder = async () => {
             amountPaid: amountPaid,
             change: change
         };
+
+        // Add the order to state.orders for the confirmation page
+        state.orders.push({
+            orderId: response.orderId,
+            ...response,
+            items: selectedItems,
+            total: totalAmount,
+            createdAt: new Date().toISOString(),
+            userId: state.currentUser.id
+        });
 
         state.cart = state.cart.filter(item => item.selected === false);
         saveState();
