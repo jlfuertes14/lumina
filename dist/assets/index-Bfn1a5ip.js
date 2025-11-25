@@ -406,8 +406,8 @@
     `},q=()=>{if(!t.currentUser)return g("login"),"";const e=t.cart.filter(n=>n.selected!==!1);if(e.length===0)return m("No items selected for checkout"),g("cart"),"";const a=e.reduce((n,o)=>n+o.price*o.quantity,0),s=t.checkoutData.shippingFee,i=a+s;return`
         <div class="checkout-container" style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <div style="margin-bottom: 2rem;">
-                <button onclick="window.history.back()" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-weight: 600;">
-                    <span>←</span> Back
+                <button onclick="window.navigate('cart')" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-weight: 600; background: none; border: none; cursor: pointer;">
+                    <span>←</span> Back to Cart
                 </button>
                 <h1 style="font-size: 2.5rem; margin-top: 1rem;">Checkout</h1>
             </div>
@@ -423,7 +423,6 @@
                                     value="${t.checkoutData.shipping.fullName||(t.currentUser?t.currentUser.name:"")}"
                                     oninput="window.handleNameInput(this)"
                                     placeholder="e.g. Juan Dela Cruz">
-                                <small style="color: var(--text-muted); font-size: 0.75rem;">Letters and spaces only</small>
                             </div>
 
                             <div>
@@ -433,7 +432,6 @@
                                     oninput="window.handlePhoneInput(this)"
                                     maxlength="11"
                                     placeholder="09123456789">
-                                <small style="color: var(--text-muted); font-size: 0.75rem;">Must start with 09 and contain 11 digits</small>
                             </div>
 
                             <div>
@@ -529,7 +527,7 @@
             </div>
         </div>
     `},Q=()=>{if(!t.lastOrderId)return g("home"),"";const e=t.orders.find(o=>o.orderId===t.lastOrderId);if(!e)return g("home"),"";const a=new Date,s=new Date(a);s.setDate(a.getDate()+3);const i=new Date(a);i.setDate(a.getDate()+5);const n=`${s.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${i.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} `;return`
-    < div style = "max-width: 800px; margin: 4rem auto; padding: 0 2rem;" >
+        <div style="max-width: 800px; margin: 4rem auto; padding: 0 2rem;">
             <div style="text-align: center; margin-bottom: 3rem;">
                 <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">✓</div>
                 <h1 style="color: var(--success); margin-bottom: 0.5rem;">Order Placed Successfully!</h1>

@@ -715,8 +715,8 @@ const CheckoutPage = () => {
     return `
         <div class="checkout-container" style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <div style="margin-bottom: 2rem;">
-                <button onclick="window.history.back()" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-weight: 600;">
-                    <span>←</span> Back
+                <button onclick="window.navigate('cart')" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-weight: 600; background: none; border: none; cursor: pointer;">
+                    <span>←</span> Back to Cart
                 </button>
                 <h1 style="font-size: 2.5rem; margin-top: 1rem;">Checkout</h1>
             </div>
@@ -732,7 +732,6 @@ const CheckoutPage = () => {
                                     value="${state.checkoutData.shipping.fullName || (state.currentUser ? state.currentUser.name : '')}"
                                     oninput="window.handleNameInput(this)"
                                     placeholder="e.g. Juan Dela Cruz">
-                                <small style="color: var(--text-muted); font-size: 0.75rem;">Letters and spaces only</small>
                             </div>
 
                             <div>
@@ -742,7 +741,6 @@ const CheckoutPage = () => {
                                     oninput="window.handlePhoneInput(this)"
                                     maxlength="11"
                                     placeholder="09123456789">
-                                <small style="color: var(--text-muted); font-size: 0.75rem;">Must start with 09 and contain 11 digits</small>
                             </div>
 
                             <div>
@@ -867,7 +865,7 @@ const OrderConfirmationPage = () => {
     const deliveryRange = `${minDelivery.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${maxDelivery.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} `;
 
     return `
-    < div style = "max-width: 800px; margin: 4rem auto; padding: 0 2rem;" >
+        <div style="max-width: 800px; margin: 4rem auto; padding: 0 2rem;">
             <div style="text-align: center; margin-bottom: 3rem;">
                 <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">✓</div>
                 <h1 style="color: var(--success); margin-bottom: 0.5rem;">Order Placed Successfully!</h1>
