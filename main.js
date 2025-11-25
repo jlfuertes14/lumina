@@ -712,6 +712,11 @@ const CheckoutPage = () => {
     const shippingFee = state.checkoutData.shippingFee;
     const total = subtotal + shippingFee;
 
+    // Initialize full name from current user if not set
+    if (!state.checkoutData.shipping.fullName && state.currentUser && state.currentUser.name) {
+        state.checkoutData.shipping.fullName = state.currentUser.name;
+    }
+
     return `
         <div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <button class="btn btn-outline" onclick="window.navigate('cart')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
@@ -2925,9 +2930,10 @@ function updateShippingField(field, value) {
     state.checkoutData.shipping[field] = value;
 }
 
-// Full Name - Only letters, spaces, hyphens, and apostrophes
+// Full Name - Block numbers and special characters, allow letters, spaces, hyphens, apostrophes
 function handleNameInput(field, input) {
-    const value = input.value.replace(/[^a-zA-Z\s\-']/g, '');
+    // Remove numbers and unwanted special characters, keep letters, spaces, hyphens, apostrophes
+    const value = input.value.replace(/[^a-zA-Z\s\-'\.]/g, '');
     input.value = value;
     state.checkoutData.shipping[field] = value;
 }

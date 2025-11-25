@@ -403,7 +403,7 @@
             </div>
         </div>
         </div>
-    `},j=()=>{if(!e.currentUser)return g("login"),"";const t=e.cart.filter(i=>i.selected!==!1);if(t.length===0)return m("No items selected for checkout"),g("cart"),"";const a=t.reduce((i,o)=>i+o.price*o.quantity,0),s=e.checkoutData.shippingFee,n=a+s;return`
+    `},j=()=>{if(!e.currentUser)return g("login"),"";const t=e.cart.filter(i=>i.selected!==!1);if(t.length===0)return m("No items selected for checkout"),g("cart"),"";const a=t.reduce((i,o)=>i+o.price*o.quantity,0),s=e.checkoutData.shippingFee,n=a+s;return!e.checkoutData.shipping.fullName&&e.currentUser&&e.currentUser.name&&(e.checkoutData.shipping.fullName=e.currentUser.name),`
         <div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <button class="btn btn-outline" onclick="window.navigate('cart')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
                 ← Back to Cart
