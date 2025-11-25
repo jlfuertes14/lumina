@@ -715,8 +715,8 @@ const CheckoutPage = () => {
     return `
         <div class="checkout-container" style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <div style="margin-bottom: 2rem;">
-                <button onclick="window.navigate('cart')" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-weight: 600; background: none; border: none; cursor: pointer;">
-                    <span>←</span> Back to Cart
+                <button class="btn btn-outline" onclick="window.navigate('cart')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
+                    ← Back to Cart
                 </button>
                 <h1 style="font-size: 2.5rem; margin-top: 1rem;">Checkout</h1>
             </div>
