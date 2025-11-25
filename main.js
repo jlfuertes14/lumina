@@ -727,35 +727,35 @@ const CheckoutPage = () => {
                         <form id="shippingForm">
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                 <div class="form-group">
-                                    <label class="form-label">Full Name *</label>
-                                    <input type="text" name="fullName" class="form-input" value="${state.checkoutData.shipping.fullName || state.currentUser.name}" required oninput="window.updateShippingInfo('fullName', this.value)">
+                                    <label class="form-label required">Full Name</label>
+                                    <input type="text" name="fullName" class="form-input" value="${state.checkoutData.shipping.fullName || state.currentUser.name}" required oninput="handleNameInput('fullName', this)">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Phone Number *</label>
-                                    <input type="tel" name="phone" class="form-input" value="${state.checkoutData.shipping.phone}" required placeholder="09XX-XXX-XXXX" oninput="window.handlePhoneInput(this)">
+                                    <label class="form-label required">Phone Number</label>
+                                    <input type="tel" name="phone" class="form-input" value="${state.checkoutData.shipping.phone}" required placeholder="09XX-XXX-XXXX" oninput="handlePhoneInput(this)">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Address *</label>
-                                <input type="text" name="address" class="form-input" value="${state.checkoutData.shipping.address}" required placeholder="Street address, house number" oninput="window.updateShippingInfo('address', this.value)">
+                                <label class="form-label required">Address</label>
+                                <input type="text" name="address" class="form-input" value="${state.checkoutData.shipping.address}" required placeholder="Street address, house number" oninput="updateShippingField('address', this.value)">
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
                                 <div class="form-group">
-                                    <label class="form-label">City *</label>
-                                    <input type="text" name="city" class="form-input" value="${state.checkoutData.shipping.city}" required oninput="window.updateShippingInfo('city', this.value)">
+                                    <label class="form-label required">City</label>
+                                    <input type="text" name="city" class="form-input" value="${state.checkoutData.shipping.city}" required oninput="handleCityInput(this)">
                                 </div>
                                 <div class="form-group">
-                                    <label class="form-label">Province *</label>
-                                    <input type="text" name="province" class="form-input" value="${state.checkoutData.shipping.province}" required oninput="window.updateShippingInfo('province', this.value)">
+                                    <label class="form-label required">Province</label>
+                                    <input type="text" name="province" class="form-input" value="${state.checkoutData.shipping.province}" required oninput="handleProvinceInput(this)">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Postal Code</label>
-                                    <input type="text" name="postalCode" class="form-input" value="${state.checkoutData.shipping.postalCode}" placeholder="Optional" oninput="window.updateShippingInfo('postalCode', this.value)">
+                                    <input type="text" name="postalCode" class="form-input" value="${state.checkoutData.shipping.postalCode}" placeholder="Optional" oninput="handlePostalCodeInput(this)">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Delivery Instructions (Optional)</label>
-                                <textarea name="instructions" class="form-input" rows="3" placeholder="Floor number, landmark, etc." oninput="window.updateShippingInfo('instructions', this.value)">${state.checkoutData.shipping.instructions}</textarea>
+                                <textarea name="instructions" class="form-input" rows="3" placeholder="Floor number, landmark, etc." oninput="updateShippingField('instructions', this.value)">${state.checkoutData.shipping.instructions}</textarea>
                             </div>
                         </form>
                     </div>
@@ -2080,10 +2080,20 @@ window.placeOrder = async () => {
         return;
     }
 
-    // Validate phone number (numbers only, no letters or special characters)
-    const phoneRegex = /^[0-9]+$/;
+    // Validate Philippine phone number format (09XXXXXXXXX)
+    if (!shipping.phone.startsWith('09')) {
+        showToast('Phone number must start with 09');
+        return;
+    }
+
+    if (shipping.phone.length !== 11) {
+        showToast('Phone number must be exactly 11 digits (09XXXXXXXXX)');
+        return;
+    }
+
+    const phoneRegex = /^09[0-9]{9}$/;
     if (!phoneRegex.test(shipping.phone)) {
-        showToast('Phone number must contain only numbers (no letters or special characters)');
+        showToast('Invalid phone number format. Use: 09XXXXXXXXX');
         return;
     }
 
@@ -2908,6 +2918,72 @@ function updateCartItems() {
             </svg>
         `;
     }
+}
+
+// --- Input Validation Handlers ---
+function updateShippingField(field, value) {
+    state.checkoutData.shipping[field] = value;
+}
+
+// Full Name - Only letters, spaces, hyphens, and apostrophes
+function handleNameInput(field, input) {
+    const value = input.value.replace(/[^a-zA-Z\s\-']/g, '');
+    input.value = value;
+    state.checkoutData.shipping[field] = value;
+}
+
+// City - Only letters and spaces
+function handleCityInput(input) {
+    const value = input.value.replace(/[^a-zA-Z\s]/g, '');
+    input.value = value;
+    state.checkoutData.shipping.city = value;
+}
+
+// Province - Only letters and spaces
+function handleProvinceInput(input) {
+    const value = input.value.replace(/[^a-zA-Z\s]/g, '');
+    input.value = value;
+    state.checkoutData.shipping.province = value;
+}
+
+// Phone - Only numbers, must start with 09, max 11 digits
+function handlePhoneInput(input) {
+    // Remove all non-numeric characters
+    let value = input.value.replace(/[^0-9]/g, '');
+
+    // Limit to 11 digits
+    if (value.length > 11) {
+        value = value.substring(0, 11);
+    }
+
+    // Update input
+    input.value = value;
+    state.checkoutData.shipping.phone = value;
+
+    // Visual feedback for invalid format
+    if (value.length > 0) {
+        if (!value.startsWith('09')) {
+            input.style.borderColor = '#EF4444'; // Red border
+            input.style.backgroundColor = '#FEE2E2'; // Light red background
+        } else if (value.length < 11) {
+            input.style.borderColor = '#F59E0B'; // Orange border
+            input.style.backgroundColor = '#FEF3C7'; // Light yellow background
+        } else {
+            input.style.borderColor = '#10B981'; // Green border
+            input.style.backgroundColor = '#D1FAE5'; // Light green background
+        }
+    } else {
+        // Reset to default
+        input.style.borderColor = '';
+        input.style.backgroundColor = '';
+    }
+}
+
+// Postal Code - Only numbers
+function handlePostalCodeInput(input) {
+    const value = input.value.replace(/[^0-9]/g, '');
+    input.value = value;
+    state.checkoutData.shipping.postalCode = value;
 }
 
 // --- App Initialization ---

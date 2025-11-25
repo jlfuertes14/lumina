@@ -1,0 +1,15 @@
+/* Checkout Form Enhancements */
+.form-label {
+    color: var(--text-main);
+}
+
+/* Red asterisk for required fields */
+.form-label::after {
+    content: '';
+}
+
+.form-label.required::after {
+    content: ' *';
+    color: #EF4444;
+    font-weight: 700;
+}
