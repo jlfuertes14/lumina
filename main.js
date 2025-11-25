@@ -712,60 +712,84 @@ const CheckoutPage = () => {
     const shippingFee = state.checkoutData.shippingFee;
     const total = subtotal + shippingFee;
 
-    // Initialize full name from current user if not set
-    if (!state.checkoutData.shipping.fullName && state.currentUser && state.currentUser.name) {
-        state.checkoutData.shipping.fullName = state.currentUser.name;
-    }
-
     return `
-        <div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
-            <button class="btn btn-outline" onclick="window.navigate('cart')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
-                ← Back to Cart
-            </button>
+        <div class="checkout-container" style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
+            <div style="margin-bottom: 2rem;">
+                <button onclick="window.history.back()" style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-weight: 600;">
+                    <span>←</span> Back
+                </button>
+                <h1 style="font-size: 2.5rem; margin-top: 1rem;">Checkout</h1>
+            </div>
 
-            <h1 style="margin-bottom: 2rem;">Checkout</h1>
-
-            <div style="display: grid; grid-template-columns: 1fr 400px; gap: 2rem;">
-                <div>
+            <div style="display: grid; grid-template-columns: 1fr 380px; gap: 3rem;">
+                <div class="checkout-form">
                     <div class="admin-section" style="margin-bottom: 2rem;">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">📍 Shipping Information</h2>
-                        <form id="shippingForm">
+                        <form onsubmit="event.preventDefault();" style="display: grid; gap: 1.5rem;">
+                            <div>
+                                <label class="form-label">Full Name <span style="color: red;">*</span></label>
+                                <input type="text" class="form-input" 
+                                    value="${state.checkoutData.shipping.fullName || (state.currentUser ? state.currentUser.name : '')}"
+                                    oninput="window.handleNameInput(this)"
+                                    placeholder="e.g. Juan Dela Cruz">
+                                <small style="color: var(--text-muted); font-size: 0.75rem;">Letters and spaces only</small>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Phone Number <span style="color: red;">*</span></label>
+                                <input type="tel" class="form-input" 
+                                    value="${state.checkoutData.shipping.phone}"
+                                    oninput="window.handlePhoneInput(this)"
+                                    maxlength="11"
+                                    placeholder="09123456789">
+                                <small style="color: var(--text-muted); font-size: 0.75rem;">Must start with 09 and contain 11 digits</small>
+                            </div>
+
+                            <div>
+                                <label class="form-label">Address <span style="color: red;">*</span></label>
+                                <input type="text" class="form-input" 
+                                    value="${state.checkoutData.shipping.address}"
+                                    onchange="window.updateShippingInfo('address', this.value)"
+                                    placeholder="House/Unit No., Street Name, Barangay">
+                            </div>
+
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                                <div class="form-group">
-                                    <label class="form-label required">Full Name</label>
-                                    <input type="text" name="fullName" class="form-input" value="${state.checkoutData.shipping.fullName || state.currentUser.name}" required oninput="handleNameInput('fullName', this)">
+                                <div>
+                                    <label class="form-label">City <span style="color: red;">*</span></label>
+                                    <input type="text" class="form-input" 
+                                        value="${state.checkoutData.shipping.city}"
+                                        oninput="window.handleLocationInput(this, 'city')"
+                                        placeholder="e.g. Makati">
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label required">Phone Number</label>
-                                    <input type="tel" name="phone" class="form-input" value="${state.checkoutData.shipping.phone}" required placeholder="09XX-XXX-XXXX" oninput="handlePhoneInput(this)">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label required">Address</label>
-                                <input type="text" name="address" class="form-input" value="${state.checkoutData.shipping.address}" required placeholder="Street address, house number" oninput="updateShippingField('address', this.value)">
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-                                <div class="form-group">
-                                    <label class="form-label required">City</label>
-                                    <input type="text" name="city" class="form-input" value="${state.checkoutData.shipping.city}" required oninput="handleCityInput(this)">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label required">Province</label>
-                                    <input type="text" name="province" class="form-input" value="${state.checkoutData.shipping.province}" required oninput="handleProvinceInput(this)">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Postal Code</label>
-                                    <input type="text" name="postalCode" class="form-input" value="${state.checkoutData.shipping.postalCode}" placeholder="Optional" oninput="handlePostalCodeInput(this)">
+                                <div>
+                                    <label class="form-label">Province <span style="color: red;">*</span></label>
+                                    <input type="text" class="form-input" 
+                                        value="${state.checkoutData.shipping.province}"
+                                        oninput="window.handleLocationInput(this, 'province')"
+                                        placeholder="e.g. Metro Manila">
                                 </div>
                             </div>
-                            <div class="form-group">
+
+                            <div>
+                                <label class="form-label">Postal Code <span style="color: red;">*</span></label>
+                                <input type="text" class="form-input" 
+                                    value="${state.checkoutData.shipping.postalCode}"
+                                    oninput="window.handlePostalInput(this)"
+                                    maxlength="4"
+                                    placeholder="e.g. 1200">
+                            </div>
+
+                            <div>
                                 <label class="form-label">Delivery Instructions (Optional)</label>
-                                <textarea name="instructions" class="form-input" rows="3" placeholder="Floor number, landmark, etc." oninput="updateShippingField('instructions', this.value)">${state.checkoutData.shipping.instructions}</textarea>
+                                <textarea class="form-input" 
+                                    onchange="window.updateShippingInfo('instructions', this.value)"
+                                    rows="3"
+                                    placeholder="Floor number, landmark, etc.">${state.checkoutData.shipping.instructions || ''}</textarea>
                             </div>
                         </form>
                     </div>
                     <div class="admin-section">
-                        <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">💳 Payment Method</h2>
+                        <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">💳 Payment Method <span style="color: red;">*</span></h2>
                         <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem;">
                             ${[
             { id: 'cod', label: 'Cash on Delivery', image: '/lumina/images/payment/cod.png' },
@@ -840,10 +864,10 @@ const OrderConfirmationPage = () => {
     const maxDelivery = new Date(today);
     maxDelivery.setDate(today.getDate() + 5);
 
-    const deliveryRange = `${minDelivery.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${maxDelivery.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    const deliveryRange = `${minDelivery.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${maxDelivery.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} `;
 
     return `
-        <div style="max-width: 800px; margin: 4rem auto; padding: 0 2rem;">
+    < div style = "max-width: 800px; margin: 4rem auto; padding: 0 2rem;" >
             <div style="text-align: center; margin-bottom: 3rem;">
                 <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">✓</div>
                 <h1 style="color: var(--success); margin-bottom: 0.5rem;">Order Placed Successfully!</h1>
@@ -1417,6 +1441,27 @@ window.handlePhoneInput = (input) => {
     const numbersOnly = input.value.replace(/[^0-9]/g, '');
     input.value = numbersOnly;
     state.checkoutData.shipping.phone = numbersOnly;
+};
+
+window.handleNameInput = (input) => {
+    // Only allow letters and spaces
+    const lettersOnly = input.value.replace(/[^a-zA-Z\s]/g, '');
+    input.value = lettersOnly;
+    state.checkoutData.shipping.fullName = lettersOnly;
+};
+
+window.handleLocationInput = (input, field) => {
+    // Only allow letters and spaces for City/Province
+    const lettersOnly = input.value.replace(/[^a-zA-Z\s]/g, '');
+    input.value = lettersOnly;
+    state.checkoutData.shipping[field] = lettersOnly;
+};
+
+window.handlePostalInput = (input) => {
+    // Only allow numbers
+    const numbersOnly = input.value.replace(/[^0-9]/g, '');
+    input.value = numbersOnly;
+    state.checkoutData.shipping.postalCode = numbersOnly;
 };
 
 // Payment Modal Function
@@ -2085,20 +2130,35 @@ window.placeOrder = async () => {
         return;
     }
 
-    // Validate Philippine phone number format (09XXXXXXXXX)
-    if (!shipping.phone.startsWith('09')) {
-        showToast('Phone number must start with 09');
-        return;
-    }
-
-    if (shipping.phone.length !== 11) {
-        showToast('Phone number must be exactly 11 digits (09XXXXXXXXX)');
-        return;
-    }
-
-    const phoneRegex = /^09[0-9]{9}$/;
+    // Validate phone number (Must start with 09 and be exactly 11 digits)
+    const phoneRegex = /^09\d{9}$/;
     if (!phoneRegex.test(shipping.phone)) {
-        showToast('Invalid phone number format. Use: 09XXXXXXXXX');
+        showToast('Phone number must start with "09" and contain exactly 11 digits');
+        return;
+    }
+
+    // Validate Name (Letters and spaces only)
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!nameRegex.test(shipping.fullName)) {
+        showToast('Full Name must contain letters and spaces only');
+        return;
+    }
+
+    // Validate City (Letters and spaces only)
+    if (!nameRegex.test(shipping.city)) {
+        showToast('City must contain letters and spaces only');
+        return;
+    }
+
+    // Validate Province (Letters and spaces only)
+    if (!nameRegex.test(shipping.province)) {
+        showToast('Province must contain letters and spaces only');
+        return;
+    }
+
+    // Validate Postal Code (Numbers only, if provided)
+    if (shipping.postalCode && !/^\d+$/.test(shipping.postalCode)) {
+        showToast('Postal Code must contain numbers only');
         return;
     }
 
@@ -2923,73 +2983,6 @@ function updateCartItems() {
             </svg>
         `;
     }
-}
-
-// --- Input Validation Handlers ---
-function updateShippingField(field, value) {
-    state.checkoutData.shipping[field] = value;
-}
-
-// Full Name - Block numbers and special characters, allow letters, spaces, hyphens, apostrophes
-function handleNameInput(field, input) {
-    // Remove numbers and unwanted special characters, keep letters, spaces, hyphens, apostrophes
-    const value = input.value.replace(/[^a-zA-Z\s\-'\.]/g, '');
-    input.value = value;
-    state.checkoutData.shipping[field] = value;
-}
-
-// City - Only letters and spaces
-function handleCityInput(input) {
-    const value = input.value.replace(/[^a-zA-Z\s]/g, '');
-    input.value = value;
-    state.checkoutData.shipping.city = value;
-}
-
-// Province - Only letters and spaces
-function handleProvinceInput(input) {
-    const value = input.value.replace(/[^a-zA-Z\s]/g, '');
-    input.value = value;
-    state.checkoutData.shipping.province = value;
-}
-
-// Phone - Only numbers, must start with 09, max 11 digits
-function handlePhoneInput(input) {
-    // Remove all non-numeric characters
-    let value = input.value.replace(/[^0-9]/g, '');
-
-    // Limit to 11 digits
-    if (value.length > 11) {
-        value = value.substring(0, 11);
-    }
-
-    // Update input
-    input.value = value;
-    state.checkoutData.shipping.phone = value;
-
-    // Visual feedback for invalid format
-    if (value.length > 0) {
-        if (!value.startsWith('09')) {
-            input.style.borderColor = '#EF4444'; // Red border
-            input.style.backgroundColor = '#FEE2E2'; // Light red background
-        } else if (value.length < 11) {
-            input.style.borderColor = '#F59E0B'; // Orange border
-            input.style.backgroundColor = '#FEF3C7'; // Light yellow background
-        } else {
-            input.style.borderColor = '#10B981'; // Green border
-            input.style.backgroundColor = '#D1FAE5'; // Light green background
-        }
-    } else {
-        // Reset to default
-        input.style.borderColor = '';
-        input.style.backgroundColor = '';
-    }
-}
-
-// Postal Code - Only numbers
-function handlePostalCodeInput(input) {
-    const value = input.value.replace(/[^0-9]/g, '');
-    input.value = value;
-    state.checkoutData.shipping.postalCode = value;
 }
 
 // --- App Initialization ---
