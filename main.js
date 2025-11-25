@@ -732,7 +732,7 @@ const CheckoutPage = () => {
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Phone Number *</label>
-                                    <input type="tel" name="phone" class="form-input" value="${state.checkoutData.shipping.phone}" required placeholder="09XX-XXX-XXXX" oninput="window.updateShippingInfo('phone', this.value)">
+                                    <input type="tel" name="phone" class="form-input" value="${state.checkoutData.shipping.phone}" required placeholder="09XX-XXX-XXXX" oninput="window.handlePhoneInput(this)">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -1407,14 +1407,89 @@ window.selectPaymentMethod = (method) => {
     render();
 };
 
+window.handlePhoneInput = (input) => {
+    // Only allow numbers
+    const numbersOnly = input.value.replace(/[^0-9]/g, '');
+    input.value = numbersOnly;
+    state.checkoutData.shipping.phone = numbersOnly;
+};
+
 window.placeOrder = async () => {
     const shipping = state.checkoutData.shipping;
-    if (!shipping.fullName || !shipping.phone || !shipping.address || !shipping.city || !shipping.province) {
-        showToast('Please fill in all required shipping fields');
+
+    // Validate all required fields
+    if (!shipping.fullName || !shipping.fullName.trim()) {
+        showToast('Please enter your full name');
+        return;
+    }
+
+    if (!shipping.address || !shipping.address.trim()) {
+        showToast('Please enter your address');
+        return;
+    }
+
+    if (!shipping.city || !shipping.city.trim()) {
+        showToast('Please enter your city');
+        return;
+    }
+
+    if (!shipping.province || !shipping.province.trim()) {
+        showToast('Please enter your province');
+        return;
+    }
+
+    if (!shipping.phone || !shipping.phone.trim()) {
+        showToast('Please enter your phone number');
+        return;
+    }
+
+    // Validate phone number (numbers only, no letters or special characters)
+    const phoneRegex = /^[0-9]+$/;
+    if (!phoneRegex.test(shipping.phone)) {
+        showToast('Phone number must contain only numbers (no letters or special characters)');
+        return;
+    }
+
+    // Validate payment method is selected
+    if (!state.checkoutData.paymentMethod) {
+        showToast('Please select a payment method');
         return;
     }
 
     const selectedItems = state.cart.filter(item => item.selected !== false);
+    const subtotal = selectedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const totalAmount = subtotal + state.checkoutData.shippingFee;
+
+    // Prompt user for payment amount
+    let amountPaid = null;
+    let change = 0;
+
+    if (state.checkoutData.paymentMethod === 'cod') {
+        // Only prompt for cash payment for COD
+        const paymentPrompt = prompt(`Total amount to pay: ${formatCurrency(totalAmount)}\n\nPlease enter the amount you have:`, '');
+
+        if (paymentPrompt === null) {
+            // User cancelled
+            return;
+        }
+
+        amountPaid = parseFloat(paymentPrompt);
+
+        if (isNaN(amountPaid) || amountPaid < 0) {
+            showToast('Please enter a valid amount');
+            return;
+        }
+
+        if (amountPaid < totalAmount) {
+            showToast(`Insufficient amount! You need ${formatCurrency(totalAmount - amountPaid)} more.`);
+            return;
+        }
+
+        change = amountPaid - totalAmount;
+
+        // Show payment details
+        alert(`Total to Pay: ${formatCurrency(totalAmount)}\nAmount Paid: ${formatCurrency(amountPaid)}\nChange: ${formatCurrency(change)}`);
+    }
 
     const orderData = {
         userId: state.currentUser.id,
@@ -1424,15 +1499,24 @@ window.placeOrder = async () => {
             price: item.price,
             name: item.name
         })),
-        total: selectedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0) + state.checkoutData.shippingFee,
+        total: totalAmount,
         shippingInfo: state.checkoutData.shipping,
         paymentMethod: state.checkoutData.paymentMethod,
-        shippingFee: state.checkoutData.shippingFee
+        shippingFee: state.checkoutData.shippingFee,
+        amountPaid: amountPaid,
+        change: change
     };
 
     try {
         const response = await api.createOrder(orderData);
         state.lastOrderId = response.orderId;
+
+        // Store payment info for receipt
+        state.lastOrderPayment = {
+            amountPaid: amountPaid,
+            change: change
+        };
+
         state.cart = state.cart.filter(item => item.selected === false);
         saveState();
         navigate('order-confirmation');
@@ -1442,7 +1526,298 @@ window.placeOrder = async () => {
 };
 
 window.printReceipt = () => {
-    window.print();
+    if (!state.lastOrderId) {
+        showToast('No order found to print');
+        return;
+    }
+
+    const order = state.orders.find(o => o.orderId === state.lastOrderId);
+    if (!order) {
+        showToast('Order not found');
+        return;
+    }
+
+    const payment = state.lastOrderPayment || {};
+    const currentDate = new Date();
+
+    // Create receipt HTML with grocery-style formatting
+    const receiptHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Receipt #${order.orderId}</title>
+            <style>
+                @media print {
+                    @page {
+                        size: 80mm auto;
+                        margin: 5mm;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 0;
+                    }
+                }
+                
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+                
+                body {
+                    font-family: 'Courier New', monospace;
+                    font-size: 12px;
+                    line-height: 1.4;
+                    width: 80mm;
+                    margin: 0 auto;
+                    padding: 10px;
+                    background: white;
+                }
+                
+                .receipt-header {
+                    text-align: center;
+                    border-bottom: 2px dashed #000;
+                    padding-bottom: 10px;
+                    margin-bottom: 10px;
+                }
+                
+                .store-name {
+                    font-size: 18px;
+                    font-weight: bold;
+                    margin-bottom: 5px;
+                }
+                
+                .store-info {
+                    font-size: 10px;
+                    margin: 2px 0;
+                }
+                
+                .receipt-info {
+                    margin: 10px 0;
+                    font-size: 11px;
+                    border-bottom: 1px dashed #000;
+                    padding-bottom: 10px;
+                }
+                
+                .info-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 3px 0;
+                }
+                
+                .items-section {
+                    margin: 10px 0;
+                    border-bottom: 1px dashed #000;
+                    padding-bottom: 10px;
+                }
+                
+                .items-header {
+                    font-weight: bold;
+                    border-bottom: 1px solid #000;
+                    padding: 5px 0;
+                    display: grid;
+                    grid-template-columns: 2fr 1fr 1fr;
+                    gap: 5px;
+                }
+                
+                .item-row {
+                    padding: 5px 0;
+                    border-bottom: 1px dotted #ccc;
+                }
+                
+                .item-name {
+                    font-weight: bold;
+                    margin-bottom: 2px;
+                }
+                
+                .item-details {
+                    display: grid;
+                    grid-template-columns: 2fr 1fr 1fr;
+                    gap: 5px;
+                    font-size: 11px;
+                }
+                
+                .totals-section {
+                    margin: 10px 0;
+                    padding: 10px 0;
+                    border-bottom: 2px dashed #000;
+                }
+                
+                .total-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 5px 0;
+                    font-size: 12px;
+                }
+                
+                .total-row.grand-total {
+                    font-size: 14px;
+                    font-weight: bold;
+                    border-top: 2px solid #000;
+                    padding-top: 5px;
+                    margin-top: 5px;
+                }
+                
+                .payment-section {
+                    margin: 10px 0;
+                    padding: 10px 0;
+                    border-bottom: 1px dashed #000;
+                }
+                
+                .payment-row {
+                    display: flex;
+                    justify-content: space-between;
+                    margin: 5px 0;
+                    font-size: 12px;
+                }
+                
+                .change-row {
+                    font-weight: bold;
+                    font-size: 13px;
+                }
+                
+                .receipt-footer {
+                    text-align: center;
+                    margin-top: 10px;
+                    font-size: 10px;
+                }
+                
+                .thank-you {
+                    font-weight: bold;
+                    font-size: 14px;
+                    margin: 10px 0;
+                }
+                
+                .footer-note {
+                    margin: 5px 0;
+                    font-style: italic;
+                }
+                
+                .text-right {
+                    text-align: right;
+                }
+                
+                .text-center {
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="receipt-header">
+                <div class="store-name">LUMINA ELECTRONICS</div>
+                <div class="store-info">Premium Electronics Store</div>
+                <div class="store-info">Tel: (02) 8123-4567</div>
+                <div class="store-info">www.luminaelectronics.com</div>
+            </div>
+            
+            <div class="receipt-info">
+                <div class="info-row">
+                    <span>Receipt #:</span>
+                    <span><strong>${order.orderId}</strong></span>
+                </div>
+                <div class="info-row">
+                    <span>Date:</span>
+                    <span>${currentDate.toLocaleDateString('en-PH', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    })}</span>
+                </div>
+                <div class="info-row">
+                    <span>Time:</span>
+                    <span>${currentDate.toLocaleTimeString('en-PH', {
+        hour: '2-digit',
+        minute: '2-digit'
+    })}</span>
+                </div>
+                <div class="info-row">
+                    <span>Cashier:</span>
+                    <span>${state.currentUser.name}</span>
+                </div>
+                <div class="info-row">
+                    <span>Payment:</span>
+                    <span>${state.checkoutData.paymentMethod.toUpperCase()}</span>
+                </div>
+            </div>
+            
+            <div class="items-section">
+                <div class="items-header">
+                    <div>ITEM</div>
+                    <div class="text-center">QTY</div>
+                    <div class="text-right">AMOUNT</div>
+                </div>
+                
+                ${order.items.map(item => `
+                    <div class="item-row">
+                        <div class="item-name">${item.productName || item.name}</div>
+                        <div class="item-details">
+                            <div>${formatCurrency(item.price)}</div>
+                            <div class="text-center">x${item.quantity}</div>
+                            <div class="text-right"><strong>${formatCurrency(item.price * item.quantity)}</strong></div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div class="totals-section">
+                <div class="total-row">
+                    <span>Subtotal:</span>
+                    <span>${formatCurrency(order.total - state.checkoutData.shippingFee)}</span>
+                </div>
+                <div class="total-row">
+                    <span>Shipping Fee:</span>
+                    <span>${formatCurrency(state.checkoutData.shippingFee)}</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>TOTAL:</span>
+                    <span>${formatCurrency(order.total)}</span>
+                </div>
+            </div>
+            
+            ${payment.amountPaid ? `
+                <div class="payment-section">
+                    <div class="payment-row">
+                        <span>Amount Paid:</span>
+                        <span>${formatCurrency(payment.amountPaid)}</span>
+                    </div>
+                    <div class="payment-row change-row">
+                        <span>Change:</span>
+                        <span>${formatCurrency(payment.change)}</span>
+                    </div>
+                </div>
+            ` : ''}
+            
+            <div class="receipt-footer">
+                <div class="thank-you">THANK YOU!</div>
+                <div class="footer-note">Please come again</div>
+                <div class="footer-note" style="margin-top: 10px;">
+                    Shipping to:<br>
+                    ${state.checkoutData.shipping.fullName}<br>
+                    ${state.checkoutData.shipping.address}<br>
+                    ${state.checkoutData.shipping.city}, ${state.checkoutData.shipping.province}<br>
+                    Phone: ${state.checkoutData.shipping.phone}
+                </div>
+                <div style="margin-top: 15px; font-size: 9px;">
+                    This serves as your official receipt<br>
+                    Keep this for warranty claims
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+
+    // Open print window
+    const printWindow = window.open('', '_blank', 'width=300,height=600');
+    printWindow.document.write(receiptHTML);
+    printWindow.document.close();
+
+    // Wait for content to load then print
+    printWindow.onload = function () {
+        setTimeout(() => {
+            printWindow.print();
+        }, 250);
+    };
 };
 
 // Advanced Search functionality with suggestions (optimized to not lose focus)
