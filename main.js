@@ -1585,6 +1585,472 @@ window.showPaymentModal = (totalAmount) => {
     });
 };
 
+// GCash Payment Modal
+window.showGCashModal = (totalAmount) => {
+    return new Promise((resolve) => {
+        const demoRef = 'GCASH-' + Date.now().toString().slice(-8);
+
+        const modalHTML = `
+            <div class="payment-modal-overlay" id="paymentModalOverlay">
+                <div class="payment-modal">
+                    <div class="demo-badge">DEMO MODE</div>
+                    <div class="payment-modal-header">
+                        <h2>📱 GCash Payment</h2>
+                        <p>Scan QR or send to GCash number</p>
+                    </div>
+                    
+                    <div class="payment-modal-body">
+                        <div class="payment-summary">
+                            <div class="payment-summary-row total">
+                                <span>Amount to Pay:</span>
+                                <span>${formatCurrency(totalAmount)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="qr-code-container">
+                            <div class="qr-code-placeholder">📱</div>
+                            <div class="qr-code-label">Demo QR Code - GCash</div>
+                        </div>
+                        
+                        <div class="account-details">
+                            <div class="account-detail-row">
+                                <span class="label">GCash Number:</span>
+                                <span class="value">0917-123-4567</span>
+                            </div>
+                            <div class="account-detail-row">
+                                <span class="label">Account Name:</span>
+                                <span class="value">LUMINA ELECTRONICS</span>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-input-group">
+                            <label>Reference Number (Auto-filled)</label>
+                            <input 
+                                type="text" 
+                                id="gcashRefInput" 
+                                class="payment-input auto-filled" 
+                                value="${demoRef}"
+                                readonly
+                            >
+                        </div>
+                        
+                        <div class="demo-notice">
+                            <div class="demo-notice-icon">ℹ️</div>
+                            <div class="demo-notice-text">
+                                <strong>Demo Mode:</strong> This is a simulation. No real payment will be processed.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-modal-footer">
+                        <button class="btn-cancel" id="paymentCancelBtn">Cancel</button>
+                        <button class="btn-confirm" id="paymentConfirmBtn">Simulate Payment</button>
+                    </div>
+                    
+                    <div class="processing-overlay" id="processingOverlay">
+                        <div class="processing-spinner"></div>
+                        <div class="processing-text">Processing payment...</div>
+                    </div>
+                    
+                    <div class="success-overlay" id="successOverlay">
+                        <div class="success-checkmark">✓</div>
+                        <div class="success-text">Payment Successful!</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        const overlay = document.getElementById('paymentModalOverlay');
+        const confirmBtn = document.getElementById('paymentConfirmBtn');
+        const cancelBtn = document.getElementById('paymentCancelBtn');
+        const processingOverlay = document.getElementById('processingOverlay');
+        const successOverlay = document.getElementById('successOverlay');
+
+        cancelBtn.addEventListener('click', () => {
+            overlay.remove();
+            resolve(null);
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            processingOverlay.classList.add('show');
+
+            setTimeout(() => {
+                processingOverlay.classList.remove('show');
+                successOverlay.classList.add('show');
+
+                setTimeout(() => {
+                    overlay.remove();
+                    resolve({ method: 'gcash', reference: demoRef });
+                }, 1000);
+            }, 1500);
+        });
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                resolve(null);
+            }
+        });
+    });
+};
+
+// Maya Payment Modal
+window.showMayaModal = (totalAmount) => {
+    return new Promise((resolve) => {
+        const demoRef = 'MAYA-' + Date.now().toString().slice(-8);
+
+        const modalHTML = `
+            <div class="payment-modal-overlay" id="paymentModalOverlay">
+                <div class="payment-modal">
+                    <div class="demo-badge">DEMO MODE</div>
+                    <div class="payment-modal-header">
+                        <h2>💸 Maya Payment</h2>
+                        <p>Scan QR or send to Maya account</p>
+                    </div>
+                    
+                    <div class="payment-modal-body">
+                        <div class="payment-summary">
+                            <div class="payment-summary-row total">
+                                <span>Amount to Pay:</span>
+                                <span>${formatCurrency(totalAmount)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="qr-code-container">
+                            <div class="qr-code-placeholder">💸</div>
+                            <div class="qr-code-label">Demo QR Code - Maya</div>
+                        </div>
+                        
+                        <div class="account-details">
+                            <div class="account-detail-row">
+                                <span class="label">Maya Number:</span>
+                                <span class="value">0919-987-6543</span>
+                            </div>
+                            <div class="account-detail-row">
+                                <span class="label">Account Name:</span>
+                                <span class="value">LUMINA ELECTRONICS</span>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-input-group">
+                            <label>Reference Number (Auto-filled)</label>
+                            <input 
+                                type="text" 
+                                id="mayaRefInput" 
+                                class="payment-input auto-filled" 
+                                value="${demoRef}"
+                                readonly
+                            >
+                        </div>
+                        
+                        <div class="demo-notice">
+                            <div class="demo-notice-icon">ℹ️</div>
+                            <div class="demo-notice-text">
+                                <strong>Demo Mode:</strong> This is a simulation. No real payment will be processed.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-modal-footer">
+                        <button class="btn-cancel" id="paymentCancelBtn">Cancel</button>
+                        <button class="btn-confirm" id="paymentConfirmBtn">Simulate Payment</button>
+                    </div>
+                    
+                    <div class="processing-overlay" id="processingOverlay">
+                        <div class="processing-spinner"></div>
+                        <div class="processing-text">Processing payment...</div>
+                    </div>
+                    
+                    <div class="success-overlay" id="successOverlay">
+                        <div class="success-checkmark">✓</div>
+                        <div class="success-text">Payment Successful!</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        const overlay = document.getElementById('paymentModalOverlay');
+        const confirmBtn = document.getElementById('paymentConfirmBtn');
+        const cancelBtn = document.getElementById('paymentCancelBtn');
+        const processingOverlay = document.getElementById('processingOverlay');
+        const successOverlay = document.getElementById('successOverlay');
+
+        cancelBtn.addEventListener('click', () => {
+            overlay.remove();
+            resolve(null);
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            processingOverlay.classList.add('show');
+
+            setTimeout(() => {
+                processingOverlay.classList.remove('show');
+                successOverlay.classList.add('show');
+
+                setTimeout(() => {
+                    overlay.remove();
+                    resolve({ method: 'maya', reference: demoRef });
+                }, 1000);
+            }, 1500);
+        });
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                resolve(null);
+            }
+        });
+    });
+};
+
+// Credit Card Payment Modal
+window.showCardModal = (totalAmount) => {
+    return new Promise((resolve) => {
+        const demoCardNumber = '4111 1111 1111 1111';
+        const demoExpiry = '12/25';
+        const demoCVV = '123';
+        const demoName = 'JOHN DOE';
+
+        const modalHTML = `
+            <div class="payment-modal-overlay" id="paymentModalOverlay">
+                <div class="payment-modal">
+                    <div class="demo-badge">DEMO MODE</div>
+                    <div class="payment-modal-header">
+                        <h2>💳 Credit/Debit Card</h2>
+                        <p>Enter card details</p>
+                    </div>
+                    
+                    <div class="payment-modal-body">
+                        <div class="payment-summary">
+                            <div class="payment-summary-row total">
+                                <span>Amount to Charge:</span>
+                                <span>${formatCurrency(totalAmount)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="card-form">
+                            <div class="payment-input-group">
+                                <label>Card Number</label>
+                                <input 
+                                    type="text" 
+                                    class="payment-input card-number-input auto-filled" 
+                                    value="${demoCardNumber}"
+                                    readonly
+                                >
+                            </div>
+                            
+                            <div class="card-form-row">
+                                <div class="payment-input-group">
+                                    <label>Expiry Date</label>
+                                    <input 
+                                        type="text" 
+                                        class="payment-input auto-filled" 
+                                        value="${demoExpiry}"
+                                        readonly
+                                    >
+                                </div>
+                                <div class="payment-input-group">
+                                    <label>CVV</label>
+                                    <input 
+                                        type="text" 
+                                        class="payment-input auto-filled" 
+                                        value="${demoCVV}"
+                                        readonly
+                                    >
+                                </div>
+                            </div>
+                            
+                            <div class="payment-input-group">
+                                <label>Cardholder Name</label>
+                                <input 
+                                    type="text" 
+                                    class="payment-input auto-filled" 
+                                    value="${demoName}"
+                                    readonly
+                                >
+                            </div>
+                        </div>
+                        
+                        <div class="demo-notice">
+                            <div class="demo-notice-icon">ℹ️</div>
+                            <div class="demo-notice-text">
+                                <strong>Demo Mode:</strong> Using test card 4111 1111 1111 1111. No real card will be charged.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-modal-footer">
+                        <button class="btn-cancel" id="paymentCancelBtn">Cancel</button>
+                        <button class="btn-confirm" id="paymentConfirmBtn">Process Payment</button>
+                    </div>
+                    
+                    <div class="processing-overlay" id="processingOverlay">
+                        <div class="processing-spinner"></div>
+                        <div class="processing-text">Processing card payment...</div>
+                    </div>
+                    
+                    <div class="success-overlay" id="successOverlay">
+                        <div class="success-checkmark">✓</div>
+                        <div class="success-text">Payment Approved!</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        const overlay = document.getElementById('paymentModalOverlay');
+        const confirmBtn = document.getElementById('paymentConfirmBtn');
+        const cancelBtn = document.getElementById('paymentCancelBtn');
+        const processingOverlay = document.getElementById('processingOverlay');
+        const successOverlay = document.getElementById('successOverlay');
+
+        cancelBtn.addEventListener('click', () => {
+            overlay.remove();
+            resolve(null);
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            processingOverlay.classList.add('show');
+
+            setTimeout(() => {
+                processingOverlay.classList.remove('show');
+                successOverlay.classList.add('show');
+
+                setTimeout(() => {
+                    overlay.remove();
+                    resolve({ method: 'card', last4: '1111' });
+                }, 1000);
+            }, 2000);
+        });
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                resolve(null);
+            }
+        });
+    });
+};
+
+// Bank Transfer Modal
+window.showBankModal = (totalAmount) => {
+    return new Promise((resolve) => {
+        const demoRef = 'BDO-' + Date.now().toString().slice(-8);
+
+        const modalHTML = `
+            <div class="payment-modal-overlay" id="paymentModalOverlay">
+                <div class="payment-modal">
+                    <div class="demo-badge">DEMO MODE</div>
+                    <div class="payment-modal-header">
+                        <h2>🏦 Bank Transfer</h2>
+                        <p>Transfer to our bank account</p>
+                    </div>
+                    
+                    <div class="payment-modal-body">
+                        <div class="payment-summary">
+                            <div class="payment-summary-row total">
+                                <span>Amount to Transfer:</span>
+                                <span>${formatCurrency(totalAmount)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="account-details">
+                            <div class="account-detail-row">
+                                <span class="label">Bank Name:</span>
+                                <span class="value">BDO Unibank</span>
+                            </div>
+                            <div class="account-detail-row">
+                                <span class="label">Account Number:</span>
+                                <span class="value">1234-5678-9012</span>
+                            </div>
+                            <div class="account-detail-row">
+                                <span class="label">Account Name:</span>
+                                <span class="value">LUMINA ELECTRONICS</span>
+                            </div>
+                            <div class="account-detail-row">
+                                <span class="label">Branch:</span>
+                                <span class="value">Makati City</span>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-input-group">
+                            <label>Reference Number (Auto-filled)</label>
+                            <input 
+                                type="text" 
+                                id="bankRefInput" 
+                                class="payment-input auto-filled" 
+                                value="${demoRef}"
+                                readonly
+                            >
+                        </div>
+                        
+                        <div class="demo-notice">
+                            <div class="demo-notice-icon">ℹ️</div>
+                            <div class="demo-notice-text">
+                                <strong>Demo Mode:</strong> Demo bank details. No real transfer will occur.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="payment-modal-footer">
+                        <button class="btn-cancel" id="paymentCancelBtn">Cancel</button>
+                        <button class="btn-confirm" id="paymentConfirmBtn">Simulate Transfer</button>
+                    </div>
+                    
+                    <div class="processing-overlay" id="processingOverlay">
+                        <div class="processing-spinner"></div>
+                        <div class="processing-text">Verifying transfer...</div>
+                    </div>
+                    
+                    <div class="success-overlay" id="successOverlay">
+                        <div class="success-checkmark">✓</div>
+                        <div class="success-text">Transfer Confirmed!</div>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        const overlay = document.getElementById('paymentModalOverlay');
+        const confirmBtn = document.getElementById('paymentConfirmBtn');
+        const cancelBtn = document.getElementById('paymentCancelBtn');
+        const processingOverlay = document.getElementById('processingOverlay');
+        const successOverlay = document.getElementById('successOverlay');
+
+        cancelBtn.addEventListener('click', () => {
+            overlay.remove();
+            resolve(null);
+        });
+
+        confirmBtn.addEventListener('click', () => {
+            processingOverlay.classList.add('show');
+
+            setTimeout(() => {
+                processingOverlay.classList.remove('show');
+                successOverlay.classList.add('show');
+
+                setTimeout(() => {
+                    overlay.remove();
+                    resolve({ method: 'bank', reference: demoRef });
+                }, 1000);
+            }, 1500);
+        });
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+                resolve(null);
+            }
+        });
+    });
+};
+
 window.placeOrder = async () => {
     const shipping = state.checkoutData.shipping;
 
@@ -1631,22 +2097,38 @@ window.placeOrder = async () => {
     const subtotal = selectedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const totalAmount = subtotal + state.checkoutData.shippingFee;
 
-    // Prompt user for payment amount
-    let amountPaid = null;
-    let change = 0;
+    // Show appropriate payment modal based on payment method
+    let paymentResult = null;
 
-    if (state.checkoutData.paymentMethod === 'cod') {
-        // Show payment modal instead of prompt
-        const paymentResult = await showPaymentModal(totalAmount);
-
-        if (!paymentResult) {
-            // User cancelled
+    switch (state.checkoutData.paymentMethod) {
+        case 'cod':
+            paymentResult = await showPaymentModal(totalAmount);
+            break;
+        case 'gcash':
+            paymentResult = await showGCashModal(totalAmount);
+            break;
+        case 'maya':
+            paymentResult = await showMayaModal(totalAmount);
+            break;
+        case 'card':
+            paymentResult = await showCardModal(totalAmount);
+            break;
+        case 'bank':
+            paymentResult = await showBankModal(totalAmount);
+            break;
+        default:
+            showToast('Please select a payment method');
             return;
-        }
-
-        amountPaid = paymentResult.amountPaid;
-        change = paymentResult.change;
     }
+
+    // User cancelled payment
+    if (!paymentResult) {
+        return;
+    }
+
+    // For COD, we have amount and change
+    let amountPaid = paymentResult.amountPaid || totalAmount;
+    let change = paymentResult.change || 0;
 
     const orderData = {
         userId: state.currentUser.id,
