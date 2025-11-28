@@ -18,6 +18,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve static files (for uploaded images)
+app.use(express.static('public'));
+
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('✅ Connected to MongoDB Atlas'))
@@ -75,7 +78,7 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📊 Database: ${process.env.MONGODB_URI.includes('mongodb+srv') ? 'MongoDB Atlas' : 'Local MongoDB'}`);
+    console.log(`📊 Database: ${(process.env.MONGODB_URI || '').includes('mongodb+srv') ? 'MongoDB Atlas' : 'Local MongoDB'}`);
 });
 
 // Graceful shutdown

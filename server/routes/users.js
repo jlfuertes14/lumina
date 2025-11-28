@@ -87,6 +87,82 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// GET user's saved cart
+router.get('/:id/cart', async (req, res) => {
+    try {
+        const user = await User.findOne({ id: parseInt(req.params.id) }).select('savedCart');
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+        res.json({ success: true, data: user.savedCart || [] });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// PUT update user's cart
+router.put('/:id/cart', async (req, res) => {
+    try {
+        const { cart } = req.body;
+        const user = await User.findOneAndUpdate(
+            { id: parseInt(req.params.id) },
+            { savedCart: cart },
+            { new: true }
+        ).select('savedCart');
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        res.json({ success: true, data: user.savedCart });
+    } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+    }
+});
+
+// POST sync cart (merge local cart with server cart)
+router.post('/:id/cart/sync', async (req, res) => {
+    try {
+        const { localCart } = req.body;
+        const user = await User.findOne({ id: parseInt(req.params.id) });
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        // Merge logic: combine server cart with local cart
+        const serverCart = user.savedCart || [];
+        const mergedCart = [...serverCart];
+
+        // Add or update items from local cart
+        localCart.forEach(localItem => {
+            const existingIndex = mergedCart.findIndex(item => item.productId === localItem.id);
+            if (existingIndex >= 0) {
+                // Item exists, update quantity
+                mergedCart[existingIndex].quantity += localItem.quantity;
+            } else {
+                // New item, add to cart
+                mergedCart.push({
+                    productId: localItem.id,
+                    name: localItem.name,
+                    price: localItem.price,
+                    image: localItem.image,
+                    quantity: localItem.quantity,
+                    category: localItem.category,
+                    selected: localItem.selected !== false
+                });
+            }
+        });
+
+        user.savedCart = mergedCart;
+        await user.save();
+
+        res.json({ success: true, data: user.savedCart });
+    } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+    }
+});
+
 // PUT update user
 router.put('/:id', async (req, res) => {
     try {

@@ -27,7 +27,16 @@ const userSchema = new mongoose.Schema({
         type: String,
         enum: ['admin', 'customer'],
         default: 'customer'
-    }
+    },
+    savedCart: [{
+        productId: { type: Number, required: true },
+        name: String,
+        price: Number,
+        image: String,
+        quantity: { type: Number, default: 1 },
+        category: String,
+        selected: { type: Boolean, default: true }
+    }]
 }, {
     timestamps: true
 });

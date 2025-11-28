@@ -1,13 +1,14 @@
 import { API_BASE_URL, apiCall } from './src/api-config.js';
 
-// --- State Management ---
+//  --- State Management ---
 const state = {
     products: [], // Will be fetched from API
     users: [], // Will be fetched from API (admin only)
     orders: [], // Will be fetched from API
     currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
     cart: JSON.parse(localStorage.getItem('cart_v2')) || [],
-    route: 'home',
+    route: sessionStorage.getItem('currentRoute') || 'home', // Restore last route or default to home
+    mobileMenuOpen: false, // For hamburger navigation
     searchQuery: '',
     showSuggestions: false,
     searchSuggestions: [],
@@ -16,6 +17,7 @@ const state = {
     filterCategory: null,
     cartSearchQuery: '',
     isLoading: false,
+    cartSynced: false, // Track if cart has been synced with server
     checkoutData: {
         shipping: {
             fullName: '',
@@ -56,11 +58,15 @@ const api = {
             });
             state.currentUser = response.data;
             localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
+
+            // Sync cart after login!
+            await syncCartWithServer();
+
             showToast(`Welcome back, ${state.currentUser.name}!`);
             navigate('home');
         } catch (error) {
             showToast(error.message || 'Login failed');
-            throw error; // Re-throw to handle in caller
+            throw error;
         }
     },
 
@@ -129,40 +135,60 @@ const saveState = () => {
     localStorage.setItem('cart_v2', JSON.stringify(state.cart));
 };
 
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount);
+const syncCartWithServer = async () => {
+    if (!state.currentUser || state.cartSynced) return;
+
+    try {
+        // Call sync endpoint
+        const response = await apiCall(`/users/${state.currentUser.id}/cart/sync`, {
+            method: 'POST',
+            body: JSON.stringify({ localCart: state.cart })
+        });
+
+        // Update cart with merged data from server
+        state.cart = response.data.map(item => ({
+            id: item.productId,
+            name: item.name,
+            price: item.price,
+            image: item.image,
+            quantity: item.quantity,
+            category: item.category,
+            selected: item.selected
+        }));
+
+        state.cartSynced = true;
+        saveState();
+        render();
+        showToast('Cart synced!');
+    } catch (error) {
+        console.error('Cart sync failed:', error);
+    }
 };
 
-const showToast = (message) => {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.classList.add('show'), 100);
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount);
 };
 
 // --- Router ---
 const navigate = (route) => {
     state.route = route;
+    state.mobileMenuOpen = false; // Close mobile menu on navigation
+    sessionStorage.setItem('currentRoute', route); // Persist route!
     render();
     window.scrollTo(0, 0);
 };
 
-// --- Components ---
-
-const Header = () => {
-    const cartCount = state.cart.reduce((acc, item) => acc + item.quantity, 0);
-    const isLoggedIn = !!state.currentUser;
-    const isAdmin = state.currentUser?.role === 'admin';
-    const isCartPage = state.route === 'cart';
-
+const showToast = (message) => {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
     return `
         <header>
             <div class="header-top">
+                <button class="hamburger-btn" onclick="window.toggleMobileMenu()" aria-label="Toggle menu">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
                 <a href="#" class="logo" onclick="window.navigate('home'); return false;">
                     Lumina<span>Electronics</span>
                 </a>
@@ -228,7 +254,7 @@ const Header = () => {
                 </div>
             </div>
             
-            <nav class="header-nav">
+            <nav class="header-nav ${state.mobileMenuOpen ? 'mobile-open' : ''}">
                 <a href="#" class="nav-link ${state.route === 'home' ? 'active' : ''}" onclick="window.navigate('home'); return false;">Home</a>
                 <a href="#" class="nav-link ${state.route === 'products' ? 'active' : ''}" onclick="window.navigate('products'); return false;">Products</a>
                 <a href="#" class="nav-link">Brands</a>
@@ -1051,6 +1077,11 @@ const AdminPage = () => {
         return '';
     }
 
+    // Auto-load orders on dashboard mount!
+    if (state.orders.length === 0) {
+        api.getOrders();
+    }
+
     // Calculate metrics
     const totalSales = state.orders.reduce((acc, order) => acc + order.total, 0);
     const totalOrders = state.orders.length;
@@ -1247,6 +1278,9 @@ const AdminPage = () => {
                 <div class="section-header">
                     <h3>📦 Inventory Management</h3>
                     <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-small btn-accent" onclick="window.showProductModal()">
+                            ➕ Add New Product
+                        </button>
                         <button class="btn-small btn-accent" onclick="window.bulkAction('restock')">Restock Selected</button>
                         <button class="btn-small" style="background: var(--danger); color: white;" onclick="window.bulkAction('delete')">Delete Selected</button>
                     </div>
@@ -1320,11 +1354,117 @@ const AdminPage = () => {
             </div>
         </div>
     `;
+
+    const ProductModal = (productId = null) => {
+        const product = productId ? state.products.find(p => p.id === productId) : null;
+        const isEdit = !!product;
+
+        return `
+        <div class="modal-overlay show" id="productModal" onclick="if(event.target === this) window.closeProductModal()">
+            <div class="modal-content" style="max-width: 600px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3>${isEdit ? 'Edit Product' : 'Add New Product'}</h3>
+                    <button class="btn-icon" onclick="window.closeProductModal()">✕</button>
+                </div>
+                
+                <form id="productForm" onsubmit="window.handleProductSubmit(event, ${productId || 'null'})" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label">Product Name *</label>
+                        <input type="text" name="name" class="form-input" value="${product?.name || ''}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Category *</label>
+                        <input type="text" name="category" class="form-input" value="${product?.category || ''}" required>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Price (₱) *</label>
+                            <input type="number" name="price" class="form-input" value="${product?.price || ''}" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Stock *</label>
+                            <input type="number" name="stock" class="form-input" value="${product?.stock || ''}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Description *</label>
+                        <textarea name="description" class="form-input" rows="3" required>${product?.description || ''}</textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Image</label>
+                        <input type="file" name="image" class="form-input" accept="image/*">
+                        ${product?.image ? `<div style="margin-top: 0.5rem;">Current: <img src="${product.image}" style="max-width: 100px;"></div>` : ''}
+                    </div>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-outline" style="flex: 1;" onclick="window.closeProductModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">${isEdit ? 'Update' : 'Create'} Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    };
 };
+
+
+
 
 // --- Actions ---
 
 window.navigate = navigate;
+
+window.toggleMobileMenu = () => {
+    state.mobileMenuOpen = !state.mobileMenuOpen;
+    render();
+};
+
+window.showProductModal = (productId = null) => {
+    document.body.insertAdjacentHTML('beforeend', ProductModal(productId));
+};
+window.closeProductModal = () => {
+    document.getElementById('productModal')?.remove();
+};
+window.editProduct = (id) => {
+    window.showProductModal(id);
+};
+window.deleteProduct = async (id) => {
+    if (!confirm('Delete this product?')) return;
+
+    try {
+        await apiCall(`/products/${id}`, { method: 'DELETE' });
+        await api.getProducts(); // Refresh products
+        showToast('Product deleted');
+    } catch (error) {
+        showToast('Delete failed');
+    }
+};
+window.handleProductSubmit = async (event, productId) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+
+    try {
+        const method = productId ? 'PUT' : 'POST';
+        const url = productId ? `/products/${productId}` : `/products`;
+
+        const response = await fetch(`${API_BASE_URL}${url}`, {
+            method,
+            body: formData // Send as FormData for file upload
+        });
+
+        if (!response.ok) throw new Error('Failed');
+
+        await api.getProducts(); // Refresh
+        window.closeProductModal();
+        showToast(productId ? 'Product updated!' : 'Product created!');
+    } catch (error) {
+        showToast('Operation failed');
+    }
+};
 
 window.handleSort = (sortValue) => {
     state.sortBy = sortValue;
@@ -1366,25 +1506,40 @@ window.addToCartFromDetail = (productId) => {
     // Optional: navigate to cart or stay on page
 };
 
-window.addToCart = (productId) => {
+window.addToCart = async (productId) => {
     if (!state.currentUser) {
         showToast('Please login to shop');
         navigate('login');
         return;
     }
-
     const product = state.products.find(p => p.id === productId);
     const existingItem = state.cart.find(item => item.id === productId);
-
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
         state.cart.push({ ...product, quantity: 1 });
     }
-
     saveState();
     render();
     showToast('Added to cart');
+
+    // Sync to server!
+    if (state.currentUser) {
+        await apiCall(`/users/${state.currentUser.id}/cart`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                cart: state.cart.map(item => ({
+                    productId: item.id,
+                    name: item.name,
+                    price: item.price,
+                    image: item.image,
+                    quantity: item.quantity,
+                    category: item.category,
+                    selected: item.selected !== false
+                }))
+            })
+        });
+    }
 };
 
 window.updateQuantity = (productId, newQuantity) => {
@@ -2710,6 +2865,7 @@ window.logout = () => {
     localStorage.removeItem('currentUser');
     localStorage.removeItem('cart_v2');
     showToast('Logged out successfully');
+    sessionStorage.removeItem('currentRoute'); // Clear route!  
     navigate('home');
 };
 
