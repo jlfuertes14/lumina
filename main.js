@@ -181,6 +181,23 @@ const navigate = (route) => {
 const showToast = (message) => {
     const toast = document.createElement('div');
     toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 100);
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+};
+
+// --- Components ---
+
+const Header = () => {
+    const isLoggedIn = state.currentUser !== null;
+    const isAdmin = state.currentUser?.role === 'admin';
+    const isCartPage = state.route === 'cart';
+    const cartCount = state.cart.length;
+
     return `
         <header>
             <div class="header-top">
