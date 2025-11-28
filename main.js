@@ -1378,12 +1378,14 @@ const AdminPage = () => {
             </div>
         </div>
     `;
+};
 
-    const ProductModal = (productId = null) => {
-        const product = productId ? state.products.find(p => p.id === productId) : null;
-        const isEdit = !!product;
 
-        return `
+const ProductModal = (productId = null) => {
+    const product = productId ? state.products.find(p => p.id === productId) : null;
+    const isEdit = !!product;
+
+    return `
         <div class="modal-overlay show" id="productModal" onclick="if(event.target === this) window.closeProductModal()">
             <div class="modal-content" style="max-width: 600px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -1432,10 +1434,7 @@ const AdminPage = () => {
             </div>
         </div>
     `;
-    };
 };
-
-
 
 
 // --- Actions ---
