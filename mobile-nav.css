@@ -35,6 +35,8 @@
         transition: left 0.3s;
         box-shadow: var(--shadow-xl);
         z-index: 1000;
+        /* Ensure flex column for positioning logout at bottom */
+        display: flex;
     }
 
     .header-nav.mobile-open {
@@ -44,14 +46,58 @@
     .nav-link {
         padding: 1rem 0;
         border-bottom: none;
-        border-left: 3px solid transparent;
-        padding-left: 1rem;
+        border-left: none;
+        /* Remove sticky/border style */
+        padding-left: 0;
+        color: var(--text-main);
+        /* Visible text color */
+        text-align: center;
+        /* Centered text */
+        display: block;
+        width: 100%;
+        font-weight: 500;
     }
 
-    .nav-link:hover,
-    .nav-link.active {
-        border-bottom: none;
-        border-left-color: var(--accent);
+    .nav-link:hover {
         background: var(--surface-alt);
+        color: var(--primary);
+    }
+
+    .nav-link.active {
+        background: var(--surface-alt);
+        /* Gray highlight */
+        color: var(--accent);
+        /* Orange text */
+        font-weight: 700;
+        border: none;
+    }
+
+    /* Mobile Logout Button */
+    .mobile-logout {
+        margin-top: auto;
+        /* Push to bottom */
+        width: 100%;
+        padding: 1rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        color: var(--text-main);
+        cursor: pointer;
+        border-top: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+
+    .mobile-logout:hover {
+        color: var(--danger);
+        /* Change color on hover */
+        background: var(--surface-alt);
+    }
+
+    /* Hide the desktop logout icon when in mobile view if it's inside nav-actions */
+    /* Note: The user asked to move it, implying it shouldn't be in the header top-right on mobile. 
+       The header top-right icons are in .nav-actions. We can hide the logout there. */
+    .nav-actions .action-icon[onclick*="logout"] {
+        display: none;
     }
 }
