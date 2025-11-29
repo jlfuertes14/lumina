@@ -31,10 +31,7 @@ const state = {
         paymentMethod: 'cod',
         shippingFee: 50
     },
-    lastOrderId: null,
-    showFilters: false,
-    filterPriceRange: { min: 0, max: 10000 },
-    currentTutorialId: null
+    lastOrderId: null
 };
 
 // --- API Actions ---
@@ -277,10 +274,9 @@ const Header = () => {
             <nav class="header-nav ${state.mobileMenuOpen ? 'mobile-open' : ''}">
                 <a href="#" class="nav-link ${state.route === 'home' ? 'active' : ''}" onclick="window.navigate('home'); return false;">Home</a>
                 <a href="#" class="nav-link ${state.route === 'products' ? 'active' : ''}" onclick="window.navigate('products'); return false;">Products</a>
-                <a href="#" class="nav-link ${state.route === 'deals' ? 'active' : ''}" onclick="window.navigate('deals'); return false;">Deals</a>
-                <a href="#" class="nav-link ${state.route === 'learn' ? 'active' : ''}" onclick="window.navigate('learn'); return false;">Learn</a>
-                <a href="#" class="nav-link ${state.route === 'about' ? 'active' : ''}" onclick="window.navigate('about'); return false;">About Us</a>
-                <a href="#" class="nav-link ${state.route === 'contact' ? 'active' : ''}" onclick="window.navigate('contact'); return false;">Contact Us</a>
+                <a href="#" class="nav-link">Brands</a>
+                <a href="#" class="nav-link">Deals</a>
+                <a href="#" class="nav-link">Support</a>
                 ${isAdmin ? `<a href="#" class="nav-link ${state.route === 'admin' ? 'active' : ''}" onclick="window.navigate('admin'); return false;">Admin Dashboard</a>` : ''}
                 
                 ${isLoggedIn ? `
@@ -487,13 +483,6 @@ const ProductsPage = () => {
         displayedProducts = displayedProducts.filter(p => p.category === state.filterCategory);
     }
 
-    // Apply price filter
-    if (state.filterPriceRange) {
-        displayedProducts = displayedProducts.filter(p =>
-            p.price >= state.filterPriceRange.min && p.price <= state.filterPriceRange.max
-        );
-    }
-
     // Apply sorting
     switch (state.sortBy) {
         case 'price-asc':
@@ -510,55 +499,13 @@ const ProductsPage = () => {
             break;
         case 'featured':
         default:
+            // Default ID sort or custom logic
             displayedProducts.sort((a, b) => a.id - b.id);
             break;
     }
 
-    // Get unique categories
-    const categories = [...new Set(state.products.map(p => p.category))];
-
     return `
-        <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto; position: relative;">
-            
-            <!-- Filter Sidebar -->
-            <div class="filter-sidebar ${state.showFilters ? 'open' : ''}">
-                <div class="filter-header">
-                    <h3>Filters</h3>
-                    <button class="close-filter" onclick="state.showFilters = false; render();">×</button>
-                </div>
-                
-                <div class="filter-group">
-                    <h4>Categories</h4>
-                    <div class="category-list">
-                        <label class="category-item">
-                            <input type="radio" name="category" value="" ${state.filterCategory === null ? 'checked' : ''} onchange="state.filterCategory = null; render();">
-                            All Categories
-                        </label>
-                        ${categories.map(cat => `
-                            <label class="category-item">
-                                <input type="radio" name="category" value="${cat}" ${state.filterCategory === cat ? 'checked' : ''} onchange="state.filterCategory = '${cat}'; render();">
-                                ${cat}
-                            </label>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <div class="filter-group">
-                    <h4>Price Range</h4>
-                    <div class="price-inputs">
-                        <input type="number" placeholder="Min" value="${state.filterPriceRange.min}" onchange="state.filterPriceRange.min = Number(this.value); render();">
-                        <span>-</span>
-                        <input type="number" placeholder="Max" value="${state.filterPriceRange.max}" onchange="state.filterPriceRange.max = Number(this.value); render();">
-                    </div>
-                </div>
-                
-                <div class="filter-actions">
-                    <button class="btn btn-primary" style="width: 100%" onclick="state.showFilters = false; render();">Apply Filters</button>
-                </div>
-            </div>
-
-            ${state.showFilters ? '<div class="filter-overlay" onclick="state.showFilters = false; render();"></div>' : ''}
-
+        <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
             <div class="products-header">
                 <div class="breadcrumbs">
                     <a href="#" onclick="window.navigate('home'); return false;">Home</a>
@@ -568,7 +515,7 @@ const ProductsPage = () => {
                 
                 <div class="products-toolbar">
                     <div class="toolbar-left">
-                        <button class="filter-btn ${state.showFilters ? 'active' : ''}" onclick="state.showFilters = !state.showFilters; render();">
+                        <button class="filter-btn" onclick="window.showToast('Filter drawer coming soon!')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
                             Filter
                         </button>
@@ -594,29 +541,15 @@ const ProductsPage = () => {
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
-                    <span>Showing results for <strong>"${state.searchQuery}"</strong></span>
+                    <span>
+                        Showing results for <strong>"${state.searchQuery}"</strong>
+                    </span>
                 </div>
             ` : ''}
-            
-            ${displayedProducts.length === 0 ? `
-                <div class="empty-state" style="text-align: center; padding: 4rem 2rem;">
-                    <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
-                    <h3>No products found</h3>
-                    <p style="color: var(--text-muted); margin-bottom: 2rem;">Try adjusting your filters or search query.</p>
-                    <button class="btn btn-outline" onclick="state.searchQuery = ''; state.filterCategory = null; state.filterPriceRange = {min: 0, max: 10000}; render();">Clear All Filters</button>
-                    
-                    <div style="margin-top: 3rem; text-align: left;">
-                        <h4 style="margin-bottom: 1rem;">Popular Suggestions</h4>
-                        <div class="product-grid">
-                            ${state.products.slice(0, 3).map(ProductCard).join('')}
-                        </div>
-                    </div>
-                </div>
-            ` : `
-                <div class="product-grid">
-                    ${displayedProducts.map(ProductCard).join('')}
-                </div>
-            `}
+
+            <div class="product-grid">
+                ${displayedProducts.map(ProductCard).join('')}
+            </div>
         </div>
     `;
 };
@@ -2787,280 +2720,6 @@ window.printReceipt = () => {
     };
 };
 
-const ContactUsPage = () => {
-    return `
-        <div style="max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;">
-            <div class="breadcrumbs" style="margin-bottom: 2rem;">
-                <a href="#" onclick="window.navigate('home'); return false;">Home</a>
-                <span>&gt;</span>
-                <span>Contact Us</span>
-            </div>
-            
-            <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--primary);">Get in Touch</h1>
-            <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 3rem;">We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
-                <div>
-                    <form onsubmit="event.preventDefault(); window.showToast('Message sent! We will get back to you soon.');" style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border);">
-                        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Send us a Message</h2>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Your Name</label>
-                            <input type="text" class="form-input" placeholder="Juan Dela Cruz" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Email Address</label>
-                            <input type="email" class="form-input" placeholder="juan@example.com" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Subject</label>
-                            <input type="text" class="form-input" placeholder="How can we help you?" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label">Message</label>
-                            <textarea class="form-input" rows="6" placeholder="Tell us more about your inquiry..." required style="resize: vertical; font-family: var(--font-body);"></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">Send Message</button>
-                    </form>
-                </div>
-                
-                <div>
-                    <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 2rem;">
-                        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem;">Contact Information</h2>
-                        
-                        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                            <div style="display: flex; gap: 1rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                                <div>
-                                    <h3 style="font-size: 1rem; margin-bottom: 0.25rem;">Address</h3>
-                                    <p style="color: var(--text-muted);">123 Electronics Avenue, Tech City, Philippines</p>
-                                </div>
-                            </div>
-                            
-                            <div style="display: flex; gap: 1rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                                <div>
-                                    <h3 style="font-size: 1rem; margin-bottom: 0.25rem;">Phone</h3>
-                                    <p style="color: var(--text-muted);">+63 912 345 6789</p>
-                                </div>
-                            </div>
-                            
-                            <div style="display: flex; gap: 1rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                                <div>
-                                    <h3 style="font-size: 1rem; margin-bottom: 0.25rem;">Email</h3>
-                                    <p style="color: var(--text-muted);">support@luminaelectronics.ph</p>
-                                </div>
-                            </div>
-                            
-                            <div style="display: flex; gap: 1rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                <div>
-                                    <h3 style="font-size: 1rem; margin-bottom: 0.25rem;">Business Hours</h3>
-                                    <p style="color: var(--text-muted);">Monday - Saturday: 9:00 AM - 6:00 PM</p>
-                                    <p style="color: var(--text-muted);">Sunday: Closed</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); padding: 2rem; border-radius: var(--radius-lg); color: white;">
-                        <h3 style="font-size: 1.25rem; margin-bottom: 1rem; color: white;">Need Immediate Help?</h3>
-                        <p style="margin-bottom: 1.5rem; opacity: 0.9;">Our support team is available during business hours to assist you with any questions or concerns.</p>
-                        <button class="btn" style="background: white; color: var(--primary); width: 100%;" onclick="window.showToast('Opening live chat...')">Start Live Chat</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-};
-
-const AboutUsPage = () => {
-    return `
-        <div style="max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;">
-            <div class="breadcrumbs" style="margin-bottom: 2rem;">
-                <a href="#" onclick="window.navigate('home'); return false;">Home</a>
-                <span>&gt;</span>
-                <span>About Us</span>
-            </div>
-            
-            <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--primary);">About Lumina Electronics</h1>
-            <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 3rem;">Your trusted partner for quality electronics components since 2020</p>
-            
-            <div style="background: var(--surface); padding: 3rem; border-radius: var(--radius-lg); border: 1px solid var(--border); margin-bottom: 3rem;">
-                <h2 style="font-size: 1.75rem; margin-bottom: 1.5rem;">Our Story</h2>
-                <p style="color: var(--text-muted); line-height: 1.8; margin-bottom: 1rem;">
-                    Founded in 2020, Lumina Electronics started with a simple mission: to make quality electronics components accessible to everyone. From hobbyists and students to professional engineers and makers, we serve a diverse community of innovators and creators.
-                </p>
-                <p style="color: var(--text-muted); line-height: 1.8;">
-                    What began as a small online store has grown into one of the Philippines' most trusted sources for development boards, sensors, components, and maker supplies. We pride ourselves on offering authentic products, competitive prices, and exceptional customer service.
-                </p>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 3rem;">
-                <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border); text-align: center;">
-                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                    </div>
-                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem;">Authentic Products</h3>
-                    <p style="color: var(--text-muted); line-height: 1.6;">100% genuine components from trusted manufacturers worldwide</p>
-                </div>
-                
-                <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border); text-align: center;">
-                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                    </div>
-                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem;">Fast Shipping</h3>
-                    <p style="color: var(--text-muted); line-height: 1.6;">Quick delivery to your doorstep anywhere in the Philippines</p>
-                </div>
-                
-                <div style="background: var(--surface); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border); text-align: center;">
-                    <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                    </div>
-                    <h3 style="font-size: 1.25rem; margin-bottom: 0.75rem;">Expert Support</h3>
-                    <p style="color: var(--text-muted); line-height: 1.6;">Dedicated team ready to help with your projects and questions</p>
-                </div>
-            </div>
-            
-            <div style="background: linear-gradient(135deg, var(--primary) 0%, #1a3a5c 100%); padding: 3rem; border-radius: var(--radius-lg); color: white; text-align: center;">
-                <h2 style="font-size: 1.75rem; margin-bottom: 1rem; color: white;">Our Mission</h2>
-                <p style="font-size: 1.1rem; line-height: 1.8; max-width: 800px; margin: 0 auto; opacity: 0.95;">
-                    To empower innovators, educators, and makers by providing easy access to quality electronics components and fostering a community of learning and creativity.
-                </p>
-            </div>
-        </div>
-    `;
-};
-
-const LearnPage = () => {
-    const tutorials = [
-        { id: 1, title: 'Getting Started with Arduino', category: 'Beginner', duration: '15 min', image: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?w=400&h=300&fit=crop' },
-        { id: 2, title: 'ESP32 WiFi Projects', category: 'Intermediate', duration: '30 min', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop' },
-        { id: 3, title: 'Raspberry Pi Home Automation', category: 'Advanced', duration: '45 min', image: 'https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?w=400&h=300&fit=crop' },
-        { id: 4, title: 'Sensor Integration Guide', category: 'Intermediate', duration: '25 min', image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop' },
-        { id: 5, title: 'Soldering Basics', category: 'Beginner', duration: '20 min', image: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400&h=300&fit=crop' },
-        { id: 6, title: 'PCB Design Fundamentals', category: 'Advanced', duration: '60 min', image: 'https://images.unsplash.com/photo-1530819568329-97653eafbbfa?w=400&h=300&fit=crop' }
-    ];
-
-    return `
-        <div style="max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;">
-            <div class="breadcrumbs" style="margin-bottom: 2rem;">
-                <a href="#" onclick="window.navigate('home'); return false;">Home</a>
-                <span>&gt;</span>
-                <span>Learn</span>
-            </div>
-            
-            <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: var(--primary);">Learning Center</h1>
-            <p style="color: var(--text-muted); font-size: 1.1rem; margin-bottom: 3rem;">Master electronics with our comprehensive tutorials and guides</p>
-            
-            <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
-                <button class="btn btn-primary">All Tutorials</button>
-                <button class="btn btn-outline">Beginner</button>
-                <button class="btn btn-outline">Intermediate</button>
-                <button class="btn btn-outline">Advanced</button>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem;">
-                ${tutorials.map(tutorial => `
-                    <div style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; transition: all 0.3s ease; cursor: pointer;" 
-                         onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='var(--shadow-xl)'"
-                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
-                         onclick="window.showToast('Tutorial: ${tutorial.title}')">
-                        <div style="width: 100%; height: 200px; background: linear-gradient(135deg, var(--primary), var(--accent)); background-image: url('${tutorial.image}'); background-size: cover; background-position: center;"></div>
-                        <div style="padding: 1.5rem;">
-                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-                                <span style="background: var(--accent); color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600;">${tutorial.category}</span>
-                                <span style="color: var(--text-muted); font-size: 0.875rem; display: flex; align-items: center; gap: 0.25rem;">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                                    ${tutorial.duration}
-                                </span>
-                            </div>
-                            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: var(--text-main);">${tutorial.title}</h3>
-                            <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">Learn step-by-step how to implement this project with detailed instructions and code examples.</p>
-                            <button class="btn btn-primary" style="width: 100%;">Start Learning</button>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-            
-            <div style="background: var(--surface); padding: 3rem; border-radius: var(--radius-lg); border: 1px solid var(--border); margin-top: 3rem; text-align: center;">
-                <h2 style="font-size: 1.75rem; margin-bottom: 1rem;">Can't Find What You're Looking For?</h2>
-                <p style="color: var(--text-muted); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-                    Request a tutorial topic and our team will create content based on your needs.
-                </p>
-                <button class="btn btn-accent" onclick="window.navigate('contact')">Request a Tutorial</button>
-            </div>
-        </div>
-    `;
-};
-
-const DealsPage = () => {
-    const promotions = [
-        { id: 1, name: 'Arduino Starter Kit Bundle', originalPrice: 2500, salePrice: 1999, discount: 20, category: 'Development Boards', image: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?w=400&h=300&fit=crop', endsIn: '2 days' },
-        { id: 2, name: 'Sensor Pack - 20 Types', originalPrice: 1800, salePrice: 1299, discount: 28, category: 'Sensors', image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=400&h=300&fit=crop', endsIn: '5 days' },
-        { id: 6, name: 'Servo Motor Bundle (5pcs)', originalPrice: 800, salePrice: 599, discount: 25, category: 'Motors', image: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400&h=300&fit=crop', endsIn: '1 week' },
-        { id: 12, name: 'Premium Jumper Wire Set', originalPrice: 350, salePrice: 249, discount: 29, category: 'Accessories', image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop', endsIn: '3 days' }
-    ];
-
-    return `
-        <div style="max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;">
-            <div class="breadcrumbs" style="margin-bottom: 2rem;">
-                <a href="#" onclick="window.navigate('home'); return false;">Home</a>
-                <span>&gt;</span>
-                <span>Deals</span>
-            </div>
-            
-            <div style="background: linear-gradient(135deg, var(--accent) 0%, #ff4f1a 100%); padding: 3rem; border-radius: var(--radius-lg); margin-bottom: 3rem; color: white; text-align: center;">
-                <h1 style="font-size: 2.5rem; margin-bottom: 1rem; color: white;">Special Deals & Promotions</h1>
-                <p style="font-size: 1.1rem; opacity: 0.95;">Save big on quality electronics components - Limited time offers!</p>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
-                ${promotions.map(promo => `
-                    <div style="background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; transition: all 0.3s ease; position: relative; cursor: pointer;"
-                         onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='var(--shadow-xl)'"
-                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'"
-                         onclick="window.showToast('Added to cart: ${promo.name}')">
-                        <div style="position: absolute; top: 1rem; right: 1rem; background: var(--accent); color: white; padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 700; font-size: 0.875rem; z-index: 10;">
-                            -${promo.discount}%
-                        </div>
-                        <div style="width: 100%; height: 200px; background: linear-gradient(135deg, var(--primary), var(--accent)); background-image: url('${promo.image}'); background-size: cover; background-position: center;"></div>
-                        <div style="padding: 1.5rem;">
-                            <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">${promo.category}</div>
-                            <h3 style="font-size: 1.1rem; margin-bottom: 0.75rem; color: var(--text-main); font-weight: 700;">${promo.name}</h3>
-                            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                                <span style="font-size: 1.5rem; font-weight: 800; color: var(--accent);">${formatCurrency(promo.salePrice)}</span>
-                                <span style="text-decoration: line-through; color: var(--text-muted); font-size: 1rem;">${formatCurrency(promo.originalPrice)}</span>
-                            </div>
-                            <div style="background: var(--surface-alt); padding: 0.5rem; border-radius: var(--radius-sm); margin-bottom: 1rem; text-align: center; font-size: 0.875rem; color: var(--text-muted);">
-                                ⏰ Ends in ${promo.endsIn}
-                            </div>
-                            <button class="btn btn-primary" style="width: 100%;" onclick="event.stopPropagation(); window.addToCart(${promo.id})">Add to Cart</button>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-            
-            <div style="background: var(--surface); padding: 3rem; border-radius: var(--radius-lg); border: 1px solid var(--border); text-align: center;">
-                <h2 style="font-size: 1.75rem; margin-bottom: 1rem;">Subscribe for Exclusive Deals</h2>
-                <p style="color: var(--text-muted); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
-                    Get early access to sales, special promotions, and new product launches delivered straight to your inbox.
-                </p>
-                <form onsubmit="event.preventDefault(); window.showToast('Successfully subscribed to newsletter!');" style="display: flex; gap: 1rem; max-width: 500px; margin: 0 auto;">
-                    <input type="email" class="form-input" placeholder="Enter your email address" required style="flex: 1;">
-                    <button type="submit" class="btn btn-accent">Subscribe</button>
-                </form>
-            </div>
-        </div>
-    `;
-};
-
-
 // Advanced Search functionality with suggestions (optimized to not lose focus)
 window.handleSearchInput = (event) => {
     const query = event.target.value;
@@ -3332,10 +2991,6 @@ const render = () => {
         case 'checkout': content = CheckoutPage(); break;
         case 'order-confirmation': content = OrderConfirmationPage(); break;
         case 'admin': content = AdminPage(); break;
-        case 'contact': content = ContactUsPage(); break;
-        case 'about': content = AboutUsPage(); break;
-        case 'learn': content = LearnPage(); break;
-        case 'deals': content = DealsPage(); break;
         default: content = HomePage();
     }
 
