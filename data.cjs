@@ -179,6 +179,33 @@ const products = [
         image: "images/products/bambu-lab.png",
         stock: 40,
         description: "Easy to print, beginner-friendly PLA with smooth surface finish. Biodegradable and reliable quality."
+    },
+    {
+        id: 21,
+        name: "10x Arduino Nano Bulk Pack",
+        category: "Microcontrollers",
+        price: 1500,
+        image: "assets/bulk-arduino.png",
+        stock: 50,
+        description: "Bulk pack of 10 Arduino Nano boards. Perfect for classrooms and workshops. Save ₱300!"
+    },
+    {
+        id: 22,
+        name: "20x Assorted Sensors Bundle",
+        category: "Sensors",
+        price: 2400,
+        image: "assets/bulk-sensors.png",
+        stock: 30,
+        description: "Comprehensive kit of 20 different sensors including temperature, motion, light, and more. Save ₱600!"
+    },
+    {
+        id: 23,
+        name: "500x Resistors Pack (Assorted)",
+        category: "Components",
+        price: 800,
+        image: "assets/bulk-resistors.png",
+        stock: 100,
+        description: "Huge pack of 500 resistors with various resistance values. Essential for any electronics lab. Save ₱400!"
     }
 ];
 
