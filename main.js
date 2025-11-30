@@ -48,41 +48,21 @@ const api = {
             state.products = response.data;
             render();
         } catch (error) {
-            console.error('Failed to load products:', error);
-            showToast('Failed to load products');
-        }
-    },
-
-    // Inside the existing `api` object:
-    getMyDevices: async () => {
-        if (!state.currentUser) return;
-        try {
-            const response = await apiCall(`/devices/my-devices?userId=${state.currentUser._id}`);
-            state.devices = response.data;
-            render();
-        } catch (error) {
-            console.error('Failed to load devices:', error);
-        }
-    },
-
-    pairDevice: async (deviceId, deviceToken) => {
-        try {
-            const response = await apiCall('/devices/pair', {
-                method: 'POST',
+            method: 'POST',
                 body: JSON.stringify({
                     deviceId,
                     deviceToken,
                     userId: state.currentUser._id
                 })
-            });
-            showToast('Device paired successfully!');
-            await api.getMyDevices();
-            navigate('my-devices');
-        } catch (error) {
-            showToast(error.message || 'Device pairing failed');
-            throw error;
-        }
-    },
+        });
+        showToast('Device paired successfully!');
+        await api.getMyDevices();
+        navigate('my-devices');
+    } catch(error) {
+        showToast(error.message || 'Device pairing failed');
+        throw error;
+    }
+},
 
     // Auth
     login: async (email, password) => {
@@ -110,62 +90,62 @@ const api = {
         }
     },
 
-    register: async (name, email, password) => {
-        try {
-            const response = await apiCall('/users/register', {
-                method: 'POST',
-                body: JSON.stringify({ name, email, password })
-            });
-            state.currentUser = response.data;
-            localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
-            showToast('Account created successfully!');
-            navigate('home');
-        } catch (error) {
-            showToast(error.message || 'Registration failed');
-            throw error; // Re-throw to handle in caller
-        }
-    },
+        register: async (name, email, password) => {
+            try {
+                const response = await apiCall('/users/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ name, email, password })
+                });
+                state.currentUser = response.data;
+                localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
+                showToast('Account created successfully!');
+                navigate('home');
+            } catch (error) {
+                showToast(error.message || 'Registration failed');
+                throw error; // Re-throw to handle in caller
+            }
+        },
 
-    // Orders
-    createOrder: async (orderData) => {
-        try {
-            const response = await apiCall('/orders', {
-                method: 'POST',
-                body: JSON.stringify(orderData)
-            });
-            state.cart = [];
-            saveState();
-            showToast('Order placed successfully!');
-            // Refresh orders if we're admin or viewing history
-            if (state.currentUser.role === 'admin') api.getOrders();
-            return response.data;
-        } catch (error) {
-            showToast(error.message || 'Failed to place order');
-            throw error;
-        }
-    },
+            // Orders
+            createOrder: async (orderData) => {
+                try {
+                    const response = await apiCall('/orders', {
+                        method: 'POST',
+                        body: JSON.stringify(orderData)
+                    });
+                    state.cart = [];
+                    saveState();
+                    showToast('Order placed successfully!');
+                    // Refresh orders if we're admin or viewing history
+                    if (state.currentUser.role === 'admin') api.getOrders();
+                    return response.data;
+                } catch (error) {
+                    showToast(error.message || 'Failed to place order');
+                    throw error;
+                }
+            },
 
-    getOrders: async () => {
-        if (!state.currentUser || state.currentUser.role !== 'admin') return;
-        try {
-            const response = await apiCall('/orders');
-            state.orders = response.data;
-            render();
-        } catch (error) {
-            console.error('Failed to load orders:', error);
-        }
-    },
+                getOrders: async () => {
+                    if (!state.currentUser || state.currentUser.role !== 'admin') return;
+                    try {
+                        const response = await apiCall('/orders');
+                        state.orders = response.data;
+                        render();
+                    } catch (error) {
+                        console.error('Failed to load orders:', error);
+                    }
+                },
 
-    getUsers: async () => {
-        if (!state.currentUser || state.currentUser.role !== 'admin') return;
-        try {
-            const response = await apiCall('/users');
-            state.users = response.data;
-            render();
-        } catch (error) {
-            console.error('Failed to load users:', error);
-        }
-    }
+                    getUsers: async () => {
+                        if (!state.currentUser || state.currentUser.role !== 'admin') return;
+                        try {
+                            const response = await apiCall('/users');
+                            state.users = response.data;
+                            render();
+                        } catch (error) {
+                            console.error('Failed to load users:', error);
+                        }
+                    }
 };
 
 // --- Utilities ---
