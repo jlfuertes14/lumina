@@ -2,6 +2,10 @@
  * ESP32 Smart Car - WebSocket Remote Control
  * Converted from SoftAP to WebSocket for e-commerce integration
  * 
+ * Dependencies:
+ * - WebSockets_Generic by Markus Sattler and Khoi Hoang
+ * - ArduinoJson by Benoit Blanchon
+ * 
  * Features:
  * - WebSocket connection to website server
  * - Device authentication with token
@@ -11,9 +15,12 @@
  */
 
 #include <WiFi.h>
+#include <WiFiMulti.h>
+#include <WiFiClientSecure.h>
 #include <WebServer.h>
-#include <SocketIOclient.h>
 #include <ArduinoJson.h>
+#include <WebSocketsClient_Generic.h>
+#include <SocketIOclient_Generic.h>
 #include <EEPROM.h>
 
 // ========== Motor Pins ==========
@@ -204,8 +211,8 @@ void setupWebSocket() {
   // Set event handler
   socketIO.onEvent(socketIOEvent);
   
-  // Enable heartbeat
-  socketIO.enableHeartbeat(15000, 3000, 5);
+  // Enable heartbeat - Removed as it's inaccessible in SocketIOclient_Generic
+  // socketIO.enableHeartbeat(15000, 3000, 5);
   
   Serial.println("✅ WebSocket client initialized");
 }
