@@ -863,6 +863,9 @@ const MyDevicesPage = () => {
                             
                             <h3 class="device-name">${device.deviceName}</h3>
                             <p class="device-id">ID: ${device.deviceId}</p>
+                            <p class="device-id" style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                🔑 Token: ${device.deviceToken ? device.deviceToken.substring(0, 16) + '...' : 'N/A'}
+                            </p>
                             
                             <div class="device-info">
                                 <div class="info-item">
