@@ -486,8 +486,8 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                                         🎮 Control
                                     </button>
                                 `:e.status==="pending"?`
-                                    <button class="btn btn-outline" style="width: 100%;" disabled>
-                                        Awaiting Setup
+                                    <button class="btn btn-outline" style="width: 100%;" onclick="window.navigate('device-pair')">
+                                        🔧 Awaiting Setup
                                     </button>
                                 `:`
                                     <button class="btn btn-outline" style="width: 100%;" disabled>
