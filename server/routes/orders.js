@@ -1,7 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
+const UserDevice = require('../models/UserDevice');
 
 // GET all orders
 router.get('/', async (req, res) => {
@@ -55,6 +57,7 @@ router.post('/', async (req, res) => {
         // Calculate total and validate products
         let total = 0;
         const orderItems = [];
+        const registeredDevices = []; // Track devices registered with this order
 
         for (const item of items) {
             const product = await Product.findOne({ id: item.productId });
@@ -85,6 +88,34 @@ router.post('/', async (req, res) => {
             });
 
             total += product.price * item.quantity;
+
+            // Check if product requires device registration (ESP32 Smart Cars)
+            if (product.requiresDeviceRegistration) {
+                // Create a device registration for each unit purchased
+                for (let i = 0; i < item.quantity; i++) {
+                    const deviceId = `ESP32-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+                    const deviceToken = crypto.randomBytes(16).toString('hex');
+
+                    const userDevice = new UserDevice({
+                        userId,
+                        deviceId,
+                        deviceToken,
+                        productId: product._id,
+                        deviceName: `${product.name} #${i + 1}`,
+                        status: 'pending',
+                        orderReference: `ORD-${Date.now().toString().slice(-6)}`
+                    });
+
+                    await userDevice.save();
+
+                    registeredDevices.push({
+                        deviceId,
+                        deviceToken,
+                        productName: product.name,
+                        setupInstructions: 'Please use these credentials to configure your ESP32 Smart Car. Keep your device token secure!'
+                    });
+                }
+            }
         }
 
         // Generate order ID
@@ -99,7 +130,19 @@ router.post('/', async (req, res) => {
         });
 
         await order.save();
-        res.status(201).json({ success: true, data: order });
+
+        // Include device credentials in response if any devices were registered
+        const response = {
+            success: true,
+            data: order
+        };
+
+        if (registeredDevices.length > 0) {
+            response.devices = registeredDevices;
+            response.message = 'Order created successfully! Device registration credentials have been generated. Please check your email for setup instructions.';
+        }
+
+        res.status(201).json(response);
     } catch (error) {
         res.status(400).json({ success: false, error: error.message });
     }

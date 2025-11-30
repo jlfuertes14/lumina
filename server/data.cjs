@@ -215,6 +215,69 @@ const products = [
         image: "assets/raspberry-pi-5-kit.png",
         stock: 25,
         description: "The latest Raspberry Pi 5 (8GB RAM) complete starter kit. Includes case, power supply, cooling fan, HDMI cables, and 64GB microSD card."
+    },
+    {
+        id: 25,
+        name: "ESP32 Smart Car - Basic Kit",
+        category: "ESP32 Robotics",
+        price: 1899,
+        image: "images/products/esp32-car-basic.png",
+        stock: 30,
+        description: "WiFi-controlled smart car powered by ESP32. Control via web browser from anywhere! Includes: ESP32 board, 4WD chassis, L298N motor driver, 18650 batteries (2x), ultrasonic sensor. Web-based remote control included.",
+        requiresDeviceRegistration: true,
+        specifications: {
+            "Microcontroller": "ESP32-WROOM-32",
+            "Motors": "4x DC Motors (150 RPM)",
+            "Power": "2x 18650 Li-ion Batteries (7.4V)",
+            "Sensors": "HC-SR04 Ultrasonic",
+            "WiFi": "2.4 GHz 802.11 b/g/n",
+            "Range": "Unlimited (via internet)",
+            "Control": "Web-based Remote",
+            "Dimensions": "18cm x 14cm x 8cm"
+        }
+    },
+    {
+        id: 26,
+        name: "ESP32 Smart Car - Advanced Kit",
+        category: "ESP32 Robotics",
+        price: 2799,
+        image: "images/products/esp32-car-advanced.png",
+        stock: 20,
+        description: "Advanced ESP32 smart car with obstacle avoidance and line following. Control remotely via web interface! Includes everything in Basic Kit PLUS: 5x IR sensors, servo motor, and enhanced chassis.",
+        requiresDeviceRegistration: true,
+        specifications: {
+            "Microcontroller": "ESP32-WROOM-32",
+            "Motors": "4x DC Motors (200 RPM) + SG90 Servo",
+            "Power": "2x 18650 Li-ion (7.4V 3000mAh)",
+            "Sensors": "HC-SR04 + 5x IR Line Sensors",
+            "WiFi": "2.4 GHz 802.11 b/g/n",
+            "Features": "Obstacle Avoidance, Line Following, Autonomous Mode",
+            "Range": "Unlimited (via internet)",
+            "Control": "Web Remote + Autonomous Modes",
+            "Dimensions": "20cm x 16cm x 10cm"
+        }
+    },
+    {
+        id: 27,
+        name: "ESP32 Smart Car - Deluxe Kit with Camera",
+        category: "ESP32 Robotics",
+        price: 3999,
+        image: "images/products/esp32-car-deluxe.png",
+        stock: 15,
+        description: "Premium ESP32-CAM smart car with live video streaming! Control and see what your car sees through the web interface. Includes everything in Advanced Kit PLUS: ESP32-CAM module, robotic arm with gripper, and premium aluminum chassis.",
+        requiresDeviceRegistration: true,
+        specifications: {
+            "Microcontroller": "ESP32-CAM (2MP Camera)",
+            "Motors": "4x Metal Gear Motors (300 RPM) + 2x Servos",
+            "Power": "2x 18650 Li-ion (7.4V 3350mAh)",
+            "Camera": "OV2640 2MP with Flash LED",
+            "Sensors": "HC-SR04 + 5x IR + Gyroscope",
+            "WiFi": "2.4 GHz 802.11 b/g/n",
+            "Features": "Live Video Stream, Object Detection, 2-DOF Arm",
+            "Range": "Unlimited (via internet)",
+            "Control": "Web Remote with Video Feed",
+            "Dimensions": "22cm x 18cm x 12cm"
+        }
     }
 ];
 

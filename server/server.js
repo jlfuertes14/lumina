@@ -44,12 +44,14 @@ const productRoutes = require('./routes/products');
 const userRoutes = require('./routes/users');
 const orderRoutes = require('./routes/orders');
 const analyticsRoutes = require('./routes/analytics');
+const deviceRoutes = require('./routes/devices');
 
 // API Routes
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/devices', deviceRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -76,7 +78,16 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+// Create HTTP server (required for Socket.IO)
+const http = require('http');
+const httpServer = http.createServer(app);
+
+// Initialize WebSocket server
+const { initializeWebSocket } = require('./websocket');
+const io = initializeWebSocket(httpServer);
+
+// Start server
+httpServer.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
     console.log(`📊 Database: ${(process.env.MONGODB_URI || '').includes('mongodb+srv') ? 'MongoDB Atlas' : 'Local MongoDB'}`);
 });

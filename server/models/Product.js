@@ -34,6 +34,15 @@ const productSchema = new mongoose.Schema({
     description: {
         type: String,
         required: true
+    },
+    requiresDeviceRegistration: {
+        type: Boolean,
+        default: false
+    },
+    specifications: {
+        type: Map,
+        of: String,
+        default: {}
     }
 }, {
     timestamps: true
