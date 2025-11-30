@@ -70,8 +70,8 @@ router.post('/pair', async (req, res) => {
             });
         }
 
-        // Verify ownership
-        if (device.userId.toString() !== userId) {
+        // Verify ownership (userId is now String, not ObjectId)
+        if (device.userId !== String(userId)) {
             return res.status(403).json({
                 success: false,
                 error: 'This device does not belong to you'
@@ -113,8 +113,8 @@ router.put('/:deviceId/rename', async (req, res) => {
             });
         }
 
-        // Verify ownership
-        if (device.userId.toString() !== userId) {
+        // Verify ownership (userId is now String)
+        if (device.userId !== String(userId)) {
             return res.status(403).json({
                 success: false,
                 error: 'Unauthorized'
@@ -176,8 +176,8 @@ router.delete('/:deviceId', async (req, res) => {
             });
         }
 
-        // Verify ownership
-        if (device.userId.toString() !== userId) {
+        // Verify ownership (userId is now String)
+        if (device.userId !== String(userId)) {
             return res.status(403).json({
                 success: false,
                 error: 'Unauthorized'

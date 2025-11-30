@@ -68,8 +68,16 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
   
-  // Disable watchdog for setup
-  esp_task_wdt_init(30, false); // 30 second timeout, no panic
+  // Configure watchdog timer (ESP32 Arduino core 3.x)
+  // Deinitialize first if already initialized
+  esp_task_wdt_deinit();
+  
+  esp_task_wdt_config_t wdt_config = {
+    .timeout_ms = 30000,        // 30 second timeout
+    .idle_core_mask = 0,        // Don't watch idle tasks
+    .trigger_panic = false      // Don't panic on timeout
+  };
+  esp_task_wdt_init(&wdt_config);
   
   Serial.println("\n========================================");
   Serial.println("ESP32 Smart Car -WebSocket Edition");
