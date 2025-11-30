@@ -10,11 +10,15 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors({
-    origin: '*', // Allow all origins for debugging
-    // credentials: true, // Not needed since we aren't using cookies yet
+    origin: ['https://jlfuertes14.github.io', 'http://localhost:5173', 'http://localhost:3000'],
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    exposedHeaders: ['Content-Range', 'X-Content-Range']
 }));
+
+// Handle preflight requests explicitly
+app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
