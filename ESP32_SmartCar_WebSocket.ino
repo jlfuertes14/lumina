@@ -58,6 +58,7 @@ String wifiSSID = "";
 String wifiPassword = "";
 bool isConfigured = false;
 bool isConnected = false;
+bool isConfigMode = false;  // Track if we're in config portal mode
 
 unsigned long lastStatusUpdate = 0;
 const unsigned long STATUS_INTERVAL = 5000; // Send status every 5 seconds
@@ -94,6 +95,7 @@ void setup() {
   // Check if device is configured
   if (!isConfigured || deviceId.length() == 0) {
     Serial.println("⚠️  No configuration found. Starting config portal...");
+    isConfigMode = true;
     startConfigPortal();
   } else {
     Serial.println("✅ Configuration found!");
@@ -104,10 +106,12 @@ void setup() {
     
     if (WiFi.status() == WL_CONNECTED) {
       Serial.println("🔌 Setting up WebSocket...");
+      isConfigMode = false;  // We're NOT in config mode anymore
       setupWebSocket();
       Serial.println("✅ Setup complete! Entering main loop...");
     } else {
       Serial.println("⚠️  WiFi failed. Starting config portal...");
+      isConfigMode = true;
       startConfigPortal();
     }
   }
@@ -115,7 +119,10 @@ void setup() {
 
 // ========== Main Loop ==========
 void loop() {
-  if (isConnected) {
+  if (isConfigMode) {
+    // Handle configuration portal
+    configServer.handleClient();
+  } else if (isConnected) {
     // Handle WebSocket communication
     socketIO.loop();
     
@@ -124,9 +131,6 @@ void loop() {
       sendStatusUpdate();
       lastStatusUpdate = millis();
     }
-  } else {
-    // Handle configuration portal
-    configServer.handleClient();
   }
   
   delay(10);
