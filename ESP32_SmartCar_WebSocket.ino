@@ -22,6 +22,7 @@
 #include <WebSocketsClient_Generic.h>
 #include <SocketIOclient_Generic.h>
 #include <EEPROM.h>
+#include <esp_task_wdt.h>
 
 // ========== Motor Pins ==========
 const int in1 = 32;
@@ -66,8 +67,11 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
   
+  // Disable watchdog for setup
+  esp_task_wdt_init(30, false); // 30 second timeout, no panic
+  
   Serial.println("\n========================================");
-  Serial.println("ESP32 Smart Car - WebSocket Edition");
+  Serial.println("ESP32 Smart Car -WebSocket Edition");
   Serial.println("========================================\n");
 
   // Initialize motor pins
@@ -99,7 +103,9 @@ void setup() {
     connectToWiFi();
     
     if (WiFi.status() == WL_CONNECTED) {
+      Serial.println("🔌 Setting up WebSocket...");
       setupWebSocket();
+      Serial.println("✅ Setup complete! Entering main loop...");
     } else {
       Serial.println("⚠️  WiFi failed. Starting config portal...");
       startConfigPortal();
@@ -646,7 +652,9 @@ void handleSaveConfig() {
   
   configServer.send(200, "text/html", html);
   
-  delay(2000);
+  delay(3000); // Give time for response to send
   Serial.println("🔄 Restarting ESP32...");
+  Serial.flush(); // Ensure all serial output is sent
+  delay(500);
   ESP.restart();
 }
