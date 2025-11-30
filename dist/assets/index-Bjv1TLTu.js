@@ -112,7 +112,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 </button>
             </div>
         </div>
-    `},R=()=>{const t=i.products.find(n=>n.id===i.currentProductId);if(!t)return g("home"),"";t.stock<10;const e=t.stock>0?"In Stock":"Out of Stock",o=t.stock>0?"var(--success)":"var(--danger)",r=i.products.filter(n=>n.id!==t.id).sort(()=>.5-Math.random()).slice(0,4);return`
+    `},F=()=>{const t=i.products.find(n=>n.id===i.currentProductId);if(!t)return g("home"),"";t.stock<10;const e=t.stock>0?"In Stock":"Out of Stock",o=t.stock>0?"var(--success)":"var(--danger)",r=i.products.filter(n=>n.id!==t.id).sort(()=>.5-Math.random()).slice(0,4);return`
         <div class="product-detail-container">
             <div class="breadcrumbs">
                 <a href="#" onclick="window.navigate('home'); return false;">Home</a> &gt; 
@@ -221,7 +221,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 ${i.products.filter(o=>t.includes(o.id)).sort((o,r)=>t.indexOf(o.id)-t.indexOf(r.id)).map($).join("")}
             </div>
         </div>
-    `},F=()=>{let t=[...i.products];switch(i.searchQuery&&(t=t.filter(e=>e.name.toLowerCase().includes(i.searchQuery.toLowerCase())||e.category.toLowerCase().includes(i.searchQuery.toLowerCase())||e.description.toLowerCase().includes(i.searchQuery.toLowerCase()))),i.sortBy){case"price-asc":t.sort((e,o)=>e.price-o.price);break;case"price-desc":t.sort((e,o)=>o.price-e.price);break;case"name-asc":t.sort((e,o)=>e.name.localeCompare(o.name));break;case"name-desc":t.sort((e,o)=>o.name.localeCompare(e.name));break;case"featured":default:t.sort((e,o)=>e.id-o.id);break}return`
+    `},R=()=>{let t=[...i.products];switch(i.searchQuery&&(t=t.filter(e=>e.name.toLowerCase().includes(i.searchQuery.toLowerCase())||e.category.toLowerCase().includes(i.searchQuery.toLowerCase())||e.description.toLowerCase().includes(i.searchQuery.toLowerCase()))),i.sortBy){case"price-asc":t.sort((e,o)=>e.price-o.price);break;case"price-desc":t.sort((e,o)=>o.price-e.price);break;case"name-asc":t.sort((e,o)=>e.name.localeCompare(o.name));break;case"name-desc":t.sort((e,o)=>o.name.localeCompare(e.name));break;case"featured":default:t.sort((e,o)=>e.id-o.id);break}return`
         <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
             <div class="products-header">
                 <div class="breadcrumbs">
@@ -855,6 +855,37 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                     </div>
                 </div>
             </div>
+
+            ${t.devices&&t.devices.length>0?`
+                <div style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="font-size: 2rem;">🚗</div>
+                        <div>
+                            <h3 style="margin: 0; color: #0369a1;">ESP32 Smart Car Credentials</h3>
+                            <p style="margin: 0; color: #0c4a6e; font-size: 0.9rem;">Use these details to configure your device</p>
+                        </div>
+                    </div>
+
+                    ${t.devices.map((s,d)=>`
+                        <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e0f2fe; margin-bottom: ${d<t.devices.length-1?"1rem":"0"};">
+                            <h4 style="margin: 0 0 0.5rem 0; color: #0284c7;">${s.productName}</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Device ID</div>
+                                    <div style="font-family: monospace; font-size: 1.1rem; font-weight: 700; color: #334155; background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; display: inline-block;">${s.deviceId}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Device Token</div>
+                                    <div style="font-family: monospace; font-size: 1.1rem; font-weight: 700; color: #334155; background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; display: inline-block;">${s.deviceToken}</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 0.75rem; font-size: 0.85rem; color: #0c4a6e;">
+                                <strong>Setup:</strong> Connect to "ESP32-SmartCar-Setup" WiFi and enter these credentials.
+                            </div>
+                        </div>
+                    `).join("")}
+                </div>
+            `:""}
 
             <div class="admin-section" style="margin-bottom: 2rem;">
                 <h3 style="margin-bottom: 1rem;">Order Items</h3>
@@ -2165,7 +2196,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const n=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentConfirmBtn"),d=document.getElementById("paymentCancelBtn"),c=document.getElementById("processingOverlay"),p=document.getElementById("successOverlay");d.addEventListener("click",()=>{n.remove(),e(null)}),s.addEventListener("click",()=>{c.classList.add("show"),setTimeout(()=>{c.classList.remove("show"),p.classList.add("show"),setTimeout(()=>{n.remove(),e({method:"bank",reference:o})},1e3)},1500)}),n.addEventListener("click",h=>{h.target===n&&(n.remove(),e(null))})});window.placeOrder=async()=>{const t=i.checkoutData.shipping;if(!t.fullName||!t.fullName.trim()){l("Please enter your full name");return}if(!t.address||!t.address.trim()){l("Please enter your address");return}if(!t.city||!t.city.trim()){l("Please enter your city");return}if(!t.province||!t.province.trim()){l("Please enter your province");return}if(!t.phone||!t.phone.trim()){l("Please enter your phone number");return}if(!/^09\d{9}$/.test(t.phone)){l('Phone number must start with "09" and contain exactly 11 digits');return}const o=/^[a-zA-Z\s]+$/;if(!o.test(t.fullName)){l("Full Name must contain letters and spaces only");return}if(!o.test(t.city)){l("City must contain letters and spaces only");return}if(!o.test(t.province)){l("Province must contain letters and spaces only");return}if(t.postalCode&&!/^\d+$/.test(t.postalCode)){l("Postal Code must contain numbers only");return}if(!i.checkoutData.paymentMethod){l("Please select a payment method");return}const r=i.cart.filter(a=>a.selected!==!1),s=r.reduce((a,u)=>a+u.price*u.quantity,0)+i.checkoutData.shippingFee;let d=null;switch(i.checkoutData.paymentMethod){case"cod":d=await showPaymentModal(s);break;case"gcash":d=await showGCashModal(s);break;case"maya":d=await showMayaModal(s);break;case"card":d=await showCardModal(s);break;case"bank":d=await showBankModal(s);break;default:l("Please select a payment method");return}if(!d)return;let c=d.amountPaid||s,p=d.change||0;const h={userId:i.currentUser.id,items:r.map(a=>({productId:a.id,quantity:a.quantity,price:a.price,name:a.name})),total:s,shippingInfo:i.checkoutData.shipping,paymentMethod:i.checkoutData.paymentMethod,shippingFee:i.checkoutData.shippingFee,amountPaid:c,change:p};try{const a=await f.createOrder(h);i.lastOrderId=a.orderId,i.lastOrderPayment={amountPaid:c,change:p},i.orders.push({orderId:a.orderId,...a,items:r,total:s,createdAt:new Date().toISOString(),userId:i.currentUser.id}),i.cart=i.cart.filter(u=>u.selected===!1),w(),g("order-confirmation")}catch{}};window.printReceipt=()=>{if(!i.lastOrderId){l("No order found to print");return}const t=i.orders.find(s=>s.orderId===i.lastOrderId);if(!t){l("Order not found");return}const e=i.lastOrderPayment||{},o=new Date,r=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const n=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentConfirmBtn"),d=document.getElementById("paymentCancelBtn"),c=document.getElementById("processingOverlay"),p=document.getElementById("successOverlay");d.addEventListener("click",()=>{n.remove(),e(null)}),s.addEventListener("click",()=>{c.classList.add("show"),setTimeout(()=>{c.classList.remove("show"),p.classList.add("show"),setTimeout(()=>{n.remove(),e({method:"bank",reference:o})},1e3)},1500)}),n.addEventListener("click",h=>{h.target===n&&(n.remove(),e(null))})});window.placeOrder=async()=>{const t=i.checkoutData.shipping;if(!t.fullName||!t.fullName.trim()){l("Please enter your full name");return}if(!t.address||!t.address.trim()){l("Please enter your address");return}if(!t.city||!t.city.trim()){l("Please enter your city");return}if(!t.province||!t.province.trim()){l("Please enter your province");return}if(!t.phone||!t.phone.trim()){l("Please enter your phone number");return}if(!/^09\d{9}$/.test(t.phone)){l('Phone number must start with "09" and contain exactly 11 digits');return}const o=/^[a-zA-Z\s]+$/;if(!o.test(t.fullName)){l("Full Name must contain letters and spaces only");return}if(!o.test(t.city)){l("City must contain letters and spaces only");return}if(!o.test(t.province)){l("Province must contain letters and spaces only");return}if(t.postalCode&&!/^\d+$/.test(t.postalCode)){l("Postal Code must contain numbers only");return}if(!i.checkoutData.paymentMethod){l("Please select a payment method");return}const r=i.cart.filter(a=>a.selected!==!1),s=r.reduce((a,u)=>a+u.price*u.quantity,0)+i.checkoutData.shippingFee;let d=null;switch(i.checkoutData.paymentMethod){case"cod":d=await showPaymentModal(s);break;case"gcash":d=await showGCashModal(s);break;case"maya":d=await showMayaModal(s);break;case"card":d=await showCardModal(s);break;case"bank":d=await showBankModal(s);break;default:l("Please select a payment method");return}if(!d)return;let c=d.amountPaid||s,p=d.change||0;const h={userId:i.currentUser.id,items:r.map(a=>({productId:a.id,quantity:a.quantity,price:a.price,name:a.name})),total:s,shippingInfo:i.checkoutData.shipping,paymentMethod:i.checkoutData.paymentMethod,shippingFee:i.checkoutData.shippingFee,amountPaid:c,change:p};try{const a=await f.createOrder(h);i.lastOrderId=a.orderId,i.lastOrderPayment={amountPaid:c,change:p},i.orders.push({orderId:a.orderId,...a,items:r,total:s,createdAt:new Date().toISOString(),userId:i.currentUser.id,devices:a.devices||[]}),i.cart=i.cart.filter(u=>u.selected===!1),w(),g("order-confirmation")}catch{}};window.printReceipt=()=>{if(!i.lastOrderId){l("No order found to print");return}const t=i.orders.find(s=>s.orderId===i.lastOrderId);if(!t){l("Order not found");return}const e=i.lastOrderPayment||{},o=new Date,r=`
         <!DOCTYPE html>
         <html>
         <head>
@@ -2485,7 +2516,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(n);const s=d=>{d.key==="Escape"&&(n.remove(),document.removeEventListener("keydown",s))};document.addEventListener("keydown",s)};const v=()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=E();break;case"products":e=F();break;case"product-detail":e=R();break;case"login":e=H();break;case"signup":e=Q();break;case"cart":e=V();break;case"checkout":e=Y();break;case"order-confirmation":e=J();break;case"contact-us":e=K();break;case"about-us":e=X();break;case"learn":e=Z();break;case"deals":e=ee();break;case"admin":e=te();break;case"my-devices":e=W();break;case"device-pair":e=_();break;case"remote-control":e=G();break;default:e=E()}t.innerHTML=`
+    `,document.body.appendChild(n);const s=d=>{d.key==="Escape"&&(n.remove(),document.removeEventListener("keydown",s))};document.addEventListener("keydown",s)};const v=()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=E();break;case"products":e=R();break;case"product-detail":e=F();break;case"login":e=H();break;case"signup":e=Q();break;case"cart":e=V();break;case"checkout":e=Y();break;case"order-confirmation":e=J();break;case"contact-us":e=K();break;case"about-us":e=X();break;case"learn":e=Z();break;case"deals":e=ee();break;case"admin":e=te();break;case"my-devices":e=W();break;case"device-pair":e=_();break;case"remote-control":e=G();break;default:e=E()}t.innerHTML=`
         ${q()}
         <main>
             ${e}
