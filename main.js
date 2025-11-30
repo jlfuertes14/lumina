@@ -1338,6 +1338,37 @@ const OrderConfirmationPage = () => {
                 </div>
             </div>
 
+            ${order.devices && order.devices.length > 0 ? `
+                <div style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="font-size: 2rem;">🚗</div>
+                        <div>
+                            <h3 style="margin: 0; color: #0369a1;">ESP32 Smart Car Credentials</h3>
+                            <p style="margin: 0; color: #0c4a6e; font-size: 0.9rem;">Use these details to configure your device</p>
+                        </div>
+                    </div>
+
+                    ${order.devices.map((device, index) => `
+                        <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e0f2fe; margin-bottom: ${index < order.devices.length - 1 ? '1rem' : '0'};">
+                            <h4 style="margin: 0 0 0.5rem 0; color: #0284c7;">${device.productName}</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Device ID</div>
+                                    <div style="font-family: monospace; font-size: 1.1rem; font-weight: 700; color: #334155; background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; display: inline-block;">${device.deviceId}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.75rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em;">Device Token</div>
+                                    <div style="font-family: monospace; font-size: 1.1rem; font-weight: 700; color: #334155; background: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 4px; display: inline-block;">${device.deviceToken}</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 0.75rem; font-size: 0.85rem; color: #0c4a6e;">
+                                <strong>Setup:</strong> Connect to "ESP32-SmartCar-Setup" WiFi and enter these credentials.
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+
             <div class="admin-section" style="margin-bottom: 2rem;">
                 <h3 style="margin-bottom: 1rem;">Order Items</h3>
                 ${order.items.map(item => `
