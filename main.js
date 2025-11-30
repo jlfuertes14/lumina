@@ -3493,7 +3493,8 @@ window.placeOrder = async () => {
             items: selectedItems,
             total: totalAmount,
             createdAt: new Date().toISOString(),
-            userId: state.currentUser.id
+            userId: state.currentUser.id,
+            devices: response.devices || [] // Explicitly save ESP32 device credentials
         });
 
         state.cart = state.cart.filter(item => item.selected === false);
