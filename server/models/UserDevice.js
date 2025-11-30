@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const userDeviceSchema = new mongoose.Schema({
     userId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String, // Changed from ObjectId to String to support numeric IDs
         ref: 'User',
         required: true,
         index: true
