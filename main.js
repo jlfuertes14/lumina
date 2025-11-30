@@ -173,23 +173,36 @@ const saveState = () => {
     localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
     localStorage.setItem('cart_v2', JSON.stringify(state.cart));
 };
-state.cart = response.data.map(item => ({
-    id: item.productId,
-    name: item.name,
-    price: item.price,
-    image: item.image,
-    quantity: item.quantity,
-    category: item.category,
-    selected: item.selected
-}));
 
-state.cartSynced = true;
-saveState();
-render();
-showToast('Cart synced!');
+
+const syncCartWithServer = async () => {
+    if (!state.currentUser || state.cartSynced) return;
+
+    try {
+        // Call sync endpoint
+        const response = await apiCall(`/users/${state.currentUser.id}/cart/sync`, {
+            method: 'POST',
+            body: JSON.stringify({ localCart: state.cart })
+        });
+
+        // Update cart with merged data from server
+        state.cart = response.data.map(item => ({
+            id: item.productId,
+            name: item.name,
+            price: item.price,
+            image: item.image,
+            quantity: item.quantity,
+            category: item.category,
+            selected: item.selected
+        }));
+
+        state.cartSynced = true;
+        saveState();
+        render();
+        showToast('Cart synced!');
     } catch (error) {
-    console.error('Cart sync failed:', error);
-}
+        console.error('Cart sync failed:', error);
+    }
 };
 
 const formatCurrency = (amount) => {
