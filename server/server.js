@@ -87,9 +87,9 @@ const httpServer = http.createServer(app);
 const { initializeWebSocket } = require('./websocket');
 const io = initializeWebSocket(httpServer);
 
-// Start server
-httpServer.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+// Start server - Listen on 0.0.0.0 for Railway
+httpServer.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Database: ${(process.env.MONGODB_URI || '').includes('mongodb+srv') ? 'MongoDB Atlas' : 'Local MongoDB'}`);
 });
 
