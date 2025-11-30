@@ -117,8 +117,8 @@ const MyDevicesPage = () => {
                                         🎮 Control
                                     </button>
                                 ` : device.status === 'pending' ? `
-                                    <button class="btn btn-outline" style="width: 100%;" disabled>
-                                        Awaiting Setup
+                                    <button class="btn btn-outline" style="width: 100%;" onclick="window.navigate('device-pair')">
+                                        🔧 Awaiting Setup
                                     </button>
                                 ` : `
                                     <button class="btn btn-outline" style="width: 100%;" disabled>
