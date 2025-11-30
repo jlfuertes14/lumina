@@ -1,0 +1,4 @@
+BACKUP OF CONTACT US PAGE CODE (lines 1027-1146) before professional redesign
+Created: 2025-11-30
+
+This is a safety backup in case redesign needs to be reverted.

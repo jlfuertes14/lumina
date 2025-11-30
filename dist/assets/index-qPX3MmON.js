@@ -1,227 +1,10 @@
-import { API_BASE_URL, apiCall } from './src/api-config.js';
-
-//  --- State Management ---
-const state = {
-    products: [], // Will be fetched from API
-    users: [], // Will be fetched from API (admin only)
-    orders: [], // Will be fetched from API
-    currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
-    cart: JSON.parse(localStorage.getItem('cart_v2')) || [],
-    route: sessionStorage.getItem('currentRoute') || 'home', // Restore last route or default to home
-    mobileMenuOpen: false, // For hamburger navigation
-    searchQuery: '',
-    showSuggestions: false,
-    searchSuggestions: [],
-    currentProductId: null,
-    sortBy: 'featured',
-    filterCategory: null,
-    cartSearchQuery: '',
-    isLoading: false,
-    cartSynced: false, // Track if cart has been synced with server
-    checkoutData: {
-        shipping: {
-            fullName: '',
-            address: '',
-            city: '',
-            province: '',
-            postalCode: '',
-            phone: '',
-            instructions: ''
-        },
-        paymentMethod: 'cod',
-        shippingFee: 50
-    },
-    lastOrderId: null
-};
-
-// --- API Actions ---
-const api = {
-    // Products
-    getProducts: async () => {
-        try {
-            const response = await apiCall('/products');
-            state.products = response.data;
-            render();
-        } catch (error) {
-            console.error('Failed to load products:', error);
-            showToast('Failed to load products');
-        }
-    },
-
-    // Auth
-    login: async (email, password) => {
-        console.log('Calling API login...');
-        try {
-            const response = await apiCall('/users/login', {
-                method: 'POST',
-                body: JSON.stringify({ email, password })
-            });
-            state.currentUser = response.data;
-            localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
-
-            // Sync cart after login!
-            await syncCartWithServer();
-
-            showToast(`Welcome back, ${state.currentUser.name}!`);
-            navigate('home');
-        } catch (error) {
-            showToast(error.message || 'Login failed');
-            throw error;
-        }
-    },
-
-    register: async (name, email, password) => {
-        try {
-            const response = await apiCall('/users/register', {
-                method: 'POST',
-                body: JSON.stringify({ name, email, password })
-            });
-            state.currentUser = response.data;
-            localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
-            showToast('Account created successfully!');
-            navigate('home');
-        } catch (error) {
-            showToast(error.message || 'Registration failed');
-            throw error; // Re-throw to handle in caller
-        }
-    },
-
-    // Orders
-    createOrder: async (orderData) => {
-        try {
-            const response = await apiCall('/orders', {
-                method: 'POST',
-                body: JSON.stringify(orderData)
-            });
-            state.cart = [];
-            saveState();
-            showToast('Order placed successfully!');
-            // Refresh orders if we're admin or viewing history
-            if (state.currentUser.role === 'admin') api.getOrders();
-            return response.data;
-        } catch (error) {
-            showToast(error.message || 'Failed to place order');
-            throw error;
-        }
-    },
-
-    getOrders: async () => {
-        if (!state.currentUser || state.currentUser.role !== 'admin') return;
-        try {
-            const response = await apiCall('/orders');
-            state.orders = response.data;
-            render();
-        } catch (error) {
-            console.error('Failed to load orders:', error);
-        }
-    },
-
-    getUsers: async () => {
-        if (!state.currentUser || state.currentUser.role !== 'admin') return;
-        try {
-            const response = await apiCall('/users');
-            state.users = response.data;
-            render();
-        } catch (error) {
-            console.error('Failed to load users:', error);
-        }
-    }
-};
-
-// --- Utilities ---
-const saveState = () => {
-    // Only save cart and user session locally
-    localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
-    localStorage.setItem('cart_v2', JSON.stringify(state.cart));
-};
-
-const syncCartWithServer = async () => {
-    if (!state.currentUser || state.cartSynced) return;
-
-    try {
-        // Call sync endpoint
-        const response = await apiCall(`/users/${state.currentUser.id}/cart/sync`, {
-            method: 'POST',
-            body: JSON.stringify({ localCart: state.cart })
-        });
-
-        // Update cart with merged data from server
-        state.cart = response.data.map(item => ({
-            id: item.productId,
-            name: item.name,
-            price: item.price,
-            image: item.image,
-            quantity: item.quantity,
-            category: item.category,
-            selected: item.selected
-        }));
-
-        state.cartSynced = true;
-        saveState();
-        render();
-        showToast('Cart synced!');
-    } catch (error) {
-        console.error('Cart sync failed:', error);
-    }
-};
-
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount);
-};
-
-// --- Router ---
-const navigate = (route) => {
-    state.route = route;
-    state.mobileMenuOpen = false; // Close mobile menu on navigation
-    sessionStorage.setItem('currentRoute', route); // Persist route!
-    render();
-    window.scrollTo(0, 0);
-};
-
-const showToast = (message) => {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => toast.classList.add('show'), 100);
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-};
-
-// --- Components ---
-
-// Breadcrumbs Component
-const Breadcrumbs = (pageName) => {
-    const pages = {
-        'deals': 'Deals',
-        'learn': 'Learn',
-        'about-us': 'About Us',
-        'contact-us': 'Contact Us',
-        'products': 'Products',
-        'cart': 'Cart',
-        'checkout': 'Checkout'
-    };
-
-    const displayName = pages[pageName] || pageName;
-
-    return `
+(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))r(a);new MutationObserver(a=>{for(const s of a)if(s.type==="childList")for(const d of s.addedNodes)d.tagName==="LINK"&&d.rel==="modulepreload"&&r(d)}).observe(document,{childList:!0,subtree:!0});function o(a){const s={};return a.integrity&&(s.integrity=a.integrity),a.referrerPolicy&&(s.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?s.credentials="include":a.crossOrigin==="anonymous"?s.credentials="omit":s.credentials="same-origin",s}function r(a){if(a.ep)return;a.ep=!0;const s=o(a);fetch(a.href,s)}})();const E="https://lumina-production-a4bb.up.railway.app",B="http://localhost:3000",D=window.location.hostname==="jlfuertes14.github.io",M=D?`${E}/api`:`${B}/api`;async function w(t,e={}){const o=`${M}${t}`;try{const r=await fetch(o,{...e,headers:{"Content-Type":"application/json",...e.headers}}),a=await r.json();if(!r.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${D?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${M}`);const i={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:sessionStorage.getItem("currentRoute")||"home",mobileMenuOpen:!1,searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,cartSynced:!1,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null},b={getProducts:async()=>{try{const t=await w("/products");i.products=t.data,v()}catch(t){console.error("Failed to load products:",t),m("Failed to load products")}},login:async(t,e)=>{console.log("Calling API login...");try{const o=await w("/users/login",{method:"POST",body:JSON.stringify({email:t,password:e})});i.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),await O(),m(`Welcome back, ${i.currentUser.name}!`),h("home")}catch(o){throw m(o.message||"Login failed"),o}},register:async(t,e,o)=>{try{const r=await w("/users/register",{method:"POST",body:JSON.stringify({name:t,email:e,password:o})});i.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),m("Account created successfully!"),h("home")}catch(r){throw m(r.message||"Registration failed"),r}},createOrder:async t=>{try{const e=await w("/orders",{method:"POST",body:JSON.stringify(t)});return i.cart=[],f(),m("Order placed successfully!"),i.currentUser.role==="admin"&&b.getOrders(),e.data}catch(e){throw m(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await w("/orders");i.orders=t.data,v()}catch(t){console.error("Failed to load orders:",t)}},getUsers:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await w("/users");i.users=t.data,v()}catch(t){console.error("Failed to load users:",t)}}},f=()=>{localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(i.cart))},O=async()=>{if(!(!i.currentUser||i.cartSynced))try{const t=await w(`/users/${i.currentUser.id}/cart/sync`,{method:"POST",body:JSON.stringify({localCart:i.cart})});i.cart=t.data.map(e=>({id:e.productId,name:e.name,price:e.price,image:e.image,quantity:e.quantity,category:e.category,selected:e.selected})),i.cartSynced=!0,f(),v(),m("Cart synced!")}catch(t){console.error("Cart sync failed:",t)}},c=t=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(t),h=t=>{i.route=t,i.mobileMenuOpen=!1,sessionStorage.setItem("currentRoute",t),v(),window.scrollTo(0,0)},m=t=>{const e=document.createElement("div");e.className="toast",e.textContent=t,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)},$=t=>`
         <div class="breadcrumbs">
             <a href="#" onclick="window.navigate('home'); return false;">Home</a>
             <span class="breadcrumb-separator">›</span>
-            <span>${displayName}</span>
+            <span>${{deals:"Deals",learn:"Learn","about-us":"About Us","contact-us":"Contact Us",products:"Products",cart:"Cart",checkout:"Checkout"}[t]||t}</span>
         </div>
-    `;
-};
-
-const Header = () => {
-    const isLoggedIn = state.currentUser !== null;
-    const isAdmin = state.currentUser?.role === 'admin';
-    const isCartPage = state.route === 'cart';
-    const cartCount = state.cart.length;
-
-    return `
+    `,A=()=>{const t=i.currentUser!==null,e=i.currentUser?.role==="admin",o=i.route==="cart",r=i.cart.length;return`
         <header>
             <div class="header-top">
                 <button class="hamburger-btn" onclick="window.toggleMobileMenu()" aria-label="Toggle menu">
@@ -233,7 +16,7 @@ const Header = () => {
                     Lumina<span>Electronics</span>
                 </a>
                 
-                ${!isCartPage ? `
+                ${o?"":`
                     <div class="search-bar">
                         <div class="search-container">
                             <input 
@@ -241,7 +24,7 @@ const Header = () => {
                                 id="searchInput" 
                                 class="search-input" 
                                 placeholder="Search for Products..." 
-                                value="${state.searchQuery}"
+                                value="${i.searchQuery}"
                                 oninput="window.handleSearchInput(event)"
                                 onkeyup="if(event.key === 'Enter') window.handleSearch()"
                                 onfocus="window.showSearchSuggestions()"
@@ -249,43 +32,43 @@ const Header = () => {
                             <button class="search-btn" onclick="window.handleSearch()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             </button>
-                            ${state.showSuggestions && state.searchQuery ? `
+                            ${i.showSuggestions&&i.searchQuery?`
                                 <div class="search-suggestions" id="searchSuggestions">
                                     <div class="suggestions-header">Suggestions</div>
-                                    ${state.searchSuggestions.slice(0, 5).map(suggestion => `
-                                        <div class="suggestion-item" onclick="window.selectSuggestion('${suggestion.replace(/'/g, "\\'")}')"> 
+                                    ${i.searchSuggestions.slice(0,5).map(a=>`
+                                        <div class="suggestion-item" onclick="window.selectSuggestion('${a.replace(/'/g,"\\'")}')"> 
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                            <span>${suggestion}</span>
+                                            <span>${a}</span>
                                         </div>
-                                    `).join('')}
-                                    ${state.searchQuery ? `
+                                    `).join("")}
+                                    ${i.searchQuery?`
                                         <div class="suggestion-search-all" onclick="window.handleSearch()">
-                                            Search for "${state.searchQuery}" →
+                                            Search for "${i.searchQuery}" →
                                         </div>
-                                    ` : ''}
+                                    `:""}
                                 </div>
-                            ` : ''}
+                            `:""}
                         </div>
                     </div>
-                ` : ''}
+                `}
 
                 <div class="nav-actions">
-                    ${!isAdmin ? `
+                    ${e?"":`
                     <a href="#" class="action-icon" onclick="window.navigate('cart'); return false;">
                         <div style="position: relative;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                            ${cartCount > 0 ? `<span class="cart-count">${cartCount}</span>` : ''}
+                            ${r>0?`<span class="cart-count">${r}</span>`:""}
                         </div>
                         <span>Cart</span>
                     </a>
-                    ` : ''}
+                    `}
                     
-                    ${isLoggedIn ? `
+                    ${t?`
                         <div class="action-icon" onclick="window.logout()" style="cursor: pointer;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                             <span>Logout</span>
                         </div>
-                    ` : `
+                    `:`
                         <a href="#" class="action-icon" onclick="window.navigate('login'); return false;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             <span>Login</span>
@@ -294,106 +77,77 @@ const Header = () => {
                 </div>
             </div>
             
-            <nav class="header-nav ${state.mobileMenuOpen ? 'mobile-open' : ''}">
-                <a href="#" class="nav-link ${state.route === 'home' ? 'active' : ''}" onclick="window.navigate('home'); return false;">Home</a>
-                <a href="#" class="nav-link ${state.route === 'products' ? 'active' : ''}" onclick="window.navigate('products'); return false;">Products</a>
-                <a href="#" class="nav-link ${state.route === 'deals' ? 'active' : ''}" onclick="window.navigate('deals'); return false;">Deals</a>
-                <a href="#" class="nav-link ${state.route === 'learn' ? 'active' : ''}" onclick="window.navigate('learn'); return false;">Learn</a>
-                <a href="#" class="nav-link ${state.route === 'about-us' ? 'active' : ''}" onclick="window.navigate('about-us'); return false;">About Us</a>
-                <a href="#" class="nav-link ${state.route === 'contact-us' ? 'active' : ''}" onclick="window.navigate('contact-us'); return false;">Contact Us</a>
-                ${isAdmin ? `<a href="#" class="nav-link ${state.route === 'admin' ? 'active' : ''}" onclick="window.navigate('admin'); return false;">Admin Dashboard</a>` : ''}
+            <nav class="header-nav ${i.mobileMenuOpen?"mobile-open":""}">
+                <a href="#" class="nav-link ${i.route==="home"?"active":""}" onclick="window.navigate('home'); return false;">Home</a>
+                <a href="#" class="nav-link ${i.route==="products"?"active":""}" onclick="window.navigate('products'); return false;">Products</a>
+                <a href="#" class="nav-link ${i.route==="deals"?"active":""}" onclick="window.navigate('deals'); return false;">Deals</a>
+                <a href="#" class="nav-link ${i.route==="learn"?"active":""}" onclick="window.navigate('learn'); return false;">Learn</a>
+                <a href="#" class="nav-link ${i.route==="about-us"?"active":""}" onclick="window.navigate('about-us'); return false;">About Us</a>
+                <a href="#" class="nav-link ${i.route==="contact-us"?"active":""}" onclick="window.navigate('contact-us'); return false;">Contact Us</a>
+                ${e?`<a href="#" class="nav-link ${i.route==="admin"?"active":""}" onclick="window.navigate('admin'); return false;">Admin Dashboard</a>`:""}
                 
-                ${isLoggedIn ? `
+                ${t?`
                     <div class="mobile-logout" onclick="window.logout()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                         <span>Logout</span>
                     </div>
-                ` : ''}
+                `:""}
             </nav>
         </header>
-    `;
-};
-
-const ProductCard = (product) => {
-    const isLowStock = product.stock < 10;
-    const badgeClass = isLowStock ? 'low-stock' : '';
-    const badgeText = isLowStock ? 'Low Stock' : 'In Stock';
-
-    return `
-        <div class="product-card" onclick="window.viewProduct(${product.id})" style="cursor: pointer;">
-            <div class="product-badge ${badgeClass}">${badgeText}</div>
+    `},k=t=>{const e=t.stock<10,o=e?"low-stock":"",r=e?"Low Stock":"In Stock";return`
+        <div class="product-card" onclick="window.viewProduct(${t.id})" style="cursor: pointer;">
+            <div class="product-badge ${o}">${r}</div>
             <div class="product-image">
-                <img src="${product.image}" alt="${product.name}" />
+                <img src="${t.image}" alt="${t.name}" />
             </div>
             <div class="product-info">
-                <div class="product-category">${product.category}</div>
-                <h3 class="product-title">${product.name}</h3>
-                <div class="product-price">${formatCurrency(product.price)}</div>
-                <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${product.id})">
+                <div class="product-category">${t.category}</div>
+                <h3 class="product-title">${t.name}</h3>
+                <div class="product-price">${c(t.price)}</div>
+                <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${t.id})">
                     Add to Cart
                 </button>
             </div>
         </div>
-    `;
-};
-
-const ProductDetailPage = () => {
-    const product = state.products.find(p => p.id === state.currentProductId);
-
-    if (!product) {
-        navigate('home');
-        return '';
-    }
-
-    const isLowStock = product.stock < 10;
-    const stockStatus = product.stock > 0 ? 'In Stock' : 'Out of Stock';
-    const stockColor = product.stock > 0 ? 'var(--success)' : 'var(--danger)';
-
-    // Get 4 random related products (excluding current)
-    const relatedProducts = state.products
-        .filter(p => p.id !== product.id)
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 4);
-
-    return `
+    `},T=()=>{const t=i.products.find(a=>a.id===i.currentProductId);if(!t)return h("home"),"";t.stock<10;const e=t.stock>0?"In Stock":"Out of Stock",o=t.stock>0?"var(--success)":"var(--danger)",r=i.products.filter(a=>a.id!==t.id).sort(()=>.5-Math.random()).slice(0,4);return`
         <div class="product-detail-container">
             <div class="breadcrumbs">
                 <a href="#" onclick="window.navigate('home'); return false;">Home</a> &gt; 
                 <a href="#" onclick="window.navigate('products'); return false;">Products</a> &gt; 
-                <span>${product.name}</span>
+                <span>${t.name}</span>
             </div>
 
             <div class="product-main">
                 <div class="product-gallery">
-                    <img src="${product.image}" alt="${product.name}">
+                    <img src="${t.image}" alt="${t.name}">
                 </div>
 
                 <div class="product-details-info">
-                    <div class="product-sku">SKU: LUM-${product.id.toString().padStart(4, '0')}</div>
-                    <h1 class="detail-title">${product.name}</h1>
-                    <div class="detail-price">${formatCurrency(product.price)}</div>
+                    <div class="product-sku">SKU: LUM-${t.id.toString().padStart(4,"0")}</div>
+                    <h1 class="detail-title">${t.name}</h1>
+                    <div class="detail-price">${c(t.price)}</div>
 
                     <div class="detail-section">
                         <span class="detail-label">Description</span>
-                        <p style="color: var(--text-muted); line-height: 1.6;">${product.description}</p>
+                        <p style="color: var(--text-muted); line-height: 1.6;">${t.description}</p>
                     </div>
 
                     <div class="detail-section">
                         <span class="detail-label">Quantity</span>
                         <div class="quantity-selector">
                             <button class="qty-btn" onclick="window.adjustDetailQty(-1)">-</button>
-                            <input type="number" id="detailQty" class="qty-input" value="1" min="1" max="${product.stock}" readonly>
+                            <input type="number" id="detailQty" class="qty-input" value="1" min="1" max="${t.stock}" readonly>
                             <button class="qty-btn" onclick="window.adjustDetailQty(1)">+</button>
                         </div>
                     </div>
 
-                    <button class="btn-add-large" onclick="window.addToCartFromDetail(${product.id})">
+                    <button class="btn-add-large" onclick="window.addToCartFromDetail(${t.id})">
                         Add To Cart
                     </button>
 
-                    <div class="stock-status" style="color: ${stockColor}">
-                        <span class="stock-dot" style="background-color: ${stockColor}"></span>
-                        ${stockStatus} (${product.stock} available)
+                    <div class="stock-status" style="color: ${o}">
+                        <span class="stock-dot" style="background-color: ${o}"></span>
+                        ${e} (${t.stock} available)
                     </div>
                 </div>
             </div>
@@ -401,23 +155,11 @@ const ProductDetailPage = () => {
             <div class="related-products">
                 <h3 class="related-title">You may also like</h3>
                 <div class="product-grid">
-                    ${relatedProducts.map(ProductCard).join('')}
+                    ${r.map(k).join("")}
                 </div>
             </div>
         </div>
-    `;
-};
-
-const HomePage = () => {
-    // Filter products based on search query
-    if (state.searchQuery) {
-        const filteredProducts = state.products.filter(product =>
-            product.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-            product.category.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-            product.description.toLowerCase().includes(state.searchQuery.toLowerCase())
-        );
-
-        return `
+    `},I=()=>{if(i.searchQuery){const o=i.products.filter(r=>r.name.toLowerCase().includes(i.searchQuery.toLowerCase())||r.category.toLowerCase().includes(i.searchQuery.toLowerCase())||r.description.toLowerCase().includes(i.searchQuery.toLowerCase()));return`
             <div class="hero">
                 <div class="hero-content">
                     <span class="hero-badge">Quality Components</span>
@@ -437,12 +179,12 @@ const HomePage = () => {
                 <div class="section-title">
                     <h2>Search Results</h2>
                 </div>
-                <p style="color: var(--text-muted); margin-bottom: 1rem;">Found ${filteredProducts.length} result${filteredProducts.length !== 1 ? 's' : ''} for "${state.searchQuery}"</p>
-                ${filteredProducts.length > 0 ? `
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">Found ${o.length} result${o.length!==1?"s":""} for "${i.searchQuery}"</p>
+                ${o.length>0?`
                     <div class="product-grid">
-                        ${filteredProducts.map(ProductCard).join('')}
+                        ${o.map(k).join("")}
                     </div>
-                ` : `
+                `:`
                     <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
                         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 1rem; opacity: 0.3;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                         <h3 style="margin-bottom: 0.5rem;">No products found</h3>
@@ -451,17 +193,7 @@ const HomePage = () => {
                     </div>
                 `}
             </div>
-        `;
-    }
-
-    // Default Home: Show Popular Products (5 items)
-    // 1. ESP32, 2. Servo, 3. Ultrasonic, 4. 18650, 5. Jumper Wires
-    const popularIds = [1, 6, 2, 12, 4];
-    const popularProducts = state.products
-        .filter(p => popularIds.includes(p.id))
-        .sort((a, b) => popularIds.indexOf(a.id) - popularIds.indexOf(b.id));
-
-    return `
+        `}const t=[1,6,2,12,4];return`
         <div class="hero">
             <div class="hero-content">
                 <span class="hero-badge">Quality Components</span>
@@ -483,52 +215,10 @@ const HomePage = () => {
                 <a href="#" onclick="window.navigate('products'); return false;" style="font-size: 0.9rem; color: var(--primary); font-weight: 600;">View All Products &rarr;</a>
             </div>
             <div class="product-grid">
-                ${popularProducts.map(ProductCard).join('')}
+                ${i.products.filter(o=>t.includes(o.id)).sort((o,r)=>t.indexOf(o.id)-t.indexOf(r.id)).map(k).join("")}
             </div>
         </div>
-    `;
-};
-
-const ProductsPage = () => {
-    // Apply filtering
-    let displayedProducts = [...state.products];
-
-    // Apply search query filter
-    if (state.searchQuery) {
-        displayedProducts = displayedProducts.filter(product =>
-            product.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-            product.category.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-            product.description.toLowerCase().includes(state.searchQuery.toLowerCase())
-        );
-    }
-
-    // Apply category filter
-    if (state.filterCategory) {
-        displayedProducts = displayedProducts.filter(p => p.category === state.filterCategory);
-    }
-
-    // Apply sorting
-    switch (state.sortBy) {
-        case 'price-asc':
-            displayedProducts.sort((a, b) => a.price - b.price);
-            break;
-        case 'price-desc':
-            displayedProducts.sort((a, b) => b.price - a.price);
-            break;
-        case 'name-asc':
-            displayedProducts.sort((a, b) => a.name.localeCompare(b.name));
-            break;
-        case 'name-desc':
-            displayedProducts.sort((a, b) => b.name.localeCompare(a.name));
-            break;
-        case 'featured':
-        default:
-            // Default ID sort or custom logic
-            displayedProducts.sort((a, b) => a.id - b.id);
-            break;
-    }
-
-    return `
+    `},j=()=>{let t=[...i.products];switch(i.searchQuery&&(t=t.filter(e=>e.name.toLowerCase().includes(i.searchQuery.toLowerCase())||e.category.toLowerCase().includes(i.searchQuery.toLowerCase())||e.description.toLowerCase().includes(i.searchQuery.toLowerCase()))),i.sortBy){case"price-asc":t.sort((e,o)=>e.price-o.price);break;case"price-desc":t.sort((e,o)=>o.price-e.price);break;case"name-asc":t.sort((e,o)=>e.name.localeCompare(o.name));break;case"name-desc":t.sort((e,o)=>o.name.localeCompare(e.name));break;case"featured":default:t.sort((e,o)=>e.id-o.id);break}return`
         <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
             <div class="products-header">
                 <div class="breadcrumbs">
@@ -543,43 +233,39 @@ const ProductsPage = () => {
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
                             Filter
                         </button>
-                        <span style="color: var(--text-muted); font-size: 0.9rem;">${displayedProducts.length} products</span>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">${t.length} products</span>
                     </div>
                     
                     <div class="sort-container">
                         <span class="sort-label">Sort by:</span>
                         <select class="sort-select" onchange="window.handleSort(this.value)">
-                            <option value="featured" ${state.sortBy === 'featured' ? 'selected' : ''}>Featured</option>
-                            <option value="price-asc" ${state.sortBy === 'price-asc' ? 'selected' : ''}>Price: Low to High</option>
-                            <option value="price-desc" ${state.sortBy === 'price-desc' ? 'selected' : ''}>Price: High to Low</option>
-                            <option value="name-asc" ${state.sortBy === 'name-asc' ? 'selected' : ''}>Alphabetical: A-Z</option>
-                            <option value="name-desc" ${state.sortBy === 'name-desc' ? 'selected' : ''}>Alphabetical: Z-A</option>
+                            <option value="featured" ${i.sortBy==="featured"?"selected":""}>Featured</option>
+                            <option value="price-asc" ${i.sortBy==="price-asc"?"selected":""}>Price: Low to High</option>
+                            <option value="price-desc" ${i.sortBy==="price-desc"?"selected":""}>Price: High to Low</option>
+                            <option value="name-asc" ${i.sortBy==="name-asc"?"selected":""}>Alphabetical: A-Z</option>
+                            <option value="name-desc" ${i.sortBy==="name-desc"?"selected":""}>Alphabetical: Z-A</option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            ${state.searchQuery ? `
+            ${i.searchQuery?`
                 <div style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--surface); border-radius: 8px; margin-bottom: 1.5rem;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                     <span>
-                        Showing results for <strong>"${state.searchQuery}"</strong>
+                        Showing results for <strong>"${i.searchQuery}"</strong>
                     </span>
                 </div>
-            ` : ''}
+            `:""}
 
             <div class="product-grid">
-                ${displayedProducts.map(ProductCard).join('')}
+                ${t.map(k).join("")}
             </div>
         </div>
-    `;
-};
-
-const LoginPage = () => {
-    return `
+    `},N=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Welcome Back</h2>
             <form onsubmit="window.handleLogin(event)">
@@ -597,11 +283,7 @@ const LoginPage = () => {
                 Don't have an account? <a href="#" onclick="window.navigate('signup'); return false;" style="color: var(--accent)">Sign up</a>
             </p>
         </div>
-    `;
-};
-
-const SignupPage = () => {
-    return `
+    `,q=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Create Account</h2>
             <form onsubmit="window.handleSignup(event)">
@@ -623,32 +305,13 @@ const SignupPage = () => {
                 Already have an account? <a href="#" onclick="window.navigate('login'); return false;" style="color: var(--accent)">Login</a>
             </p>
         </div>
-    `;
-};
-
-const CartPage = () => {
-    if (state.cart.length === 0) {
-        return `
+    `,U=()=>{if(i.cart.length===0)return`
             <div class="text-center" style="padding: 4rem;">
                 <h2>Your cart is empty</h2>
                 <p class="text-muted mb-4">Looks like you haven't added anything yet.</p>
                 <button class="btn btn-primary" onclick="window.navigate('products')">Start Shopping</button>
             </div>
-        `;
-    }
-
-    // Filter cart items based on cart search query
-    let displayedCartItems = state.cart;
-    if (state.cartSearchQuery) {
-        displayedCartItems = state.cart.filter(item =>
-            item.name.toLowerCase().includes(state.cartSearchQuery.toLowerCase()) ||
-            item.category.toLowerCase().includes(state.cartSearchQuery.toLowerCase())
-        );
-    }
-
-    const total = state.cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-
-    return `
+        `;let t=i.cart;return i.cartSearchQuery&&(t=i.cart.filter(e=>e.name.toLowerCase().includes(i.cartSearchQuery.toLowerCase())||e.category.toLowerCase().includes(i.cartSearchQuery.toLowerCase()))),i.cart.reduce((e,o)=>e+o.price*o.quantity,0),`
         <div style="margin: 2rem auto; padding: 0 2rem;">
             <button class="btn btn-outline" onclick="window.navigate('products')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
                 ← Continue Shopping
@@ -658,24 +321,24 @@ const CartPage = () => {
                 <div style="display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-bottom: 1.5rem;">
                     <h2 style="margin: 0;">Shopping Cart</h2>
                     
-                    ${state.cart.length > 0 ? `
+                    ${i.cart.length>0?`
                         <div class="search-container" style="max-width: 400px; flex: 1;">
                             <input 
                                 type="text" 
                                 id="cartSearchInput" 
                                 class="search-input" 
                                 placeholder="Search items in cart..." 
-                                value="${state.cartSearchQuery}"
+                                value="${i.cartSearchQuery}"
                                 oninput="window.handleCartSearch(event)"
                                 style="width: 100%;"
                             >
                             <button class="search-btn" onclick="window.clearCartSearch()">
-                                ${state.cartSearchQuery ? `
+                                ${i.cartSearchQuery?`
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="18" y1="6" x2="6" y2="18"></line>
                                         <line x1="6" y1="6" x2="18" y2="18"></line>
                                     </svg>
-                                ` : `
+                                `:`
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <circle cx="11" cy="11" r="8"></circle>
                                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -683,110 +346,83 @@ const CartPage = () => {
                                 `}
                             </button>
                         </div>
-                    ` : ''}
+                    `:""}
                 </div>
                 
-                <div class="cart-search-message" style="${state.cartSearchQuery && displayedCartItems.length === 0 ? '' : 'display: none;'}">
-                    ${state.cartSearchQuery && displayedCartItems.length === 0 ? `
+                <div class="cart-search-message" style="${i.cartSearchQuery&&t.length===0?"":"display: none;"}">
+                    ${i.cartSearchQuery&&t.length===0?`
                         <p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
-                            No items found for "${state.cartSearchQuery}"
+                            No items found for "${i.cartSearchQuery}"
                         </p>
-                    ` : ''}
+                    `:""}
                 </div>
                 
             <div class="cart-items">
-                ${displayedCartItems.map(item => {
-        // Find similar products based on category
-        const similarProducts = state.products
-            .filter(p => p.category === item.category && p.id !== item.id)
-            .slice(0, 4); // Show up to 4 similar items
-
-        return `
+                ${t.map(e=>{const o=i.products.filter(r=>r.category===e.category&&r.id!==e.id).slice(0,4);return`
                     <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
                         <div class="cart-item" style="border-bottom: none;">
                             <input type="checkbox" 
                                 style="width: 20px; height: 20px; margin-right: 1rem; cursor: pointer; accent-color: var(--primary);"
-                                ${item.selected !== false ? 'checked' : ''}
-                                onchange="window.toggleCartItem(${item.id})"
+                                ${e.selected!==!1?"checked":""}
+                                onchange="window.toggleCartItem(${e.id})"
                             >
-                            <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
+                            <img src="${e.image}" alt="${e.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                             <div style="flex: 1;">
-                                <h3 style="font-size: 1rem;">${item.name}</h3>
-                                <p class="text-muted">${formatCurrency(item.price)}</p>
+                                <h3 style="font-size: 1rem;">${e.name}</h3>
+                                <p class="text-muted">${c(e.price)}</p>
                             </div>
                             <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
-                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
-                                <span>${item.quantity}</span>
-                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${e.id}, ${e.quantity-1})">-</button>
+                                <span>${e.quantity}</span>
+                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${e.id}, ${e.quantity+1})">+</button>
                             </div>
                             
                             <div class="cart-item-actions">
-                                <button class="btn-delete" onclick="window.removeFromCart(${item.id})">Delete</button>
-                                <button class="btn-find-similar" onclick="window.toggleFindSimilar(${item.id})">
+                                <button class="btn-delete" onclick="window.removeFromCart(${e.id})">Delete</button>
+                                <button class="btn-find-similar" onclick="window.toggleFindSimilar(${e.id})">
                                     Find Similar 
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${item.showSimilar ? 'rotate(180deg)' : 'rotate(0deg)'}; transition: transform 0.2s;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${e.showSimilar?"rotate(180deg)":"rotate(0deg)"}; transition: transform 0.2s;">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </button>
                             </div>
                         </div>
 
-                        <div class="similar-products-dropdown ${item.showSimilar ? 'show' : ''}">
+                        <div class="similar-products-dropdown ${e.showSimilar?"show":""}">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <h4 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Similar Products</h4>
-                                <button onclick="window.toggleFindSimilar(${item.id})" style="background: none; border: none; cursor: pointer;">
+                                <button onclick="window.toggleFindSimilar(${e.id})" style="background: none; border: none; cursor: pointer;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                 </button>
                             </div>
-                            ${similarProducts.length > 0 ? `
+                            ${o.length>0?`
                                 <div class="similar-products-grid">
-                                    ${similarProducts.map(p => `
-                                        <div class="similar-product-card" onclick="window.viewProduct(${p.id})">
-                                            <img src="${p.image}" alt="${p.name}" class="similar-product-image">
-                                            <div class="similar-product-title" title="${p.name}">${p.name}</div>
-                                            <div class="similar-product-price">${formatCurrency(p.price)}</div>
+                                    ${o.map(r=>`
+                                        <div class="similar-product-card" onclick="window.viewProduct(${r.id})">
+                                            <img src="${r.image}" alt="${r.name}" class="similar-product-image">
+                                            <div class="similar-product-title" title="${r.name}">${r.name}</div>
+                                            <div class="similar-product-price">${c(r.price)}</div>
                                         </div>
-                                    `).join('')}
+                                    `).join("")}
                                 </div>
-                            ` : '<p class="text-muted text-center">No similar products found.</p>'}
+                            `:'<p class="text-muted text-center">No similar products found.</p>'}
                         </div>
                     </div>
-                `;
-    }).join('')}
+                `}).join("")}
             </div>
             <div class="cart-summary">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                     <span>Total</span>
-                    <span>${formatCurrency(state.cart.reduce((acc, item) => acc + (item.selected !== false ? item.price * item.quantity : 0), 0))}</span>
+                    <span>${c(i.cart.reduce((e,o)=>e+(o.selected!==!1?o.price*o.quantity:0),0))}</span>
                 </div>
                 <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
-                    Proceed to Checkout (${state.cart.filter(i => i.selected !== false).length})
+                    Proceed to Checkout (${i.cart.filter(e=>e.selected!==!1).length})
                 </button>
 
             </div>
         </div>
         </div>
-    `;
-};
-
-const CheckoutPage = () => {
-    if (!state.currentUser) {
-        navigate('login');
-        return '';
-    }
-
-    const selectedItems = state.cart.filter(item => item.selected !== false);
-    if (selectedItems.length === 0) {
-        showToast('No items selected for checkout');
-        navigate('cart');
-        return '';
-    }
-
-    const subtotal = selectedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const shippingFee = state.checkoutData.shippingFee;
-    const total = subtotal + shippingFee;
-
-    return `
+    `},F=()=>{if(!i.currentUser)return h("login"),"";const t=i.cart.filter(a=>a.selected!==!1);if(t.length===0)return m("No items selected for checkout"),h("cart"),"";const e=t.reduce((a,s)=>a+s.price*s.quantity,0),o=i.checkoutData.shippingFee,r=e+o;return`
         <div class="checkout-container" style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <div style="margin-bottom: 2rem;">
                 <button class="btn btn-outline" onclick="window.navigate('cart')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
@@ -803,7 +439,7 @@ const CheckoutPage = () => {
                             <div>
                                 <label class="form-label">Full Name <span style="color: red;">*</span></label>
                                 <input type="text" class="form-input" 
-                                    value="${state.checkoutData.shipping.fullName || (state.currentUser ? state.currentUser.name : '')}"
+                                    value="${i.checkoutData.shipping.fullName||(i.currentUser?i.currentUser.name:"")}"
                                     oninput="window.handleNameInput(this)"
                                     placeholder="e.g. Juan Dela Cruz">
                             </div>
@@ -811,7 +447,7 @@ const CheckoutPage = () => {
                             <div>
                                 <label class="form-label">Phone Number <span style="color: red;">*</span></label>
                                 <input type="tel" class="form-input" 
-                                    value="${state.checkoutData.shipping.phone}"
+                                    value="${i.checkoutData.shipping.phone}"
                                     oninput="window.handlePhoneInput(this)"
                                     maxlength="11"
                                     placeholder="09123456789">
@@ -820,7 +456,7 @@ const CheckoutPage = () => {
                             <div>
                                 <label class="form-label">Address <span style="color: red;">*</span></label>
                                 <input type="text" class="form-input" 
-                                    value="${state.checkoutData.shipping.address}"
+                                    value="${i.checkoutData.shipping.address}"
                                     onchange="window.updateShippingInfo('address', this.value)"
                                     placeholder="House/Unit No., Street Name, Barangay">
                             </div>
@@ -829,14 +465,14 @@ const CheckoutPage = () => {
                                 <div>
                                     <label class="form-label">City <span style="color: red;">*</span></label>
                                     <input type="text" class="form-input" 
-                                        value="${state.checkoutData.shipping.city}"
+                                        value="${i.checkoutData.shipping.city}"
                                         oninput="window.handleLocationInput(this, 'city')"
                                         placeholder="e.g. Makati">
                                 </div>
                                 <div>
                                     <label class="form-label">Province <span style="color: red;">*</span></label>
                                     <input type="text" class="form-input" 
-                                        value="${state.checkoutData.shipping.province}"
+                                        value="${i.checkoutData.shipping.province}"
                                         oninput="window.handleLocationInput(this, 'province')"
                                         placeholder="e.g. Metro Manila">
                                 </div>
@@ -845,7 +481,7 @@ const CheckoutPage = () => {
                             <div>
                                 <label class="form-label">Postal Code <span style="color: red;">*</span></label>
                                 <input type="text" class="form-input" 
-                                    value="${state.checkoutData.shipping.postalCode}"
+                                    value="${i.checkoutData.shipping.postalCode}"
                                     oninput="window.handlePostalInput(this)"
                                     maxlength="4"
                                     placeholder="e.g. 1200">
@@ -856,27 +492,21 @@ const CheckoutPage = () => {
                                 <textarea class="form-input" 
                                     onchange="window.updateShippingInfo('instructions', this.value)"
                                     rows="3"
-                                    placeholder="Floor number, landmark, etc.">${state.checkoutData.shipping.instructions || ''}</textarea>
+                                    placeholder="Floor number, landmark, etc.">${i.checkoutData.shipping.instructions||""}</textarea>
                             </div>
                         </form>
                     </div>
                     <div class="admin-section">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">💳 Payment Method <span style="color: red;">*</span></h2>
                         <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem;">
-                            ${[
-            { id: 'cod', label: 'Cash on Delivery', image: '/lumina/images/payment/cod.png' },
-            { id: 'gcash', label: 'GCash', image: '/lumina/images/payment/gcash.png' },
-            { id: 'maya', label: 'Maya', image: '/lumina/images/payment/maya.png' },
-            { id: 'card', label: 'Credit/Debit Card', image: '/lumina/images/payment/card.png' },
-            { id: 'bank', label: 'Bank Transfer', image: '/lumina/images/payment/bank.png' }
-        ].map(method => `
-                                <div class="payment-method-card" onclick="window.selectPaymentMethod('${method.id}')" style="padding: 0.75rem; border: 2px solid ${state.checkoutData.paymentMethod === method.id ? 'var(--primary)' : 'var(--border)'}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${state.checkoutData.paymentMethod === method.id ? 'rgba(0, 43, 91, 0.05)' : 'var(--surface)'};">
+                            ${[{id:"cod",label:"Cash on Delivery",image:"/lumina/images/payment/cod.png"},{id:"gcash",label:"GCash",image:"/lumina/images/payment/gcash.png"},{id:"maya",label:"Maya",image:"/lumina/images/payment/maya.png"},{id:"card",label:"Credit/Debit Card",image:"/lumina/images/payment/card.png"},{id:"bank",label:"Bank Transfer",image:"/lumina/images/payment/bank.png"}].map(a=>`
+                                <div class="payment-method-card" onclick="window.selectPaymentMethod('${a.id}')" style="padding: 0.75rem; border: 2px solid ${i.checkoutData.paymentMethod===a.id?"var(--primary)":"var(--border)"}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${i.checkoutData.paymentMethod===a.id?"rgba(0, 43, 91, 0.05)":"var(--surface)"};">
                                     <div style="height: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
-                                        <img src="${method.image}" alt="${method.label}" style="max-width: 100%; max-height: 48px; object-fit: contain;">
+                                        <img src="${a.image}" alt="${a.label}" style="max-width: 100%; max-height: 48px; object-fit: contain;">
                                     </div>
-                                    <div style="font-size: 0.75rem; font-weight: 600; line-height: 1.2;">${method.label}</div>
+                                    <div style="font-size: 0.75rem; font-weight: 600; line-height: 1.2;">${a.label}</div>
                                 </div>
-                            `).join('')}
+                            `).join("")}
                         </div>
                     </div>
                 </div>
@@ -884,29 +514,29 @@ const CheckoutPage = () => {
                     <div class="cart-summary" style="position: sticky; top: 2rem;">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Order Summary</h2>
                         <div style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
-                            ${selectedItems.map(item => `
+                            ${t.map(a=>`
                                 <div style="display: flex; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
-                                    <img src="${item.image}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
+                                    <img src="${a.image}" alt="${a.name}" style="width: 60px; height: 60px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                                     <div style="flex: 1;">
-                                        <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem;">${item.name}</div>
-                                        <div style="font-size: 0.875rem; color: var(--text-muted);">Qty: ${item.quantity}</div>
+                                        <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem;">${a.name}</div>
+                                        <div style="font-size: 0.875rem; color: var(--text-muted);">Qty: ${a.quantity}</div>
                                     </div>
-                                    <div style="font-weight: 700; color: var(--primary);">${formatCurrency(item.price * item.quantity)}</div>
+                                    <div style="font-weight: 700; color: var(--primary);">${c(a.price*a.quantity)}</div>
                                 </div>
-                            `).join('')}
+                            `).join("")}
                         </div>
                         <div style="border-top: 1px solid var(--border); padding-top: 1rem; margin-bottom: 1rem;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span style="color: var(--text-muted);">Subtotal</span>
-                                <span>${formatCurrency(subtotal)}</span>
+                                <span>${c(e)}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span style="color: var(--text-muted);">Shipping Fee</span>
-                                <span>${formatCurrency(shippingFee)}</span>
+                                <span>${c(o)}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
                                 <span>Total</span>
-                                <span style="color: var(--primary);">${formatCurrency(total)}</span>
+                                <span style="color: var(--primary);">${c(r)}</span>
                             </div>
                         </div>
                         <button class="btn btn-primary" onclick="window.placeOrder()" style="width: 100%; padding: 1rem; font-size: 1rem;">Place Order</button>
@@ -915,30 +545,7 @@ const CheckoutPage = () => {
                 </div>
             </div>
         </div>
-    `;
-};
-
-const OrderConfirmationPage = () => {
-    if (!state.lastOrderId) {
-        navigate('home');
-        return '';
-    }
-
-    const order = state.orders.find(o => o.orderId === state.lastOrderId);
-    if (!order) {
-        navigate('home');
-        return '';
-    }
-
-    const today = new Date();
-    const minDelivery = new Date(today);
-    minDelivery.setDate(today.getDate() + 3);
-    const maxDelivery = new Date(today);
-    maxDelivery.setDate(today.getDate() + 5);
-
-    const deliveryRange = `${minDelivery.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${maxDelivery.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} `;
-
-    return `
+    `},R=()=>{if(!i.lastOrderId)return h("home"),"";const t=i.orders.find(s=>s.orderId===i.lastOrderId);if(!t)return h("home"),"";const e=new Date,o=new Date(e);o.setDate(e.getDate()+3);const r=new Date(e);r.setDate(e.getDate()+5);const a=`${o.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${r.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} `;return`
         <div style="max-width: 800px; margin: 4rem auto; padding: 0 2rem;">
             <div style="text-align: center; margin-bottom: 3rem;">
                 <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">✓</div>
@@ -951,11 +558,11 @@ const OrderConfirmationPage = () => {
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <div>
                             <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Order Number</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">#${order.orderId}</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">#${t.orderId}</div>
                         </div>
                         <div>
                             <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Order Date</div>
-                            <div style="font-weight: 600;">${new Date(order.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                            <div style="font-weight: 600;">${new Date(t.createdAt).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</div>
                         </div>
                     </div>
                 </div>
@@ -965,7 +572,7 @@ const OrderConfirmationPage = () => {
                         <div style="width: 24px; height: 24px; background: var(--success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700;">1</div>
                         <div style="font-weight: 600;">Estimated Delivery</div>
                     </div>
-                    <div style="padding-left: 2rem; color: var(--text-muted);">${deliveryRange}</div>
+                    <div style="padding-left: 2rem; color: var(--text-muted);">${a}</div>
                 </div>
 
                 <div style="margin-bottom: 1.5rem;">
@@ -974,8 +581,8 @@ const OrderConfirmationPage = () => {
                         <div style="font-weight: 600;">Payment Status</div>
                     </div>
                     <div style="padding-left: 2rem;">
-                        <span class="badge badge-${state.checkoutData.paymentMethod === 'cod' ? 'warning' : 'success'}" style="font-size: 0.875rem; padding: 0.375rem 0.75rem;">
-                            ${state.checkoutData.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Payment Confirmed'}
+                        <span class="badge badge-${i.checkoutData.paymentMethod==="cod"?"warning":"success"}" style="font-size: 0.875rem; padding: 0.375rem 0.75rem;">
+                            ${i.checkoutData.paymentMethod==="cod"?"Cash on Delivery":"Payment Confirmed"}
                         </span>
                     </div>
                 </div>
@@ -986,28 +593,28 @@ const OrderConfirmationPage = () => {
                         <div style="font-weight: 600;">Shipping Address</div>
                     </div>
                     <div style="padding-left: 2rem; color: var(--text-muted);">
-                        ${state.checkoutData.shipping.fullName}<br>
-                        ${state.checkoutData.shipping.address}<br>
-                        ${state.checkoutData.shipping.city}, ${state.checkoutData.shipping.province} ${state.checkoutData.shipping.postalCode}<br>
-                        ${state.checkoutData.shipping.phone}
+                        ${i.checkoutData.shipping.fullName}<br>
+                        ${i.checkoutData.shipping.address}<br>
+                        ${i.checkoutData.shipping.city}, ${i.checkoutData.shipping.province} ${i.checkoutData.shipping.postalCode}<br>
+                        ${i.checkoutData.shipping.phone}
                     </div>
                 </div>
             </div>
 
             <div class="admin-section" style="margin-bottom: 2rem;">
                 <h3 style="margin-bottom: 1rem;">Order Items</h3>
-                ${order.items.map(item => `
+                ${t.items.map(s=>`
                     <div style="display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border);">
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${item.productName || item.name}</div>
-                            <div style="font-size: 0.875rem; color: var(--text-muted);">Quantity: ${item.quantity}</div>
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${s.productName||s.name}</div>
+                            <div style="font-size: 0.875rem; color: var(--text-muted);">Quantity: ${s.quantity}</div>
                         </div>
-                        <div style="font-weight: 700; color: var(--primary);">${formatCurrency(item.price * item.quantity)}</div>
+                        <div style="font-weight: 700; color: var(--primary);">${c(s.price*s.quantity)}</div>
                     </div>
-                `).join('')}
+                `).join("")}
                 <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
                     <span>Total Amount</span>
-                    <span style="color: var(--primary);">${formatCurrency(order.total)}</span>
+                    <span style="color: var(--primary);">${c(t.total)}</span>
                 </div>
             </div>
 
@@ -1017,18 +624,13 @@ const OrderConfirmationPage = () => {
             </div>
 
             <div style="text-align: center; margin-top: 3rem; padding: 1.5rem; background: var(--surface-alt); border-radius: var(--radius-md);">
-                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">An email confirmation has been sent to <strong>${state.currentUser.email}</strong></p>
+                <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">An email confirmation has been sent to <strong>${i.currentUser.email}</strong></p>
                 <p style="font-size: 0.875rem; color: var(--text-muted);">Questions? Contact us at support@luminaelectronics.com</p>
             </div>
         </div>
-    `;
-};
-
-// --- Contact Us Page ---
-const ContactUsPage = () => {
-    return `
+    `},H=()=>`
         <div style="max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;">
-            ${Breadcrumbs('contact-us')}
+            ${$("contact-us")}
             
             <!-- Hero Section -->
             <div style="text-align: center; margin-bottom: 4rem;">
@@ -1145,22 +747,10 @@ const ContactUsPage = () => {
                 </iframe>
             </div>
         </div>
-    `;
-};
-
-// --- About Us Page ---
-const AboutUsPage = () => {
-    const teamMembers = [
-        { name: "Alex Santos", role: "Founder & CEO", image: "https://ui-avatars.com/api/?name=Alex+Santos&background=6366f1&color=fff&size=120" },
-        { name: "Sarah Lee", role: "Operations Manager", image: "https://ui-avatars.com/api/?name=Sarah+Lee&background=6366f1&color=fff&size=120" },
-        { name: "Mike Chen", role: "Technical Support", image: "https://ui-avatars.com/api/?name=Mike+Chen&background=6366f1&color=fff&size=120" },
-        { name: "Jenny Reyes", role: "Customer Service", image: "https://ui-avatars.com/api/?name=Jenny+Reyes&background=6366f1&color=fff&size=120" }
-    ];
-
-    return `
+    `,Q=()=>{const t=[{name:"Alex Santos",role:"Founder & CEO",image:"https://ui-avatars.com/api/?name=Alex+Santos&background=6366f1&color=fff&size=120"},{name:"Sarah Lee",role:"Operations Manager",image:"https://ui-avatars.com/api/?name=Sarah+Lee&background=6366f1&color=fff&size=120"},{name:"Mike Chen",role:"Technical Support",image:"https://ui-avatars.com/api/?name=Mike+Chen&background=6366f1&color=fff&size=120"},{name:"Jenny Reyes",role:"Customer Service",image:"https://ui-avatars.com/api/?name=Jenny+Reyes&background=6366f1&color=fff&size=120"}];return`
         <div style="background: #f8f9fa; min-height: 100vh; padding: 2rem 0;">
             <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-                ${Breadcrumbs('about-us')}
+                ${$("about-us")}
                 
                 <!-- Hero Section with Real Photo -->
                 <div style="position: relative; border-radius: 4px; overflow: hidden; margin-bottom: 2.5rem; height: 250px; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
@@ -1247,15 +837,15 @@ const AboutUsPage = () => {
                 <div style="background: white; padding: 2rem; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 2.5rem;">
                     <h2 style="font-size: 1.5rem; margin-bottom: 2rem; color: #1e293b; font-weight: 600;">Meet Our Team</h2>
                     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
-                        ${teamMembers.map(member => `
+                        ${t.map(e=>`
                             <div style="text-align: center;">
                                 <div style="width: 80px; height: 80px; margin: 0 auto 1rem; border-radius: 50%; overflow: hidden; border: 2px solid #e2e8f0;">
-                                    <img src="${member.image}" alt="${member.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                                    <img src="${e.image}" alt="${e.name}" style="width: 100%; height: 100%; object-fit: cover;">
                                 </div>
-                                <h3 style="font-size: 0.875rem; margin-bottom: 0.25rem; color: #1e293b; font-weight: 600;">${member.name}</h3>
-                                <p style="font-size: 0.75rem; color: #64748b;">${member.role}</p>
+                                <h3 style="font-size: 0.875rem; margin-bottom: 0.25rem; color: #1e293b; font-weight: 600;">${e.name}</h3>
+                                <p style="font-size: 0.75rem; color: #64748b;">${e.role}</p>
                             </div>
-                        `).join('')}
+                        `).join("")}
                     </div>
                 </div>
 
@@ -1290,32 +880,7 @@ const AboutUsPage = () => {
                 </div>
             </div>
         </div>
-    `;
-};
-
-// --- Learn Page ---
-const LearnPage = () => {
-    const tutorials = [
-        { id: 1, title: "Getting Started with Arduino", category: "Beginner", topic: "Microcontrollers", duration: "15 min", videoId: "nL34zDTPkcs", featured: true },
-        { id: 2, title: "Raspberry Pi Setup Guide", category: "Beginner", topic: "Microcontrollers", duration: "20 min", videoId: "BpJCAafw2qE", featured: true },
-        { id: 3, title: "Understanding Sensors", category: "Intermediate", topic: "IoT", duration: "18 min", videoId: "DlG6LY84MUU", recent: true },
-        { id: 4, title: "DIY Obstacle Avoidance Car", category: "Intermediate", topic: "IoT", duration: "6 min", videoId: "1n_KjpMfVT0", recent: true },
-        { id: 5, title: "PCB Design Basics", category: "Advanced", topic: "PCB Design", duration: "60 min", videoId: "vaCVh2SAZY4", featured: true },
-        { id: 6, title: "IoT Projects with ESP32", category: "Advanced", topic: "IoT", duration: "50 min", videoId: "xPlN_Tk3VLQ", recent: true },
-        { id: 7, title: "8 Brilliant Projects with 3D Printing and Electronics!", category: "Intermediate", topic: "Microcontrollers", duration: "8 min", videoId: "UkWoPMa6V-M", featured: true },
-        { id: 8, title: "Building a Weather Station", category: "Advanced", topic: "IoT", duration: "42 min", videoId: "U0kPgFcALac", recent: true }
-    ];
-
-    const featuredVideos = tutorials.filter(t => t.featured);
-    const recentVideos = tutorials.filter(t => t.recent);
-
-    const getBadgeColor = (category) => {
-        if (category === 'Beginner') return { bg: '#dcfce7', text: '#16a34a' };
-        if (category === 'Intermediate') return { bg: '#dbeafe', text: '#2563eb' };
-        return { bg: '#f3e8ff', text: '#9333ea' };
-    };
-
-    return `
+    `},V=()=>{const t=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",featured:!0},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",featured:!0},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",recent:!0},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",recent:!0},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",featured:!0},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",recent:!0},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",featured:!0},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",recent:!0}],e=t.filter(a=>a.featured),o=t.filter(a=>a.recent),r=a=>a==="Beginner"?{bg:"#dcfce7",text:"#16a34a"}:a==="Intermediate"?{bg:"#dbeafe",text:"#2563eb"}:{bg:"#f3e8ff",text:"#9333ea"};return`
         <div style="background: #f8f9fa; min-height: 100vh; padding-bottom: 3rem;">
             <!-- Hero Banner -->
             <div style="width: 100%; margin-top: 2rem; margin-bottom: 2rem; overflow: hidden;">
@@ -1325,7 +890,7 @@ const LearnPage = () => {
             </div>
 
             <div style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
-                ${Breadcrumbs('learn')}
+                ${$("learn")}
                 
                 <!-- Filter Chips -->
                 <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap; overflow-x: auto; padding-bottom: 0.5rem;">
@@ -1367,34 +932,32 @@ const LearnPage = () => {
                         <h2 style="font-size: 1.5rem; color: #1e293b; font-weight: 600;">Featured Playlist</h2>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                        ${featuredVideos.map(tutorial => {
-        const colors = getBadgeColor(tutorial.category);
-        return `
-                            <div class="tutorial-card" data-category="${tutorial.category}" data-topic="${tutorial.topic}" 
+                        ${e.map(a=>{const s=r(a.category);return`
+                            <div class="tutorial-card" data-category="${a.category}" data-topic="${a.topic}" 
                                  style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" 
-                                 onclick="window.openVideoModal('${tutorial.videoId}')"
+                                 onclick="window.openVideoModal('${a.videoId}')"
                                  onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.12)'"
                                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
                                 <div style="position: relative; aspect-ratio: 16/9; background: #000; overflow: hidden;">
-                                    <img src="https://img.youtube.com/vi/${tutorial.videoId}/maxresdefault.jpg" alt="${tutorial.title}" style="width: 100%; height: 100%; object-fit: cover;" />
+                                    <img src="https://img.youtube.com/vi/${a.videoId}/maxresdefault.jpg" alt="${a.title}" style="width: 100%; height: 100%; object-fit: cover;" />
                                     <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3);">
                                         <div style="width: 56px; height: 56px; background: rgba(220, 38, 38, 0.95); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                                         </div>
                                     </div>
                                     <div style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.85); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">
-                                        ⏱ ${tutorial.duration}
+                                        ⏱ ${a.duration}
                                     </div>
-                                    <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: ${colors.bg}; color: ${colors.text}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;">
-                                        ${tutorial.category}
+                                    <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: ${s.bg}; color: ${s.text}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;">
+                                        ${a.category}
                                     </div>
                                 </div>
                                 <div style="padding: 1rem;">
-                                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.4; color: #1e293b; font-weight: 600; text-align: left;">${tutorial.title}</h3>
-                                    <p style="font-size: 0.875rem; color: #64748b; text-align: left;">Watch this ${tutorial.category.toLowerCase()}-level tutorial</p>
+                                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.4; color: #1e293b; font-weight: 600; text-align: left;">${a.title}</h3>
+                                    <p style="font-size: 0.875rem; color: #64748b; text-align: left;">Watch this ${a.category.toLowerCase()}-level tutorial</p>
                                 </div>
                             </div>
-                        `}).join('')}
+                        `}).join("")}
                     </div>
                 </div>
 
@@ -1404,34 +967,32 @@ const LearnPage = () => {
                         <h2 style="font-size: 1.5rem; color: #1e293b; font-weight: 600;">Recently Added</h2>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                        ${recentVideos.map(tutorial => {
-            const colors = getBadgeColor(tutorial.category);
-            return `
-                            <div class="tutorial-card" data-category="${tutorial.category}" data-topic="${tutorial.topic}"
+                        ${o.map(a=>{const s=r(a.category);return`
+                            <div class="tutorial-card" data-category="${a.category}" data-topic="${a.topic}"
                                  style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" 
-                                 onclick="window.openVideoModal('${tutorial.videoId}')"
+                                 onclick="window.openVideoModal('${a.videoId}')"
                                  onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.12)'"
                                  onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
                                 <div style="position: relative; aspect-ratio: 16/9; background: #000; overflow: hidden;">
-                                    <img src="https://img.youtube.com/vi/${tutorial.videoId}/maxresdefault.jpg" alt="${tutorial.title}" style="width: 100%; height: 100%; object-fit: cover;" />
+                                    <img src="https://img.youtube.com/vi/${a.videoId}/maxresdefault.jpg" alt="${a.title}" style="width: 100%; height: 100%; object-fit: cover;" />
                                     <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3);">
                                         <div style="width: 56px; height: 56px; background: rgba(220, 38, 38, 0.95); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                                         </div>
                                     </div>
                                     <div style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.85); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">
-                                        ⏱ ${tutorial.duration}
+                                        ⏱ ${a.duration}
                                     </div>
-                                    <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: ${colors.bg}; color: ${colors.text}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;">
-                                        ${tutorial.category}
+                                    <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: ${s.bg}; color: ${s.text}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;">
+                                        ${a.category}
                                     </div>
                                 </div>
                                 <div style="padding: 1rem;">
-                                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.4; color: #1e293b; font-weight: 600; text-align: left;">${tutorial.title}</h3>
-                                    <p style="font-size: 0.875rem; color: #64748b; text-align: left;">Watch this ${tutorial.category.toLowerCase()}-level tutorial</p>
+                                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.4; color: #1e293b; font-weight: 600; text-align: left;">${a.title}</h3>
+                                    <p style="font-size: 0.875rem; color: #64748b; text-align: left;">Watch this ${a.category.toLowerCase()}-level tutorial</p>
                                 </div>
                             </div>
-                        `}).join('')}
+                        `}).join("")}
                     </div>
                 </div>
 
@@ -1471,31 +1032,11 @@ const LearnPage = () => {
                 </div>
             </div>
         </div>
-    `;
-};
-
-// --- Deals Page ---
-const DealsPage = () => {
-    // Filter products with discounts (for demo, we'll show all products as deals)
-    const dealProducts = state.products.slice(0, 8).map((product, index) => ({
-        ...product,
-        originalPrice: product.price * 1.3,
-        discount: [10, 15, 20, 25, 30][index % 5],
-        stock: [45, 67, 23, 89, 12][index % 5],
-        category: ['Microcontrollers', 'Sensors', 'Tools', 'Robotics', 'Components'][index % 5]
-    }));
-
-    const coupons = [
-        { code: 'MAKER100', title: 'New Maker Discount', description: '₱100 OFF', condition: 'Min. spend ₱500', color: '#6366f1' },
-        { code: 'SENSE10', title: 'Sensor Bundle', description: '10% OFF', condition: 'All Sensors', color: '#0ea5e9' },
-        { code: 'SHIPFREE', title: 'Free Shipping', description: 'FREE', condition: 'Orders over ₱1,500', color: '#10b981' }
-    ];
-
-    return `
+    `},G=()=>{const t=i.products.slice(0,8).map((e,o)=>({...e,originalPrice:e.price*1.3,discount:[10,15,20,25,30][o%5],stock:[45,67,23,89,12][o%5],category:["Microcontrollers","Sensors","Tools","Robotics","Components"][o%5]}));return`
         <div style="background: #f8f9fa; min-height: 100vh; padding: 2rem 0;">
             <!-- Content Container -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
-                ${Breadcrumbs('deals')}
+                ${$("deals")}
                 
                 <!-- Hero Banner -->
                 <div style="width: 100%; background: #e5e7eb; margin-bottom: 2rem; border-radius: 8px; overflow: hidden;">
@@ -1583,7 +1124,7 @@ const DealsPage = () => {
                 <!-- DEALS GRID -->
                 <div style="margin-bottom: 2rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <div style="font-size: 0.875rem; color: #64748b;">${dealProducts.length} products on sale</div>
+                        <div style="font-size: 0.875rem; color: #64748b;">${t.length} products on sale</div>
                         <select style="padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; outline: none;" onchange="window.sortDeals(this.value)">
                             <option value="featured">Sort: Featured</option>
                             <option value="discount">Highest Discount</option>
@@ -1593,48 +1134,48 @@ const DealsPage = () => {
                     </div>
 
                     <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem;">
-                        ${dealProducts.map(product => `
-                            <div class="deal-product-card" data-category="${product.category}" style="background: white; border-radius: 4px; border: 1px solid #e2e8f0; overflow: hidden; position: relative; cursor: pointer; transition: border-color 0.15s;" 
-                                 onclick="window.viewProduct(${product.id})"
+                        ${t.map(e=>`
+                            <div class="deal-product-card" data-category="${e.category}" style="background: white; border-radius: 4px; border: 1px solid #e2e8f0; overflow: hidden; position: relative; cursor: pointer; transition: border-color 0.15s;" 
+                                 onclick="window.viewProduct(${e.id})"
                                  onmouseover="this.style.borderColor='#cbd5e1'" 
                                  onmouseout="this.style.borderColor='#e2e8f0'">
                                 <!-- Discount Badge -->
                                 <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: #6366f1; color: white; padding: 0.375rem 0.625rem; border-radius: 4px; font-size: 0.875rem; font-weight: 700; z-index: 1; box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);">
-                                    -${product.discount}%
+                                    -${e.discount}%
                                 </div>
                                 
                                 <!-- Product Image -->
                                 <div style="aspect-ratio: 1; background: #f8f9fa; display: flex; align-items: center; justify-content: center; padding: 1.5rem; border-bottom: 1px solid #f1f5f9;">
-                                    <img src="${product.image}" alt="${product.name}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                                    <img src="${e.image}" alt="${e.name}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
                                 </div>
                                 
                                 <!-- Product Info -->
                                 <div style="padding: 1rem;">
-                                    <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">${product.category}</div>
-                                    <h3 style="margin-bottom: 0.75rem; font-size: 0.875rem; line-height: 1.4; height: 2.8em; overflow: hidden; color: #1e293b; font-weight: 600;">${product.name}</h3>
+                                    <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">${e.category}</div>
+                                    <h3 style="margin-bottom: 0.75rem; font-size: 0.875rem; line-height: 1.4; height: 2.8em; overflow: hidden; color: #1e293b; font-weight: 600;">${e.name}</h3>
                                     
                                     <!-- Price Display (Star of the Card) -->
                                     <div style="margin-bottom: 0.75rem;">
                                         <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.25rem;">
-                                            <span style="font-size: 1.5rem; font-weight: 700; color: #6366f1;">${formatCurrency(product.price)}</span>
-                                            <span style="font-size: 0.875rem; text-decoration: line-through; color: #94a3b8;">${formatCurrency(product.originalPrice)}</span>
+                                            <span style="font-size: 1.5rem; font-weight: 700; color: #6366f1;">${c(e.price)}</span>
+                                            <span style="font-size: 0.875rem; text-decoration: line-through; color: #94a3b8;">${c(e.originalPrice)}</span>
                                         </div>
-                                        <div style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">You save ${formatCurrency(product.originalPrice - product.price)}</div>
+                                        <div style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">You save ${c(e.originalPrice-e.price)}</div>
                                     </div>
                                     
                                     <!-- Stock Indicator -->
                                     <div style="margin-bottom: 0.75rem;">
-                                        <div style="font-size: 0.75rem; color: ${product.stock < 30 ? '#dc2626' : '#16a34a'}; font-weight: 600; margin-bottom: 0.25rem;">
-                                            ${product.stock < 30 ? '⚠️ Only ' + product.stock + ' left!' : '✓ In Stock'}
+                                        <div style="font-size: 0.75rem; color: ${e.stock<30?"#dc2626":"#16a34a"}; font-weight: 600; margin-bottom: 0.25rem;">
+                                            ${e.stock<30?"⚠️ Only "+e.stock+" left!":"✓ In Stock"}
                                         </div>
                                     </div>
                                     
-                                    <button class="btn btn-primary" style="width: 100%; padding: 0.625rem; font-size: 0.875rem; font-weight: 500; border-radius: 4px;" onclick="event.stopPropagation(); window.addToCart(${product.id})">
+                                    <button class="btn btn-primary" style="width: 100%; padding: 0.625rem; font-size: 0.875rem; font-weight: 500; border-radius: 4px;" onclick="event.stopPropagation(); window.addToCart(${e.id})">
                                         Add to Cart
                                     </button>
                                 </div>
                             </div>
-                        `).join('')}
+                        `).join("")}
                     </div>
                 </div>
 
@@ -1701,70 +1242,17 @@ const DealsPage = () => {
                 </div>
             </div>
         </div>
-    `;
-};
-
-// --- Admin Helpers ---
-window.updateOrderStatus = (orderId, newStatus) => {
-    const order = state.orders.find(o => o.id === orderId);
-    if (order) {
-        order.status = newStatus;
-        saveState();
-        showToast(`Order #${orderId} updated to ${newStatus}`);
-        render(); // Re-render to reflect changes
-    }
-};
-
-window.toggleSelectAll = (source) => {
-    const checkboxes = document.querySelectorAll('.product-checkbox');
-    checkboxes.forEach(cb => cb.checked = source.checked);
-};
-
-window.bulkAction = (action) => {
-    const checkboxes = document.querySelectorAll('.product-checkbox:checked');
-    const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
-
-    if (selectedIds.length === 0) {
-        showToast('No products selected');
-        return;
-    }
-
-    if (action === 'delete') {
-        if (confirm(`Delete ${selectedIds.length} products?`)) {
-            state.products = state.products.filter(p => !selectedIds.includes(p.id));
-            saveState();
-            render();
-            showToast('Products deleted');
-        }
-    } else if (action === 'restock') {
-        state.products.forEach(p => {
-            if (selectedIds.includes(p.id)) {
-                p.stock += 10; // Mock restock
-            }
-        });
-        saveState();
-        render();
-        showToast('Products restocked');
-    }
-};
-
-window.viewOrderDetails = (orderId) => {
-    const order = state.orders.find(o => o.id === orderId);
-    if (!order) return;
-
-    const customer = state.users.find(u => u.id === order.userId);
-
-    const modalHTML = `
+    `};window.updateOrderStatus=(t,e)=>{const o=i.orders.find(r=>r.id===t);o&&(o.status=e,f(),m(`Order #${t} updated to ${e}`),v())};window.toggleSelectAll=t=>{document.querySelectorAll(".product-checkbox").forEach(o=>o.checked=t.checked)};window.bulkAction=t=>{const e=document.querySelectorAll(".product-checkbox:checked"),o=Array.from(e).map(r=>parseInt(r.value));if(o.length===0){m("No products selected");return}t==="delete"?confirm(`Delete ${o.length} products?`)&&(i.products=i.products.filter(r=>!o.includes(r.id)),f(),v(),m("Products deleted")):t==="restock"&&(i.products.forEach(r=>{o.includes(r.id)&&(r.stock+=10)}),f(),v(),m("Products restocked"))};window.viewOrderDetails=t=>{const e=i.orders.find(a=>a.id===t);if(!e)return;const o=i.users.find(a=>a.id===e.userId),r=`
         <div class="modal-overlay show" id="orderModal" onclick="if(event.target === this) window.closeModal()">
             <div class="modal-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h3>Order #${order.id}</h3>
+                    <h3>Order #${e.id}</h3>
                     <button class="btn-icon" onclick="window.closeModal()">✕</button>
                 </div>
                 <div style="margin-bottom: 1.5rem;">
-                    <p><strong>Customer:</strong> ${customer ? customer.name : 'Unknown'}</p>
-                    <p><strong>Date:</strong> ${order.date}</p>
-                    <p><strong>Status:</strong> <span class="badge badge-${order.status === 'Delivered' ? 'success' : 'warning'}">${order.status}</span></p>
+                    <p><strong>Customer:</strong> ${o?o.name:"Unknown"}</p>
+                    <p><strong>Date:</strong> ${e.date}</p>
+                    <p><strong>Status:</strong> <span class="badge badge-${e.status==="Delivered"?"success":"warning"}">${e.status}</span></p>
                 </div>
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem;">
                     <thead>
@@ -1775,69 +1263,21 @@ window.viewOrderDetails = (orderId) => {
                         </tr>
                     </thead>
                     <tbody>
-                        ${order.items.map(item => `
+                        ${e.items.map(a=>`
                             <tr style="border-bottom: 1px solid var(--border);">
-                                <td style="padding: 0.5rem;">${item.name}</td>
-                                <td style="padding: 0.5rem;">${item.quantity}</td>
-                                <td style="padding: 0.5rem;">${formatCurrency(item.price)}</td>
+                                <td style="padding: 0.5rem;">${a.name}</td>
+                                <td style="padding: 0.5rem;">${a.quantity}</td>
+                                <td style="padding: 0.5rem;">${c(a.price)}</td>
                             </tr>
-                        `).join('')}
+                        `).join("")}
                     </tbody>
                 </table>
                 <div style="text-align: right; font-size: 1.25rem; font-weight: bold;">
-                    Total: ${formatCurrency(order.total)}
+                    Total: ${c(e.total)}
                 </div>
             </div>
         </div>
-    `;
-
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
-};
-
-window.closeModal = () => {
-    const modal = document.getElementById('orderModal');
-    if (modal) modal.remove();
-};
-
-const AdminPage = () => {
-    if (!state.currentUser || state.currentUser.role !== 'admin') {
-        navigate('home');
-        return '';
-    }
-
-    // Auto-load orders on dashboard mount!
-    if (state.orders.length === 0) {
-        api.getOrders();
-    }
-
-    // Calculate metrics
-    const totalSales = state.orders.reduce((acc, order) => acc + order.total, 0);
-    const totalOrders = state.orders.length;
-    const totalProducts = state.products.length;
-    const totalCustomers = state.users.filter(u => u.role === 'customer').length;
-
-    // Low stock products
-    const lowStockProducts = state.products.filter(p => p.stock < 10);
-    const outOfStockProducts = state.products.filter(p => p.stock === 0);
-
-    // Recent orders (last 5)
-    const recentOrders = state.orders.slice(0, 5);
-
-    // Average order value
-    const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
-
-    // Category Distribution Data
-    const categories = {};
-    state.products.forEach(p => {
-        categories[p.category] = (categories[p.category] || 0) + 1;
-    });
-    const categoryData = Object.entries(categories).map(([name, count]) => ({ name, count }));
-
-    // Mock Revenue Data (Last 7 Days)
-    const revenueData = [450, 720, 550, 890, 600, 950, 1200];
-    const maxRevenue = Math.max(...revenueData);
-
-    return `
+    `;document.body.insertAdjacentHTML("beforeend",r)};window.closeModal=()=>{const t=document.getElementById("orderModal");t&&t.remove()};const Y=()=>{if(!i.currentUser||i.currentUser.role!=="admin")return h("home"),"";i.orders.length===0&&b.getOrders();const t=i.orders.reduce((n,u)=>n+u.total,0),e=i.orders.length;i.products.length;const o=i.users.filter(n=>n.role==="customer").length,r=i.products.filter(n=>n.stock<10);i.products.filter(n=>n.stock===0);const a=i.orders.slice(0,5),s=e>0?t/e:0,d={};i.products.forEach(n=>{d[n.category]=(d[n.category]||0)+1});const l=Object.entries(d).map(([n,u])=>({name:n,count:u})),p=[450,720,550,890,600,950,1200],g=Math.max(...p);return`
         <div class="admin-container">
             <div class="admin-header">
                 <div style="display: flex; align-items: center;">
@@ -1846,7 +1286,7 @@ const AdminPage = () => {
                 <div class="admin-actions" style="display: flex; align-items: center;">
                     <div class="notification-bell" onclick="window.showToast('No new notifications')">
                         🔔
-                        ${lowStockProducts.length > 0 ? `<span class="notification-badge">${lowStockProducts.length}</span>` : ''}
+                        ${r.length>0?`<span class="notification-badge">${r.length}</span>`:""}
                     </div>
                     <button class="btn-action" onclick="window.showToast('Exporting data...')">
                         📥 Export CSV
@@ -1865,9 +1305,9 @@ const AdminPage = () => {
                         <h3>📈 Revenue Trend (7 Days)</h3>
                     </div>
                     <div class="chart-container">
-                        ${revenueData.map(val => `
-                            <div class="chart-bar" style="height: ${(val / maxRevenue) * 100}%" data-value="${formatCurrency(val)}"></div>
-                        `).join('')}
+                        ${p.map(n=>`
+                            <div class="chart-bar" style="height: ${n/g*100}%" data-value="${c(n)}"></div>
+                        `).join("")}
                     </div>
                 </div>
 
@@ -1878,11 +1318,11 @@ const AdminPage = () => {
                     </div>
                     <div class="donut-chart">
                         <div class="donut-hole">
-                            ${categoryData.length} Cats
+                            ${l.length} Cats
                         </div>
                     </div>
                     <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-                        ${categoryData.slice(0, 3).map(c => `<span class="badge badge-info">${c.name}: ${c.count}</span>`).join('')}
+                        ${l.slice(0,3).map(n=>`<span class="badge badge-info">${n.name}: ${n.count}</span>`).join("")}
                     </div>
                 </div>
 
@@ -1892,20 +1332,20 @@ const AdminPage = () => {
                         <h3>🏆 Top Products</h3>
                     </div>
                     <div class="top-products-list">
-                        ${state.products.slice(0, 4).map(p => `
+                        ${i.products.slice(0,4).map(n=>`
                             <div class="top-product-item">
-                                <img src="${p.image}" style="width: 32px; height: 32px; object-fit: contain;">
+                                <img src="${n.image}" style="width: 32px; height: 32px; object-fit: contain;">
                                 <div style="flex: 1;">
                                     <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                                        <span>${p.name}</span>
-                                        <span>${formatCurrency(p.price)}</span>
+                                        <span>${n.name}</span>
+                                        <span>${c(n.price)}</span>
                                     </div>
                                     <div class="progress-bar-bg">
-                                        <div class="progress-bar-fill" style="width: ${Math.random() * 40 + 60}%"></div>
+                                        <div class="progress-bar-fill" style="width: ${Math.random()*40+60}%"></div>
                                     </div>
                                 </div>
                             </div>
-                        `).join('')}
+                        `).join("")}
                     </div>
                 </div>
             </div>
@@ -1916,7 +1356,7 @@ const AdminPage = () => {
                     <div class="metric-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">💰</div>
                     <div class="metric-content">
                         <div class="metric-label">Total Revenue</div>
-                        <div class="metric-value">${formatCurrency(totalSales)}</div>
+                        <div class="metric-value">${c(t)}</div>
                         <div class="metric-change positive">+15.3%</div>
                     </div>
                 </div>
@@ -1924,7 +1364,7 @@ const AdminPage = () => {
                     <div class="metric-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🛍️</div>
                     <div class="metric-content">
                         <div class="metric-label">Total Orders</div>
-                        <div class="metric-value">${totalOrders}</div>
+                        <div class="metric-value">${e}</div>
                         <div class="metric-change positive">+8 new today</div>
                     </div>
                 </div>
@@ -1932,7 +1372,7 @@ const AdminPage = () => {
                     <div class="metric-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">👥</div>
                     <div class="metric-content">
                         <div class="metric-label">Total Customers</div>
-                        <div class="metric-value">${totalCustomers}</div>
+                        <div class="metric-value">${o}</div>
                         <div class="metric-change">2 new this week</div>
                     </div>
                 </div>
@@ -1940,7 +1380,7 @@ const AdminPage = () => {
                     <div class="metric-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">📊</div>
                     <div class="metric-content">
                         <div class="metric-label">Avg. Order Value</div>
-                        <div class="metric-value">${formatCurrency(avgOrderValue)}</div>
+                        <div class="metric-value">${c(s)}</div>
                         <div class="metric-change positive">+5.2%</div>
                     </div>
                 </div>
@@ -1974,28 +1414,25 @@ const AdminPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            ${recentOrders.length > 0 ? recentOrders.map(order => {
-        const customer = state.users.find(u => u.id === order.userId);
-        return `
+                            ${a.length>0?a.map(n=>{const u=i.users.find(y=>y.id===n.userId);return`
                                     <tr>
-                                        <td><strong>#${order.orderId}</strong></td>
-                                        <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                                        <td>${customer ? customer.name : 'Unknown (ID: ' + order.userId + ')'}</td>
-                                        <td>${order.items.length} items</td>
-                                        <td><strong>${formatCurrency(order.total)}</strong></td>
+                                        <td><strong>#${n.orderId}</strong></td>
+                                        <td>${new Date(n.createdAt).toLocaleDateString()}</td>
+                                        <td>${u?u.name:"Unknown (ID: "+n.userId+")"}</td>
+                                        <td>${n.items.length} items</td>
+                                        <td><strong>${c(n.total)}</strong></td>
                                         <td>
-                                            <select class="status-select" onchange="window.updateOrderStatus('${order.orderId}', this.value)">
-                                                <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                                                <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
-                                                <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                                            <select class="status-select" onchange="window.updateOrderStatus('${n.orderId}', this.value)">
+                                                <option value="Pending" ${n.status==="Pending"?"selected":""}>Pending</option>
+                                                <option value="Shipped" ${n.status==="Shipped"?"selected":""}>Shipped</option>
+                                                <option value="Delivered" ${n.status==="Delivered"?"selected":""}>Delivered</option>
                                             </select>
                                         </td>
                                         <td>
-                                            <button class="btn-icon" onclick="window.viewOrderDetails('${order.orderId}')" title="Quick View">👁️</button>
+                                            <button class="btn-icon" onclick="window.viewOrderDetails('${n.orderId}')" title="Quick View">👁️</button>
                                         </td>
                                     </tr>
-                                `;
-    }).join('') : '<tr><td colspan="7" class="text-center text-muted">No orders yet</td></tr>'}
+                                `}).join(""):'<tr><td colspan="7" class="text-center text-muted">No orders yet</td></tr>'}
                         </tbody>
                     </table>
                 </div>
@@ -2027,29 +1464,29 @@ const AdminPage = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            ${state.products.map(product => `
+                            ${i.products.map(n=>`
                                 <tr>
-                                    <td><input type="checkbox" class="product-checkbox" value="${product.id}"></td>
+                                    <td><input type="checkbox" class="product-checkbox" value="${n.id}"></td>
                                     <td>
                                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                            <img src="${product.image}" style="width: 40px; height: 40px; object-fit: contain; background: #f1f5f9; border-radius: 6px; padding: 4px;">
-                                            <span>${product.name}</span>
+                                            <img src="${n.image}" style="width: 40px; height: 40px; object-fit: contain; background: #f1f5f9; border-radius: 6px; padding: 4px;">
+                                            <span>${n.name}</span>
                                         </div>
                                     </td>
-                                    <td><span class="category-tag">${product.category}</span></td>
-                                    <td>${formatCurrency(product.price)}</td>
+                                    <td><span class="category-tag">${n.category}</span></td>
+                                    <td>${c(n.price)}</td>
                                     <td>
-                                        <span class="stock-badge ${product.stock < 10 ? 'low' : ''} ${product.stock === 0 ? 'out' : ''}" style="${product.stock < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">
-                                            ${product.stock}
+                                        <span class="stock-badge ${n.stock<10?"low":""} ${n.stock===0?"out":""}" style="${n.stock<10?"color: var(--danger); font-weight: bold;":""}">
+                                            ${n.stock}
                                         </span>
                                     </td>
-                                    <td>${product.stock > 0 ? Math.floor(product.stock / 2) + ' days' : 'Out of Stock'}</td>
+                                    <td>${n.stock>0?Math.floor(n.stock/2)+" days":"Out of Stock"}</td>
                                     <td>
-                                        <button class="btn-icon" onclick="window.showToast('Editing ${product.name}...')" title="Edit">✏️</button>
-                                        <button class="btn-icon danger" onclick="window.deleteProduct(${product.id})" title="Delete">🗑️</button>
+                                        <button class="btn-icon" onclick="window.showToast('Editing ${n.name}...')" title="Edit">✏️</button>
+                                        <button class="btn-icon danger" onclick="window.deleteProduct(${n.id})" title="Delete">🗑️</button>
                                     </td>
                                 </tr>
-                            `).join('')}
+                            `).join("")}
                         </tbody>
                     </table>
                 </div>
@@ -2064,12 +1501,12 @@ const AdminPage = () => {
                     <div>
                         <h4>Top Spenders</h4>
                         <ul style="list-style: none; padding: 0; margin-top: 1rem;">
-                            ${state.users.filter(u => u.role === 'customer').slice(0, 3).map(u => `
+                            ${i.users.filter(n=>n.role==="customer").slice(0,3).map(n=>`
                                 <li style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
-                                    <span>${u.name}</span>
-                                    <span style="font-weight: bold; color: var(--primary);">$${(Math.random() * 500 + 100).toFixed(2)}</span>
+                                    <span>${n.name}</span>
+                                    <span style="font-weight: bold; color: var(--primary);">$${(Math.random()*500+100).toFixed(2)}</span>
                                 </li>
-                            `).join('')}
+                            `).join("")}
                         </ul>
                     </div>
                     <div>
@@ -2081,276 +1518,55 @@ const AdminPage = () => {
                 </div>
             </div>
         </div>
-    `;
-};
-
-
-const ProductModal = (productId = null) => {
-    const product = productId ? state.products.find(p => p.id === productId) : null;
-    const isEdit = !!product;
-
-    return `
+    `},W=(t=null)=>{const e=t?i.products.find(r=>r.id===t):null,o=!!e;return`
         <div class="modal-overlay show" id="productModal" onclick="if(event.target === this) window.closeProductModal()">
             <div class="modal-content" style="max-width: 600px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h3>${isEdit ? 'Edit Product' : 'Add New Product'}</h3>
+                    <h3>${o?"Edit Product":"Add New Product"}</h3>
                     <button class="btn-icon" onclick="window.closeProductModal()">✕</button>
                 </div>
                 
-                <form id="productForm" onsubmit="window.handleProductSubmit(event, ${productId || 'null'})" enctype="multipart/form-data">
+                <form id="productForm" onsubmit="window.handleProductSubmit(event, ${t||"null"})" enctype="multipart/form-data">
                     <div class="form-group">
                         <label class="form-label">Product Name *</label>
-                        <input type="text" name="name" class="form-input" value="${product?.name || ''}" required>
+                        <input type="text" name="name" class="form-input" value="${e?.name||""}" required>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Category *</label>
-                        <input type="text" name="category" class="form-input" value="${product?.category || ''}" required>
+                        <input type="text" name="category" class="form-input" value="${e?.category||""}" required>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label class="form-label">Price (₱) *</label>
-                            <input type="number" name="price" class="form-input" value="${product?.price || ''}" step="0.01" required>
+                            <input type="number" name="price" class="form-input" value="${e?.price||""}" step="0.01" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Stock *</label>
-                            <input type="number" name="stock" class="form-input" value="${product?.stock || ''}" required>
+                            <input type="number" name="stock" class="form-input" value="${e?.stock||""}" required>
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Description *</label>
-                        <textarea name="description" class="form-input" rows="3" required>${product?.description || ''}</textarea>
+                        <textarea name="description" class="form-input" rows="3" required>${e?.description||""}</textarea>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Image</label>
                         <input type="file" name="image" class="form-input" accept="image/*">
-                        ${product?.image ? `<div style="margin-top: 0.5rem;">Current: <img src="${product.image}" style="max-width: 100px;"></div>` : ''}
+                        ${e?.image?`<div style="margin-top: 0.5rem;">Current: <img src="${e.image}" style="max-width: 100px;"></div>`:""}
                     </div>
                     
                     <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
                         <button type="button" class="btn btn-outline" style="flex: 1;" onclick="window.closeProductModal()">Cancel</button>
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">${isEdit ? 'Update' : 'Create'} Product</button>
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">${o?"Update":"Create"} Product</button>
                     </div>
                 </form>
             </div>
         </div>
-    `;
-};
-
-
-// --- Actions ---
-
-window.navigate = navigate;
-
-window.toggleMobileMenu = () => {
-    state.mobileMenuOpen = !state.mobileMenuOpen;
-    render();
-};
-
-window.showProductModal = (productId = null) => {
-    document.body.insertAdjacentHTML('beforeend', ProductModal(productId));
-};
-window.closeProductModal = () => {
-    document.getElementById('productModal')?.remove();
-};
-window.editProduct = (id) => {
-    window.showProductModal(id);
-};
-window.deleteProduct = async (id) => {
-    if (!confirm('Delete this product?')) return;
-
-    try {
-        await apiCall(`/products/${id}`, { method: 'DELETE' });
-        await api.getProducts(); // Refresh products
-        showToast('Product deleted');
-    } catch (error) {
-        showToast('Delete failed');
-    }
-};
-window.handleProductSubmit = async (event, productId) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-
-    try {
-        const method = productId ? 'PUT' : 'POST';
-        const url = productId ? `/products/${productId}` : `/products`;
-
-        const response = await fetch(`${API_BASE_URL}${url}`, {
-            method,
-            body: formData // Send as FormData for file upload
-        });
-
-        if (!response.ok) throw new Error('Failed');
-
-        await api.getProducts(); // Refresh
-        window.closeProductModal();
-        showToast(productId ? 'Product updated!' : 'Product created!');
-    } catch (error) {
-        showToast('Operation failed');
-    }
-};
-
-window.handleSort = (sortValue) => {
-    state.sortBy = sortValue;
-    render();
-};
-
-window.viewProduct = (productId) => {
-    state.currentProductId = productId;
-    navigate('product-detail');
-};
-
-window.adjustDetailQty = (change) => {
-    const qtyInput = document.getElementById('detailQty');
-    let newQty = parseInt(qtyInput.value) + change;
-    if (newQty < 1) newQty = 1;
-    // Check max stock if needed, though simple logic is fine
-    qtyInput.value = newQty;
-};
-
-window.addToCartFromDetail = (productId) => {
-    const qty = parseInt(document.getElementById('detailQty').value);
-    if (!state.currentUser) {
-        showToast('Please login to shop');
-        navigate('login');
-        return;
-    }
-
-    const product = state.products.find(p => p.id === productId);
-    const existingItem = state.cart.find(item => item.id === productId);
-
-    if (existingItem) {
-        existingItem.quantity += qty;
-    } else {
-        state.cart.push({ ...product, quantity: qty });
-    }
-
-    saveState();
-    showToast(`Added ${qty} item(s) to cart`);
-    // Optional: navigate to cart or stay on page
-};
-
-window.addToCart = async (productId) => {
-    if (!state.currentUser) {
-        showToast('Please login to shop');
-        navigate('login');
-        return;
-    }
-    const product = state.products.find(p => p.id === productId);
-    const existingItem = state.cart.find(item => item.id === productId);
-    if (existingItem) {
-        existingItem.quantity += 1;
-    } else {
-        state.cart.push({ ...product, quantity: 1 });
-    }
-    saveState();
-    render();
-    showToast('Added to cart');
-
-    // Sync to server!
-    if (state.currentUser) {
-        await apiCall(`/users/${state.currentUser.id}/cart`, {
-            method: 'PUT',
-            body: JSON.stringify({
-                cart: state.cart.map(item => ({
-                    productId: item.id,
-                    name: item.name,
-                    price: item.price,
-                    image: item.image,
-                    quantity: item.quantity,
-                    category: item.category,
-                    selected: item.selected !== false
-                }))
-            })
-        });
-    }
-};
-
-window.updateQuantity = (productId, newQuantity) => {
-    if (newQuantity < 1) {
-        window.removeFromCart(productId);
-        return;
-    }
-    const item = state.cart.find(item => item.id === productId);
-    if (item) {
-        item.quantity = newQuantity;
-        saveState();
-        render();
-    }
-};
-
-window.removeFromCart = (productId) => {
-    state.cart = state.cart.filter(item => item.id !== productId);
-    saveState();
-    render();
-};
-
-window.checkout = async () => {
-    if (state.cart.length === 0) return;
-    if (!state.currentUser) {
-        showToast('Please login to checkout');
-        navigate('login');
-        return;
-    }
-
-    const selectedItems = state.cart.filter(item => item.selected !== false);
-    if (selectedItems.length === 0) {
-        showToast('No items selected for checkout');
-        return;
-    }
-
-    // Navigate to checkout page instead of immediately placing order
-    navigate('checkout');
-};
-
-// Checkout helper functions
-window.updateShippingInfo = (field, value) => {
-    state.checkoutData.shipping[field] = value;
-};
-
-window.selectPaymentMethod = (method) => {
-    state.checkoutData.paymentMethod = method;
-    render();
-};
-
-window.handlePhoneInput = (input) => {
-    // Only allow numbers
-    const numbersOnly = input.value.replace(/[^0-9]/g, '');
-    input.value = numbersOnly;
-    state.checkoutData.shipping.phone = numbersOnly;
-};
-
-window.handleNameInput = (input) => {
-    // Only allow letters and spaces
-    const lettersOnly = input.value.replace(/[^a-zA-Z\s]/g, '');
-    input.value = lettersOnly;
-    state.checkoutData.shipping.fullName = lettersOnly;
-};
-
-window.handleLocationInput = (input, field) => {
-    // Only allow letters and spaces for City/Province
-    const lettersOnly = input.value.replace(/[^a-zA-Z\s]/g, '');
-    input.value = lettersOnly;
-    state.checkoutData.shipping[field] = lettersOnly;
-};
-
-window.handlePostalInput = (input) => {
-    // Only allow numbers
-    const numbersOnly = input.value.replace(/[^0-9]/g, '');
-    input.value = numbersOnly;
-    state.checkoutData.shipping.postalCode = numbersOnly;
-};
-
-// Payment Modal Function
-window.showPaymentModal = (totalAmount) => {
-    return new Promise((resolve) => {
-        let currentAmount = '';
-
-        // Create modal HTML
-        const modalHTML = `
+    `};window.navigate=h;window.toggleMobileMenu=()=>{i.mobileMenuOpen=!i.mobileMenuOpen,v()};window.showProductModal=(t=null)=>{document.body.insertAdjacentHTML("beforeend",W(t))};window.closeProductModal=()=>{document.getElementById("productModal")?.remove()};window.editProduct=t=>{window.showProductModal(t)};window.deleteProduct=async t=>{if(confirm("Delete this product?"))try{await w(`/products/${t}`,{method:"DELETE"}),await b.getProducts(),m("Product deleted")}catch{m("Delete failed")}};window.handleProductSubmit=async(t,e)=>{t.preventDefault();const o=new FormData(t.target);try{const r=e?"PUT":"POST",a=e?`/products/${e}`:"/products";if(!(await fetch(`${M}${a}`,{method:r,body:o})).ok)throw new Error("Failed");await b.getProducts(),window.closeProductModal(),m(e?"Product updated!":"Product created!")}catch{m("Operation failed")}};window.handleSort=t=>{i.sortBy=t,v()};window.viewProduct=t=>{i.currentProductId=t,h("product-detail")};window.adjustDetailQty=t=>{const e=document.getElementById("detailQty");let o=parseInt(e.value)+t;o<1&&(o=1),e.value=o};window.addToCartFromDetail=t=>{const e=parseInt(document.getElementById("detailQty").value);if(!i.currentUser){m("Please login to shop"),h("login");return}const o=i.products.find(a=>a.id===t),r=i.cart.find(a=>a.id===t);r?r.quantity+=e:i.cart.push({...o,quantity:e}),f(),m(`Added ${e} item(s) to cart`)};window.addToCart=async t=>{if(!i.currentUser){m("Please login to shop"),h("login");return}const e=i.products.find(r=>r.id===t),o=i.cart.find(r=>r.id===t);o?o.quantity+=1:i.cart.push({...e,quantity:1}),f(),v(),m("Added to cart"),i.currentUser&&await w(`/users/${i.currentUser.id}/cart`,{method:"PUT",body:JSON.stringify({cart:i.cart.map(r=>({productId:r.id,name:r.name,price:r.price,image:r.image,quantity:r.quantity,category:r.category,selected:r.selected!==!1}))})})};window.updateQuantity=(t,e)=>{if(e<1){window.removeFromCart(t);return}const o=i.cart.find(r=>r.id===t);o&&(o.quantity=e,f(),v())};window.removeFromCart=t=>{i.cart=i.cart.filter(e=>e.id!==t),f(),v()};window.checkout=async()=>{if(i.cart.length===0)return;if(!i.currentUser){m("Please login to checkout"),h("login");return}if(i.cart.filter(e=>e.selected!==!1).length===0){m("No items selected for checkout");return}h("checkout")};window.updateShippingInfo=(t,e)=>{i.checkoutData.shipping[t]=e};window.selectPaymentMethod=t=>{i.checkoutData.paymentMethod=t,v()};window.handlePhoneInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.phone=e};window.handleNameInput=t=>{const e=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=e,i.checkoutData.shipping.fullName=e};window.handleLocationInput=(t,e)=>{const o=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=o,i.checkoutData.shipping[e]=o};window.handlePostalInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.postalCode=e};window.showPaymentModal=t=>new Promise(e=>{let o="";const r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="payment-modal-header">
@@ -2362,11 +1578,11 @@ window.showPaymentModal = (totalAmount) => {
                         <div class="payment-summary">
                             <div class="payment-summary-row">
                                 <span>Total Amount:</span>
-                                <span style="font-weight: 700;">${formatCurrency(totalAmount)}</span>
+                                <span style="font-weight: 700;">${c(t)}</span>
                             </div>
                             <div class="payment-summary-row total">
                                 <span>To Pay:</span>
-                                <span>${formatCurrency(totalAmount)}</span>
+                                <span>${c(t)}</span>
                             </div>
                         </div>
                         
@@ -2383,12 +1599,12 @@ window.showPaymentModal = (totalAmount) => {
                         </div>
                         
                         <div class="quick-amount-buttons">
-                            <button class="quick-amount-btn" data-amount="${totalAmount}">Exact</button>
-                            <button class="quick-amount-btn" data-amount="${totalAmount + 50}">+₱50</button>
-                            <button class="quick-amount-btn" data-amount="${totalAmount + 100}">+₱100</button>
-                            <button class="quick-amount-btn" data-amount="${Math.ceil(totalAmount / 100) * 100}">Round</button>
-                            <button class="quick-amount-btn" data-amount="${totalAmount + 500}">+₱500</button>
-                            <button class="quick-amount-btn" data-amount="${totalAmount + 1000}">+₱1000</button>
+                            <button class="quick-amount-btn" data-amount="${t}">Exact</button>
+                            <button class="quick-amount-btn" data-amount="${t+50}">+₱50</button>
+                            <button class="quick-amount-btn" data-amount="${t+100}">+₱100</button>
+                            <button class="quick-amount-btn" data-amount="${Math.ceil(t/100)*100}">Round</button>
+                            <button class="quick-amount-btn" data-amount="${t+500}">+₱500</button>
+                            <button class="quick-amount-btn" data-amount="${t+1e3}">+₱1000</button>
                         </div>
                         
                         <div class="payment-change-display" id="paymentChangeDisplay">
@@ -2403,124 +1619,7 @@ window.showPaymentModal = (totalAmount) => {
                     </div>
                 </div>
             </div>
-        `;
-
-        // Add modal to body
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-        const overlay = document.getElementById('paymentModalOverlay');
-        const input = document.getElementById('paymentAmountInput');
-        const errorDiv = document.getElementById('paymentError');
-        const changeDisplay = document.getElementById('paymentChangeDisplay');
-        const changeAmount = document.getElementById('changeAmount');
-        const confirmBtn = document.getElementById('paymentConfirmBtn');
-        const cancelBtn = document.getElementById('paymentCancelBtn');
-
-        // Focus input
-        setTimeout(() => input.focus(), 100);
-
-        // Handle input
-        input.addEventListener('input', (e) => {
-            // Only allow numbers and decimal point
-            let value = e.target.value.replace(/[^0-9.]/g, '');
-
-            // Ensure only one decimal point
-            const parts = value.split('.');
-            if (parts.length > 2) {
-                value = parts[0] + '.' + parts.slice(1).join('');
-            }
-
-            e.target.value = value;
-            currentAmount = value;
-
-            // Validate
-            const amount = parseFloat(value);
-
-            if (!value || isNaN(amount) || amount < 0) {
-                errorDiv.textContent = '';
-                errorDiv.classList.remove('show');
-                input.classList.remove('error');
-                confirmBtn.disabled = true;
-                changeDisplay.classList.remove('show');
-                return;
-            }
-
-            if (amount < totalAmount) {
-                const shortfall = totalAmount - amount;
-                errorDiv.textContent = `Insufficient! Need ${formatCurrency(shortfall)} more`;
-                errorDiv.classList.add('show');
-                input.classList.add('error');
-                confirmBtn.disabled = true;
-                changeDisplay.classList.remove('show');
-            } else {
-                const change = amount - totalAmount;
-                errorDiv.classList.remove('show');
-                input.classList.remove('error');
-                confirmBtn.disabled = false;
-                changeDisplay.classList.add('show');
-                changeAmount.textContent = formatCurrency(change);
-            }
-        });
-
-        // Quick amount buttons
-        document.querySelectorAll('.quick-amount-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const amount = btn.getAttribute('data-amount');
-                input.value = amount;
-                input.dispatchEvent(new Event('input'));
-            });
-        });
-
-        // Cancel button
-        cancelBtn.addEventListener('click', () => {
-            overlay.remove();
-            resolve(null);
-        });
-
-        // Click overlay to close
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.remove();
-                resolve(null);
-            }
-        });
-
-        // Confirm button
-        confirmBtn.addEventListener('click', () => {
-            const amount = parseFloat(currentAmount);
-            if (amount >= totalAmount) {
-                overlay.remove();
-                resolve({
-                    amountPaid: amount,
-                    change: amount - totalAmount
-                });
-            }
-        });
-
-        // Enter key to confirm
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !confirmBtn.disabled) {
-                confirmBtn.click();
-            }
-        });
-
-        // Escape key to cancel
-        document.addEventListener('keydown', function escHandler(e) {
-            if (e.key === 'Escape') {
-                overlay.remove();
-                resolve(null);
-                document.removeEventListener('keydown', escHandler);
-            }
-        });
-    });
-};
-
-// GCash Payment Modal
-window.showGCashModal = (totalAmount) => {
-    return new Promise((resolve) => {
-        const demoRef = 'GCASH-' + Date.now().toString().slice(-8);
-
-        const modalHTML = `
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentAmountInput"),d=document.getElementById("paymentError"),l=document.getElementById("paymentChangeDisplay"),p=document.getElementById("changeAmount"),g=document.getElementById("paymentConfirmBtn"),n=document.getElementById("paymentCancelBtn");setTimeout(()=>s.focus(),100),s.addEventListener("input",u=>{let y=u.target.value.replace(/[^0-9.]/g,"");const S=y.split(".");S.length>2&&(y=S[0]+"."+S.slice(1).join("")),u.target.value=y,o=y;const x=parseFloat(y);if(!y||isNaN(x)||x<0){d.textContent="",d.classList.remove("show"),s.classList.remove("error"),g.disabled=!0,l.classList.remove("show");return}if(x<t){const P=t-x;d.textContent=`Insufficient! Need ${c(P)} more`,d.classList.add("show"),s.classList.add("error"),g.disabled=!0,l.classList.remove("show")}else{const P=x-t;d.classList.remove("show"),s.classList.remove("error"),g.disabled=!1,l.classList.add("show"),p.textContent=c(P)}}),document.querySelectorAll(".quick-amount-btn").forEach(u=>{u.addEventListener("click",()=>{const y=u.getAttribute("data-amount");s.value=y,s.dispatchEvent(new Event("input"))})}),n.addEventListener("click",()=>{a.remove(),e(null)}),a.addEventListener("click",u=>{u.target===a&&(a.remove(),e(null))}),g.addEventListener("click",()=>{const u=parseFloat(o);u>=t&&(a.remove(),e({amountPaid:u,change:u-t}))}),s.addEventListener("keypress",u=>{u.key==="Enter"&&!g.disabled&&g.click()}),document.addEventListener("keydown",function u(y){y.key==="Escape"&&(a.remove(),e(null),document.removeEventListener("keydown",u))})});window.showGCashModal=t=>new Promise(e=>{const o="GCASH-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -2533,7 +1632,7 @@ window.showGCashModal = (totalAmount) => {
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Pay:</span>
-                                <span>${formatCurrency(totalAmount)}</span>
+                                <span>${c(t)}</span>
                             </div>
                         </div>
                         
@@ -2559,7 +1658,7 @@ window.showGCashModal = (totalAmount) => {
                                 type="text" 
                                 id="gcashRefInput" 
                                 class="payment-input auto-filled" 
-                                value="${demoRef}"
+                                value="${o}"
                                 readonly
                             >
                         </div>
@@ -2588,50 +1687,7 @@ window.showGCashModal = (totalAmount) => {
                     </div>
                 </div>
             </div>
-        `;
-
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-        const overlay = document.getElementById('paymentModalOverlay');
-        const confirmBtn = document.getElementById('paymentConfirmBtn');
-        const cancelBtn = document.getElementById('paymentCancelBtn');
-        const processingOverlay = document.getElementById('processingOverlay');
-        const successOverlay = document.getElementById('successOverlay');
-
-        cancelBtn.addEventListener('click', () => {
-            overlay.remove();
-            resolve(null);
-        });
-
-        confirmBtn.addEventListener('click', () => {
-            processingOverlay.classList.add('show');
-
-            setTimeout(() => {
-                processingOverlay.classList.remove('show');
-                successOverlay.classList.add('show');
-
-                setTimeout(() => {
-                    overlay.remove();
-                    resolve({ method: 'gcash', reference: demoRef });
-                }, 1000);
-            }, 1500);
-        });
-
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.remove();
-                resolve(null);
-            }
-        });
-    });
-};
-
-// Maya Payment Modal
-window.showMayaModal = (totalAmount) => {
-    return new Promise((resolve) => {
-        const demoRef = 'MAYA-' + Date.now().toString().slice(-8);
-
-        const modalHTML = `
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentConfirmBtn"),d=document.getElementById("paymentCancelBtn"),l=document.getElementById("processingOverlay"),p=document.getElementById("successOverlay");d.addEventListener("click",()=>{a.remove(),e(null)}),s.addEventListener("click",()=>{l.classList.add("show"),setTimeout(()=>{l.classList.remove("show"),p.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"gcash",reference:o})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),e(null))})});window.showMayaModal=t=>new Promise(e=>{const o="MAYA-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -2644,7 +1700,7 @@ window.showMayaModal = (totalAmount) => {
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Pay:</span>
-                                <span>${formatCurrency(totalAmount)}</span>
+                                <span>${c(t)}</span>
                             </div>
                         </div>
                         
@@ -2670,7 +1726,7 @@ window.showMayaModal = (totalAmount) => {
                                 type="text" 
                                 id="mayaRefInput" 
                                 class="payment-input auto-filled" 
-                                value="${demoRef}"
+                                value="${o}"
                                 readonly
                             >
                         </div>
@@ -2699,53 +1755,7 @@ window.showMayaModal = (totalAmount) => {
                     </div>
                 </div>
             </div>
-        `;
-
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-        const overlay = document.getElementById('paymentModalOverlay');
-        const confirmBtn = document.getElementById('paymentConfirmBtn');
-        const cancelBtn = document.getElementById('paymentCancelBtn');
-        const processingOverlay = document.getElementById('processingOverlay');
-        const successOverlay = document.getElementById('successOverlay');
-
-        cancelBtn.addEventListener('click', () => {
-            overlay.remove();
-            resolve(null);
-        });
-
-        confirmBtn.addEventListener('click', () => {
-            processingOverlay.classList.add('show');
-
-            setTimeout(() => {
-                processingOverlay.classList.remove('show');
-                successOverlay.classList.add('show');
-
-                setTimeout(() => {
-                    overlay.remove();
-                    resolve({ method: 'maya', reference: demoRef });
-                }, 1000);
-            }, 1500);
-        });
-
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.remove();
-                resolve(null);
-            }
-        });
-    });
-};
-
-// Credit Card Payment Modal
-window.showCardModal = (totalAmount) => {
-    return new Promise((resolve) => {
-        const demoCardNumber = '4111 1111 1111 1111';
-        const demoExpiry = '12/25';
-        const demoCVV = '123';
-        const demoName = 'JOHN DOE';
-
-        const modalHTML = `
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentConfirmBtn"),d=document.getElementById("paymentCancelBtn"),l=document.getElementById("processingOverlay"),p=document.getElementById("successOverlay");d.addEventListener("click",()=>{a.remove(),e(null)}),s.addEventListener("click",()=>{l.classList.add("show"),setTimeout(()=>{l.classList.remove("show"),p.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"maya",reference:o})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),e(null))})});window.showCardModal=t=>new Promise(e=>{const d=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -2758,7 +1768,7 @@ window.showCardModal = (totalAmount) => {
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Charge:</span>
-                                <span>${formatCurrency(totalAmount)}</span>
+                                <span>${c(t)}</span>
                             </div>
                         </div>
                         
@@ -2768,7 +1778,7 @@ window.showCardModal = (totalAmount) => {
                                 <input 
                                     type="text" 
                                     class="payment-input card-number-input auto-filled" 
-                                    value="${demoCardNumber}"
+                                    value="4111 1111 1111 1111"
                                     readonly
                                 >
                             </div>
@@ -2779,7 +1789,7 @@ window.showCardModal = (totalAmount) => {
                                     <input 
                                         type="text" 
                                         class="payment-input auto-filled" 
-                                        value="${demoExpiry}"
+                                        value="12/25"
                                         readonly
                                     >
                                 </div>
@@ -2788,7 +1798,7 @@ window.showCardModal = (totalAmount) => {
                                     <input 
                                         type="text" 
                                         class="payment-input auto-filled" 
-                                        value="${demoCVV}"
+                                        value="123"
                                         readonly
                                     >
                                 </div>
@@ -2799,7 +1809,7 @@ window.showCardModal = (totalAmount) => {
                                 <input 
                                     type="text" 
                                     class="payment-input auto-filled" 
-                                    value="${demoName}"
+                                    value="JOHN DOE"
                                     readonly
                                 >
                             </div>
@@ -2829,50 +1839,7 @@ window.showCardModal = (totalAmount) => {
                     </div>
                 </div>
             </div>
-        `;
-
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-        const overlay = document.getElementById('paymentModalOverlay');
-        const confirmBtn = document.getElementById('paymentConfirmBtn');
-        const cancelBtn = document.getElementById('paymentCancelBtn');
-        const processingOverlay = document.getElementById('processingOverlay');
-        const successOverlay = document.getElementById('successOverlay');
-
-        cancelBtn.addEventListener('click', () => {
-            overlay.remove();
-            resolve(null);
-        });
-
-        confirmBtn.addEventListener('click', () => {
-            processingOverlay.classList.add('show');
-
-            setTimeout(() => {
-                processingOverlay.classList.remove('show');
-                successOverlay.classList.add('show');
-
-                setTimeout(() => {
-                    overlay.remove();
-                    resolve({ method: 'card', last4: '1111' });
-                }, 1000);
-            }, 2000);
-        });
-
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.remove();
-                resolve(null);
-            }
-        });
-    });
-};
-
-// Bank Transfer Modal
-window.showBankModal = (totalAmount) => {
-    return new Promise((resolve) => {
-        const demoRef = 'BDO-' + Date.now().toString().slice(-8);
-
-        const modalHTML = `
+        `;document.body.insertAdjacentHTML("beforeend",d);const l=document.getElementById("paymentModalOverlay"),p=document.getElementById("paymentConfirmBtn"),g=document.getElementById("paymentCancelBtn"),n=document.getElementById("processingOverlay"),u=document.getElementById("successOverlay");g.addEventListener("click",()=>{l.remove(),e(null)}),p.addEventListener("click",()=>{n.classList.add("show"),setTimeout(()=>{n.classList.remove("show"),u.classList.add("show"),setTimeout(()=>{l.remove(),e({method:"card",last4:"1111"})},1e3)},2e3)}),l.addEventListener("click",y=>{y.target===l&&(l.remove(),e(null))})});window.showBankModal=t=>new Promise(e=>{const o="BDO-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -2885,7 +1852,7 @@ window.showBankModal = (totalAmount) => {
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Transfer:</span>
-                                <span>${formatCurrency(totalAmount)}</span>
+                                <span>${c(t)}</span>
                             </div>
                         </div>
                         
@@ -2914,7 +1881,7 @@ window.showBankModal = (totalAmount) => {
                                 type="text" 
                                 id="bankRefInput" 
                                 class="payment-input auto-filled" 
-                                value="${demoRef}"
+                                value="${o}"
                                 readonly
                             >
                         </div>
@@ -2943,214 +1910,12 @@ window.showBankModal = (totalAmount) => {
                     </div>
                 </div>
             </div>
-        `;
-
-        document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-        const overlay = document.getElementById('paymentModalOverlay');
-        const confirmBtn = document.getElementById('paymentConfirmBtn');
-        const cancelBtn = document.getElementById('paymentCancelBtn');
-        const processingOverlay = document.getElementById('processingOverlay');
-        const successOverlay = document.getElementById('successOverlay');
-
-        cancelBtn.addEventListener('click', () => {
-            overlay.remove();
-            resolve(null);
-        });
-
-        confirmBtn.addEventListener('click', () => {
-            processingOverlay.classList.add('show');
-
-            setTimeout(() => {
-                processingOverlay.classList.remove('show');
-                successOverlay.classList.add('show');
-
-                setTimeout(() => {
-                    overlay.remove();
-                    resolve({ method: 'bank', reference: demoRef });
-                }, 1000);
-            }, 1500);
-        });
-
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.remove();
-                resolve(null);
-            }
-        });
-    });
-};
-
-window.placeOrder = async () => {
-    const shipping = state.checkoutData.shipping;
-
-    // Validate all required fields
-    if (!shipping.fullName || !shipping.fullName.trim()) {
-        showToast('Please enter your full name');
-        return;
-    }
-
-    if (!shipping.address || !shipping.address.trim()) {
-        showToast('Please enter your address');
-        return;
-    }
-
-    if (!shipping.city || !shipping.city.trim()) {
-        showToast('Please enter your city');
-        return;
-    }
-
-    if (!shipping.province || !shipping.province.trim()) {
-        showToast('Please enter your province');
-        return;
-    }
-
-    if (!shipping.phone || !shipping.phone.trim()) {
-        showToast('Please enter your phone number');
-        return;
-    }
-
-    // Validate phone number (Must start with 09 and be exactly 11 digits)
-    const phoneRegex = /^09\d{9}$/;
-    if (!phoneRegex.test(shipping.phone)) {
-        showToast('Phone number must start with "09" and contain exactly 11 digits');
-        return;
-    }
-
-    // Validate Name (Letters and spaces only)
-    const nameRegex = /^[a-zA-Z\s]+$/;
-    if (!nameRegex.test(shipping.fullName)) {
-        showToast('Full Name must contain letters and spaces only');
-        return;
-    }
-
-    // Validate City (Letters and spaces only)
-    if (!nameRegex.test(shipping.city)) {
-        showToast('City must contain letters and spaces only');
-        return;
-    }
-
-    // Validate Province (Letters and spaces only)
-    if (!nameRegex.test(shipping.province)) {
-        showToast('Province must contain letters and spaces only');
-        return;
-    }
-
-    // Validate Postal Code (Numbers only, if provided)
-    if (shipping.postalCode && !/^\d+$/.test(shipping.postalCode)) {
-        showToast('Postal Code must contain numbers only');
-        return;
-    }
-
-    // Validate payment method is selected
-    if (!state.checkoutData.paymentMethod) {
-        showToast('Please select a payment method');
-        return;
-    }
-
-    const selectedItems = state.cart.filter(item => item.selected !== false);
-    const subtotal = selectedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const totalAmount = subtotal + state.checkoutData.shippingFee;
-
-    // Show appropriate payment modal based on payment method
-    let paymentResult = null;
-
-    switch (state.checkoutData.paymentMethod) {
-        case 'cod':
-            paymentResult = await showPaymentModal(totalAmount);
-            break;
-        case 'gcash':
-            paymentResult = await showGCashModal(totalAmount);
-            break;
-        case 'maya':
-            paymentResult = await showMayaModal(totalAmount);
-            break;
-        case 'card':
-            paymentResult = await showCardModal(totalAmount);
-            break;
-        case 'bank':
-            paymentResult = await showBankModal(totalAmount);
-            break;
-        default:
-            showToast('Please select a payment method');
-            return;
-    }
-
-    // User cancelled payment
-    if (!paymentResult) {
-        return;
-    }
-
-    // For COD, we have amount and change
-    let amountPaid = paymentResult.amountPaid || totalAmount;
-    let change = paymentResult.change || 0;
-
-    const orderData = {
-        userId: state.currentUser.id,
-        items: selectedItems.map(item => ({
-            productId: item.id,
-            quantity: item.quantity,
-            price: item.price,
-            name: item.name
-        })),
-        total: totalAmount,
-        shippingInfo: state.checkoutData.shipping,
-        paymentMethod: state.checkoutData.paymentMethod,
-        shippingFee: state.checkoutData.shippingFee,
-        amountPaid: amountPaid,
-        change: change
-    };
-
-    try {
-        const response = await api.createOrder(orderData);
-        state.lastOrderId = response.orderId;
-
-        // Store payment info for receipt
-        state.lastOrderPayment = {
-            amountPaid: amountPaid,
-            change: change
-        };
-
-        // Add the order to state.orders for the confirmation page
-        state.orders.push({
-            orderId: response.orderId,
-            ...response,
-            items: selectedItems,
-            total: totalAmount,
-            createdAt: new Date().toISOString(),
-            userId: state.currentUser.id
-        });
-
-        state.cart = state.cart.filter(item => item.selected === false);
-        saveState();
-        navigate('order-confirmation');
-    } catch (error) {
-        // Error already handled
-    }
-};
-
-window.printReceipt = () => {
-    if (!state.lastOrderId) {
-        showToast('No order found to print');
-        return;
-    }
-
-    const order = state.orders.find(o => o.orderId === state.lastOrderId);
-    if (!order) {
-        showToast('Order not found');
-        return;
-    }
-
-    const payment = state.lastOrderPayment || {};
-    const currentDate = new Date();
-
-    // Create receipt HTML with grocery-style formatting
-    const receiptHTML = `
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentConfirmBtn"),d=document.getElementById("paymentCancelBtn"),l=document.getElementById("processingOverlay"),p=document.getElementById("successOverlay");d.addEventListener("click",()=>{a.remove(),e(null)}),s.addEventListener("click",()=>{l.classList.add("show"),setTimeout(()=>{l.classList.remove("show"),p.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"bank",reference:o})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),e(null))})});window.placeOrder=async()=>{const t=i.checkoutData.shipping;if(!t.fullName||!t.fullName.trim()){m("Please enter your full name");return}if(!t.address||!t.address.trim()){m("Please enter your address");return}if(!t.city||!t.city.trim()){m("Please enter your city");return}if(!t.province||!t.province.trim()){m("Please enter your province");return}if(!t.phone||!t.phone.trim()){m("Please enter your phone number");return}if(!/^09\d{9}$/.test(t.phone)){m('Phone number must start with "09" and contain exactly 11 digits');return}const o=/^[a-zA-Z\s]+$/;if(!o.test(t.fullName)){m("Full Name must contain letters and spaces only");return}if(!o.test(t.city)){m("City must contain letters and spaces only");return}if(!o.test(t.province)){m("Province must contain letters and spaces only");return}if(t.postalCode&&!/^\d+$/.test(t.postalCode)){m("Postal Code must contain numbers only");return}if(!i.checkoutData.paymentMethod){m("Please select a payment method");return}const r=i.cart.filter(n=>n.selected!==!1),s=r.reduce((n,u)=>n+u.price*u.quantity,0)+i.checkoutData.shippingFee;let d=null;switch(i.checkoutData.paymentMethod){case"cod":d=await showPaymentModal(s);break;case"gcash":d=await showGCashModal(s);break;case"maya":d=await showMayaModal(s);break;case"card":d=await showCardModal(s);break;case"bank":d=await showBankModal(s);break;default:m("Please select a payment method");return}if(!d)return;let l=d.amountPaid||s,p=d.change||0;const g={userId:i.currentUser.id,items:r.map(n=>({productId:n.id,quantity:n.quantity,price:n.price,name:n.name})),total:s,shippingInfo:i.checkoutData.shipping,paymentMethod:i.checkoutData.paymentMethod,shippingFee:i.checkoutData.shippingFee,amountPaid:l,change:p};try{const n=await b.createOrder(g);i.lastOrderId=n.orderId,i.lastOrderPayment={amountPaid:l,change:p},i.orders.push({orderId:n.orderId,...n,items:r,total:s,createdAt:new Date().toISOString(),userId:i.currentUser.id}),i.cart=i.cart.filter(u=>u.selected===!1),f(),h("order-confirmation")}catch{}};window.printReceipt=()=>{if(!i.lastOrderId){m("No order found to print");return}const t=i.orders.find(s=>s.orderId===i.lastOrderId);if(!t){m("Order not found");return}const e=i.lastOrderPayment||{},o=new Date,r=`
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Receipt #${order.orderId}</title>
+            <title>Receipt #${t.orderId}</title>
             <style>
                 @media print {
                     @page {
@@ -3318,30 +2083,23 @@ window.printReceipt = () => {
             <div class="receipt-info">
                 <div class="info-row">
                     <span>Receipt #:</span>
-                    <span><strong>${order.orderId}</strong></span>
+                    <span><strong>${t.orderId}</strong></span>
                 </div>
                 <div class="info-row">
                     <span>Date:</span>
-                    <span>${currentDate.toLocaleDateString('en-PH', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-    })}</span>
+                    <span>${o.toLocaleDateString("en-PH",{year:"numeric",month:"short",day:"numeric"})}</span>
                 </div>
                 <div class="info-row">
                     <span>Time:</span>
-                    <span>${currentDate.toLocaleTimeString('en-PH', {
-        hour: '2-digit',
-        minute: '2-digit'
-    })}</span>
+                    <span>${o.toLocaleTimeString("en-PH",{hour:"2-digit",minute:"2-digit"})}</span>
                 </div>
                 <div class="info-row">
                     <span>Cashier:</span>
-                    <span>${state.currentUser.name}</span>
+                    <span>${i.currentUser.name}</span>
                 </div>
                 <div class="info-row">
                     <span>Payment:</span>
-                    <span>${state.checkoutData.paymentMethod.toUpperCase()}</span>
+                    <span>${i.checkoutData.paymentMethod.toUpperCase()}</span>
                 </div>
             </div>
             
@@ -3352,55 +2110,55 @@ window.printReceipt = () => {
                     <div class="text-right">AMOUNT</div>
                 </div>
                 
-                ${order.items.map(item => `
+                ${t.items.map(s=>`
                     <div class="item-row">
-                        <div class="item-name">${item.productName || item.name}</div>
+                        <div class="item-name">${s.productName||s.name}</div>
                         <div class="item-details">
-                            <div>${formatCurrency(item.price)}</div>
-                            <div class="text-center">x${item.quantity}</div>
-                            <div class="text-right"><strong>${formatCurrency(item.price * item.quantity)}</strong></div>
+                            <div>${c(s.price)}</div>
+                            <div class="text-center">x${s.quantity}</div>
+                            <div class="text-right"><strong>${c(s.price*s.quantity)}</strong></div>
                         </div>
                     </div>
-                `).join('')}
+                `).join("")}
             </div>
             
             <div class="totals-section">
                 <div class="total-row">
                     <span>Subtotal:</span>
-                    <span>${formatCurrency(order.total - state.checkoutData.shippingFee)}</span>
+                    <span>${c(t.total-i.checkoutData.shippingFee)}</span>
                 </div>
                 <div class="total-row">
                     <span>Shipping Fee:</span>
-                    <span>${formatCurrency(state.checkoutData.shippingFee)}</span>
+                    <span>${c(i.checkoutData.shippingFee)}</span>
                 </div>
                 <div class="total-row grand-total">
                     <span>TOTAL:</span>
-                    <span>${formatCurrency(order.total)}</span>
+                    <span>${c(t.total)}</span>
                 </div>
             </div>
             
-            ${payment.amountPaid ? `
+            ${e.amountPaid?`
                 <div class="payment-section">
                     <div class="payment-row">
                         <span>Amount Paid:</span>
-                        <span>${formatCurrency(payment.amountPaid)}</span>
+                        <span>${c(e.amountPaid)}</span>
                     </div>
                     <div class="payment-row change-row">
                         <span>Change:</span>
-                        <span>${formatCurrency(payment.change)}</span>
+                        <span>${c(e.change)}</span>
                     </div>
                 </div>
-            ` : ''}
+            `:""}
             
             <div class="receipt-footer">
                 <div class="thank-you">THANK YOU!</div>
                 <div class="footer-note">Please come again</div>
                 <div class="footer-note" style="margin-top: 10px;">
                     Shipping to:<br>
-                    ${state.checkoutData.shipping.fullName}<br>
-                    ${state.checkoutData.shipping.address}<br>
-                    ${state.checkoutData.shipping.city}, ${state.checkoutData.shipping.province}<br>
-                    Phone: ${state.checkoutData.shipping.phone}
+                    ${i.checkoutData.shipping.fullName}<br>
+                    ${i.checkoutData.shipping.address}<br>
+                    ${i.checkoutData.shipping.city}, ${i.checkoutData.shipping.province}<br>
+                    Phone: ${i.checkoutData.shipping.phone}
                 </div>
                 <div style="margin-top: 15px; font-size: 9px;">
                     This serves as your official receipt<br>
@@ -3409,231 +2167,22 @@ window.printReceipt = () => {
             </div>
         </body>
         </html>
-    `;
-
-    // Open print window
-    const printWindow = window.open('', '_blank', 'width=300,height=600');
-    printWindow.document.write(receiptHTML);
-    printWindow.document.close();
-
-    // Wait for content to load then print
-    printWindow.onload = function () {
-        setTimeout(() => {
-            printWindow.print();
-        }, 250);
-    };
-};
-
-// Advanced Search functionality with suggestions (optimized to not lose focus)
-window.handleSearchInput = (event) => {
-    const query = event.target.value;
-    state.searchQuery = query;
-
-    if (query.trim()) {
-        // Generate suggestions based on product names and categories
-        const suggestions = new Set();
-
-        state.products.forEach(product => {
-            const productName = product.name.toLowerCase();
-            const category = product.category.toLowerCase();
-            const queryLower = query.toLowerCase();
-
-            // Add product names that match
-            if (productName.includes(queryLower)) {
-                suggestions.add(product.name);
-            }
-
-            // Add categories that match
-            if (category.includes(queryLower)) {
-                suggestions.add(product.category);
-            }
-
-            // Add word-based suggestions
-            const words = productName.split(' ');
-            words.forEach(word => {
-                if (word.toLowerCase().startsWith(queryLower) && word.length > 2) {
-                    suggestions.add(word.charAt(0).toUpperCase() + word.slice(1));
-                }
-            });
-        });
-
-        state.searchSuggestions = Array.from(suggestions).slice(0, 8);
-        state.showSuggestions = true;
-    } else {
-        state.searchSuggestions = [];
-        state.showSuggestions = false;
-        // When search is cleared, re-render to show default page
-        if (state.route === 'home' || state.route === 'products') {
-            render();
-            return; // Exit early to avoid double render
-        }
-    }
-
-    // Update suggestions dropdown without full render
-    updateSuggestionsDropdown();
-};
-
-// Update only the suggestions dropdown (not the whole page)
-function updateSuggestionsDropdown() {
-    const searchContainer = document.querySelector('.search-container');
-    if (!searchContainer) return;
-
-    // Remove existing suggestions
-    const existingSuggestions = searchContainer.querySelector('.search-suggestions');
-    if (existingSuggestions) {
-        existingSuggestions.remove();
-    }
-
-    // Add new suggestions if needed
-    if (state.showSuggestions && state.searchQuery) {
-        const suggestionsHTML = `
+    `,a=window.open("","_blank","width=300,height=600");a.document.write(r),a.document.close(),a.onload=function(){setTimeout(()=>{a.print()},250)}};window.handleSearchInput=t=>{const e=t.target.value;if(i.searchQuery=e,e.trim()){const o=new Set;i.products.forEach(r=>{const a=r.name.toLowerCase(),s=r.category.toLowerCase(),d=e.toLowerCase();a.includes(d)&&o.add(r.name),s.includes(d)&&o.add(r.category),a.split(" ").forEach(p=>{p.toLowerCase().startsWith(d)&&p.length>2&&o.add(p.charAt(0).toUpperCase()+p.slice(1))})}),i.searchSuggestions=Array.from(o).slice(0,8),i.showSuggestions=!0}else if(i.searchSuggestions=[],i.showSuggestions=!1,i.route==="home"||i.route==="products"){v();return}z()};function z(){const t=document.querySelector(".search-container");if(!t)return;const e=t.querySelector(".search-suggestions");if(e&&e.remove(),i.showSuggestions&&i.searchQuery){const o=`
             <div class="search-suggestions" id="searchSuggestions">
                 <div class="suggestions-header">Suggestions</div>
-                ${state.searchSuggestions.slice(0, 5).map(suggestion => `
-                    <div class="suggestion-item" onclick="window.selectSuggestion('${suggestion.replace(/'/g, "\\'")}')"> 
+                ${i.searchSuggestions.slice(0,5).map(r=>`
+                    <div class="suggestion-item" onclick="window.selectSuggestion('${r.replace(/'/g,"\\'")}')"> 
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                        <span>${suggestion}</span>
+                        <span>${r}</span>
                     </div>
-                `).join('')}
-                ${state.searchQuery ? `
+                `).join("")}
+                ${i.searchQuery?`
                     <div class="suggestion-search-all" onclick="window.handleSearch()">
-                        Search for "${state.searchQuery}" →
+                        Search for "${i.searchQuery}" →
                     </div>
-                ` : ''}
+                `:""}
             </div>
-        `;
-
-        searchContainer.insertAdjacentHTML('beforeend', suggestionsHTML);
-    }
-}
-
-window.showSearchSuggestions = () => {
-    if (state.searchQuery) {
-        state.showSuggestions = true;
-        updateSuggestionsDropdown();
-    }
-};
-
-window.selectSuggestion = (suggestion) => {
-    state.searchQuery = suggestion;
-    state.showSuggestions = false;
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.value = suggestion;
-    }
-    handleSearch();
-};
-
-window.handleSearch = () => {
-    state.showSuggestions = false;
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        state.searchQuery = searchInput.value.trim();
-    }
-    navigate('products');
-    // Scroll to products section
-    setTimeout(() => {
-        const productsSection = document.querySelector('.product-grid');
-        if (productsSection) {
-            productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    }, 100);
-};
-
-window.clearSearch = () => {
-    state.searchQuery = '';
-    state.showSuggestions = false;
-    state.searchSuggestions = [];
-    render();
-};
-
-// Close suggestions when clicking outside (only update dropdown, not full render)
-document.addEventListener('click', (e) => {
-    if (!e.target.closest('.search-container') && state.showSuggestions) {
-        state.showSuggestions = false;
-        // Remove suggestions dropdown without full render
-        const existingSuggestions = document.querySelector('.search-suggestions');
-        if (existingSuggestions) {
-            existingSuggestions.remove();
-        }
-    }
-});
-
-window.handleLogin = async (e) => {
-    console.log('Login attempt started');
-    e.preventDefault();
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-    console.log('Credentials:', { email, password });
-    try {
-        await api.login(email, password);
-        console.log('Login successful');
-    } catch (err) {
-        console.error('Login error:', err);
-    }
-};
-
-window.handleSignup = async (e) => {
-    console.log('Signup attempt started');
-    e.preventDefault();
-    const name = e.target.name.value;
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-    try {
-        await api.register(name, email, password);
-    } catch (err) {
-        console.error('Signup error:', err);
-    }
-};
-
-window.logout = () => {
-    state.currentUser = null;
-    state.cart = [];
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('cart_v2');
-    showToast('Logged out successfully');
-    sessionStorage.removeItem('currentRoute'); // Clear route!  
-    navigate('home');
-};
-
-window.handleContactSubmit = (event) => {
-    event.preventDefault();
-    const form = event.target;
-    const formData = {
-        name: form.name.value,
-        email: form.email.value,
-        subject: form.subject.value,
-        message: form.message.value
-    };
-
-    console.log('Contact form submitted:', formData);
-    showToast('Thank you for your message! We will get back to you soon.');
-    form.reset();
-};
-
-window.deleteProduct = (productId) => {
-    if (confirm('Are you sure you want to remove this product?')) {
-        state.products = state.products.filter(p => p.id !== productId);
-        saveState();
-        render();
-        showToast('Product removed');
-    }
-};
-
-window.viewOrderDetails = (orderId) => {
-    const order = state.orders.find(o => o.orderId === orderId);
-    if (!order) {
-        showToast('Order not found');
-        return;
-    }
-
-    const customer = state.users.find(u => u.id === order.userId);
-    const customerName = customer ? customer.name : `User ID: ${order.userId}`;
-
-    // Create modal
-    const modal = document.createElement('div');
-    modal.className = 'order-details-modal';
-    modal.innerHTML = `
+        `;t.insertAdjacentHTML("beforeend",o)}}window.showSearchSuggestions=()=>{i.searchQuery&&(i.showSuggestions=!0,z())};window.selectSuggestion=t=>{i.searchQuery=t,i.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=t),handleSearch()};window.handleSearch=()=>{i.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(i.searchQuery=t.value.trim()),h("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{i.searchQuery="",i.showSuggestions=!1,i.searchSuggestions=[],v()};document.addEventListener("click",t=>{if(!t.target.closest(".search-container")&&i.showSuggestions){i.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async t=>{console.log("Login attempt started"),t.preventDefault();const e=t.target.email.value,o=t.target.password.value;console.log("Credentials:",{email:e,password:o});try{await b.login(e,o),console.log("Login successful")}catch(r){console.error("Login error:",r)}};window.handleSignup=async t=>{console.log("Signup attempt started"),t.preventDefault();const e=t.target.name.value,o=t.target.email.value,r=t.target.password.value;try{await b.register(e,o,r)}catch(a){console.error("Signup error:",a)}};window.logout=()=>{i.currentUser=null,i.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),m("Logged out successfully"),sessionStorage.removeItem("currentRoute"),h("home")};window.handleContactSubmit=t=>{t.preventDefault();const e=t.target,o={name:e.name.value,email:e.email.value,subject:e.subject.value,message:e.message.value};console.log("Contact form submitted:",o),m("Thank you for your message! We will get back to you soon."),e.reset()};window.deleteProduct=t=>{confirm("Are you sure you want to remove this product?")&&(i.products=i.products.filter(e=>e.id!==t),f(),v(),m("Product removed"))};window.viewOrderDetails=t=>{const e=i.orders.find(d=>d.orderId===t);if(!e){m("Order not found");return}const o=i.users.find(d=>d.id===e.userId),r=o?o.name:`User ID: ${e.userId}`,a=document.createElement("div");a.className="order-details-modal",a.innerHTML=`
         <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -3644,400 +2193,128 @@ window.viewOrderDetails = (orderId) => {
                 <div class="order-info">
                     <div class="info-row">
                         <span class="info-label">Order ID:</span>
-                        <span class="info-value"><strong>#${order.orderId}</strong></span>
+                        <span class="info-value"><strong>#${e.orderId}</strong></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Customer:</span>
-                        <span class="info-value">${customerName}</span>
+                        <span class="info-value">${r}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Date:</span>
-                        <span class="info-value">${new Date(order.createdAt).toLocaleString()}</span>
+                        <span class="info-value">${new Date(e.createdAt).toLocaleString()}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Status:</span>
                         <span class="info-value">
-                            <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span>
+                            <span class="status-badge status-${e.status.toLowerCase()}">${e.status}</span>
                         </span>
                     </div>
                 </div>
                 
                 <h3 style="margin: 1.5rem 0 1rem 0; color: var(--primary);">Items Ordered</h3>
                 <div class="order-items-list">
-                    ${order.items.map(item => `
+                    ${e.items.map(d=>`
                         <div class="order-item-row">
                             <div class="item-details">
-                                <div class="item-name">${item.productName || 'Product ID: ' + item.productId}</div>
-                                <div class="item-meta">Quantity: ${item.quantity} × ${formatCurrency(item.price)}</div>
+                                <div class="item-name">${d.productName||"Product ID: "+d.productId}</div>
+                                <div class="item-meta">Quantity: ${d.quantity} × ${c(d.price)}</div>
                             </div>
-                            <div class="item-total">${formatCurrency(item.price * item.quantity)}</div>
+                            <div class="item-total">${c(d.price*d.quantity)}</div>
                         </div>
-                    `).join('')}
+                    `).join("")}
                 </div>
                 
                 <div class="order-total">
                     <span>Total Amount:</span>
-                    <span class="total-amount">${formatCurrency(order.total)}</span>
+                    <span class="total-amount">${c(e.total)}</span>
                 </div>
             </div>
         </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // Close on Escape key
-    const handleEscape = (e) => {
-        if (e.key === 'Escape') {
-            modal.remove();
-            document.removeEventListener('keydown', handleEscape);
-        }
-    };
-    document.addEventListener('keydown', handleEscape);
-};
-
-// --- Render ---
-const render = () => {
-    const app = document.getElementById('app');
-    let content = '';
-
-    switch (state.route) {
-        case 'home': content = HomePage(); break;
-        case 'products': content = ProductsPage(); break;
-        case 'product-detail': content = ProductDetailPage(); break;
-        case 'login': content = LoginPage(); break;
-        case 'signup': content = SignupPage(); break;
-        case 'cart': content = CartPage(); break;
-        case 'checkout': content = CheckoutPage(); break;
-        case 'order-confirmation': content = OrderConfirmationPage(); break;
-        case 'contact-us': content = ContactUsPage(); break;
-        case 'about-us': content = AboutUsPage(); break;
-        case 'learn': content = LearnPage(); break;
-        case 'deals': content = DealsPage(); break;
-        case 'admin': content = AdminPage(); break;
-        default: content = HomePage();
-    }
-
-    app.innerHTML = `
-        ${Header()}
+    `,document.body.appendChild(a);const s=d=>{d.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",s))};document.addEventListener("keydown",s)};const v=()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=I();break;case"products":e=j();break;case"product-detail":e=T();break;case"login":e=N();break;case"signup":e=q();break;case"cart":e=U();break;case"checkout":e=F();break;case"order-confirmation":e=R();break;case"contact-us":e=H();break;case"about-us":e=Q();break;case"learn":e=V();break;case"deals":e=G();break;case"admin":e=Y();break;default:e=I()}t.innerHTML=`
+        ${A()}
         <main>
-            ${content}
+            ${e}
         </main>
         <footer style="text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
             &copy; 2024 Lumina Electronics. All rights reserved.
         </footer>
-    `;
-
-    // Start deals timer if on deals page
-    if (state.route === 'deals') {
-        setTimeout(() => window.startDealsTimer(), 100);
-    }
-
-    // Setup scroll animations
-    // Note: Scroll animations handled by CSS
-};
-
-// Cart search handlers - update only cart items, not full page
-window.handleCartSearch = (event) => {
-    state.cartSearchQuery = event.target.value;
-    updateCartItems();
-};
-
-window.clearCartSearch = () => {
-    state.cartSearchQuery = '';
-    updateCartItems();
-};
-
-window.toggleCartItem = (id) => {
-    const item = state.cart.find(i => i.id === id);
-    if (item) {
-        item.selected = item.selected === false ? true : false;
-        saveState();
-        updateCartItems();
-    }
-};
-
-window.toggleFindSimilar = (id) => {
-    const item = state.cart.find(i => i.id === id);
-    if (item) {
-        // Close other dropdowns first (optional, but good UX)
-        state.cart.forEach(i => {
-            if (i.id !== id) i.showSimilar = false;
-        });
-
-        item.showSimilar = !item.showSimilar;
-        saveState();
-        updateCartItems();
-    }
-};
-
-// Update only the cart items display without full re-render
-function updateCartItems() {
-    const cartItemsContainer = document.querySelector('.cart-items');
-    const cartSummaryContainer = document.querySelector('.cart-summary');
-    const searchMessageContainer = document.querySelector('.cart-search-message');
-
-    if (!cartItemsContainer) return;
-
-    // Filter cart items based on search query
-    let displayedCartItems = state.cart;
-    if (state.cartSearchQuery) {
-        displayedCartItems = state.cart.filter(item =>
-            item.name.toLowerCase().includes(state.cartSearchQuery.toLowerCase()) ||
-            item.category.toLowerCase().includes(state.cartSearchQuery.toLowerCase())
-        );
-    }
-
-    // Update cart items
-    cartItemsContainer.innerHTML = displayedCartItems.map(item => {
-        // Find similar products based on category
-        const similarProducts = state.products
-            .filter(p => p.category === item.category && p.id !== item.id)
-            .slice(0, 4); // Show up to 4 similar items
-
-        return `
+    `,i.route==="deals"&&setTimeout(()=>window.startDealsTimer(),100)};window.handleCartSearch=t=>{i.cartSearchQuery=t.target.value,C()};window.clearCartSearch=()=>{i.cartSearchQuery="",C()};window.toggleCartItem=t=>{const e=i.cart.find(o=>o.id===t);e&&(e.selected=e.selected===!1,f(),C())};window.toggleFindSimilar=t=>{const e=i.cart.find(o=>o.id===t);e&&(i.cart.forEach(o=>{o.id!==t&&(o.showSimilar=!1)}),e.showSimilar=!e.showSimilar,f(),C())};function C(){const t=document.querySelector(".cart-items"),e=document.querySelector(".cart-summary"),o=document.querySelector(".cart-search-message");if(!t)return;let r=i.cart;if(i.cartSearchQuery&&(r=i.cart.filter(s=>s.name.toLowerCase().includes(i.cartSearchQuery.toLowerCase())||s.category.toLowerCase().includes(i.cartSearchQuery.toLowerCase()))),t.innerHTML=r.map(s=>{const d=i.products.filter(l=>l.category===s.category&&l.id!==s.id).slice(0,4);return`
         <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
             <div class="cart-item" style="border-bottom: none;">
                 <input type="checkbox" 
                     style="width: 20px; height: 20px; margin-right: 1rem; cursor: pointer; accent-color: var(--primary);"
-                    ${item.selected !== false ? 'checked' : ''}
-                    onchange="window.toggleCartItem(${item.id})"
+                    ${s.selected!==!1?"checked":""}
+                    onchange="window.toggleCartItem(${s.id})"
                 >
-                <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
+                <img src="${s.image}" alt="${s.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                 <div style="flex: 1;">
-                    <h3 style="font-size: 1rem;">${item.name}</h3>
-                    <p class="text-muted">${formatCurrency(item.price)}</p>
+                    <h3 style="font-size: 1rem;">${s.name}</h3>
+                    <p class="text-muted">${c(s.price)}</p>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
-                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
-                    <span>${item.quantity}</span>
-                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${s.id}, ${s.quantity-1})">-</button>
+                    <span>${s.quantity}</span>
+                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${s.id}, ${s.quantity+1})">+</button>
                 </div>
                 
                 <div class="cart-item-actions">
-                    <button class="btn-delete" onclick="window.removeFromCart(${item.id})">Delete</button>
-                    <button class="btn-find-similar" onclick="window.toggleFindSimilar(${item.id})">
+                    <button class="btn-delete" onclick="window.removeFromCart(${s.id})">Delete</button>
+                    <button class="btn-find-similar" onclick="window.toggleFindSimilar(${s.id})">
                         Find Similar 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${item.showSimilar ? 'rotate(180deg)' : 'rotate(0deg)'}; transition: transform 0.2s;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${s.showSimilar?"rotate(180deg)":"rotate(0deg)"}; transition: transform 0.2s;">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </button>
                 </div>
             </div>
 
-            <div class="similar-products-dropdown ${item.showSimilar ? 'show' : ''}">
+            <div class="similar-products-dropdown ${s.showSimilar?"show":""}">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h4 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Similar Products</h4>
-                    <button onclick="window.toggleFindSimilar(${item.id})" style="background: none; border: none; cursor: pointer;">
+                    <button onclick="window.toggleFindSimilar(${s.id})" style="background: none; border: none; cursor: pointer;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
-                ${similarProducts.length > 0 ? `
+                ${d.length>0?`
                     <div class="similar-products-grid">
-                        ${similarProducts.map(p => `
-                            <div class="similar-product-card" onclick="window.viewProduct(${p.id})">
-                                <img src="${p.image}" alt="${p.name}" class="similar-product-image">
-                                <div class="similar-product-title" title="${p.name}">${p.name}</div>
-                                <div class="similar-product-price">${formatCurrency(p.price)}</div>
+                        ${d.map(l=>`
+                            <div class="similar-product-card" onclick="window.viewProduct(${l.id})">
+                                <img src="${l.image}" alt="${l.name}" class="similar-product-image">
+                                <div class="similar-product-title" title="${l.name}">${l.name}</div>
+                                <div class="similar-product-price">${c(l.price)}</div>
                             </div>
-                        `).join('')}
+                        `).join("")}
                     </div>
-                ` : '<p class="text-muted text-center">No similar products found.</p>'}
+                `:'<p class="text-muted text-center">No similar products found.</p>'}
             </div>
         </div>
-    `}).join('');
-
-    // Update summary with selected items total
-    if (cartSummaryContainer) {
-        const selectedTotal = state.cart.reduce((acc, item) => acc + (item.selected !== false ? item.price * item.quantity : 0), 0);
-        const selectedCount = state.cart.filter(i => i.selected !== false).length;
-
-        cartSummaryContainer.innerHTML = `
+    `}).join(""),e){const s=i.cart.reduce((l,p)=>l+(p.selected!==!1?p.price*p.quantity:0),0),d=i.cart.filter(l=>l.selected!==!1).length;e.innerHTML=`
             <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                 <span>Total</span>
-                <span>${formatCurrency(selectedTotal)}</span>
+                <span>${c(s)}</span>
             </div>
             <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
-                Proceed to Checkout (${selectedCount})
+                Proceed to Checkout (${d})
             </button>
-        `;
-    }
-
-    // Update search message
-    if (searchMessageContainer) {
-        if (state.cartSearchQuery && displayedCartItems.length === 0) {
-            searchMessageContainer.innerHTML = `
+        `}o&&(i.cartSearchQuery&&r.length===0?(o.innerHTML=`
                 <p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
-                    No items found for "${state.cartSearchQuery}"
+                    No items found for "${i.cartSearchQuery}"
                 </p>
-            `;
-            searchMessageContainer.style.display = 'block';
-        } else {
-            searchMessageContainer.style.display = 'none';
-        }
-    }
-
-    // Update search button icon
-    const searchBtn = document.querySelector('#cartSearchInput + .search-btn');
-    if (searchBtn) {
-        searchBtn.innerHTML = state.cartSearchQuery ? `
+            `,o.style.display="block"):o.style.display="none");const a=document.querySelector("#cartSearchInput + .search-btn");a&&(a.innerHTML=i.cartSearchQuery?`
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
-        ` : `
+        `:`
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-        `;
-    }
-}
-
-// --- UI/UX Enhancement Functions ---
-
-// Deals Page: Countdown Timer
-let dealTimerInterval = null;
-
-window.startDealsTimer = () => {
-    // Set end time to 24 hours from now
-    const endTime = new Date().getTime() + (24 * 60 * 60 * 1000);
-
-    dealTimerInterval = setInterval(() => {
-        const now = new Date().getTime();
-        const distance = endTime - now;
-
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        const hoursEl = document.getElementById('deal-hours');
-        const minutesEl = document.getElementById('deal-minutes');
-        const secondsEl = document.getElementById('deal-seconds');
-
-        if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
-        if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
-        if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
-
-        if (distance < 0) {
-            clearInterval(dealTimerInterval);
-            if (hoursEl) hoursEl.textContent = '00';
-            if (minutesEl) minutesEl.textContent = '00';
-            if (secondsEl) secondsEl.textContent = '00';
-        }
-    }, 1000);
-};
-
-// Learn Page: Content Filtering (Difficulty + Topic)
-window.filterLearningContent = (filter) => {
-    const cards = document.querySelectorAll('.tutorial-card');
-    const buttons = document.querySelectorAll('.topic-filter');
-
-    // Update active button styling
-    buttons.forEach(btn => {
-        if (btn.dataset.filter === filter) {
-            btn.style.background = '#6366f1';
-            btn.style.color = 'white';
-            btn.style.borderColor = '#6366f1';
-        } else {
-            btn.style.background = 'white';
-            btn.style.color = '#64748b';
-            btn.style.borderColor = '#e2e8f0';
-        }
-    });
-
-    // Filter cards by category or topic
-    cards.forEach(card => {
-        const category = card.dataset.category;
-        const topic = card.dataset.topic;
-
-        if (filter === 'all' || category === filter || topic === filter) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-};
-
-// Learn Page: Category Filtering (Legacy - kept for compatibility)
-window.currentLearnCategory = 'all';
-
-window.filterTutorials = (category) => {
-    window.currentLearnCategory = category;
-
-    const tutorials = document.querySelectorAll('.tutorial-card');
-    const tabs = document.querySelectorAll('.category-tab');
-
-    // Update active tab
-    tabs.forEach(tab => {
-        tab.classList.remove('active');
-        if (tab.dataset.category === category) {
-            tab.classList.add('active');
-        }
-    });
-
-    // Filter tutorials
-    tutorials.forEach(tutorial => {
-        if (category === 'all' || tutorial.dataset.category === category) {
-            tutorial.style.display = 'block';
-        } else {
-            tutorial.style.display = 'none';
-        }
-    });
-};
-
-// Category Filtering for Deals
-window.filterDeals = (category) => {
-    const cards = document.querySelectorAll('.deal-product-card');
-    const tabs = document.querySelectorAll('.deal-category-tab');
-
-    // Update active tab styling
-    tabs.forEach(tab => {
-        if (tab.dataset.category === category) {
-            tab.style.background = '#6366f1';
-            tab.style.color = 'white';
-        } else {
-            tab.style.background = 'white';
-            tab.style.color = '#64748b';
-        }
-    });
-
-    // Filter products
-    cards.forEach(card => {
-        if (category === 'all' || category === 'clearance' || card.dataset.category === category) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-};
-
-// Video Modal
-window.openVideoModal = (videoId) => {
-    const modal = document.createElement('div');
-    modal.className = 'video-modal';
-    modal.innerHTML = `
+        `)}let L=null;window.startDealsTimer=()=>{const t=new Date().getTime()+864e5;L=setInterval(()=>{const e=new Date().getTime(),o=t-e,r=Math.floor(o%(1e3*60*60*24)/(1e3*60*60)),a=Math.floor(o%(1e3*60*60)/(1e3*60)),s=Math.floor(o%(1e3*60)/1e3),d=document.getElementById("deal-hours"),l=document.getElementById("deal-minutes"),p=document.getElementById("deal-seconds");d&&(d.textContent=String(r).padStart(2,"0")),l&&(l.textContent=String(a).padStart(2,"0")),p&&(p.textContent=String(s).padStart(2,"0")),o<0&&(clearInterval(L),d&&(d.textContent="00"),l&&(l.textContent="00"),p&&(p.textContent="00"))},1e3)};window.filterLearningContent=t=>{const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".topic-filter").forEach(r=>{r.dataset.filter===t?(r.style.background="#6366f1",r.style.color="white",r.style.borderColor="#6366f1"):(r.style.background="white",r.style.color="#64748b",r.style.borderColor="#e2e8f0")}),e.forEach(r=>{const a=r.dataset.category,s=r.dataset.topic;t==="all"||a===t||s===t?r.style.display="block":r.style.display="none"})};window.currentLearnCategory="all";window.filterTutorials=t=>{window.currentLearnCategory=t;const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".category-tab").forEach(r=>{r.classList.remove("active"),r.dataset.category===t&&r.classList.add("active")}),e.forEach(r=>{t==="all"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.filterDeals=t=>{const e=document.querySelectorAll(".deal-product-card");document.querySelectorAll(".deal-category-tab").forEach(r=>{r.dataset.category===t?(r.style.background="#6366f1",r.style.color="white"):(r.style.background="white",r.style.color="#64748b")}),e.forEach(r=>{t==="all"||t==="clearance"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.openVideoModal=t=>{const e=document.createElement("div");e.className="video-modal",e.innerHTML=`
         <div class="video-modal-content">
             <div class="video-modal-close" onclick="this.closest('.video-modal').remove()">✕</div>
             <div class="video-container">
-                <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe src="https://www.youtube.com/embed/${t}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         </div>
-    `;
-    document.body.appendChild(modal);
-    setTimeout(() => modal.classList.add('show'), 10);
-};
-
-// --- App Initialization ---
-const initApp = async () => {
-    await api.getProducts();
-    if (state.currentUser?.role === 'admin') {
-        await Promise.all([
-            api.getOrders(),
-            api.getUsers()
-        ]);
-    }
-    render();
-};
-
-// Initial Render
-initApp();
+    `,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),10)};const J=async()=>{await b.getProducts(),i.currentUser?.role==="admin"&&await Promise.all([b.getOrders(),b.getUsers()]),v()};J();
