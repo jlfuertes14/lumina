@@ -206,6 +206,15 @@ const products = [
         image: "assets/bulk-resistors.png",
         stock: 100,
         description: "Huge pack of 500 resistors with various resistance values. Essential for any electronics lab. Save ₱400!"
+    },
+    {
+        id: 24,
+        name: "Raspberry Pi 5 Starter Kit",
+        category: "Microcontrollers",
+        price: 7499,
+        image: "assets/raspberry-pi-5-kit.png",
+        stock: 25,
+        description: "The latest Raspberry Pi 5 (8GB RAM) complete starter kit. Includes case, power supply, cooling fan, HDMI cables, and 64GB microSD card."
     }
 ];
 
