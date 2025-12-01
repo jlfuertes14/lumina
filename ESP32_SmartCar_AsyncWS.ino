@@ -1,19 +1,10 @@
 /*
- * ESP32 Smart Car - AsyncWebSocket Edition
- * Clean, reliable WebSocket implementation using AsyncWebSocket library
+ * ESP32 Smart Car - WebSocket Client
+ * Clean, reliable WebSocket implementation using WebSockets library
  * 
  * Required Libraries (install via Arduino Library Manager):
- * - ESPAsyncWebServer by me-no-dev
- * - AsyncTCP by me-no-dev
+ * - WebSockets by Markus Sattler (provides WebSocketsClient.h)
  * - ArduinoJson by Benoit Blanchon
- * 
- * Features:
- * - Direct WebSocket connection (no Socket.IO complexity)
- * - SSL/TLS support for Railway
- * - Device authentication with token
- * - Obstacle detection (IR sensors)
- * - Real-time status updates
- * - Configuration portal (SoftAP fallback)
  */
 
 #include <WiFi.h>
