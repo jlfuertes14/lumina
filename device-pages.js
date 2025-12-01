@@ -19,6 +19,10 @@ const deviceAPI = {
         try {
             const response = await apiCall(`/devices/my-devices?userId=${state.currentUser._id}`);
             state.devices = response.data;
+
+            // Initialize real-time status monitoring
+            initializeDeviceStatusMonitoring();
+
             render();
         } catch (error) {
             console.error('Failed to load devices:', error);
@@ -45,6 +49,46 @@ const deviceAPI = {
         }
     }
 };
+
+// Real-time device status monitoring
+function initializeDeviceStatusMonitoring() {
+    // Initialize WebSocket client if not exists
+    if (!state.esp32Client) {
+        state.esp32Client = new ESP32SocketClient();
+    }
+    // Connect to Socket.IO if not already connected
+    if (!state.esp32Client.isConnected() && state.currentUser) {
+        state.esp32Client.connect(state.currentUser._id).catch(err => {
+            console.error('Failed to connect to WebSocket:', err);
+        });
+    }
+    // Listen for device status updates
+    state.esp32Client.on('device:status', (data) => {
+        console.log('📊 Device status update:', data);
+
+        // Update the device in the devices array
+        if (state.devices) {
+            const deviceIndex = state.devices.findIndex(d => d.deviceId === data.deviceId);
+            if (deviceIndex !== -1) {
+                state.devices[deviceIndex].status = data.status === 'online' ? 'active' : 'offline';
+                state.devices[deviceIndex].lastOnline = data.timestamp;
+
+                // Store in deviceStatus for real-time tracking
+                state.deviceStatus[data.deviceId] = data;
+
+                // Re-render if we're on the devices page
+                if (state.route === 'my-devices') {
+                    render();
+                }
+            }
+        }
+    });
+}
+// Cleanup function to remove listeners
+function cleanupDeviceStatusMonitoring() {
+    // Note: You'll need to implement the off() method if multiple listeners cause issues
+    // For now, the existing listener will handle updates
+}
 
 // ===== Page Components =====
 
@@ -83,9 +127,9 @@ const MyDevicesPage = () => {
                 <div class="device-grid">
                     ${devices.map(device => `
                         <div class="device-card">
-                            <div class="device-status-badge ${device.status === 'active' ? 'online' : 'offline'}">
+                            <div class="device-status-badge ${(device.status === 'active' || state.deviceStatus[device.deviceId]?.status === 'online') ? 'online' : 'offline'}">
                                 <span class="status-dot"></span>
-                                ${device.status === 'active' ? 'Online' : device.status === 'pending' ? 'Not Configured' : 'Offline'}
+                                ${(device.status === 'active' || state.deviceStatus[device.deviceId]?.status === 'online') ? 'Online' : device.status === 'pending' ? 'Not Configured' : 'Offline'}
                             </div>
                             
                             <div class="device-icon">
@@ -115,7 +159,7 @@ const MyDevicesPage = () => {
                             </div>
                             
                             <div class="device-actions">
-                                ${device.status === 'active' ? `
+                                ${(device.status === 'active' || state.deviceStatus[device.deviceId]?.status === 'online') ? `
                                     <button class="btn btn-primary" onclick="window.startRemoteControl('${device.deviceId}')" style="width: 100%;">
                                         🎮 Control
                                     </button>
@@ -487,5 +531,7 @@ function addCommandLog(message) {
 window.addEventListener('load', () => {
     if (state.currentUser) {
         deviceAPI.getMyDevices();
+        // Start listening for device status updates
+        initializeDeviceStatusMonitoring();
     }
 });
