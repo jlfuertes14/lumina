@@ -186,10 +186,10 @@ function initializeWebSocket(httpServer) {
         // User requests to monitor a device
         socket.on('monitor:device', async (deviceId) => {
             try {
-                // Verify user owns this device
+                // Verify user owns this device (userId is String in UserDevice schema)
                 const device = await UserDevice.findOne({
                     deviceId,
-                    userId: socket.userData._id
+                    userId: String(socket.userId)
                 });
 
                 if (!device) {
@@ -223,10 +223,10 @@ function initializeWebSocket(httpServer) {
                     return;
                 }
 
-                // Verify user owns this device
+                // Verify user owns this device (userId is String in UserDevice schema)
                 const device = await UserDevice.findOne({
                     deviceId,
-                    userId: socket.userData._id
+                    userId: String(socket.userId)
                 });
 
                 if (!device) {
@@ -268,7 +268,8 @@ function initializeWebSocket(httpServer) {
         // User requests device list
         socket.on('devices:list', async () => {
             try {
-                const devices = await UserDevice.find({ userId: socket.userData._id })
+                // userId is String in UserDevice schema
+                const devices = await UserDevice.find({ userId: String(socket.userId) })
                     .populate('productId', 'name image')
                     .lean();
 
