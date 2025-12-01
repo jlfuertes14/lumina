@@ -92,72 +92,9 @@ function initializeWebSocket(httpServer) {
             }
         });
 
-        const { deviceId } = socket;
-        console.log(`🤖 ESP32 Device connected: ${deviceId}`);
-
-        // Store active connection
-        activeDevices.set(deviceId, socket.id);
-
-        // Update device status to online
-        await UserDevice.findOneAndUpdate(
-            { deviceId },
-            { status: 'active', lastOnline: new Date() }
-        );
-
-        // Join device-specific room
-        socket.join(`device:${deviceId}`);
-
-        // Notify all users monitoring this device
-        io.of('/control').to(`monitor:${deviceId}`).emit('device:status', {
-            deviceId,
-            status: 'online',
-            timestamp: new Date()
-        });
-
-        // Listen for status updates from ESP32
-        socket.on('status:update', async (data) => {
-            console.log(`📊 Status from ${deviceId}:`, data);
-
-            // Update firmware version if provided
-            if (data.firmwareVersion) {
-                await UserDevice.findOneAndUpdate(
-                    { deviceId },
-                    { firmwareVersion: data.firmwareVersion }
-                );
-            }
-
-            // Forward status to all connected users monitoring this device
-            io.of('/control').to(`monitor:${deviceId}`).emit('device:telemetry', {
-                deviceId,
-                ...data,
-                timestamp: new Date()
-            });
-        });
-
-        // Handle command acknowledgment from ESP32
-        socket.on('command:ack', (data) => {
-            console.log(`✅ Command acknowledged by ${deviceId}:`, data);
-
-            // Forward acknowledgment to user who sent the command
-            io.of('/control').to(`monitor:${deviceId}`).emit('command:response', {
-                deviceId,
-                success: true,
-                ...data
-            });
-        });
-
-        // Handle errors from ESP32
-        socket.on('error:report', (error) => {
-            console.error(`❌ Error from ${deviceId}:`, error);
-
-            io.of('/control').to(`monitor:${deviceId}`).emit('device:error', {
-                deviceId,
-                error
-            });
-        });
-
         // Device disconnected
         socket.on('disconnect', async () => {
+            const { deviceId } = socket;
             console.log(`❌ ESP32 Device disconnected: ${deviceId}`);
 
             activeDevices.delete(deviceId);
