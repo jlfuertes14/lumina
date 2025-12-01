@@ -67,7 +67,7 @@ const api = {
             localStorage.setItem('currentUser', JSON.stringify(state.currentUser));
 
             // Add this:
-            await api.getMyDevices(); // Load user's devices
+            await deviceAPI.getMyDevices(); // Load user's devices
 
             // Sync cart after login!
             await syncCartWithServer();
