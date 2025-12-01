@@ -273,7 +273,7 @@ var j=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var se=j((le,$)=>{
             <h2 class="auth-title">Welcome Back</h2>
             <form onsubmit="window.handleLogin(event)">
                 <div class="form-group">
-                    <label class="form-label">Username</label>
+                    <label class="form-label">Email</label>
                     <input type="text" name="email" class="form-input" required>
                 </div>
                 <div class="form-group">
