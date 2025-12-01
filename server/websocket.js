@@ -354,7 +354,7 @@ function initializeWebSocket(httpServer) {
     });
 
     console.log('🚀 WebSocket server initialized');
-    console.log('   - Device namespace: /device');
+    console.log('   - Main namespace: / (ESP32 devices connect here)');
     console.log('   - Control namespace: /control');
 
     return io;
