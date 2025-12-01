@@ -83,9 +83,14 @@ const PORT = process.env.PORT || 3000;
 const http = require('http');
 const httpServer = http.createServer(app);
 
-// Initialize WebSocket server
+// Initialize WebSocket server (Socket.IO for web users)
 const { initializeWebSocket } = require('./websocket');
 const io = initializeWebSocket(httpServer);
+
+// Initialize plain WebSocket for ESP32 devices
+const { initializeDeviceWebSocket } = require('./websocketDevice');
+const activeDevices = new Map(); // Shared between Socket.IO and WebSocket
+initializeDeviceWebSocket(httpServer, io, activeDevices);
 
 // Start server - Listen on 0.0.0.0 for Railway
 httpServer.listen(PORT, '0.0.0.0', () => {
