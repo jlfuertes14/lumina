@@ -275,8 +275,8 @@ function initializeWebSocket(httpServer) {
 
                 console.log(`📤 Relaying command to ${deviceId}:`, command, payload);
 
-                // Send command to ESP32 device
-                deviceNamespace.to(`device:${deviceId}`).emit('control:command', {
+                // Send command to ESP32 device on main namespace
+                io.to(`device:${deviceId}`).emit('control:command', {
                     command,
                     payload,
                     timestamp: new Date()
@@ -344,16 +344,134 @@ function initializeWebSocket(httpServer) {
     io.on('connection', (socket) => {
         console.log('📡 Client connected to main namespace');
 
+        // Handle ESP32 device authentication on main namespace
+        // (ESP32 SocketIO library has difficulty with custom namespaces)
+        socket.on('authenticate', async (data) => {
+            console.log('🔍 ESP32 Auth on main namespace:', JSON.stringify(data));
+
+            try {
+                const { deviceId, deviceToken } = data;
+
+                if (!deviceId || !deviceToken) {
+                    socket.emit('auth:error', { message: 'Missing credentials' });
+                    socket.disconnect();
+                    return;
+                }
+
+                // Validate device credentials
+                const device = await UserDevice.findOne({ deviceId, deviceToken });
+
+                if (!device) {
+                    console.log(`❌ Invalid credentials for ${deviceId}`);
+                    socket.emit('auth:error', { message: 'Invalid device credentials' });
+                    socket.disconnect();
+                    return;
+                }
+
+                // Attach device info to socket
+                socket.deviceId = deviceId;
+                socket.deviceData = device;
+
+                console.log(`✅ Device authenticated on main namespace: ${deviceId}`);
+
+                // Store active connection
+                activeDevices.set(deviceId, socket.id);
+
+                // Update device status to online
+                await UserDevice.findOneAndUpdate(
+                    { deviceId },
+                    { status: 'active', lastOnline: new Date() }
+                );
+
+                // Join device-specific room
+                socket.join(`device:${deviceId}`);
+
+                // Notify all users monitoring this device
+                io.of('/control').to(`monitor:${deviceId}`).emit('device:status', {
+                    deviceId,
+                    status: 'online',
+                    timestamp: new Date()
+                });
+
+                // Confirm authentication to ESP32
+                socket.emit('auth:success', { message: 'Authentication successful' });
+
+            } catch (error) {
+                console.error('ESP32 authentication error:', error);
+                socket.emit('auth:error', { message: 'Authentication failed' });
+                socket.disconnect();
+            }
+        });
+
+        // Handle status updates from ESP32
+        socket.on('status:update', async (data) => {
+            const { deviceId } = socket;
+            if (!deviceId) return; // Not authenticated yet
+
+            console.log(`📊 Status from ${deviceId}:`, data);
+
+            // Update firmware version if provided
+            if (data.firmwareVersion) {
+                await UserDevice.findOneAndUpdate(
+                    { deviceId },
+                    { firmwareVersion: data.firmwareVersion }
+                );
+            }
+
+            // Forward status to all connected users monitoring this device
+            io.of('/control').to(`monitor:${deviceId}`).emit('device:telemetry', {
+                deviceId,
+                ...data,
+                timestamp: new Date()
+            });
+        });
+
+        // Handle command acknowledgment from ESP32
+        socket.on('command:ack', (data) => {
+            const { deviceId } = socket;
+            if (!deviceId) return; // Not authenticated yet
+
+            console.log(`✅ Command acknowledged by ${deviceId}:`, data);
+
+            // Forward acknowledgment to user who sent the command
+            io.of('/control').to(`monitor:${deviceId}`).emit('command:response', {
+                deviceId,
+                success: true,
+                ...data
+            });
+        });
+
+        // Handle ESP32 disconnect
+        socket.on('disconnect', async () => {
+            const { deviceId } = socket;
+
+            if (deviceId) {
+                console.log(`❌ ESP32 Device disconnected from main namespace: ${deviceId}`);
+                activeDevices.delete(deviceId);
+
+                // Update device status to offline
+                await UserDevice.findOneAndUpdate(
+                    { deviceId },
+                    { status: 'offline', lastOnline: new Date() }
+                );
+
+                // Notify users
+                io.of('/control').to(`monitor:${deviceId}`).emit('device:status', {
+                    deviceId,
+                    status: 'offline',
+                    timestamp: new Date()
+                });
+            } else {
+                console.log('❌ Client disconnected from main namespace');
+            }
+        });
+
         socket.on('system:info', () => {
             socket.emit('system:stats', {
                 activeDevices: activeDevices.size,
                 activeUsers: activeUsers.size,
                 timestamp: new Date()
             });
-        });
-
-        socket.on('disconnect', () => {
-            console.log('❌ Client disconnected from main namespace');
         });
     });
 
