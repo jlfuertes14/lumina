@@ -1,4 +1,4 @@
-var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const n of document.querySelectorAll('link[rel="modulepreload"]'))r(n);new MutationObserver(n=>{for(const s of n)if(s.type==="childList")for(const d of s.addedNodes)d.tagName==="LINK"&&d.rel==="modulepreload"&&r(d)}).observe(document,{childList:!0,subtree:!0});function o(n){const s={};return n.integrity&&(s.integrity=n.integrity),n.referrerPolicy&&(s.referrerPolicy=n.referrerPolicy),n.crossOrigin==="use-credentials"?s.credentials="include":n.crossOrigin==="anonymous"?s.credentials="omit":s.credentials="same-origin",s}function r(n){if(n.ep)return;n.ep=!0;const s=o(n);fetch(n.href,s)}})();let B=class{constructor(e="https://lumina-production-a4bb.up.railway.app"){this.serverUrl=e,this.socket=null,this.connected=!1,this.currentDeviceId=null,this.eventHandlers=new Map}async connect(e,o=""){if(this.socket&&this.connected){console.warn("Already connected to WebSocket");return}return new Promise((r,n)=>{if(typeof io>"u"){const s=document.createElement("script");s.src="https://cdn.socket.io/4.5.4/socket.io.min.js",s.onload=()=>this._initializeSocket(e,o,r,n),s.onerror=()=>n(new Error("Failed to load Socket.IO")),document.head.appendChild(s)}else this._initializeSocket(e,o,r,n)})}_initializeSocket(e,o,r,n){try{this.socket=io(`${this.serverUrl}/control`,{auth:{userId:e,sessionToken:o},transports:["websocket","polling"]}),this.socket.on("connect",()=>{console.log("✅ Connected to ESP32 WebSocket server"),this.connected=!0,this._triggerEvent("connected"),r()}),this.socket.on("connect_error",s=>{console.error("❌ Connection error:",s.message),this.connected=!1,this._triggerEvent("error",s),n(s)}),this.socket.on("disconnect",()=>{console.log("❌ Disconnected from WebSocket server"),this.connected=!1,this._triggerEvent("disconnected")}),this.socket.on("device:status",s=>{console.log("📊 Device status:",s),this._triggerEvent("device:status",s)}),this.socket.on("device:telemetry",s=>{this._triggerEvent("device:telemetry",s)}),this.socket.on("command:response",s=>{this._triggerEvent("command:response",s)}),this.socket.on("command:sent",s=>{this._triggerEvent("command:sent",s)}),this.socket.on("device:error",s=>{console.error("Device error:",s),this._triggerEvent("device:error",s)}),this.socket.on("devices:list",s=>{this._triggerEvent("devices:list",s)}),this.socket.on("error",s=>{console.error("System error:",s),this._triggerEvent("error",s)})}catch(s){n(s)}}monitorDevice(e){if(!this.connected)throw new Error("Not connected to WebSocket server");this.currentDeviceId=e,this.socket.emit("monitor:device",e),console.log(`👁️ Monitoring device: ${e}`)}stopMonitoring(){this.currentDeviceId&&this.connected&&(this.socket.emit("monitor:stop",this.currentDeviceId),this.currentDeviceId=null)}sendCommand(e,o,r={}){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("control:command",{deviceId:e,command:o,payload:r}),console.log(`📤 Sent command to ${e}:`,o,r)}move(e,o,r=255){this.sendCommand(e,"move",{direction:o,speed:r})}stop(e){this.sendCommand(e,"stop")}turnLeft(e,o=200){this.sendCommand(e,"move",{direction:"left",speed:o})}turnRight(e,o=200){this.sendCommand(e,"move",{direction:"right",speed:o})}forward(e,o=255){this.sendCommand(e,"move",{direction:"forward",speed:o})}backward(e,o=255){this.sendCommand(e,"move",{direction:"backward",speed:o})}requestDeviceList(){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("devices:list")}on(e,o){this.eventHandlers.has(e)||this.eventHandlers.set(e,[]),this.eventHandlers.get(e).push(o)}off(e,o){if(!this.eventHandlers.has(e))return;const r=this.eventHandlers.get(e),n=r.indexOf(o);n>-1&&r.splice(n,1)}_triggerEvent(e,o=null){if(!this.eventHandlers.has(e))return;this.eventHandlers.get(e).forEach(n=>{try{n(o)}catch(s){console.error(`Error in event handler for ${e}:`,s)}})}disconnect(){this.socket&&(this.stopMonitoring(),this.socket.disconnect(),this.socket=null,this.connected=!1,console.log("👋 Disconnected from WebSocket"))}isConnected(){return this.connected}getCurrentDevice(){return this.currentDeviceId}};typeof C<"u"&&C.exports&&(C.exports=B);typeof window<"u"&&(window.ESP32SocketClient=B);const j="https://lumina-production-a4bb.up.railway.app",N="http://localhost:3000",O=window.location.hostname==="jlfuertes14.github.io",M=O?`${j}/api`:`${N}/api`;async function b(t,e={}){const o=`${M}${t}`;try{const r=await fetch(o,{...e,headers:{"Content-Type":"application/json",...e.headers}}),n=await r.json();if(!r.ok)throw new Error(n.error||n.message||"API request failed");return n}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${O?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${M}`);const i={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:sessionStorage.getItem("currentRoute")||"home",mobileMenuOpen:!1,searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,devices:[],currentDeviceId:null,esp32Client:null,deviceStatus:{},telemetryData:{},sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,cartSynced:!1,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null},f={getProducts:async()=>{try{const t=await b("/products");i.products=t.data,v()}catch(t){console.error("Failed to load products:",t),l("Failed to load products")}},getMyDevices:async()=>{if(i.currentUser)try{const t=await b(`/devices/my-devices?userId=${i.currentUser.id}`);i.devices=t.data,v()}catch(t){console.error("Failed to load devices:",t)}},pairDevice:async(t,e)=>{try{const o=await b("/devices/pair",{method:"POST",body:JSON.stringify({deviceId:t,deviceToken:e,userId:i.currentUser.id})});l("Device paired successfully!"),await f.getMyDevices(),g("my-devices")}catch(o){throw l(o.message||"Device pairing failed"),o}},login:async(t,e)=>{console.log("Calling API login...");try{const o=await b("/users/login",{method:"POST",body:JSON.stringify({email:t,password:e})});i.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),await f.getMyDevices(),await U(),l(`Welcome back, ${i.currentUser.name}!`),g("home")}catch(o){throw l(o.message||"Login failed"),o}},register:async(t,e,o)=>{try{const r=await b("/users/register",{method:"POST",body:JSON.stringify({name:t,email:e,password:o})});i.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),l("Account created successfully!"),g("home")}catch(r){throw l(r.message||"Registration failed"),r}},createOrder:async t=>{try{const e=await b("/orders",{method:"POST",body:JSON.stringify(t)});return i.cart=[],w(),l("Order placed successfully!"),i.currentUser.role==="admin"&&f.getOrders(),e.data}catch(e){throw l(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await b("/orders");i.orders=t.data,v()}catch(t){console.error("Failed to load orders:",t)}},getUsers:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await b("/users");i.users=t.data,v()}catch(t){console.error("Failed to load users:",t)}}},w=()=>{localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(i.cart))},U=async()=>{if(!(!i.currentUser||i.cartSynced))try{const t=await b(`/users/${i.currentUser.id}/cart/sync`,{method:"POST",body:JSON.stringify({localCart:i.cart})});i.cart=t.data.map(e=>({id:e.productId,name:e.name,price:e.price,image:e.image,quantity:e.quantity,category:e.category,selected:e.selected})),i.cartSynced=!0,w(),v(),l("Cart synced!")}catch(t){console.error("Cart sync failed:",t)}},m=t=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(t),g=t=>{i.route=t,i.mobileMenuOpen=!1,sessionStorage.setItem("currentRoute",t),v(),window.scrollTo(0,0)},l=t=>{const e=document.createElement("div");e.className="toast",e.textContent=t,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)},x=t=>`
+var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const n of document.querySelectorAll('link[rel="modulepreload"]'))r(n);new MutationObserver(n=>{for(const s of n)if(s.type==="childList")for(const d of s.addedNodes)d.tagName==="LINK"&&d.rel==="modulepreload"&&r(d)}).observe(document,{childList:!0,subtree:!0});function o(n){const s={};return n.integrity&&(s.integrity=n.integrity),n.referrerPolicy&&(s.referrerPolicy=n.referrerPolicy),n.crossOrigin==="use-credentials"?s.credentials="include":n.crossOrigin==="anonymous"?s.credentials="omit":s.credentials="same-origin",s}function r(n){if(n.ep)return;n.ep=!0;const s=o(n);fetch(n.href,s)}})();let B=class{constructor(e="https://lumina-production-a4bb.up.railway.app"){this.serverUrl=e,this.socket=null,this.connected=!1,this.currentDeviceId=null,this.eventHandlers=new Map}async connect(e,o=""){if(this.socket&&this.connected){console.warn("Already connected to WebSocket");return}return new Promise((r,n)=>{if(typeof io>"u"){const s=document.createElement("script");s.src="https://cdn.socket.io/4.5.4/socket.io.min.js",s.onload=()=>this._initializeSocket(e,o,r,n),s.onerror=()=>n(new Error("Failed to load Socket.IO")),document.head.appendChild(s)}else this._initializeSocket(e,o,r,n)})}_initializeSocket(e,o,r,n){try{this.socket=io(`${this.serverUrl}/control`,{auth:{userId:e,sessionToken:o},transports:["websocket","polling"]}),this.socket.on("connect",()=>{console.log("✅ Connected to ESP32 WebSocket server"),this.connected=!0,this._triggerEvent("connected"),r()}),this.socket.on("connect_error",s=>{console.error("❌ Connection error:",s.message),this.connected=!1,this._triggerEvent("error",s),n(s)}),this.socket.on("disconnect",()=>{console.log("❌ Disconnected from WebSocket server"),this.connected=!1,this._triggerEvent("disconnected")}),this.socket.on("device:status",s=>{console.log("📊 Device status:",s),this._triggerEvent("device:status",s)}),this.socket.on("device:telemetry",s=>{this._triggerEvent("device:telemetry",s)}),this.socket.on("command:response",s=>{this._triggerEvent("command:response",s)}),this.socket.on("command:sent",s=>{this._triggerEvent("command:sent",s)}),this.socket.on("device:error",s=>{console.error("Device error:",s),this._triggerEvent("device:error",s)}),this.socket.on("devices:list",s=>{this._triggerEvent("devices:list",s)}),this.socket.on("error",s=>{console.error("System error:",s),this._triggerEvent("error",s)})}catch(s){n(s)}}monitorDevice(e){if(!this.connected)throw new Error("Not connected to WebSocket server");this.currentDeviceId=e,this.socket.emit("monitor:device",e),console.log(`👁️ Monitoring device: ${e}`)}stopMonitoring(){this.currentDeviceId&&this.connected&&(this.socket.emit("monitor:stop",this.currentDeviceId),this.currentDeviceId=null)}sendCommand(e,o,r={}){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("control:command",{deviceId:e,command:o,payload:r}),console.log(`📤 Sent command to ${e}:`,o,r)}move(e,o,r=255){this.sendCommand(e,"move",{direction:o,speed:r})}stop(e){this.sendCommand(e,"stop")}turnLeft(e,o=200){this.sendCommand(e,"move",{direction:"left",speed:o})}turnRight(e,o=200){this.sendCommand(e,"move",{direction:"right",speed:o})}forward(e,o=255){this.sendCommand(e,"move",{direction:"forward",speed:o})}backward(e,o=255){this.sendCommand(e,"move",{direction:"backward",speed:o})}requestDeviceList(){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("devices:list")}on(e,o){this.eventHandlers.has(e)||this.eventHandlers.set(e,[]),this.eventHandlers.get(e).push(o)}off(e,o){if(!this.eventHandlers.has(e))return;const r=this.eventHandlers.get(e),n=r.indexOf(o);n>-1&&r.splice(n,1)}_triggerEvent(e,o=null){if(!this.eventHandlers.has(e))return;this.eventHandlers.get(e).forEach(n=>{try{n(o)}catch(s){console.error(`Error in event handler for ${e}:`,s)}})}disconnect(){this.socket&&(this.stopMonitoring(),this.socket.disconnect(),this.socket=null,this.connected=!1,console.log("👋 Disconnected from WebSocket"))}isConnected(){return this.connected}getCurrentDevice(){return this.currentDeviceId}};typeof C<"u"&&C.exports&&(C.exports=B);typeof window<"u"&&(window.ESP32SocketClient=B);const j="https://lumina-production-a4bb.up.railway.app",N="http://localhost:3000",O=window.location.hostname==="jlfuertes14.github.io",M=O?`${j}/api`:`${N}/api`;async function b(t,e={}){const o=`${M}${t}`;try{const r=await fetch(o,{...e,headers:{"Content-Type":"application/json",...e.headers}}),n=await r.json();if(!r.ok)throw new Error(n.error||n.message||"API request failed");return n}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${O?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${M}`);const i={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:sessionStorage.getItem("currentRoute")||"home",mobileMenuOpen:!1,searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,devices:[],currentDeviceId:null,esp32Client:null,deviceStatus:{},telemetryData:{},sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,cartSynced:!1,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null},f={getProducts:async()=>{try{const t=await b("/products");i.products=t.data,v()}catch(t){console.error("Failed to load products:",t),c("Failed to load products")}},getMyDevices:async()=>{if(i.currentUser)try{const t=await b(`/devices/my-devices?userId=${i.currentUser.id}`);i.devices=t.data,v()}catch(t){console.error("Failed to load devices:",t)}},pairDevice:async(t,e)=>{try{const o=await b("/devices/pair",{method:"POST",body:JSON.stringify({deviceId:t,deviceToken:e,userId:i.currentUser.id})});c("Device paired successfully!"),await f.getMyDevices(),g("my-devices")}catch(o){throw c(o.message||"Device pairing failed"),o}},login:async(t,e)=>{console.log("Calling API login...");try{const o=await b("/users/login",{method:"POST",body:JSON.stringify({email:t,password:e})});i.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),await f.getMyDevices(),await U(),c(`Welcome back, ${i.currentUser.name}!`),g("home")}catch(o){throw c(o.message||"Login failed"),o}},register:async(t,e,o)=>{try{const r=await b("/users/register",{method:"POST",body:JSON.stringify({name:t,email:e,password:o})});i.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),c("Account created successfully!"),g("home")}catch(r){throw c(r.message||"Registration failed"),r}},createOrder:async t=>{try{const e=await b("/orders",{method:"POST",body:JSON.stringify(t)});return i.cart=[],w(),c("Order placed successfully!"),i.currentUser.role==="admin"&&f.getOrders(),e.data}catch(e){throw c(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await b("/orders");i.orders=t.data,v()}catch(t){console.error("Failed to load orders:",t)}},getUsers:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await b("/users");i.users=t.data,v()}catch(t){console.error("Failed to load users:",t)}}},w=()=>{localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(i.cart))},U=async()=>{if(!(!i.currentUser||i.cartSynced))try{const t=await b(`/users/${i.currentUser.id}/cart/sync`,{method:"POST",body:JSON.stringify({localCart:i.cart})});i.cart=t.data.map(e=>({id:e.productId,name:e.name,price:e.price,image:e.image,quantity:e.quantity,category:e.category,selected:e.selected})),i.cartSynced=!0,w(),v(),c("Cart synced!")}catch(t){console.error("Cart sync failed:",t)}},m=t=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(t),g=t=>{i.route=t,i.mobileMenuOpen=!1,sessionStorage.setItem("currentRoute",t),v(),window.scrollTo(0,0)},c=t=>{const e=document.createElement("div");e.className="toast",e.textContent=t,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)},x=t=>`
         <div class="breadcrumbs">
             <a href="#" onclick="window.navigate('home'); return false;">Home</a>
             <span class="breadcrumb-separator">›</span>
@@ -221,7 +221,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 ${i.products.filter(o=>t.includes(o.id)).sort((o,r)=>t.indexOf(o.id)-t.indexOf(r.id)).map($).join("")}
             </div>
         </div>
-    `},R=()=>{let t=[...i.products];switch(i.searchQuery&&(t=t.filter(e=>e.name.toLowerCase().includes(i.searchQuery.toLowerCase())||e.category.toLowerCase().includes(i.searchQuery.toLowerCase())||e.description.toLowerCase().includes(i.searchQuery.toLowerCase()))),i.sortBy){case"price-asc":t.sort((e,o)=>e.price-o.price);break;case"price-desc":t.sort((e,o)=>o.price-e.price);break;case"name-asc":t.sort((e,o)=>e.name.localeCompare(o.name));break;case"name-desc":t.sort((e,o)=>o.name.localeCompare(e.name));break;case"featured":default:t.sort((e,o)=>e.id-o.id);break}return`
+    `},H=()=>{let t=[...i.products];switch(i.searchQuery&&(t=t.filter(e=>e.name.toLowerCase().includes(i.searchQuery.toLowerCase())||e.category.toLowerCase().includes(i.searchQuery.toLowerCase())||e.description.toLowerCase().includes(i.searchQuery.toLowerCase()))),i.sortBy){case"price-asc":t.sort((e,o)=>e.price-o.price);break;case"price-desc":t.sort((e,o)=>o.price-e.price);break;case"name-asc":t.sort((e,o)=>e.name.localeCompare(o.name));break;case"name-desc":t.sort((e,o)=>o.name.localeCompare(e.name));break;case"featured":default:t.sort((e,o)=>e.id-o.id);break}return`
         <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
             <div class="products-header">
                 <div class="breadcrumbs">
@@ -268,7 +268,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 ${t.map($).join("")}
             </div>
         </div>
-    `},H=()=>`
+    `},R=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Welcome Back</h2>
             <form onsubmit="window.handleLogin(event)">
@@ -503,7 +503,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 </div>
             `}
         </div>
-    `},_=()=>i.currentUser?`
+    `},G=()=>i.currentUser?`
         <div style="max-width: 600px; margin: 2rem auto; padding: 0 2rem;">
             ${x("device-pair")}
             
@@ -548,7 +548,8 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 </form>
             </div>
         </div>
-    `:(g("login"),""),G=()=>{if(!i.currentUser)return g("login"),"";if(!i.currentDeviceId)return g("my-devices"),"";const t=i.devices?.find(n=>n.deviceId===i.currentDeviceId);if(!t)return g("my-devices"),"";const e=i.deviceStatus[t.deviceId]||{},o=i.telemetryData[t.deviceId]||{},r=e.status==="online";return`
+        
+    `:(g("login"),""),_=()=>{if(!i.currentUser)return g("login"),"";if(!i.currentDeviceId)return g("my-devices"),"";const t=i.devices?.find(p=>p.deviceId===i.currentDeviceId);if(!t)return g("my-devices"),"";const e=i.deviceStatus[t.deviceId]||{},o=i.telemetryData[t.deviceId]||{},r=e.status==="online",n=o.battery||0,s=2*Math.PI*20,d=s-n/100*s,l=Math.min(4,Math.max(0,Math.round((o.signal||0)/25)));return`
         <div style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
             <div style="margin-bottom: 1rem;">
                 <button class="btn btn-outline" onclick="window.stopRemoteControl()" style="padding: 0.75rem 1.5rem;">
@@ -556,131 +557,177 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 </button>
             </div>
 
-            <div class="remote-control-container">
-                <!-- Device Info Header -->
-                <div class="remote-header">
-                    <div>
-                        <h1 style="margin: 0 0 0.5rem 0; font-size: 1.75rem;">${t.deviceName}</h1>
-                        <p style="color: var(--text-muted); margin: 0;">${t.deviceId}</p>
+            <div class="cyber-container">
+                <!-- HUD Strip -->
+                <div class="cyber-hud">
+                    <!-- Battery Gauge -->
+                    <div class="hud-group">
+                        <div class="cyber-gauge">
+                            <svg width="48" height="48" viewBox="0 0 48 48">
+                                <circle class="gauge-bg" cx="24" cy="24" r="20" stroke-dasharray="${s}" stroke-dashoffset="0"></circle>
+                                <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-dasharray="${s}" stroke-dashoffset="${d}"></circle>
+                            </svg>
+                            <div class="gauge-text">${n}%</div>
+                        </div>
+                        <div class="info">
+                            <div class="label">Battery</div>
+                            <div class="value">${n>=70?"Good":n>=30?"Low":"Critical"}</div>
+                        </div>
                     </div>
-                    <div class="connection-status ${r?"connected":"disconnected"}">
-                        <span class="status-pulse"></span>
-                        ${r?"Connected":"Offline"}
-                    </div>
-                </div>
 
-                <!-- Telemetry Dashboard -->
-                <div class="telemetry-grid">
-                    <div class="telemetry-card">
-                        <div class="telemetry-icon">🔋</div>
-                        <div class="telemetry-value">${o.battery||0}%</div>
-                        <div class="telemetry-label">Battery</div>
-                    </div>
-                    <div class="telemetry-card">
-                        <div class="telemetry-icon">📡</div>
-                        <div class="telemetry-value">${o.signal||"N/A"}</div>
-                        <div class="telemetry-label">Signal</div>
-                    </div>
-                    <div class="telemetry-card">
-                        <div class="telemetry-icon">⚡</div>
-                        <div class="telemetry-value">${o.isMoving?"Yes":"No"}</div>
-                        <div class="telemetry-label">Moving</div>
-                    </div>
-                    <div class="telemetry-card">
-                        <div class="telemetry-icon">🚧</div>
-                        <div class="telemetry-value">${o.frontSensor?"Detected":"Clear"}</div>
-                        <div class="telemetry-label">Obstacle</div>
-                    </div>
-                </div>
-
-                <!-- Control Panel -->
-                <div class="control-panel">
-                    <div class="control-section">
-                        <h3 style="margin-bottom: 1rem; text-align: center;">Directional Controls</h3>
-                        <div class="control-grid">
-                            <div style="grid-column: 2; text-align: center;">
-                                <button class="control-btn" 
-                                    onmousedown="window.sendCarCommand('forward')"
-                                    onmouseup="window.sendCarCommand('stop')"
-                                    ontouchstart="window.sendCarCommand('forward')"
-                                    ontouchend="window.sendCarCommand('stop')"
-                                    ${r?"":"disabled"}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="19" x2="12" y2="5"></line>
-                                        <polyline points="5 12 12 5 19 12"></polyline>
-                                    </svg>
-                                    <div>Forward</div>
-                                </button>
-                            </div>
-                            <div style="grid-column: 1; text-align: center;">
-                                <button class="control-btn"
-                                    onmousedown="window.sendCarCommand('left')"
-                                    onmouseup="window.sendCarCommand('stop')"
-                                    ontouchstart="window.sendCarCommand('left')"
-                                    ontouchend="window.sendCarCommand('stop')"
-                                    ${r?"":"disabled"}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                                        <polyline points="12 19 5 12 12 5"></polyline>
-                                    </svg>
-                                    <div>Left</div>
-                                </button>
-                            </div>
-                            <div style="grid-column: 2; text-align: center;">
-                                <button class="control-btn stop-btn"
-                                    onclick="window.sendCarCommand('stop')"
-                                    ${r?"":"disabled"}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                                        <rect x="6" y="6" width="12" height="12"></rect>
-                                    </svg>
-                                    <div>STOP</div>
-                                </button>
-                            </div>
-                            <div style="grid-column: 3; text-align: center;">
-                                <button class="control-btn"
-                                    onmousedown="window.sendCarCommand('right')"
-                                    onmouseup="window.sendCarCommand('stop')"
-                                    ontouchstart="window.sendCarCommand('right')"
-                                    ontouchend="window.sendCarCommand('stop')"
-                                    ${r?"":"disabled"}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
-                                    </svg>
-                                    <div>Right</div>
-                                </button>
-                            </div>
-                            <div style="grid-column: 2; text-align: center;">
-                                <button class="control-btn"
-                                    onmousedown="window.sendCarCommand('backward')"
-                                    onmouseup="window.sendCarCommand('stop')"
-                                    ontouchstart="window.sendCarCommand('backward')"
-                                    ontouchend="window.sendCarCommand('stop')"
-                                    ${r?"":"disabled"}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <polyline points="19 12 12 19 5 12"></polyline>
-                                    </svg>
-                                    <div>Backward</div>
-                                </button>
+                    <!-- Signal Strength -->
+                    <div class="hud-group">
+                        <div class="icon-box">
+                            <div class="signal-bars">
+                                <div class="bar ${l>=1?"active":""}"></div>
+                                <div class="bar ${l>=2?"active":""}"></div>
+                                <div class="bar ${l>=3?"active":""}"></div>
+                                <div class="bar ${l>=4?"active":""}"></div>
                             </div>
                         </div>
-                        <p style="text-align: center; color: var(--text-muted); margin-top: 1rem; font-size: 0.875rem;">
-                            Or use keyboard: W/A/S/D or Arrow Keys
-                        </p>
+                        <div class="info">
+                            <div class="label">Signal</div>
+                            <div class="value">${o.signal||0}%</div>
+                        </div>
+                    </div>
+
+                    <!-- Movement Status -->
+                    <div class="hud-group">
+                        <div class="icon-box">⚡</div>
+                        <div class="info">
+                            <div class="label">Status</div>
+                            <div class="value">${o.isMoving?"Moving":"Idle"}</div>
+                        </div>
+                    </div>
+
+                    <!-- Connection Status -->
+                    <div class="hud-group">
+                        <div class="icon-box">${r?"🟢":"🔴"}</div>
+                        <div class="info">
+                            <div class="label">Connection</div>
+                            <div class="value">${r?"Online":"Offline"}</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Command Log -->
-                <div class="command-log">
-                    <h4 style="margin-bottom: 0.5rem;">Activity Log</h4>
-                    <div id="commandLogContent" class="log-content">
-                        <div class="log-entry">Ready to control ${t.deviceName}</div>
+                <!-- Obstacle Alert (only show if detected) -->
+                ${o.frontSensor?`
+                    <div class="obstacle-alert">
+                        ⚠️ OBSTACLE DETECTED AHEAD
+                    </div>
+                `:""}
+
+                <!-- Control Deck (D-Pad) -->
+                <div class="control-deck">
+                    <div class="d-pad-grid">
+                        <button class="d-pad-btn" data-dir="forward"
+                            onmousedown="window.sendCarCommand('forward')"
+                            onmouseup="window.sendCarCommand('stop')"
+                            ontouchstart="window.sendCarCommand('forward')"
+                            ontouchend="window.sendCarCommand('stop')"
+                            ${r?"":"disabled"}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <polyline points="5 12 12 5 19 12"></polyline>
+                            </svg>
+                            <span>FWD</span>
+                        </button>
+                        
+                        <button class="d-pad-btn" data-dir="left"
+                            onmousedown="window.sendCarCommand('left')"
+                            onmouseup="window.sendCarCommand('stop')"
+                            ontouchstart="window.sendCarCommand('left')"
+                            ontouchend="window.sendCarCommand('stop')"
+                            ${r?"":"disabled"}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="19" y1="12" x2="5" y2="12"></line>
+                                <polyline points="12 19 5 12 12 5"></polyline>
+                            </svg>
+                            <span>LEFT</span>
+                        </button>
+                        
+                        <button class="d-pad-btn stop" data-dir="stop"
+                            onclick="window.sendCarCommand('stop')"
+                            ${r?"":"disabled"}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <rect x="6" y="6" width="12" height="12"></rect>
+                            </svg>
+                            <span>STOP</span>
+                        </button>
+                        
+                        <button class="d-pad-btn" data-dir="right"
+                            onmousedown="window.sendCarCommand('right')"
+                            onmouseup="window.sendCarCommand('stop')"
+                            ontouchstart="window.sendCarCommand('right')"
+                            ontouchend="window.sendCarCommand('stop')"
+                            ${r?"":"disabled"}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                            <span>RIGHT</span>
+                        </button>
+                        
+                        <button class="d-pad-btn" data-dir="backward"
+                            onmousedown="window.sendCarCommand('backward')"
+                            onmouseup="window.sendCarCommand('stop')"
+                            ontouchstart="window.sendCarCommand('backward')"
+                            ontouchend="window.sendCarCommand('stop')"
+                            ${r?"":"disabled"}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <polyline points="19 12 12 19 5 12"></polyline>
+                            </svg>
+                            <span>BWD</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Bar -->
+                <div class="action-bar">
+                    <!-- Speed Control -->
+                    <div class="speed-control">
+                        <div class="label-row">
+                            <span>Speed</span>
+                            <span id="speedValue">50%</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="50" class="cyber-slider" id="speedSlider"
+                            oninput="document.getElementById('speedValue').textContent = this.value + '%'">
+                    </div>
+
+                    <!-- Auxiliary Controls -->
+                    <div class="aux-controls">
+                        <button class="cyber-toggle-btn" id="lightsToggle" onclick="window.toggleLights()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                            <span>Lights</span>
+                        </button>
+                        <button class="cyber-toggle-btn" id="hornToggle" onclick="window.toggleHorn()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                            </svg>
+                            <span>Horn</span>
+                        </button>
                     </div>
                 </div>
             </div>
+
+            <p style="text-align: center; color: var(--cyber-text-muted); margin-top: 1rem; font-size: 0.875rem;">
+                Use WASD or Arrow Keys to control
+            </p>
         </div>
-    `},Y=()=>{if(!i.currentUser)return g("login"),"";const t=i.cart.filter(n=>n.selected!==!1);if(t.length===0)return l("No items selected for checkout"),g("cart"),"";const e=t.reduce((n,s)=>n+s.price*s.quantity,0),o=i.checkoutData.shippingFee,r=e+o;return`
+    `},Y=()=>{if(!i.currentUser)return g("login"),"";const t=i.cart.filter(n=>n.selected!==!1);if(t.length===0)return c("No items selected for checkout"),g("cart"),"";const e=t.reduce((n,s)=>n+s.price*s.quantity,0),o=i.checkoutData.shippingFee,r=e+o;return`
         <div class="checkout-container" style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <div style="margin-bottom: 2rem;">
                 <button class="btn btn-outline" onclick="window.navigate('cart')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
@@ -1531,7 +1578,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 </div>
             </div>
         </div>
-    `};window.updateOrderStatus=(t,e)=>{const o=i.orders.find(r=>r.id===t);o&&(o.status=e,w(),l(`Order #${t} updated to ${e}`),v())};window.toggleSelectAll=t=>{document.querySelectorAll(".product-checkbox").forEach(o=>o.checked=t.checked)};window.bulkAction=t=>{const e=document.querySelectorAll(".product-checkbox:checked"),o=Array.from(e).map(r=>parseInt(r.value));if(o.length===0){l("No products selected");return}t==="delete"?confirm(`Delete ${o.length} products?`)&&(i.products=i.products.filter(r=>!o.includes(r.id)),w(),v(),l("Products deleted")):t==="restock"&&(i.products.forEach(r=>{o.includes(r.id)&&(r.stock+=10)}),w(),v(),l("Products restocked"))};window.viewOrderDetails=t=>{const e=i.orders.find(n=>n.id===t);if(!e)return;const o=i.users.find(n=>n.id===e.userId),r=`
+    `};window.updateOrderStatus=(t,e)=>{const o=i.orders.find(r=>r.id===t);o&&(o.status=e,w(),c(`Order #${t} updated to ${e}`),v())};window.toggleSelectAll=t=>{document.querySelectorAll(".product-checkbox").forEach(o=>o.checked=t.checked)};window.bulkAction=t=>{const e=document.querySelectorAll(".product-checkbox:checked"),o=Array.from(e).map(r=>parseInt(r.value));if(o.length===0){c("No products selected");return}t==="delete"?confirm(`Delete ${o.length} products?`)&&(i.products=i.products.filter(r=>!o.includes(r.id)),w(),v(),c("Products deleted")):t==="restock"&&(i.products.forEach(r=>{o.includes(r.id)&&(r.stock+=10)}),w(),v(),c("Products restocked"))};window.viewOrderDetails=t=>{const e=i.orders.find(n=>n.id===t);if(!e)return;const o=i.users.find(n=>n.id===e.userId),r=`
         <div class="modal-overlay show" id="orderModal" onclick="if(event.target === this) window.closeModal()">
             <div class="modal-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -1566,7 +1613,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 </div>
             </div>
         </div>
-    `;document.body.insertAdjacentHTML("beforeend",r)};window.closeModal=()=>{const t=document.getElementById("orderModal");t&&t.remove()};const te=()=>{if(!i.currentUser||i.currentUser.role!=="admin")return g("home"),"";i.orders.length===0&&f.getOrders();const t=i.orders.reduce((a,u)=>a+u.total,0),e=i.orders.length;i.products.length;const o=i.users.filter(a=>a.role==="customer").length,r=i.products.filter(a=>a.stock<10);i.products.filter(a=>a.stock===0);const n=i.orders.slice(0,5),s=e>0?t/e:0,d={};i.products.forEach(a=>{d[a.category]=(d[a.category]||0)+1});const c=Object.entries(d).map(([a,u])=>({name:a,count:u})),p=[450,720,550,890,600,950,1200],h=Math.max(...p);return`
+    `;document.body.insertAdjacentHTML("beforeend",r)};window.closeModal=()=>{const t=document.getElementById("orderModal");t&&t.remove()};const te=()=>{if(!i.currentUser||i.currentUser.role!=="admin")return g("home"),"";i.orders.length===0&&f.getOrders();const t=i.orders.reduce((a,u)=>a+u.total,0),e=i.orders.length;i.products.length;const o=i.users.filter(a=>a.role==="customer").length,r=i.products.filter(a=>a.stock<10);i.products.filter(a=>a.stock===0);const n=i.orders.slice(0,5),s=e>0?t/e:0,d={};i.products.forEach(a=>{d[a.category]=(d[a.category]||0)+1});const l=Object.entries(d).map(([a,u])=>({name:a,count:u})),p=[450,720,550,890,600,950,1200],h=Math.max(...p);return`
         <div class="admin-container">
             <div class="admin-header">
                 <div style="display: flex; align-items: center;">
@@ -1607,11 +1654,11 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                     </div>
                     <div class="donut-chart">
                         <div class="donut-hole">
-                            ${c.length} Cats
+                            ${l.length} Cats
                         </div>
                     </div>
                     <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-                        ${c.slice(0,3).map(a=>`<span class="badge badge-info">${a.name}: ${a.count}</span>`).join("")}
+                        ${l.slice(0,3).map(a=>`<span class="badge badge-info">${a.name}: ${a.count}</span>`).join("")}
                     </div>
                 </div>
 
@@ -1855,7 +1902,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 </form>
             </div>
         </div>
-    `};window.navigate=g;window.toggleMobileMenu=()=>{i.mobileMenuOpen=!i.mobileMenuOpen,v()};window.showProductModal=(t=null)=>{document.body.insertAdjacentHTML("beforeend",ie(t))};window.closeProductModal=()=>{document.getElementById("productModal")?.remove()};window.editProduct=t=>{window.showProductModal(t)};window.deleteProduct=async t=>{if(confirm("Delete this product?"))try{await b(`/products/${t}`,{method:"DELETE"}),await f.getProducts(),l("Product deleted")}catch{l("Delete failed")}};window.handleProductSubmit=async(t,e)=>{t.preventDefault();const o=new FormData(t.target);try{const r=e?"PUT":"POST",n=e?`/products/${e}`:"/products";if(!(await fetch(`${M}${n}`,{method:r,body:o})).ok)throw new Error("Failed");await f.getProducts(),window.closeProductModal(),l(e?"Product updated!":"Product created!")}catch{l("Operation failed")}};window.handleSort=t=>{i.sortBy=t,v()};window.viewProduct=t=>{i.currentProductId=t,g("product-detail")};window.adjustDetailQty=t=>{const e=document.getElementById("detailQty");let o=parseInt(e.value)+t;o<1&&(o=1),e.value=o};window.addToCartFromDetail=t=>{const e=parseInt(document.getElementById("detailQty").value);if(!i.currentUser){l("Please login to shop"),g("login");return}const o=i.products.find(n=>n.id===t),r=i.cart.find(n=>n.id===t);r?r.quantity+=e:i.cart.push({...o,quantity:e}),w(),l(`Added ${e} item(s) to cart`)};window.addToCart=async t=>{if(!i.currentUser){l("Please login to shop"),g("login");return}const e=i.products.find(r=>r.id===t),o=i.cart.find(r=>r.id===t);o?o.quantity+=1:i.cart.push({...e,quantity:1}),w(),v(),l("Added to cart"),i.currentUser&&await b(`/users/${i.currentUser.id}/cart`,{method:"PUT",body:JSON.stringify({cart:i.cart.map(r=>({productId:r.id,name:r.name,price:r.price,image:r.image,quantity:r.quantity,category:r.category,selected:r.selected!==!1}))})})};window.updateQuantity=(t,e)=>{if(e<1){window.removeFromCart(t);return}const o=i.cart.find(r=>r.id===t);o&&(o.quantity=e,w(),v())};window.removeFromCart=t=>{i.cart=i.cart.filter(e=>e.id!==t),w(),v()};window.checkout=async()=>{if(i.cart.length===0)return;if(!i.currentUser){l("Please login to checkout"),g("login");return}if(i.cart.filter(e=>e.selected!==!1).length===0){l("No items selected for checkout");return}g("checkout")};window.updateShippingInfo=(t,e)=>{i.checkoutData.shipping[t]=e};window.selectPaymentMethod=t=>{i.checkoutData.paymentMethod=t,v()};window.handlePhoneInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.phone=e};window.handleNameInput=t=>{const e=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=e,i.checkoutData.shipping.fullName=e};window.handleLocationInput=(t,e)=>{const o=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=o,i.checkoutData.shipping[e]=o};window.handlePostalInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.postalCode=e};window.showPaymentModal=t=>new Promise(e=>{let o="";const r=`
+    `};window.navigate=g;window.toggleMobileMenu=()=>{i.mobileMenuOpen=!i.mobileMenuOpen,v()};window.showProductModal=(t=null)=>{document.body.insertAdjacentHTML("beforeend",ie(t))};window.closeProductModal=()=>{document.getElementById("productModal")?.remove()};window.editProduct=t=>{window.showProductModal(t)};window.deleteProduct=async t=>{if(confirm("Delete this product?"))try{await b(`/products/${t}`,{method:"DELETE"}),await f.getProducts(),c("Product deleted")}catch{c("Delete failed")}};window.handleProductSubmit=async(t,e)=>{t.preventDefault();const o=new FormData(t.target);try{const r=e?"PUT":"POST",n=e?`/products/${e}`:"/products";if(!(await fetch(`${M}${n}`,{method:r,body:o})).ok)throw new Error("Failed");await f.getProducts(),window.closeProductModal(),c(e?"Product updated!":"Product created!")}catch{c("Operation failed")}};window.handleSort=t=>{i.sortBy=t,v()};window.viewProduct=t=>{i.currentProductId=t,g("product-detail")};window.adjustDetailQty=t=>{const e=document.getElementById("detailQty");let o=parseInt(e.value)+t;o<1&&(o=1),e.value=o};window.addToCartFromDetail=t=>{const e=parseInt(document.getElementById("detailQty").value);if(!i.currentUser){c("Please login to shop"),g("login");return}const o=i.products.find(n=>n.id===t),r=i.cart.find(n=>n.id===t);r?r.quantity+=e:i.cart.push({...o,quantity:e}),w(),c(`Added ${e} item(s) to cart`)};window.addToCart=async t=>{if(!i.currentUser){c("Please login to shop"),g("login");return}const e=i.products.find(r=>r.id===t),o=i.cart.find(r=>r.id===t);o?o.quantity+=1:i.cart.push({...e,quantity:1}),w(),v(),c("Added to cart"),i.currentUser&&await b(`/users/${i.currentUser.id}/cart`,{method:"PUT",body:JSON.stringify({cart:i.cart.map(r=>({productId:r.id,name:r.name,price:r.price,image:r.image,quantity:r.quantity,category:r.category,selected:r.selected!==!1}))})})};window.updateQuantity=(t,e)=>{if(e<1){window.removeFromCart(t);return}const o=i.cart.find(r=>r.id===t);o&&(o.quantity=e,w(),v())};window.removeFromCart=t=>{i.cart=i.cart.filter(e=>e.id!==t),w(),v()};window.checkout=async()=>{if(i.cart.length===0)return;if(!i.currentUser){c("Please login to checkout"),g("login");return}if(i.cart.filter(e=>e.selected!==!1).length===0){c("No items selected for checkout");return}g("checkout")};window.updateShippingInfo=(t,e)=>{i.checkoutData.shipping[t]=e};window.selectPaymentMethod=t=>{i.checkoutData.paymentMethod=t,v()};window.handlePhoneInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.phone=e};window.handleNameInput=t=>{const e=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=e,i.checkoutData.shipping.fullName=e};window.handleLocationInput=(t,e)=>{const o=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=o,i.checkoutData.shipping[e]=o};window.handlePostalInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.postalCode=e};window.showPaymentModal=t=>new Promise(e=>{let o="";const r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="payment-modal-header">
@@ -1908,7 +1955,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const n=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentAmountInput"),d=document.getElementById("paymentError"),c=document.getElementById("paymentChangeDisplay"),p=document.getElementById("changeAmount"),h=document.getElementById("paymentConfirmBtn"),a=document.getElementById("paymentCancelBtn");setTimeout(()=>s.focus(),100),s.addEventListener("input",u=>{let y=u.target.value.replace(/[^0-9.]/g,"");const P=y.split(".");P.length>2&&(y=P[0]+"."+P.slice(1).join("")),u.target.value=y,o=y;const k=parseFloat(y);if(!y||isNaN(k)||k<0){d.textContent="",d.classList.remove("show"),s.classList.remove("error"),h.disabled=!0,c.classList.remove("show");return}if(k<t){const D=t-k;d.textContent=`Insufficient! Need ${m(D)} more`,d.classList.add("show"),s.classList.add("error"),h.disabled=!0,c.classList.remove("show")}else{const D=k-t;d.classList.remove("show"),s.classList.remove("error"),h.disabled=!1,c.classList.add("show"),p.textContent=m(D)}}),document.querySelectorAll(".quick-amount-btn").forEach(u=>{u.addEventListener("click",()=>{const y=u.getAttribute("data-amount");s.value=y,s.dispatchEvent(new Event("input"))})}),a.addEventListener("click",()=>{n.remove(),e(null)}),n.addEventListener("click",u=>{u.target===n&&(n.remove(),e(null))}),h.addEventListener("click",()=>{const u=parseFloat(o);u>=t&&(n.remove(),e({amountPaid:u,change:u-t}))}),s.addEventListener("keypress",u=>{u.key==="Enter"&&!h.disabled&&h.click()}),document.addEventListener("keydown",function u(y){y.key==="Escape"&&(n.remove(),e(null),document.removeEventListener("keydown",u))})});window.showGCashModal=t=>new Promise(e=>{const o="GCASH-"+Date.now().toString().slice(-8),r=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const n=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentAmountInput"),d=document.getElementById("paymentError"),l=document.getElementById("paymentChangeDisplay"),p=document.getElementById("changeAmount"),h=document.getElementById("paymentConfirmBtn"),a=document.getElementById("paymentCancelBtn");setTimeout(()=>s.focus(),100),s.addEventListener("input",u=>{let y=u.target.value.replace(/[^0-9.]/g,"");const P=y.split(".");P.length>2&&(y=P[0]+"."+P.slice(1).join("")),u.target.value=y,o=y;const k=parseFloat(y);if(!y||isNaN(k)||k<0){d.textContent="",d.classList.remove("show"),s.classList.remove("error"),h.disabled=!0,l.classList.remove("show");return}if(k<t){const D=t-k;d.textContent=`Insufficient! Need ${m(D)} more`,d.classList.add("show"),s.classList.add("error"),h.disabled=!0,l.classList.remove("show")}else{const D=k-t;d.classList.remove("show"),s.classList.remove("error"),h.disabled=!1,l.classList.add("show"),p.textContent=m(D)}}),document.querySelectorAll(".quick-amount-btn").forEach(u=>{u.addEventListener("click",()=>{const y=u.getAttribute("data-amount");s.value=y,s.dispatchEvent(new Event("input"))})}),a.addEventListener("click",()=>{n.remove(),e(null)}),n.addEventListener("click",u=>{u.target===n&&(n.remove(),e(null))}),h.addEventListener("click",()=>{const u=parseFloat(o);u>=t&&(n.remove(),e({amountPaid:u,change:u-t}))}),s.addEventListener("keypress",u=>{u.key==="Enter"&&!h.disabled&&h.click()}),document.addEventListener("keydown",function u(y){y.key==="Escape"&&(n.remove(),e(null),document.removeEventListener("keydown",u))})});window.showGCashModal=t=>new Promise(e=>{const o="GCASH-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -1976,7 +2023,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const n=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentConfirmBtn"),d=document.getElementById("paymentCancelBtn"),c=document.getElementById("processingOverlay"),p=document.getElementById("successOverlay");d.addEventListener("click",()=>{n.remove(),e(null)}),s.addEventListener("click",()=>{c.classList.add("show"),setTimeout(()=>{c.classList.remove("show"),p.classList.add("show"),setTimeout(()=>{n.remove(),e({method:"gcash",reference:o})},1e3)},1500)}),n.addEventListener("click",h=>{h.target===n&&(n.remove(),e(null))})});window.showMayaModal=t=>new Promise(e=>{const o="MAYA-"+Date.now().toString().slice(-8),r=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const n=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentConfirmBtn"),d=document.getElementById("paymentCancelBtn"),l=document.getElementById("processingOverlay"),p=document.getElementById("successOverlay");d.addEventListener("click",()=>{n.remove(),e(null)}),s.addEventListener("click",()=>{l.classList.add("show"),setTimeout(()=>{l.classList.remove("show"),p.classList.add("show"),setTimeout(()=>{n.remove(),e({method:"gcash",reference:o})},1e3)},1500)}),n.addEventListener("click",h=>{h.target===n&&(n.remove(),e(null))})});window.showMayaModal=t=>new Promise(e=>{const o="MAYA-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -2044,7 +2091,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const n=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentConfirmBtn"),d=document.getElementById("paymentCancelBtn"),c=document.getElementById("processingOverlay"),p=document.getElementById("successOverlay");d.addEventListener("click",()=>{n.remove(),e(null)}),s.addEventListener("click",()=>{c.classList.add("show"),setTimeout(()=>{c.classList.remove("show"),p.classList.add("show"),setTimeout(()=>{n.remove(),e({method:"maya",reference:o})},1e3)},1500)}),n.addEventListener("click",h=>{h.target===n&&(n.remove(),e(null))})});window.showCardModal=t=>new Promise(e=>{const d=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const n=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentConfirmBtn"),d=document.getElementById("paymentCancelBtn"),l=document.getElementById("processingOverlay"),p=document.getElementById("successOverlay");d.addEventListener("click",()=>{n.remove(),e(null)}),s.addEventListener("click",()=>{l.classList.add("show"),setTimeout(()=>{l.classList.remove("show"),p.classList.add("show"),setTimeout(()=>{n.remove(),e({method:"maya",reference:o})},1e3)},1500)}),n.addEventListener("click",h=>{h.target===n&&(n.remove(),e(null))})});window.showCardModal=t=>new Promise(e=>{const d=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -2128,7 +2175,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",d);const c=document.getElementById("paymentModalOverlay"),p=document.getElementById("paymentConfirmBtn"),h=document.getElementById("paymentCancelBtn"),a=document.getElementById("processingOverlay"),u=document.getElementById("successOverlay");h.addEventListener("click",()=>{c.remove(),e(null)}),p.addEventListener("click",()=>{a.classList.add("show"),setTimeout(()=>{a.classList.remove("show"),u.classList.add("show"),setTimeout(()=>{c.remove(),e({method:"card",last4:"1111"})},1e3)},2e3)}),c.addEventListener("click",y=>{y.target===c&&(c.remove(),e(null))})});window.showBankModal=t=>new Promise(e=>{const o="BDO-"+Date.now().toString().slice(-8),r=`
+        `;document.body.insertAdjacentHTML("beforeend",d);const l=document.getElementById("paymentModalOverlay"),p=document.getElementById("paymentConfirmBtn"),h=document.getElementById("paymentCancelBtn"),a=document.getElementById("processingOverlay"),u=document.getElementById("successOverlay");h.addEventListener("click",()=>{l.remove(),e(null)}),p.addEventListener("click",()=>{a.classList.add("show"),setTimeout(()=>{a.classList.remove("show"),u.classList.add("show"),setTimeout(()=>{l.remove(),e({method:"card",last4:"1111"})},1e3)},2e3)}),l.addEventListener("click",y=>{y.target===l&&(l.remove(),e(null))})});window.showBankModal=t=>new Promise(e=>{const o="BDO-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -2199,7 +2246,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const n=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentConfirmBtn"),d=document.getElementById("paymentCancelBtn"),c=document.getElementById("processingOverlay"),p=document.getElementById("successOverlay");d.addEventListener("click",()=>{n.remove(),e(null)}),s.addEventListener("click",()=>{c.classList.add("show"),setTimeout(()=>{c.classList.remove("show"),p.classList.add("show"),setTimeout(()=>{n.remove(),e({method:"bank",reference:o})},1e3)},1500)}),n.addEventListener("click",h=>{h.target===n&&(n.remove(),e(null))})});window.placeOrder=async()=>{const t=i.checkoutData.shipping;if(!t.fullName||!t.fullName.trim()){l("Please enter your full name");return}if(!t.address||!t.address.trim()){l("Please enter your address");return}if(!t.city||!t.city.trim()){l("Please enter your city");return}if(!t.province||!t.province.trim()){l("Please enter your province");return}if(!t.phone||!t.phone.trim()){l("Please enter your phone number");return}if(!/^09\d{9}$/.test(t.phone)){l('Phone number must start with "09" and contain exactly 11 digits');return}const o=/^[a-zA-Z\s]+$/;if(!o.test(t.fullName)){l("Full Name must contain letters and spaces only");return}if(!o.test(t.city)){l("City must contain letters and spaces only");return}if(!o.test(t.province)){l("Province must contain letters and spaces only");return}if(t.postalCode&&!/^\d+$/.test(t.postalCode)){l("Postal Code must contain numbers only");return}if(!i.checkoutData.paymentMethod){l("Please select a payment method");return}const r=i.cart.filter(a=>a.selected!==!1),s=r.reduce((a,u)=>a+u.price*u.quantity,0)+i.checkoutData.shippingFee;let d=null;switch(i.checkoutData.paymentMethod){case"cod":d=await showPaymentModal(s);break;case"gcash":d=await showGCashModal(s);break;case"maya":d=await showMayaModal(s);break;case"card":d=await showCardModal(s);break;case"bank":d=await showBankModal(s);break;default:l("Please select a payment method");return}if(!d)return;let c=d.amountPaid||s,p=d.change||0;const h={userId:i.currentUser.id,items:r.map(a=>({productId:a.id,quantity:a.quantity,price:a.price,name:a.name})),total:s,shippingInfo:i.checkoutData.shipping,paymentMethod:i.checkoutData.paymentMethod,shippingFee:i.checkoutData.shippingFee,amountPaid:c,change:p};try{const a=await f.createOrder(h);i.lastOrderId=a.orderId,i.lastOrderPayment={amountPaid:c,change:p},i.orders.push({orderId:a.orderId,...a,items:r,total:s,createdAt:new Date().toISOString(),userId:i.currentUser.id,devices:a.devices||[]}),i.cart=i.cart.filter(u=>u.selected===!1),w(),g("order-confirmation")}catch{}};window.printReceipt=()=>{if(!i.lastOrderId){l("No order found to print");return}const t=i.orders.find(s=>s.orderId===i.lastOrderId);if(!t){l("Order not found");return}const e=i.lastOrderPayment||{},o=new Date,r=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const n=document.getElementById("paymentModalOverlay"),s=document.getElementById("paymentConfirmBtn"),d=document.getElementById("paymentCancelBtn"),l=document.getElementById("processingOverlay"),p=document.getElementById("successOverlay");d.addEventListener("click",()=>{n.remove(),e(null)}),s.addEventListener("click",()=>{l.classList.add("show"),setTimeout(()=>{l.classList.remove("show"),p.classList.add("show"),setTimeout(()=>{n.remove(),e({method:"bank",reference:o})},1e3)},1500)}),n.addEventListener("click",h=>{h.target===n&&(n.remove(),e(null))})});window.placeOrder=async()=>{const t=i.checkoutData.shipping;if(!t.fullName||!t.fullName.trim()){c("Please enter your full name");return}if(!t.address||!t.address.trim()){c("Please enter your address");return}if(!t.city||!t.city.trim()){c("Please enter your city");return}if(!t.province||!t.province.trim()){c("Please enter your province");return}if(!t.phone||!t.phone.trim()){c("Please enter your phone number");return}if(!/^09\d{9}$/.test(t.phone)){c('Phone number must start with "09" and contain exactly 11 digits');return}const o=/^[a-zA-Z\s]+$/;if(!o.test(t.fullName)){c("Full Name must contain letters and spaces only");return}if(!o.test(t.city)){c("City must contain letters and spaces only");return}if(!o.test(t.province)){c("Province must contain letters and spaces only");return}if(t.postalCode&&!/^\d+$/.test(t.postalCode)){c("Postal Code must contain numbers only");return}if(!i.checkoutData.paymentMethod){c("Please select a payment method");return}const r=i.cart.filter(a=>a.selected!==!1),s=r.reduce((a,u)=>a+u.price*u.quantity,0)+i.checkoutData.shippingFee;let d=null;switch(i.checkoutData.paymentMethod){case"cod":d=await showPaymentModal(s);break;case"gcash":d=await showGCashModal(s);break;case"maya":d=await showMayaModal(s);break;case"card":d=await showCardModal(s);break;case"bank":d=await showBankModal(s);break;default:c("Please select a payment method");return}if(!d)return;let l=d.amountPaid||s,p=d.change||0;const h={userId:i.currentUser.id,items:r.map(a=>({productId:a.id,quantity:a.quantity,price:a.price,name:a.name})),total:s,shippingInfo:i.checkoutData.shipping,paymentMethod:i.checkoutData.paymentMethod,shippingFee:i.checkoutData.shippingFee,amountPaid:l,change:p};try{const a=await f.createOrder(h);i.lastOrderId=a.orderId,i.lastOrderPayment={amountPaid:l,change:p},i.orders.push({orderId:a.orderId,...a,items:r,total:s,createdAt:new Date().toISOString(),userId:i.currentUser.id,devices:a.devices||[]}),i.cart=i.cart.filter(u=>u.selected===!1),w(),g("order-confirmation")}catch{}};window.printReceipt=()=>{if(!i.lastOrderId){c("No order found to print");return}const t=i.orders.find(s=>s.orderId===i.lastOrderId);if(!t){c("Order not found");return}const e=i.lastOrderPayment||{},o=new Date,r=`
         <!DOCTYPE html>
         <html>
         <head>
@@ -2471,7 +2518,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                     </div>
                 `:""}
             </div>
-        `;t.insertAdjacentHTML("beforeend",o)}}window.showSearchSuggestions=()=>{i.searchQuery&&(i.showSuggestions=!0,T())};window.selectSuggestion=t=>{i.searchQuery=t,i.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=t),handleSearch()};window.handleSearch=()=>{i.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(i.searchQuery=t.value.trim()),g("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{i.searchQuery="",i.showSuggestions=!1,i.searchSuggestions=[],v()};document.addEventListener("click",t=>{if(!t.target.closest(".search-container")&&i.showSuggestions){i.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async t=>{console.log("Login attempt started"),t.preventDefault();const e=t.target.email.value,o=t.target.password.value;console.log("Credentials:",{email:e,password:o});try{await f.login(e,o),console.log("Login successful")}catch(r){console.error("Login error:",r)}};window.handleSignup=async t=>{console.log("Signup attempt started"),t.preventDefault();const e=t.target.name.value,o=t.target.email.value,r=t.target.password.value;try{await f.register(e,o,r)}catch(n){console.error("Signup error:",n)}};window.logout=()=>{i.currentUser=null,i.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),l("Logged out successfully"),sessionStorage.removeItem("currentRoute"),g("home")};window.handleContactSubmit=t=>{t.preventDefault();const e=t.target,o={name:e.name.value,email:e.email.value,subject:e.subject.value,message:e.message.value};console.log("Contact form submitted:",o),l("Thank you for your message! We will get back to you soon."),e.reset()};window.deleteProduct=t=>{confirm("Are you sure you want to remove this product?")&&(i.products=i.products.filter(e=>e.id!==t),w(),v(),l("Product removed"))};window.viewOrderDetails=t=>{const e=i.orders.find(d=>d.orderId===t);if(!e){l("Order not found");return}const o=i.users.find(d=>d.id===e.userId),r=o?o.name:`User ID: ${e.userId}`,n=document.createElement("div");n.className="order-details-modal",n.innerHTML=`
+        `;t.insertAdjacentHTML("beforeend",o)}}window.showSearchSuggestions=()=>{i.searchQuery&&(i.showSuggestions=!0,T())};window.selectSuggestion=t=>{i.searchQuery=t,i.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=t),handleSearch()};window.handleSearch=()=>{i.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(i.searchQuery=t.value.trim()),g("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{i.searchQuery="",i.showSuggestions=!1,i.searchSuggestions=[],v()};document.addEventListener("click",t=>{if(!t.target.closest(".search-container")&&i.showSuggestions){i.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async t=>{console.log("Login attempt started"),t.preventDefault();const e=t.target.email.value,o=t.target.password.value;console.log("Credentials:",{email:e,password:o});try{await f.login(e,o),console.log("Login successful")}catch(r){console.error("Login error:",r)}};window.handleSignup=async t=>{console.log("Signup attempt started"),t.preventDefault();const e=t.target.name.value,o=t.target.email.value,r=t.target.password.value;try{await f.register(e,o,r)}catch(n){console.error("Signup error:",n)}};window.logout=()=>{i.currentUser=null,i.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),c("Logged out successfully"),sessionStorage.removeItem("currentRoute"),g("home")};window.handleContactSubmit=t=>{t.preventDefault();const e=t.target,o={name:e.name.value,email:e.email.value,subject:e.subject.value,message:e.message.value};console.log("Contact form submitted:",o),c("Thank you for your message! We will get back to you soon."),e.reset()};window.deleteProduct=t=>{confirm("Are you sure you want to remove this product?")&&(i.products=i.products.filter(e=>e.id!==t),w(),v(),c("Product removed"))};window.viewOrderDetails=t=>{const e=i.orders.find(d=>d.orderId===t);if(!e){c("Order not found");return}const o=i.users.find(d=>d.id===e.userId),r=o?o.name:`User ID: ${e.userId}`,n=document.createElement("div");n.className="order-details-modal",n.innerHTML=`
         <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -2519,7 +2566,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(n);const s=d=>{d.key==="Escape"&&(n.remove(),document.removeEventListener("keydown",s))};document.addEventListener("keydown",s)};const v=()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=E();break;case"products":e=R();break;case"product-detail":e=F();break;case"login":e=H();break;case"signup":e=Q();break;case"cart":e=V();break;case"checkout":e=Y();break;case"order-confirmation":e=J();break;case"contact-us":e=K();break;case"about-us":e=X();break;case"learn":e=Z();break;case"deals":e=ee();break;case"admin":e=te();break;case"my-devices":e=W();break;case"device-pair":e=_();break;case"remote-control":e=G();break;default:e=E()}t.innerHTML=`
+    `,document.body.appendChild(n);const s=d=>{d.key==="Escape"&&(n.remove(),document.removeEventListener("keydown",s))};document.addEventListener("keydown",s)};const v=()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=E();break;case"products":e=H();break;case"product-detail":e=F();break;case"login":e=R();break;case"signup":e=Q();break;case"cart":e=V();break;case"checkout":e=Y();break;case"order-confirmation":e=J();break;case"contact-us":e=K();break;case"about-us":e=X();break;case"learn":e=Z();break;case"deals":e=ee();break;case"admin":e=te();break;case"my-devices":e=W();break;case"device-pair":e=G();break;case"remote-control":e=_();break;default:e=E()}t.innerHTML=`
         ${q()}
         <main>
             ${e}
@@ -2527,7 +2574,7 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
         <footer style="text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
             &copy; 2024 Lumina Electronics. All rights reserved.
         </footer>
-    `,i.route==="deals"&&setTimeout(()=>window.startDealsTimer(),100)};window.handleCartSearch=t=>{i.cartSearchQuery=t.target.value,S()};window.clearCartSearch=()=>{i.cartSearchQuery="",S()};window.toggleCartItem=t=>{const e=i.cart.find(o=>o.id===t);e&&(e.selected=e.selected===!1,w(),S())};window.toggleFindSimilar=t=>{const e=i.cart.find(o=>o.id===t);e&&(i.cart.forEach(o=>{o.id!==t&&(o.showSimilar=!1)}),e.showSimilar=!e.showSimilar,w(),S())};function S(){const t=document.querySelector(".cart-items"),e=document.querySelector(".cart-summary"),o=document.querySelector(".cart-search-message");if(!t)return;let r=i.cart;if(i.cartSearchQuery&&(r=i.cart.filter(s=>s.name.toLowerCase().includes(i.cartSearchQuery.toLowerCase())||s.category.toLowerCase().includes(i.cartSearchQuery.toLowerCase()))),t.innerHTML=r.map(s=>{const d=i.products.filter(c=>c.category===s.category&&c.id!==s.id).slice(0,4);return`
+    `,i.route==="deals"&&setTimeout(()=>window.startDealsTimer(),100)};window.handleCartSearch=t=>{i.cartSearchQuery=t.target.value,S()};window.clearCartSearch=()=>{i.cartSearchQuery="",S()};window.toggleCartItem=t=>{const e=i.cart.find(o=>o.id===t);e&&(e.selected=e.selected===!1,w(),S())};window.toggleFindSimilar=t=>{const e=i.cart.find(o=>o.id===t);e&&(i.cart.forEach(o=>{o.id!==t&&(o.showSimilar=!1)}),e.showSimilar=!e.showSimilar,w(),S())};function S(){const t=document.querySelector(".cart-items"),e=document.querySelector(".cart-summary"),o=document.querySelector(".cart-search-message");if(!t)return;let r=i.cart;if(i.cartSearchQuery&&(r=i.cart.filter(s=>s.name.toLowerCase().includes(i.cartSearchQuery.toLowerCase())||s.category.toLowerCase().includes(i.cartSearchQuery.toLowerCase()))),t.innerHTML=r.map(s=>{const d=i.products.filter(l=>l.category===s.category&&l.id!==s.id).slice(0,4);return`
         <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
             <div class="cart-item" style="border-bottom: none;">
                 <input type="checkbox" 
@@ -2566,18 +2613,18 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 </div>
                 ${d.length>0?`
                     <div class="similar-products-grid">
-                        ${d.map(c=>`
-                            <div class="similar-product-card" onclick="window.viewProduct(${c.id})">
-                                <img src="${c.image}" alt="${c.name}" class="similar-product-image">
-                                <div class="similar-product-title" title="${c.name}">${c.name}</div>
-                                <div class="similar-product-price">${m(c.price)}</div>
+                        ${d.map(l=>`
+                            <div class="similar-product-card" onclick="window.viewProduct(${l.id})">
+                                <img src="${l.image}" alt="${l.name}" class="similar-product-image">
+                                <div class="similar-product-title" title="${l.name}">${l.name}</div>
+                                <div class="similar-product-price">${m(l.price)}</div>
                             </div>
                         `).join("")}
                     </div>
                 `:'<p class="text-muted text-center">No similar products found.</p>'}
             </div>
         </div>
-    `}).join(""),e){const s=i.cart.reduce((c,p)=>c+(p.selected!==!1?p.price*p.quantity:0),0),d=i.cart.filter(c=>c.selected!==!1).length;e.innerHTML=`
+    `}).join(""),e){const s=i.cart.reduce((l,p)=>l+(p.selected!==!1?p.price*p.quantity:0),0),d=i.cart.filter(l=>l.selected!==!1).length;e.innerHTML=`
             <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                 <span>Total</span>
                 <span>${m(s)}</span>
@@ -2599,11 +2646,11 @@ var A=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var re=A((ae,C)=>{
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-        `)}let L=null;window.startDealsTimer=()=>{const t=new Date().getTime()+864e5;L=setInterval(()=>{const e=new Date().getTime(),o=t-e,r=Math.floor(o%(1e3*60*60*24)/(1e3*60*60)),n=Math.floor(o%(1e3*60*60)/(1e3*60)),s=Math.floor(o%(1e3*60)/1e3),d=document.getElementById("deal-hours"),c=document.getElementById("deal-minutes"),p=document.getElementById("deal-seconds");d&&(d.textContent=String(r).padStart(2,"0")),c&&(c.textContent=String(n).padStart(2,"0")),p&&(p.textContent=String(s).padStart(2,"0")),o<0&&(clearInterval(L),d&&(d.textContent="00"),c&&(c.textContent="00"),p&&(p.textContent="00"))},1e3)};window.filterLearningContent=t=>{const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".topic-filter").forEach(r=>{r.dataset.filter===t?(r.style.background="#6366f1",r.style.color="white",r.style.borderColor="#6366f1"):(r.style.background="white",r.style.color="#64748b",r.style.borderColor="#e2e8f0")}),e.forEach(r=>{const n=r.dataset.category,s=r.dataset.topic;t==="all"||n===t||s===t?r.style.display="block":r.style.display="none"})};window.currentLearnCategory="all";window.filterTutorials=t=>{window.currentLearnCategory=t;const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".category-tab").forEach(r=>{r.classList.remove("active"),r.dataset.category===t&&r.classList.add("active")}),e.forEach(r=>{t==="all"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.filterDeals=t=>{const e=document.querySelectorAll(".deal-product-card");document.querySelectorAll(".deal-category-tab").forEach(r=>{r.dataset.category===t?(r.style.background="#6366f1",r.style.color="white"):(r.style.background="white",r.style.color="#64748b")}),e.forEach(r=>{t==="all"||t==="clearance"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.openVideoModal=t=>{const e=document.createElement("div");e.className="video-modal",e.innerHTML=`
+        `)}let L=null;window.startDealsTimer=()=>{const t=new Date().getTime()+864e5;L=setInterval(()=>{const e=new Date().getTime(),o=t-e,r=Math.floor(o%(1e3*60*60*24)/(1e3*60*60)),n=Math.floor(o%(1e3*60*60)/(1e3*60)),s=Math.floor(o%(1e3*60)/1e3),d=document.getElementById("deal-hours"),l=document.getElementById("deal-minutes"),p=document.getElementById("deal-seconds");d&&(d.textContent=String(r).padStart(2,"0")),l&&(l.textContent=String(n).padStart(2,"0")),p&&(p.textContent=String(s).padStart(2,"0")),o<0&&(clearInterval(L),d&&(d.textContent="00"),l&&(l.textContent="00"),p&&(p.textContent="00"))},1e3)};window.filterLearningContent=t=>{const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".topic-filter").forEach(r=>{r.dataset.filter===t?(r.style.background="#6366f1",r.style.color="white",r.style.borderColor="#6366f1"):(r.style.background="white",r.style.color="#64748b",r.style.borderColor="#e2e8f0")}),e.forEach(r=>{const n=r.dataset.category,s=r.dataset.topic;t==="all"||n===t||s===t?r.style.display="block":r.style.display="none"})};window.currentLearnCategory="all";window.filterTutorials=t=>{window.currentLearnCategory=t;const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".category-tab").forEach(r=>{r.classList.remove("active"),r.dataset.category===t&&r.classList.add("active")}),e.forEach(r=>{t==="all"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.filterDeals=t=>{const e=document.querySelectorAll(".deal-product-card");document.querySelectorAll(".deal-category-tab").forEach(r=>{r.dataset.category===t?(r.style.background="#6366f1",r.style.color="white"):(r.style.background="white",r.style.color="#64748b")}),e.forEach(r=>{t==="all"||t==="clearance"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.openVideoModal=t=>{const e=document.createElement("div");e.className="video-modal",e.innerHTML=`
         <div class="video-modal-content">
             <div class="video-modal-close" onclick="this.closest('.video-modal').remove()">✕</div>
             <div class="video-container">
                 <iframe src="https://www.youtube.com/embed/${t}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         </div>
-    `,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),10)};const oe=async()=>{await f.getProducts(),i.currentUser?.role==="admin"&&await Promise.all([f.getOrders(),f.getMyDevices(),f.getUsers()]),v()};window.handleDevicePairing=async t=>{t.preventDefault();const e=t.target,o=e.deviceId.value.trim(),r=e.deviceToken.value.trim();try{await f.pairDevice(o,r)}catch{}};window.startRemoteControl=async t=>{i.currentDeviceId=t,i.esp32Client||(i.esp32Client=new ESP32SocketClient);try{await i.esp32Client.connect(i.currentUser.id),i.esp32Client.monitorDevice(t),i.esp32Client.on("device:status",e=>{i.deviceStatus[e.deviceId]=e,z()}),i.esp32Client.on("device:telemetry",e=>{i.telemetryData[e.deviceId]=e,z()}),i.esp32Client.on("command:sent",e=>{I(`Command sent: ${e.command}`)}),i.esp32Client.on("command:response",e=>{e.success?I(`✓ ${e.message||"Command executed"}`):I(`✗ ${e.error||"Command failed"}`)}),g("remote-control")}catch(e){l("Failed to connect to device"),console.error(e)}};window.stopRemoteControl=()=>{i.esp32Client&&i.esp32Client.stopMonitoring(),i.currentDeviceId=null,g("my-devices")};window.sendCarCommand=t=>{if(!(!i.esp32Client||!i.currentDeviceId))try{t==="stop"?i.esp32Client.stop(i.currentDeviceId):i.esp32Client.move(i.currentDeviceId,t,255)}catch(e){l("Failed to send command"),console.error(e)}};function z(){i.route==="remote-control"&&v()}function I(t){const e=document.getElementById("commandLogContent");if(e){const o=document.createElement("div");for(o.className="log-entry",o.textContent=`[${new Date().toLocaleTimeString()}] ${t}`,e.insertBefore(o,e.firstChild);e.children.length>10;)e.removeChild(e.lastChild)}}document.addEventListener("keydown",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase(),o={w:"forward",arrowup:"forward",s:"backward",arrowdown:"backward",a:"left",arrowleft:"left",d:"right",arrowright:"right"," ":"stop"};o[e]&&(t.preventDefault(),window.sendCarCommand(o[e]))});document.addEventListener("keyup",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase();["w","s","a","d","arrowup","arrowdown","arrowleft","arrowright"].includes(e)&&(t.preventDefault(),window.sendCarCommand("stop"))});oe()});export default re();
+    `,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),10)};const oe=async()=>{await f.getProducts(),i.currentUser?.role==="admin"&&await Promise.all([f.getOrders(),f.getMyDevices(),f.getUsers()]),v()};window.handleDevicePairing=async t=>{t.preventDefault();const e=t.target,o=e.deviceId.value.trim(),r=e.deviceToken.value.trim();try{await f.pairDevice(o,r)}catch{}};window.startRemoteControl=async t=>{i.currentDeviceId=t,i.esp32Client||(i.esp32Client=new ESP32SocketClient);try{await i.esp32Client.connect(i.currentUser.id),i.esp32Client.monitorDevice(t),i.esp32Client.on("device:status",e=>{i.deviceStatus[e.deviceId]=e,z()}),i.esp32Client.on("device:telemetry",e=>{i.telemetryData[e.deviceId]=e,z()}),i.esp32Client.on("command:sent",e=>{I(`Command sent: ${e.command}`)}),i.esp32Client.on("command:response",e=>{e.success?I(`✓ ${e.message||"Command executed"}`):I(`✗ ${e.error||"Command failed"}`)}),g("remote-control")}catch(e){c("Failed to connect to device"),console.error(e)}};window.stopRemoteControl=()=>{i.esp32Client&&i.esp32Client.stopMonitoring(),i.currentDeviceId=null,g("my-devices")};window.sendCarCommand=t=>{if(!(!i.esp32Client||!i.currentDeviceId))try{t==="stop"?i.esp32Client.stop(i.currentDeviceId):i.esp32Client.move(i.currentDeviceId,t,255)}catch(e){c("Failed to send command"),console.error(e)}};window.toggleLights=()=>{if(!i.esp32Client||!i.currentDeviceId)return;const t=document.getElementById("lightsToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{i.esp32Client.sendCommand(i.currentDeviceId,"lights",{state:e?"on":"off"}),c(`Lights ${e?"ON":"OFF"}`)}catch(o){console.error("Failed to toggle lights:",o),t.classList.toggle("active")}}};window.toggleHorn=()=>{if(!i.esp32Client||!i.currentDeviceId)return;const t=document.getElementById("hornToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{i.esp32Client.sendCommand(i.currentDeviceId,"horn",{state:e?"on":"off"}),c(`Horn ${e?"ON":"OFF"}`)}catch(o){console.error("Failed to toggle horn:",o),t.classList.toggle("active")}}};function z(){i.route==="remote-control"&&v()}function I(t){const e=document.getElementById("commandLogContent");if(e){const o=document.createElement("div");for(o.className="log-entry",o.textContent=`[${new Date().toLocaleTimeString()}] ${t}`,e.insertBefore(o,e.firstChild);e.children.length>10;)e.removeChild(e.lastChild)}}document.addEventListener("keydown",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase(),o={w:"forward",arrowup:"forward",s:"backward",arrowdown:"backward",a:"left",arrowleft:"left",d:"right",arrowright:"right"," ":"stop"};o[e]&&(t.preventDefault(),window.sendCarCommand(o[e]))});document.addEventListener("keyup",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase();["w","s","a","d","arrowup","arrowdown","arrowleft","arrowright"].includes(e)&&(t.preventDefault(),window.sendCarCommand("stop"))});oe()});export default re();

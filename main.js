@@ -957,6 +957,7 @@ const DevicePairingPage = () => {
                 </form>
             </div>
         </div>
+        
     `;
 };
 
@@ -981,6 +982,14 @@ const RemoteControlPage = () => {
     const telemetry = state.telemetryData[device.deviceId] || {};
     const isConnected = statusData.status === 'online';
 
+    // Calculate battery ring progress
+    const battery = telemetry.battery || 0;
+    const batteryCircumference = 2 * Math.PI * 20; // radius = 20
+    const batteryOffset = batteryCircumference - (battery / 100) * batteryCircumference;
+
+    // Calculate signal strength (convert to 0-4 scale)
+    const signalStrength = Math.min(4, Math.max(0, Math.round((telemetry.signal || 0) / 25)));
+
     return `
         <div style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
             <div style="margin-bottom: 1rem;">
@@ -989,129 +998,175 @@ const RemoteControlPage = () => {
                 </button>
             </div>
 
-            <div class="remote-control-container">
-                <!-- Device Info Header -->
-                <div class="remote-header">
-                    <div>
-                        <h1 style="margin: 0 0 0.5rem 0; font-size: 1.75rem;">${device.deviceName}</h1>
-                        <p style="color: var(--text-muted); margin: 0;">${device.deviceId}</p>
+            <div class="cyber-container">
+                <!-- HUD Strip -->
+                <div class="cyber-hud">
+                    <!-- Battery Gauge -->
+                    <div class="hud-group">
+                        <div class="cyber-gauge">
+                            <svg width="48" height="48" viewBox="0 0 48 48">
+                                <circle class="gauge-bg" cx="24" cy="24" r="20" stroke-dasharray="${batteryCircumference}" stroke-dashoffset="0"></circle>
+                                <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-dasharray="${batteryCircumference}" stroke-dashoffset="${batteryOffset}"></circle>
+                            </svg>
+                            <div class="gauge-text">${battery}%</div>
+                        </div>
+                        <div class="info">
+                            <div class="label">Battery</div>
+                            <div class="value">${battery >= 70 ? 'Good' : battery >= 30 ? 'Low' : 'Critical'}</div>
+                        </div>
                     </div>
-                    <div class="connection-status ${isConnected ? 'connected' : 'disconnected'}">
-                        <span class="status-pulse"></span>
-                        ${isConnected ? 'Connected' : 'Offline'}
-                    </div>
-                </div>
 
-                <!-- Telemetry Dashboard -->
-                <div class="telemetry-grid">
-                    <div class="telemetry-card">
-                        <div class="telemetry-icon">🔋</div>
-                        <div class="telemetry-value">${telemetry.battery || 0}%</div>
-                        <div class="telemetry-label">Battery</div>
-                    </div>
-                    <div class="telemetry-card">
-                        <div class="telemetry-icon">📡</div>
-                        <div class="telemetry-value">${telemetry.signal || 'N/A'}</div>
-                        <div class="telemetry-label">Signal</div>
-                    </div>
-                    <div class="telemetry-card">
-                        <div class="telemetry-icon">⚡</div>
-                        <div class="telemetry-value">${telemetry.isMoving ? 'Yes' : 'No'}</div>
-                        <div class="telemetry-label">Moving</div>
-                    </div>
-                    <div class="telemetry-card">
-                        <div class="telemetry-icon">🚧</div>
-                        <div class="telemetry-value">${telemetry.frontSensor ? 'Detected' : 'Clear'}</div>
-                        <div class="telemetry-label">Obstacle</div>
-                    </div>
-                </div>
-
-                <!-- Control Panel -->
-                <div class="control-panel">
-                    <div class="control-section">
-                        <h3 style="margin-bottom: 1rem; text-align: center;">Directional Controls</h3>
-                        <div class="control-grid">
-                            <div style="grid-column: 2; text-align: center;">
-                                <button class="control-btn" 
-                                    onmousedown="window.sendCarCommand('forward')"
-                                    onmouseup="window.sendCarCommand('stop')"
-                                    ontouchstart="window.sendCarCommand('forward')"
-                                    ontouchend="window.sendCarCommand('stop')"
-                                    ${!isConnected ? 'disabled' : ''}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="19" x2="12" y2="5"></line>
-                                        <polyline points="5 12 12 5 19 12"></polyline>
-                                    </svg>
-                                    <div>Forward</div>
-                                </button>
-                            </div>
-                            <div style="grid-column: 1; text-align: center;">
-                                <button class="control-btn"
-                                    onmousedown="window.sendCarCommand('left')"
-                                    onmouseup="window.sendCarCommand('stop')"
-                                    ontouchstart="window.sendCarCommand('left')"
-                                    ontouchend="window.sendCarCommand('stop')"
-                                    ${!isConnected ? 'disabled' : ''}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                                        <polyline points="12 19 5 12 12 5"></polyline>
-                                    </svg>
-                                    <div>Left</div>
-                                </button>
-                            </div>
-                            <div style="grid-column: 2; text-align: center;">
-                                <button class="control-btn stop-btn"
-                                    onclick="window.sendCarCommand('stop')"
-                                    ${!isConnected ? 'disabled' : ''}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
-                                        <rect x="6" y="6" width="12" height="12"></rect>
-                                    </svg>
-                                    <div>STOP</div>
-                                </button>
-                            </div>
-                            <div style="grid-column: 3; text-align: center;">
-                                <button class="control-btn"
-                                    onmousedown="window.sendCarCommand('right')"
-                                    onmouseup="window.sendCarCommand('stop')"
-                                    ontouchstart="window.sendCarCommand('right')"
-                                    ontouchend="window.sendCarCommand('stop')"
-                                    ${!isConnected ? 'disabled' : ''}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
-                                    </svg>
-                                    <div>Right</div>
-                                </button>
-                            </div>
-                            <div style="grid-column: 2; text-align: center;">
-                                <button class="control-btn"
-                                    onmousedown="window.sendCarCommand('backward')"
-                                    onmouseup="window.sendCarCommand('stop')"
-                                    ontouchstart="window.sendCarCommand('backward')"
-                                    ontouchend="window.sendCarCommand('stop')"
-                                    ${!isConnected ? 'disabled' : ''}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <polyline points="19 12 12 19 5 12"></polyline>
-                                    </svg>
-                                    <div>Backward</div>
-                                </button>
+                    <!-- Signal Strength -->
+                    <div class="hud-group">
+                        <div class="icon-box">
+                            <div class="signal-bars">
+                                <div class="bar ${signalStrength >= 1 ? 'active' : ''}"></div>
+                                <div class="bar ${signalStrength >= 2 ? 'active' : ''}"></div>
+                                <div class="bar ${signalStrength >= 3 ? 'active' : ''}"></div>
+                                <div class="bar ${signalStrength >= 4 ? 'active' : ''}"></div>
                             </div>
                         </div>
-                        <p style="text-align: center; color: var(--text-muted); margin-top: 1rem; font-size: 0.875rem;">
-                            Or use keyboard: W/A/S/D or Arrow Keys
-                        </p>
+                        <div class="info">
+                            <div class="label">Signal</div>
+                            <div class="value">${telemetry.signal || 0}%</div>
+                        </div>
+                    </div>
+
+                    <!-- Movement Status -->
+                    <div class="hud-group">
+                        <div class="icon-box">⚡</div>
+                        <div class="info">
+                            <div class="label">Status</div>
+                            <div class="value">${telemetry.isMoving ? 'Moving' : 'Idle'}</div>
+                        </div>
+                    </div>
+
+                    <!-- Connection Status -->
+                    <div class="hud-group">
+                        <div class="icon-box">${isConnected ? '🟢' : '🔴'}</div>
+                        <div class="info">
+                            <div class="label">Connection</div>
+                            <div class="value">${isConnected ? 'Online' : 'Offline'}</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Command Log -->
-                <div class="command-log">
-                    <h4 style="margin-bottom: 0.5rem;">Activity Log</h4>
-                    <div id="commandLogContent" class="log-content">
-                        <div class="log-entry">Ready to control ${device.deviceName}</div>
+                <!-- Obstacle Alert (only show if detected) -->
+                ${telemetry.frontSensor ? `
+                    <div class="obstacle-alert">
+                        ⚠️ OBSTACLE DETECTED AHEAD
+                    </div>
+                ` : ''}
+
+                <!-- Control Deck (D-Pad) -->
+                <div class="control-deck">
+                    <div class="d-pad-grid">
+                        <button class="d-pad-btn" data-dir="forward"
+                            onmousedown="window.sendCarCommand('forward')"
+                            onmouseup="window.sendCarCommand('stop')"
+                            ontouchstart="window.sendCarCommand('forward')"
+                            ontouchend="window.sendCarCommand('stop')"
+                            ${!isConnected ? 'disabled' : ''}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="19" x2="12" y2="5"></line>
+                                <polyline points="5 12 12 5 19 12"></polyline>
+                            </svg>
+                            <span>FWD</span>
+                        </button>
+                        
+                        <button class="d-pad-btn" data-dir="left"
+                            onmousedown="window.sendCarCommand('left')"
+                            onmouseup="window.sendCarCommand('stop')"
+                            ontouchstart="window.sendCarCommand('left')"
+                            ontouchend="window.sendCarCommand('stop')"
+                            ${!isConnected ? 'disabled' : ''}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="19" y1="12" x2="5" y2="12"></line>
+                                <polyline points="12 19 5 12 12 5"></polyline>
+                            </svg>
+                            <span>LEFT</span>
+                        </button>
+                        
+                        <button class="d-pad-btn stop" data-dir="stop"
+                            onclick="window.sendCarCommand('stop')"
+                            ${!isConnected ? 'disabled' : ''}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                <rect x="6" y="6" width="12" height="12"></rect>
+                            </svg>
+                            <span>STOP</span>
+                        </button>
+                        
+                        <button class="d-pad-btn" data-dir="right"
+                            onmousedown="window.sendCarCommand('right')"
+                            onmouseup="window.sendCarCommand('stop')"
+                            ontouchstart="window.sendCarCommand('right')"
+                            ontouchend="window.sendCarCommand('stop')"
+                            ${!isConnected ? 'disabled' : ''}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                            <span>RIGHT</span>
+                        </button>
+                        
+                        <button class="d-pad-btn" data-dir="backward"
+                            onmousedown="window.sendCarCommand('backward')"
+                            onmouseup="window.sendCarCommand('stop')"
+                            ontouchstart="window.sendCarCommand('backward')"
+                            ontouchend="window.sendCarCommand('stop')"
+                            ${!isConnected ? 'disabled' : ''}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <polyline points="19 12 12 19 5 12"></polyline>
+                            </svg>
+                            <span>BWD</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Bar -->
+                <div class="action-bar">
+                    <!-- Speed Control -->
+                    <div class="speed-control">
+                        <div class="label-row">
+                            <span>Speed</span>
+                            <span id="speedValue">50%</span>
+                        </div>
+                        <input type="range" min="0" max="100" value="50" class="cyber-slider" id="speedSlider"
+                            oninput="document.getElementById('speedValue').textContent = this.value + '%'">
+                    </div>
+
+                    <!-- Auxiliary Controls -->
+                    <div class="aux-controls">
+                        <button class="cyber-toggle-btn" id="lightsToggle" onclick="window.toggleLights()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="5"></circle>
+                                <line x1="12" y1="1" x2="12" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="23"></line>
+                                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                <line x1="1" y1="12" x2="3" y2="12"></line>
+                                <line x1="21" y1="12" x2="23" y2="12"></line>
+                                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                            </svg>
+                            <span>Lights</span>
+                        </button>
+                        <button class="cyber-toggle-btn" id="hornToggle" onclick="window.toggleHorn()">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                            </svg>
+                            <span>Horn</span>
+                        </button>
                     </div>
                 </div>
             </div>
+
+            <p style="text-align: center; color: var(--cyber-text-muted); margin-top: 1rem; font-size: 0.875rem;">
+                Use WASD or Arrow Keys to control
+            </p>
         </div>
     `;
 };
@@ -4500,6 +4555,44 @@ window.sendCarCommand = (direction) => {
     } catch (error) {
         showToast('Failed to send command');
         console.error(error);
+    }
+};
+
+// Toggle lights
+window.toggleLights = () => {
+    if (!state.esp32Client || !state.currentDeviceId) return;
+
+    const lightsBtn = document.getElementById('lightsToggle');
+    if (lightsBtn) {
+        lightsBtn.classList.toggle('active');
+        const isActive = lightsBtn.classList.contains('active');
+
+        try {
+            state.esp32Client.sendCommand(state.currentDeviceId, 'lights', { state: isActive ? 'on' : 'off' });
+            showToast(`Lights ${isActive ? 'ON' : 'OFF'}`);
+        } catch (error) {
+            console.error('Failed to toggle lights:', error);
+            lightsBtn.classList.toggle('active'); // Revert on error
+        }
+    }
+};
+
+// Toggle horn
+window.toggleHorn = () => {
+    if (!state.esp32Client || !state.currentDeviceId) return;
+
+    const hornBtn = document.getElementById('hornToggle');
+    if (hornBtn) {
+        hornBtn.classList.toggle('active');
+        const isActive = hornBtn.classList.contains('active');
+
+        try {
+            state.esp32Client.sendCommand(state.currentDeviceId, 'horn', { state: isActive ? 'on' : 'off' });
+            showToast(`Horn ${isActive ? 'ON' : 'OFF'}`);
+        } catch (error) {
+            console.error('Failed to toggle horn:', error);
+            hornBtn.classList.toggle('active'); // Revert on error
+        }
     }
 };
 
