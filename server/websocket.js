@@ -92,6 +92,57 @@ function initializeWebSocket(httpServer) {
             }
         });
 
+        // Listen for status updates from ESP32 (after authentication)
+        socket.on('status:update', async (data) => {
+            const { deviceId } = socket;
+            if (!deviceId) return; // Not authenticated yet
+
+            console.log(`📊 Status from ${deviceId}:`, data);
+
+            // Update firmware version if provided
+            if (data.firmwareVersion) {
+                await UserDevice.findOneAndUpdate(
+                    { deviceId },
+                    { firmwareVersion: data.firmwareVersion }
+                );
+            }
+
+            // Forward status to all connected users monitoring this device
+            io.of('/control').to(`monitor:${deviceId}`).emit('device:telemetry', {
+                deviceId,
+                ...data,
+                timestamp: new Date()
+            });
+        });
+
+        // Handle command acknowledgment from ESP32 (after authentication)
+        socket.on('command:ack', (data) => {
+            const { deviceId } = socket;
+            if (!deviceId) return; // Not authenticated yet
+
+            console.log(`✅ Command acknowledged by ${deviceId}:`, data);
+
+            // Forward acknowledgment to user who sent the command
+            io.of('/control').to(`monitor:${deviceId}`).emit('command:response', {
+                deviceId,
+                success: true,
+                ...data
+            });
+        });
+
+        // Handle errors from ESP32 (after authentication)
+        socket.on('error:report', (error) => {
+            const { deviceId } = socket;
+            if (!deviceId) return; // Not authenticated yet
+
+            console.error(`❌ Error from ${deviceId}:`, error);
+
+            io.of('/control').to(`monitor:${deviceId}`).emit('device:error', {
+                deviceId,
+                error
+            });
+        });
+
         // Device disconnected
         socket.on('disconnect', async () => {
             const { deviceId } = socket;
