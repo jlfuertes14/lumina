@@ -529,9 +529,12 @@ function addCommandLog(message) {
 
 // Initialize devices on login
 window.addEventListener('load', () => {
-    if (state.currentUser) {
-        deviceAPI.getMyDevices();
-        // Start listening for device status updates
-        initializeDeviceStatusMonitoring();
-    }
+    // Wait for state to be initialized from main.js
+    setTimeout(() => {
+        if (state && state.currentUser) {
+            deviceAPI.getMyDevices();
+            // Start listening for device status updates
+            initializeDeviceStatusMonitoring();
+        }
+    }, 100);
 });
