@@ -38,6 +38,9 @@ function initializeWebSocket(httpServer) {
 
         // Handle authentication event from ESP32
         socket.on('authenticate', async (data) => {
+            console.log('🔍 Authenticate event received, data:', JSON.stringify(data));
+            console.log('🔍 Data type:', typeof data);
+
             try {
                 const { deviceId, deviceToken } = data;
 
