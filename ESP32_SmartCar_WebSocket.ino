@@ -127,15 +127,27 @@ void setup() {
 
 // ========== Main Loop ==========
 void loop() {
+  // Check for factory reset command via Serial
+  if (Serial.available() > 0) {
+    String command = Serial.readStringUntil('\n');
+    command.trim();
+    command.toUpperCase();
+    
+    if (command == "RESET") {
+      factoryReset();
+    }
+  }
+  
   if (isConfigMode) {
     // Handle configuration portal
     configServer.handleClient();
-  } else if (isConnected) {
-    // Handle WebSocket communication
+  } else {
+    // Always call socketIO.loop() to process connection events
+    // (isConnected will become true once connection succeeds)
     socketIO.loop();
     
-    // Send periodic status updates
-    if (millis() - lastStatusUpdate > STATUS_INTERVAL) {
+    // Send periodic status updates only when connected
+    if (isConnected && millis() - lastStatusUpdate > STATUS_INTERVAL) {
       sendStatusUpdate();
       lastStatusUpdate = millis();
     }
@@ -222,15 +234,23 @@ void connectToWiFi() {
 void setupWebSocket() {
   Serial.println("🔌 Initializing WebSocket client...");
   
-  // Configure Socket.IO - using /device namespace for ESP32
-  String path = "/device" + String(websocket_path);
-  socketIO.begin(websocket_server, websocket_port, path.c_str());
+  // Configure SSL client for HTTPS connection
+  WiFiClientSecure *client = new WiFiClientSecure;
+  if (client) {
+    // Don't verify SSL certificate (Railway uses dynamic certs)
+    client->setInsecure();
+    
+    // Use secure client for Socket.IO (4 arguments: host, port, path, protocol)
+    socketIO.beginSSL(websocket_server, websocket_port, "/device/socket.io/?EIO=4&transport=websocket", "");
+    
+    Serial.println("🔒 SSL connection configured");
+  } else {
+    Serial.println("❌ Failed to create SSL client!");
+    return;
+  }
   
   // Set event handler
   socketIO.onEvent(socketIOEvent);
-  
-  // Enable heartbeat - Removed as it's inaccessible in SocketIOclient_Generic
-  // socketIO.enableHeartbeat(15000, 3000, 5);
   
   Serial.println("✅ WebSocket client initialized");
 }
@@ -668,5 +688,28 @@ void handleSaveConfig() {
   Serial.println("🔄 Restarting ESP32...");
   Serial.flush(); // Ensure all serial output is sent
   delay(500);
+  ESP.restart();
+}
+
+// ========== Factory Reset ==========
+void factoryReset() {
+  Serial.println("\n🔴 FACTORY RESET INITIATED!");
+  Serial.println("Clearing all configuration...");
+  
+  EEPROM.begin(EEPROM_SIZE);
+  
+  // Clear all EEPROM data
+  for (int i = 0; i < EEPROM_SIZE; i++) {
+    EEPROM.write(i, 0);
+  }
+  
+  EEPROM.commit();
+  EEPROM.end();
+  
+  Serial.println("✅ Configuration cleared!");
+  Serial.println("🔄 Restarting in config mode...");
+  Serial.flush();
+  
+  delay(2000);
   ESP.restart();
 }

@@ -26,34 +26,72 @@ function initializeWebSocket(httpServer) {
 
     // Device authentication middleware
     deviceNamespace.use(async (socket, next) => {
-        try {
-            const { deviceId, deviceToken } = socket.handshake.auth;
-
-            if (!deviceId || !deviceToken) {
-                return next(new Error('Missing device credentials'));
-            }
-
-            // Validate device credentials
-            const device = await UserDevice.findOne({ deviceId, deviceToken });
-
-            if (!device) {
-                return next(new Error('Invalid device credentials'));
-            }
-
-            // Attach device info to socket
-            socket.deviceId = deviceId;
-            socket.deviceData = device;
-
-            console.log(`✅ Device authenticated: ${deviceId}`);
-            next();
-        } catch (error) {
-            console.error('Device auth error:', error);
-            next(new Error('Authentication failed'));
-        }
+        // Allow connection - we'll verify auth when they send "authenticate" event
+        // (ESP32 SocketIOclient library can't send auth in handshake easily)
+        console.log('📱 Device attempting to connect...');
+        next();
     });
 
     // Device connected
     deviceNamespace.on('connection', async (socket) => {
+        console.log(`🤖 ESP32 Device connected (not yet authenticated)`);
+
+        // Handle authentication event from ESP32
+        socket.on('authenticate', async (data) => {
+            try {
+                const { deviceId, deviceToken } = data;
+
+                if (!deviceId || !deviceToken) {
+                    socket.emit('auth:error', { message: 'Missing credentials' });
+                    socket.disconnect();
+                    return;
+                }
+
+                // Validate device credentials
+                const device = await UserDevice.findOne({ deviceId, deviceToken });
+
+                if (!device) {
+                    console.log(`❌ Invalid credentials for ${deviceId}`);
+                    socket.emit('auth:error', { message: 'Invalid device credentials' });
+                    socket.disconnect();
+                    return;
+                }
+
+                // Attach device info to socket
+                socket.deviceId = deviceId;
+                socket.deviceData = device;
+
+                console.log(`✅ Device authenticated: ${deviceId}`);
+
+                // Store active connection
+                activeDevices.set(deviceId, socket.id);
+
+                // Update device status to online
+                await UserDevice.findOneAndUpdate(
+                    { deviceId },
+                    { status: 'active', lastOnline: new Date() }
+                );
+
+                // Join device-specific room
+                socket.join(`device:${deviceId}`);
+
+                // Notify all users monitoring this device
+                io.of('/control').to(`monitor:${deviceId}`).emit('device:status', {
+                    deviceId,
+                    status: 'online',
+                    timestamp: new Date()
+                });
+
+                // Confirm authentication to ESP32
+                socket.emit('auth:success', { message: 'Authentication successful' });
+
+            } catch (error) {
+                console.error('Authentication error:', error);
+                socket.emit('auth:error', { message: 'Authentication failed' });
+                socket.disconnect();
+            }
+        });
+
         const { deviceId } = socket;
         console.log(`🤖 ESP32 Device connected: ${deviceId}`);
 
