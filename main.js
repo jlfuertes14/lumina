@@ -144,7 +144,7 @@ const deviceAPI = {
     getMyDevices: async () => {
         if (!state.currentUser) return;
         try {
-            const response = await apiCall(`/devices/my-devices?userId=${state.currentUser._id}`);
+            const response = await apiCall(`/devices/my-devices?userId=${state.currentUser.id}`);
             state.devices = response.data;
 
             // Initialize real-time status monitoring
@@ -163,7 +163,7 @@ const deviceAPI = {
                 body: JSON.stringify({
                     deviceId,
                     deviceToken,
-                    userId: state.currentUser._id
+                    userId: state.currentUser.id
                 })
             });
             showToast('Device paired successfully!');
@@ -183,7 +183,7 @@ function initializeDeviceStatusMonitoring() {
     }
     // Connect to Socket.IO if not already connected
     if (!state.esp32Client.isConnected() && state.currentUser) {
-        state.esp32Client.connect(state.currentUser._id).catch(err => {
+        state.esp32Client.connect(state.currentUser.id).catch(err => {
             console.error('Failed to connect to WebSocket:', err);
         });
     }
