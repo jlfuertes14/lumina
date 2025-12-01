@@ -4445,7 +4445,7 @@ window.startRemoteControl = async (deviceId) => {
     }
 
     try {
-        await state.esp32Client.connect(state.currentUser._id);
+        await state.esp32Client.connect(state.currentUser.id); // Fixed: use .id instead of ._id
 
         // Start monitoring device
         state.esp32Client.monitorDevice(deviceId);
