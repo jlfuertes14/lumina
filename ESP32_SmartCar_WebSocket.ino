@@ -234,25 +234,20 @@ void connectToWiFi() {
 void setupWebSocket() {
   Serial.println("🔌 Initializing WebSocket client...");
   
-  // Configure SSL client for HTTPS connection
-  WiFiClientSecure *client = new WiFiClientSecure;
-  if (client) {
-    // Don't verify SSL certificate (Railway uses dynamic certs)
-    client->setInsecure();
-    
-    // Use secure client for Socket.IO (4 arguments: host, port, path, protocol)
-    socketIO.beginSSL(websocket_server, websocket_port, "/device/socket.io/?EIO=4&transport=websocket", "");
-    
-    Serial.println("🔒 SSL connection configured");
-  } else {
-    Serial.println("❌ Failed to create SSL client!");
-    return;
-  }
+  // Set WebSocket server and port (SSL)
+  // Railway uses HTTPS, so we use beginSSL
+  socketIO.beginSSL(websocket_server, websocket_port, "/device/socket.io/?EIO=4&transport=websocket");
+  
+  Serial.println("🔒 SSL connection configured");
+  
+  // Set reconnect interval to 10s to avoid flooding server
+  socketIO.setReconnectInterval(10000);
   
   // Set event handler
   socketIO.onEvent(socketIOEvent);
   
   Serial.println("✅ WebSocket client initialized");
+  Serial.println("🔐 Device: " + deviceId);
 }
 
 void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length) {
@@ -265,6 +260,11 @@ void socketIOEvent(socketIOmessageType_t type, uint8_t * payload, size_t length)
     case sIOtype_CONNECT:
       Serial.println("✅ Connected to WebSocket server!");
       isConnected = true;
+      
+      // Join default namespace (no auto join in Socket.IO V3+)
+      socketIO.send(sIOtype_CONNECT, "/");
+      
+      // Send authentication credentials
       authenticateDevice();
       break;
       
