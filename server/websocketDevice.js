@@ -6,10 +6,11 @@ const UserDevice = require('./models/UserDevice');
  * Separate from Socket.IO to avoid protocol complexity
  */
 function initializeDeviceWebSocket(server, io, activeDevices) {
+    // Use noServer: true to avoid conflict with Socket.IO
+    // We will handle upgrade manually in server.js
     const wss = new WebSocket.Server({
-        server,
+        noServer: true,
         path: '/ws/device',
-        // Increase ping interval for embedded devices
         clientTracking: true
     });
 

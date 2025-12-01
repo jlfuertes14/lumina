@@ -88,9 +88,22 @@ const { initializeWebSocket } = require('./websocket');
 const io = initializeWebSocket(httpServer);
 
 // Initialize plain WebSocket for ESP32 devices
+// Initialize plain WebSocket for ESP32 devices
 const { initializeDeviceWebSocket } = require('./websocketDevice');
 const activeDevices = new Map(); // Shared between Socket.IO and WebSocket
-initializeDeviceWebSocket(httpServer, io, activeDevices);
+const wss = initializeDeviceWebSocket(httpServer, io, activeDevices);
+
+// Manually handle upgrade to avoid conflict with Socket.IO
+httpServer.on('upgrade', (request, socket, head) => {
+    const pathname = request.url;
+
+    if (pathname.startsWith('/ws/device')) {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+            wss.emit('connection', ws, request);
+        });
+    }
+    // For other paths (like /socket.io/), let Socket.IO's listener handle it
+});
 
 // Start server - Listen on 0.0.0.0 for Railway
 httpServer.listen(PORT, '0.0.0.0', () => {
