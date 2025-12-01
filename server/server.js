@@ -83,14 +83,15 @@ const PORT = process.env.PORT || 3000;
 const http = require('http');
 const httpServer = http.createServer(app);
 
+// Shared active devices map between Socket.IO and Plain WebSocket
+const activeDevices = new Map();
+
 // Initialize WebSocket server (Socket.IO for web users)
 const { initializeWebSocket } = require('./websocket');
-const io = initializeWebSocket(httpServer);
+const io = initializeWebSocket(httpServer, activeDevices);
 
 // Initialize plain WebSocket for ESP32 devices
-// Initialize plain WebSocket for ESP32 devices
 const { initializeDeviceWebSocket } = require('./websocketDevice');
-const activeDevices = new Map(); // Shared between Socket.IO and WebSocket
 const wss = initializeDeviceWebSocket(httpServer, io, activeDevices);
 
 // Manually handle upgrade to avoid conflict with Socket.IO

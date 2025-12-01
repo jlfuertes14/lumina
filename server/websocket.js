@@ -5,8 +5,9 @@ const User = require('./models/User');
 /**
  * Initialize WebSocket server for real-time ESP32 control
  * @param {HttpServer} httpServer - Express HTTP server instance
+ * @param {Map} activeDevices - Shared map of active devices
  */
-function initializeWebSocket(httpServer) {
+function initializeWebSocket(httpServer, activeDevices) {
     const io = new Server(httpServer, {
         cors: {
             origin: '*', // Configure based on your frontend URL
@@ -15,8 +16,8 @@ function initializeWebSocket(httpServer) {
         }
     });
 
-    // Store active device connections
-    const activeDevices = new Map(); // deviceId -> socket.id
+    // Store active user connections
+    // activeDevices is now passed in as argument
     const activeUsers = new Map();   // userId -> [socket.id, socket.id...]
 
     // ============================================================
