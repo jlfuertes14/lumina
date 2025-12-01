@@ -266,3 +266,8 @@ class ESP32SocketClient {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = ESP32SocketClient;
 }
+
+// Make available globally in browser
+if (typeof window !== 'undefined') {
+    window.ESP32SocketClient = ESP32SocketClient;
+}
