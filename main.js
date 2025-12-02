@@ -3155,6 +3155,9 @@ const render = () => {
     // Note: Scroll animations handled by CSS
 };
 
+// Make render globally accessible
+window.render = render;
+
 // Cart search handlers - update only cart items, not full page
 window.handleCartSearch = (event) => {
     state.cartSearchQuery = event.target.value;

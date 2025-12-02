@@ -25,7 +25,7 @@ export const UserPage = ({ state }) => {
 
     // 1. Profile Update
     if (!window.handleProfileUpdate) {
-        window.handleProfileUpdate = (event) => {
+        window.handleProfileUpdate = async (event) => {
             event.preventDefault();
             const form = event.target;
             const name = form.name.value.trim();
@@ -55,21 +55,19 @@ export const UserPage = ({ state }) => {
                 return;
             }
 
-            const updatedUser = {
-                ...state.currentUser,
-                name,
-                email,
-                phone,
-                gender,
-                birthDate
-            };
-
-            // Update State & LocalStorage
-            state.currentUser = updatedUser;
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-
-            showToast('Profile updated successfully!');
-            render();
+            // Call API to update profile in database
+            try {
+                await api.updateProfile(state.currentUser.id, {
+                    name,
+                    email,
+                    phone,
+                    gender,
+                    birthDate
+                });
+                window.render();
+            } catch (error) {
+                console.error('Profile update failed:', error);
+            }
         };
     }
 
