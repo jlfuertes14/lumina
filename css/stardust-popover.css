@@ -1,0 +1,128 @@
+/* Stardust Popover Animation */
+.user-dropdown {
+    position: relative;
+}
+
+.user-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    padding: 8px;
+    display: none;
+    /* Hidden by default */
+    transform-origin: top right;
+    z-index: 1000;
+
+    /* Animation Properties */
+    opacity: 0;
+    transform: scale(0.9) translateY(-10px);
+    transition:
+        opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+        transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+        display 0.3s allow-discrete;
+}
+
+/* Open State */
+.user-dropdown:hover .user-menu,
+.user-dropdown:focus-within .user-menu {
+    display: block;
+    opacity: 1;
+    transform: scale(1) translateY(0);
+
+    @starting-style {
+        opacity: 0;
+        transform: scale(0.9) translateY(-10px);
+    }
+}
+
+/* Stardust Effect (Subtle Glow/Sparkle on hover) */
+.user-menu::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    z-index: -1;
+    background: linear-gradient(45deg, #ff00cc, #3333ff, #00ccff, #ff00cc);
+    background-size: 400%;
+    border-radius: 14px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    animation: stardust-glow 20s linear infinite;
+}
+
+.user-dropdown:hover .user-menu::before {
+    opacity: 0.15;
+}
+
+@keyframes stardust-glow {
+    0% {
+        background-position: 0 0;
+    }
+
+    50% {
+        background-position: 400% 0;
+    }
+
+    100% {
+        background-position: 0 0;
+    }
+}
+
+/* Menu Items */
+.user-menu-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    margin-bottom: 8px;
+}
+
+.user-menu-name {
+    font-weight: 600;
+    color: #333;
+    font-size: 15px;
+}
+
+.user-menu-email {
+    font-size: 12px;
+    color: #888;
+}
+
+.user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    color: #444;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+    font-size: 14px;
+}
+
+.user-menu-item:hover {
+    background: #f5f8ff;
+    color: var(--primary);
+}
+
+.user-menu-item.logout {
+    color: #ef4444;
+    margin-top: 8px;
+    border-top: 1px solid #f0f0f0;
+    border-radius: 0 0 8px 8px;
+}
+
+.user-menu-item.logout:hover {
+    background: #fff5f5;
+    color: #dc2626;
+}
+
+.menu-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}

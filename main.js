@@ -352,22 +352,37 @@ const Header = () => {
                     
                     ${isLoggedIn ? `
                         <div class="user-dropdown">
-                            <div class="action-icon">
+                            <div class="action-icon" style="cursor: pointer;">
                                 <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
                                     ${state.currentUser.name.charAt(0).toUpperCase()}
                                 </div>
                                 <span>${state.currentUser.name.split(' ')[0]}</span>
                             </div>
+                            
+                            <!-- Stardust Popover Menu -->
                             <div class="user-menu">
-                                <a href="#" class="user-menu-item" onclick="window.navigate('user'); return false;">
-                                    <span>👤 My Profile</span>
-                                </a>
-                                <a href="#" class="user-menu-item" onclick="window.navigate('my-devices'); return false;">
-                                    <span>🚗 My Devices</span>
-                                </a>
-                                <div class="user-menu-item" onclick="window.logout()" style="cursor: pointer; color: var(--danger);">
-                                    <span>🚪 Logout</span>
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">${state.currentUser.name}</div>
+                                    <div class="user-menu-email">${state.currentUser.email}</div>
                                 </div>
+                                
+                                <a href="#" class="user-menu-item" onclick="window.navigate('user'); window.switchUserTab('profile'); return false;">
+                                    <span class="menu-icon">👤</span>
+                                    <span>My Account</span>
+                                </a>
+                                <a href="#" class="user-menu-item" onclick="window.navigate('user'); window.switchUserTab('orders'); return false;">
+                                    <span class="menu-icon">📦</span>
+                                    <span>My Purchase</span>
+                                </a>
+                                <a href="#" class="user-menu-item" onclick="window.navigate('user'); window.switchUserTab('coupons'); return false;">
+                                    <span class="menu-icon">🎟️</span>
+                                    <span>My Coupons</span>
+                                </a>
+                                
+                                <a href="#" class="user-menu-item logout" onclick="window.logout(); return false;">
+                                    <span class="menu-icon">🚪</span>
+                                    <span>Logout</span>
+                                </a>
                             </div>
                         </div>
                     ` : `

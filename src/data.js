@@ -188,14 +188,22 @@ export const users = [
         name: "Admin User",
         email: "adminlumina",
         password: "lumina12",
-        role: "admin"
+        role: "admin",
+        phone: "09123456789",
+        address: "123 Admin St, Tech City",
+        gender: "Male",
+        birthDate: "1990-01-01"
     },
     {
         id: 2,
         name: "John Doe",
         email: "userlumina",
         password: "lumina123",
-        role: "customer"
+        role: "customer",
+        phone: "09987654321",
+        address: "456 User Lane, Innovation Park",
+        gender: "Male",
+        birthDate: "1995-05-15"
     }
 ];
 

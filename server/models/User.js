@@ -28,6 +28,21 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'customer'],
         default: 'customer'
     },
+    phone: {
+        type: String,
+        trim: true
+    },
+    address: {
+        type: String,
+        trim: true
+    },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other']
+    },
+    birthDate: {
+        type: Date
+    },
     savedCart: [{
         productId: { type: Number, required: true },
         name: String,
@@ -41,7 +56,6 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Hash password before saving
 // Hash password before saving
 userSchema.pre('save', async function () {
     if (!this.isModified('password')) return;
