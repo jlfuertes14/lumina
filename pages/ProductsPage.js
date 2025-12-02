@@ -1,3 +1,6 @@
+
+import { formatCurrency } from './src/utils.js';
+
 export const ProductsPage = ({ Breadcrumbs, state }) => {
     // Apply filtering
     let displayedProducts = [...state.products];

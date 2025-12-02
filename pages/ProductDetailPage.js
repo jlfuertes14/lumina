@@ -1,4 +1,4 @@
-import { formatCurrency } from '../main.js';
+import { formatCurrency } from './src/utils.js';
 
 
 export const ProductDetailPage = ({ Breadcrumbs, state }) => {

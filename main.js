@@ -9,6 +9,7 @@ import { UserPage } from './pages/UserPage.js';
 import { ProductsPage } from './pages/ProductsPage.js';
 import { ProductDetailPage } from './pages/ProductDetailPage.js';
 import { ProductCard } from './pages/ProductDetailPage.js';
+import { formatCurrency } from './src/utils.js';
 
 //  --- State Management ---
 const state = {
@@ -253,10 +254,6 @@ const syncCartWithServer = async () => {
     } catch (error) {
         console.error('Cart sync failed:', error);
     }
-};
-
-export const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount);
 };
 
 // --- Router ---

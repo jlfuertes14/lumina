@@ -1,6 +1,4 @@
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount);
-};
+import { formatCurrency } from './src/utils.js';
 
 // --- Deals Page ---
 export const DealsPage = ({ Breadcrumbs, state }) => {
