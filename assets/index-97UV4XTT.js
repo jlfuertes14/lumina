@@ -1,4 +1,4 @@
-var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))r(a);new MutationObserver(a=>{for(const n of a)if(n.type==="childList")for(const l of n.addedNodes)l.tagName==="LINK"&&l.rel==="modulepreload"&&r(l)}).observe(document,{childList:!0,subtree:!0});function o(a){const n={};return a.integrity&&(n.integrity=a.integrity),a.referrerPolicy&&(n.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?n.credentials="include":a.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function r(a){if(a.ep)return;a.ep=!0;const n=o(a);fetch(a.href,n)}})();let A=class{constructor(e="https://lumina-production-a4bb.up.railway.app"){this.serverUrl=e,this.socket=null,this.connected=!1,this.currentDeviceId=null,this.eventHandlers=new Map}async connect(e,o=""){if(this.socket&&this.connected){console.warn("Already connected to WebSocket");return}return new Promise((r,a)=>{if(typeof io>"u"){const n=document.createElement("script");n.src="https://cdn.socket.io/4.5.4/socket.io.min.js",n.onload=()=>this._initializeSocket(e,o,r,a),n.onerror=()=>a(new Error("Failed to load Socket.IO")),document.head.appendChild(n)}else this._initializeSocket(e,o,r,a)})}_initializeSocket(e,o,r,a){try{this.socket=io(`${this.serverUrl}/control`,{auth:{userId:e,sessionToken:o},transports:["websocket","polling"]}),this.socket.on("connect",()=>{console.log("✅ Connected to ESP32 WebSocket server"),this.connected=!0,this._triggerEvent("connected"),r()}),this.socket.on("connect_error",n=>{console.error("❌ Connection error:",n.message),this.connected=!1,this._triggerEvent("error",n),a(n)}),this.socket.on("disconnect",()=>{console.log("❌ Disconnected from WebSocket server"),this.connected=!1,this._triggerEvent("disconnected")}),this.socket.on("device:status",n=>{console.log("📊 Device status:",n),this._triggerEvent("device:status",n)}),this.socket.on("device:telemetry",n=>{this._triggerEvent("device:telemetry",n)}),this.socket.on("command:response",n=>{this._triggerEvent("command:response",n)}),this.socket.on("command:sent",n=>{this._triggerEvent("command:sent",n)}),this.socket.on("device:error",n=>{console.error("Device error:",n),this._triggerEvent("device:error",n)}),this.socket.on("devices:list",n=>{this._triggerEvent("devices:list",n)}),this.socket.on("error",n=>{console.error("System error:",n),this._triggerEvent("error",n)})}catch(n){a(n)}}monitorDevice(e){if(!this.connected)throw new Error("Not connected to WebSocket server");this.currentDeviceId=e,this.socket.emit("monitor:device",e),console.log(`👁️ Monitoring device: ${e}`)}stopMonitoring(){this.currentDeviceId&&this.connected&&(this.socket.emit("monitor:stop",this.currentDeviceId),this.currentDeviceId=null)}sendCommand(e,o,r={}){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("control:command",{deviceId:e,command:o,payload:r}),console.log(`📤 Sent command to ${e}:`,o,r)}move(e,o,r=255){this.sendCommand(e,"move",{direction:o,speed:r})}stop(e){this.sendCommand(e,"stop")}turnLeft(e,o=200){this.sendCommand(e,"move",{direction:"left",speed:o})}turnRight(e,o=200){this.sendCommand(e,"move",{direction:"right",speed:o})}forward(e,o=255){this.sendCommand(e,"move",{direction:"forward",speed:o})}backward(e,o=255){this.sendCommand(e,"move",{direction:"backward",speed:o})}requestDeviceList(){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("devices:list")}on(e,o){this.eventHandlers.has(e)||this.eventHandlers.set(e,[]),this.eventHandlers.get(e).push(o)}off(e,o){if(!this.eventHandlers.has(e))return;const r=this.eventHandlers.get(e),a=r.indexOf(o);a>-1&&r.splice(a,1)}_triggerEvent(e,o=null){if(!this.eventHandlers.has(e))return;this.eventHandlers.get(e).forEach(a=>{try{a(o)}catch(n){console.error(`Error in event handler for ${e}:`,n)}})}disconnect(){this.socket&&(this.stopMonitoring(),this.socket.disconnect(),this.socket=null,this.connected=!1,console.log("👋 Disconnected from WebSocket"))}isConnected(){return this.connected}getCurrentDevice(){return this.currentDeviceId}};typeof S<"u"&&S.exports&&(S.exports=A);typeof window<"u"&&(window.ESP32SocketClient=A);const F="https://lumina-production-a4bb.up.railway.app",q="http://localhost:3000",j=window.location.hostname==="jlfuertes14.github.io",L=j?`${F}/api`:`${q}/api`;async function b(t,e={}){const o=`${L}${t}`;try{const r=await fetch(o,{...e,headers:{"Content-Type":"application/json",...e.headers}}),a=await r.json();if(!r.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${j?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${L}`);const R=({Breadcrumbs:t})=>{const e=[{name:"Marco Dela Cruz",role:"Founder & CEO",image:"https://ui-avatars.com/api/?name=Marco+Dela+Cruz&background=6366f1&color=fff&size=120"},{name:"Rina Gonzales",role:"Operations Manager",image:"https://ui-avatars.com/api/?name=Rina+Gonzales&background=6366f1&color=fff&size=120"},{name:"Luis Navarro",role:"Technical Support Engineer",image:"https://ui-avatars.com/api/?name=Luis+Navarro&background=6366f1&color=fff&size=120"},{name:"Ella Ramirez",role:"Customer Service Lead",image:"https://ui-avatars.com/api/?name=Ella+Ramirez&background=6366f1&color=fff&size=120"}];return`
+var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ue=R((he,I)=>{(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))r(a);new MutationObserver(a=>{for(const n of a)if(n.type==="childList")for(const l of n.addedNodes)l.tagName==="LINK"&&l.rel==="modulepreload"&&r(l)}).observe(document,{childList:!0,subtree:!0});function o(a){const n={};return a.integrity&&(n.integrity=a.integrity),a.referrerPolicy&&(n.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?n.credentials="include":a.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function r(a){if(a.ep)return;a.ep=!0;const n=o(a);fetch(a.href,n)}})();let j=class{constructor(e="https://lumina-production-a4bb.up.railway.app"){this.serverUrl=e,this.socket=null,this.connected=!1,this.currentDeviceId=null,this.eventHandlers=new Map}async connect(e,o=""){if(this.socket&&this.connected){console.warn("Already connected to WebSocket");return}return new Promise((r,a)=>{if(typeof io>"u"){const n=document.createElement("script");n.src="https://cdn.socket.io/4.5.4/socket.io.min.js",n.onload=()=>this._initializeSocket(e,o,r,a),n.onerror=()=>a(new Error("Failed to load Socket.IO")),document.head.appendChild(n)}else this._initializeSocket(e,o,r,a)})}_initializeSocket(e,o,r,a){try{this.socket=io(`${this.serverUrl}/control`,{auth:{userId:e,sessionToken:o},transports:["websocket","polling"]}),this.socket.on("connect",()=>{console.log("✅ Connected to ESP32 WebSocket server"),this.connected=!0,this._triggerEvent("connected"),r()}),this.socket.on("connect_error",n=>{console.error("❌ Connection error:",n.message),this.connected=!1,this._triggerEvent("error",n),a(n)}),this.socket.on("disconnect",()=>{console.log("❌ Disconnected from WebSocket server"),this.connected=!1,this._triggerEvent("disconnected")}),this.socket.on("device:status",n=>{console.log("📊 Device status:",n),this._triggerEvent("device:status",n)}),this.socket.on("device:telemetry",n=>{this._triggerEvent("device:telemetry",n)}),this.socket.on("command:response",n=>{this._triggerEvent("command:response",n)}),this.socket.on("command:sent",n=>{this._triggerEvent("command:sent",n)}),this.socket.on("device:error",n=>{console.error("Device error:",n),this._triggerEvent("device:error",n)}),this.socket.on("devices:list",n=>{this._triggerEvent("devices:list",n)}),this.socket.on("error",n=>{console.error("System error:",n),this._triggerEvent("error",n)})}catch(n){a(n)}}monitorDevice(e){if(!this.connected)throw new Error("Not connected to WebSocket server");this.currentDeviceId=e,this.socket.emit("monitor:device",e),console.log(`👁️ Monitoring device: ${e}`)}stopMonitoring(){this.currentDeviceId&&this.connected&&(this.socket.emit("monitor:stop",this.currentDeviceId),this.currentDeviceId=null)}sendCommand(e,o,r={}){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("control:command",{deviceId:e,command:o,payload:r}),console.log(`📤 Sent command to ${e}:`,o,r)}move(e,o,r=255){this.sendCommand(e,"move",{direction:o,speed:r})}stop(e){this.sendCommand(e,"stop")}turnLeft(e,o=200){this.sendCommand(e,"move",{direction:"left",speed:o})}turnRight(e,o=200){this.sendCommand(e,"move",{direction:"right",speed:o})}forward(e,o=255){this.sendCommand(e,"move",{direction:"forward",speed:o})}backward(e,o=255){this.sendCommand(e,"move",{direction:"backward",speed:o})}requestDeviceList(){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("devices:list")}on(e,o){this.eventHandlers.has(e)||this.eventHandlers.set(e,[]),this.eventHandlers.get(e).push(o)}off(e,o){if(!this.eventHandlers.has(e))return;const r=this.eventHandlers.get(e),a=r.indexOf(o);a>-1&&r.splice(a,1)}_triggerEvent(e,o=null){if(!this.eventHandlers.has(e))return;this.eventHandlers.get(e).forEach(a=>{try{a(o)}catch(n){console.error(`Error in event handler for ${e}:`,n)}})}disconnect(){this.socket&&(this.stopMonitoring(),this.socket.disconnect(),this.socket=null,this.connected=!1,console.log("👋 Disconnected from WebSocket"))}isConnected(){return this.connected}getCurrentDevice(){return this.currentDeviceId}};typeof I<"u"&&I.exports&&(I.exports=j);typeof window<"u"&&(window.ESP32SocketClient=j);const H="https://lumina-production-a4bb.up.railway.app",Q="http://localhost:3000",N=window.location.hostname==="jlfuertes14.github.io",T=N?`${H}/api`:`${Q}/api`;async function k(t,e={}){const o=`${T}${t}`;try{const r=await fetch(o,{...e,headers:{"Content-Type":"application/json",...e.headers}}),a=await r.json();if(!r.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${N?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${T}`);const V=({Breadcrumbs:t})=>{const e=[{name:"Marco Dela Cruz",role:"Founder & CEO",image:"https://ui-avatars.com/api/?name=Marco+Dela+Cruz&background=6366f1&color=fff&size=120"},{name:"Rina Gonzales",role:"Operations Manager",image:"https://ui-avatars.com/api/?name=Rina+Gonzales&background=6366f1&color=fff&size=120"},{name:"Luis Navarro",role:"Technical Support Engineer",image:"https://ui-avatars.com/api/?name=Luis+Navarro&background=6366f1&color=fff&size=120"},{name:"Ella Ramirez",role:"Customer Service Lead",image:"https://ui-avatars.com/api/?name=Ella+Ramirez&background=6366f1&color=fff&size=120"}];return`
         <div class="about-us-page">
             <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
                 ${t("about-us")}
@@ -178,7 +178,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 </div>
             </div>
         </div>
-    `},H=({Breadcrumbs:t,state:e})=>{const o=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",featured:!0},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",featured:!0},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",recent:!0},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",recent:!0},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",featured:!0},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",recent:!0},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",featured:!0},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",recent:!0}],r=o.filter(d=>d.featured),a=o.filter(d=>d.recent),n=d=>d==="Beginner"?{bg:"#dcfce7",text:"#16a34a"}:d==="Intermediate"?{bg:"#dbeafe",text:"#2563eb"}:{bg:"#f3e8ff",text:"#9333ea"},l=e.filterLearnCategory&&e.filterLearnCategory!=="all",c=l?o.filter(d=>d.category===e.filterLearnCategory):o;return`
+    `},W=({Breadcrumbs:t,state:e})=>{const o=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",featured:!0},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",featured:!0},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",recent:!0},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",recent:!0},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",featured:!0},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",recent:!0},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",featured:!0},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",recent:!0}],r=o.filter(d=>d.featured),a=o.filter(d=>d.recent),n=d=>d==="Beginner"?{bg:"#dcfce7",text:"#16a34a"}:d==="Intermediate"?{bg:"#dbeafe",text:"#2563eb"}:{bg:"#f3e8ff",text:"#9333ea"},l=e.filterLearnCategory&&e.filterLearnCategory!=="all",m=l?o.filter(d=>d.category===e.filterLearnCategory):o;return`
         <div style="background: #f8f9fa; min-height: 100vh; padding-bottom: 3rem;">
             <!-- Hero Banner -->
             <div style="width: 100%; margin-top: 2rem; margin-bottom: 2rem; overflow: hidden;">
@@ -206,7 +206,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 ${l?`
                     <!-- Filtered Grid View -->
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
-                        ${c.map(d=>`
+                        ${m.map(d=>`
                             <div class="tutorial-card" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: transform 0.2s; display: flex; flex-direction: column;">
                                 <div style="position: relative; aspect-ratio: 16/9;">
                                     <img src="https://img.youtube.com/vi/${d.videoId}/mqdefault.jpg" alt="${d.title}" style="width: 100%; height: 100%; object-fit: cover;">
@@ -241,7 +241,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                             <h2 style="font-size: 1.5rem; color: #1e293b; font-weight: 600;">Featured Playlist</h2>
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                            ${r.map(d=>{const m=n(d.category);return`
+                            ${r.map(d=>{const g=n(d.category);return`
                                 <div class="tutorial-card" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; flex-direction: column;" 
                                      onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.12)'"
                                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
@@ -250,7 +250,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                                         <div style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.85); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">
                                             ⏱ ${d.duration}
                                         </div>
-                                        <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: ${m.bg}; color: ${m.text}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;">
+                                        <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: ${g.bg}; color: ${g.text}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;">
                                             ${d.category}
                                         </div>
                                     </div>
@@ -272,7 +272,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                             <h2 style="font-size: 1.5rem; color: #1e293b; font-weight: 600;">Recently Added</h2>
                         </div>
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                            ${a.map(d=>{const m=n(d.category);return`
+                            ${a.map(d=>{const g=n(d.category);return`
                                 <div class="tutorial-card" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; flex-direction: column;" 
                                      onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.12)'"
                                      onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
@@ -281,7 +281,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                                         <div style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.85); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">
                                             ⏱ ${d.duration}
                                         </div>
-                                        <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: ${m.bg}; color: ${m.text}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;">
+                                        <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: ${g.bg}; color: ${g.text}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;">
                                             ${d.category}
                                         </div>
                                     </div>
@@ -334,13 +334,13 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 `}
             </div>
         </div>
-    `},Q=({Breadcrumbs:t,state:e})=>{const o=e.params?.id,a=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",description:"Dive into the world of Arduino microcontrollers with this comprehensive beginner's guide. You'll learn the fundamental concepts of Arduino programming, understand the hardware components, and create your first working projects. This tutorial covers everything from setting up your development environment to uploading your first sketch onto the Arduino board. Perfect for absolute beginners with no prior programming or electronics experience.",learningPoints:["Setting up the Arduino IDE and connecting your board","Understanding Arduino pin configurations and digital I/O","Writing and uploading your first Arduino sketch","Working with basic sensors and LED circuits"]},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",description:"Get your Raspberry Pi up and running with this detailed setup tutorial. Learn how to install the operating system, configure essential settings, and prepare your Pi for your first projects. This guide covers both the hardware setup process and the software configuration you'll need to start building amazing IoT projects. Whether you're using Raspberry Pi 3, 4, or 5, this tutorial will help you get started quickly and correctly.",learningPoints:["Installing Raspberry Pi OS using the official imager","Configuring network settings and enabling SSH","Installing essential packages and development tools","Understanding the GPIO pinout and basic Python programming"]},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",description:"Explore the fascinating world of electronic sensors and learn how to integrate them into your projects. This tutorial provides an in-depth look at various sensor types including temperature sensors (DHT11, DS18B20), motion sensors (PIR), ultrasonic distance sensors (HC-SR04), and light sensors (LDR, BH1750). You'll understand how sensors work, how to read their data, and how to calibrate them for accurate measurements in real-world applications.",learningPoints:["Understanding analog vs digital sensors and their applications","Reading data from temperature and humidity sensors","Working with motion detection and ultrasonic distance measurement","Implementing sensor calibration and data filtering techniques"]},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",description:"Build an intelligent autonomous car that can navigate around obstacles using ultrasonic sensors and Arduino. This hands-on project combines motor control, sensor integration, and basic robotics programming. You'll learn how to read ultrasonic sensor data, implement decision-making logic, and control DC motors using an L298N motor driver. This is a perfect project for understanding the basics of autonomous navigation and robotics.",learningPoints:["Wiring and controlling DC motors with an L298N driver","Reading and processing ultrasonic sensor data for obstacle detection","Implementing autonomous navigation logic and decision trees","Troubleshooting common issues in robotic car projects"]},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",description:"Master the art of printed circuit board (PCB) design from scratch. This comprehensive tutorial takes you through the entire PCB design workflow using professional tools like KiCad or EasyEDA. Learn how to create schematics, design PCB layouts, route traces efficiently, and prepare your designs for manufacturing. You'll understand design rules, layer stackups, component placement strategies, and how to export Gerber files for fabrication. Essential knowledge for anyone serious about electronics development.",learningPoints:["Creating professional schematics with proper component symbols","PCB layout best practices: trace width, clearances, and ground planes","Routing strategies for signal integrity and EMI reduction","Preparing and exporting Gerber files for PCB manufacturing"]},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",description:"Unlock the power of the ESP32 microcontroller for advanced IoT applications. This tutorial covers WiFi connectivity, web server creation, MQTT protocol implementation, and cloud integration. You'll build real IoT projects including a web-based temperature monitor, remote-controlled devices, and data logging systems. Learn how to use the ESP32's dual-core processor, Bluetooth capabilities, and low-power modes to create professional-grade IoT solutions.",learningPoints:["Setting up ESP32 development environment and WiFi connectivity","Creating web servers and REST APIs on the ESP32","Implementing MQTT for real-time IoT communication","Integrating with cloud platforms (Firebase, AWS IoT, ThingSpeak)"]},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",description:"Discover the perfect fusion of 3D printing and electronics in this inspiring project showcase. See how makers are combining custom 3D-printed enclosures with Arduino and Raspberry Pi to create amazing devices. From smart home sensors to robotic mechanisms, this video demonstrates practical applications and design techniques. Learn how to design functional enclosures, integrate electronics seamlessly, and bring your maker ideas to life with the power of additive manufacturing.",learningPoints:["Designing functional 3D-printed enclosures for electronics","Integrating sensors and displays into custom housings","Creating cable management and mounting solutions","Prototyping techniques for iterative design improvements"]},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",description:"Create a complete IoT weather station that measures temperature, humidity, atmospheric pressure, and more. This advanced project teaches you how to interface with BME280/BMP280 sensors, implement accurate data logging, visualize weather data on web dashboards, and even integrate with weather services like Weather Underground. You'll learn about sensor calibration, data averaging techniques, power management for outdoor deployment, and how to create professional data visualizations using Chart.js or similar libraries.",learningPoints:["Interfacing with BME280/BMP280 environmental sensors via I2C","Implementing data logging with timestamps and SD card storage","Creating real-time data visualizations and web dashboards","Power management and weatherproofing for outdoor installations"]}].find(c=>c.id===parseInt(o));if(!a)return`
+    `},G=({Breadcrumbs:t,state:e})=>{const o=e.params?.id,a=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",description:"Dive into the world of Arduino microcontrollers with this comprehensive beginner's guide. You'll learn the fundamental concepts of Arduino programming, understand the hardware components, and create your first working projects. This tutorial covers everything from setting up your development environment to uploading your first sketch onto the Arduino board. Perfect for absolute beginners with no prior programming or electronics experience.",learningPoints:["Setting up the Arduino IDE and connecting your board","Understanding Arduino pin configurations and digital I/O","Writing and uploading your first Arduino sketch","Working with basic sensors and LED circuits"]},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",description:"Get your Raspberry Pi up and running with this detailed setup tutorial. Learn how to install the operating system, configure essential settings, and prepare your Pi for your first projects. This guide covers both the hardware setup process and the software configuration you'll need to start building amazing IoT projects. Whether you're using Raspberry Pi 3, 4, or 5, this tutorial will help you get started quickly and correctly.",learningPoints:["Installing Raspberry Pi OS using the official imager","Configuring network settings and enabling SSH","Installing essential packages and development tools","Understanding the GPIO pinout and basic Python programming"]},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",description:"Explore the fascinating world of electronic sensors and learn how to integrate them into your projects. This tutorial provides an in-depth look at various sensor types including temperature sensors (DHT11, DS18B20), motion sensors (PIR), ultrasonic distance sensors (HC-SR04), and light sensors (LDR, BH1750). You'll understand how sensors work, how to read their data, and how to calibrate them for accurate measurements in real-world applications.",learningPoints:["Understanding analog vs digital sensors and their applications","Reading data from temperature and humidity sensors","Working with motion detection and ultrasonic distance measurement","Implementing sensor calibration and data filtering techniques"]},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",description:"Build an intelligent autonomous car that can navigate around obstacles using ultrasonic sensors and Arduino. This hands-on project combines motor control, sensor integration, and basic robotics programming. You'll learn how to read ultrasonic sensor data, implement decision-making logic, and control DC motors using an L298N motor driver. This is a perfect project for understanding the basics of autonomous navigation and robotics.",learningPoints:["Wiring and controlling DC motors with an L298N driver","Reading and processing ultrasonic sensor data for obstacle detection","Implementing autonomous navigation logic and decision trees","Troubleshooting common issues in robotic car projects"]},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",description:"Master the art of printed circuit board (PCB) design from scratch. This comprehensive tutorial takes you through the entire PCB design workflow using professional tools like KiCad or EasyEDA. Learn how to create schematics, design PCB layouts, route traces efficiently, and prepare your designs for manufacturing. You'll understand design rules, layer stackups, component placement strategies, and how to export Gerber files for fabrication. Essential knowledge for anyone serious about electronics development.",learningPoints:["Creating professional schematics with proper component symbols","PCB layout best practices: trace width, clearances, and ground planes","Routing strategies for signal integrity and EMI reduction","Preparing and exporting Gerber files for PCB manufacturing"]},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",description:"Unlock the power of the ESP32 microcontroller for advanced IoT applications. This tutorial covers WiFi connectivity, web server creation, MQTT protocol implementation, and cloud integration. You'll build real IoT projects including a web-based temperature monitor, remote-controlled devices, and data logging systems. Learn how to use the ESP32's dual-core processor, Bluetooth capabilities, and low-power modes to create professional-grade IoT solutions.",learningPoints:["Setting up ESP32 development environment and WiFi connectivity","Creating web servers and REST APIs on the ESP32","Implementing MQTT for real-time IoT communication","Integrating with cloud platforms (Firebase, AWS IoT, ThingSpeak)"]},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",description:"Discover the perfect fusion of 3D printing and electronics in this inspiring project showcase. See how makers are combining custom 3D-printed enclosures with Arduino and Raspberry Pi to create amazing devices. From smart home sensors to robotic mechanisms, this video demonstrates practical applications and design techniques. Learn how to design functional enclosures, integrate electronics seamlessly, and bring your maker ideas to life with the power of additive manufacturing.",learningPoints:["Designing functional 3D-printed enclosures for electronics","Integrating sensors and displays into custom housings","Creating cable management and mounting solutions","Prototyping techniques for iterative design improvements"]},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",description:"Create a complete IoT weather station that measures temperature, humidity, atmospheric pressure, and more. This advanced project teaches you how to interface with BME280/BMP280 sensors, implement accurate data logging, visualize weather data on web dashboards, and even integrate with weather services like Weather Underground. You'll learn about sensor calibration, data averaging techniques, power management for outdoor deployment, and how to create professional data visualizations using Chart.js or similar libraries.",learningPoints:["Interfacing with BME280/BMP280 environmental sensors via I2C","Implementing data logging with timestamps and SD card storage","Creating real-time data visualizations and web dashboards","Power management and weatherproofing for outdoor installations"]}].find(m=>m.id===parseInt(o));if(!a)return`
             <div style="max-width: 1200px; margin: 4rem auto; padding: 2rem; text-align: center;">
                 <h1>Tutorial Not Found</h1>
                 <p style="color: #64748b; margin: 1rem 0;">The tutorial you're looking for doesn't exist.</p>
                 <button class="btn btn-primary" onclick="window.navigate('learn')">Back to Learn</button>
             </div>
-        `;const l=(c=>c==="Beginner"?{bg:"#dcfce7",text:"#16a34a"}:c==="Intermediate"?{bg:"#dbeafe",text:"#2563eb"}:{bg:"#f3e8ff",text:"#9333ea"})(a.category);return`
+        `;const l=(m=>m==="Beginner"?{bg:"#dcfce7",text:"#16a34a"}:m==="Intermediate"?{bg:"#dbeafe",text:"#2563eb"}:{bg:"#f3e8ff",text:"#9333ea"})(a.category);return`
         <div style="background: #f8f9fa; min-height: 100vh; padding: 2rem 0;">
             <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
                 ${t("learn")}
@@ -396,10 +396,10 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                             What You'll Learn
                         </h3>
                         <ul style="list-style: none; padding: 0; display: grid; gap: 0.75rem;">
-                            ${a.learningPoints.map(c=>`
+                            ${a.learningPoints.map(m=>`
                                 <li style="display: flex; align-items: start; gap: 0.75rem;">
                                     <span style="color: #10b981; font-size: 1.25rem;">✓</span>
-                                    <span style="color: #64748b; line-height: 1.6;">${c}</span>
+                                    <span style="color: #64748b; line-height: 1.6;">${m}</span>
                                 </li>
                             `).join("")}
                         </ul>
@@ -420,7 +420,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 </div>
             </div>
         </div>
-    `},W=({Breadcrumbs:t,state:e})=>`
+    `},Y=({Breadcrumbs:t,state:e})=>`
         <div style="max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;">
             ${t("contact-us")}
             
@@ -539,7 +539,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 </iframe>
             </div>
         </div>
-    `,g=t=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(t),G=({Breadcrumbs:t,state:e})=>{const o=e.products.slice(0,8).map((r,a)=>({...r,originalPrice:r.price*1.3,discount:[10,15,20,25,30][a%5],stock:[45,67,23,89,12][a%5],category:["Microcontrollers","Sensors","Tools","Robotics","Components"][a%5]}));return`
+    `,u=t=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(t),_=({Breadcrumbs:t,state:e})=>{const o=e.products.slice(0,8).map((r,a)=>({...r,originalPrice:r.price*1.3,discount:[10,15,20,25,30][a%5],stock:[45,67,23,89,12][a%5],category:["Microcontrollers","Sensors","Tools","Robotics","Components"][a%5]}));return`
         <div style="background: #f8f9fa; min-height: 100vh; padding: 2rem 0;">
             <!-- Content Container -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
@@ -664,10 +664,10 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                                     <!-- Price Display (Star of the Card) -->
                                     <div style="margin-bottom: 0.75rem;">
                                         <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.25rem;">
-                                            <span style="font-size: 1.5rem; font-weight: 700; color: #6366f1;">${g(r.price)}</span>
-                                            <span style="font-size: 0.875rem; text-decoration: line-through; color: #94a3b8;">${g(r.originalPrice)}</span>
+                                            <span style="font-size: 1.5rem; font-weight: 700; color: #6366f1;">${u(r.price)}</span>
+                                            <span style="font-size: 0.875rem; text-decoration: line-through; color: #94a3b8;">${u(r.originalPrice)}</span>
                                         </div>
-                                        <div style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">You save ${g(r.originalPrice-r.price)}</div>
+                                        <div style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">You save ${u(r.originalPrice-r.price)}</div>
                                     </div>
                                     
                                     <!-- Stock Indicator -->
@@ -749,7 +749,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 </div>
             </div>
         </div>
-    `},V=t=>{if(!t.currentUser||t.currentUser.role!=="admin")return navigate("home"),"";t.orders.length===0&&api.getOrders();const e=t.orders.reduce((s,h)=>s+h.total,0),o=t.orders.length;t.products.length;const r=t.users.filter(s=>s.role==="customer").length,a=t.products.filter(s=>s.stock<10);t.products.filter(s=>s.stock===0);const n=t.orders.slice(0,5),l=o>0?e/o:0,c={};t.products.forEach(s=>{c[s.category]=(c[s.category]||0)+1});const d=Object.entries(c).map(([s,h])=>({name:s,count:h})),m=[450,720,550,890,600,950,1200],u=Math.max(...m);return`
+    `},J=t=>{if(!t.currentUser||t.currentUser.role!=="admin")return navigate("home"),"";t.orders.length===0&&api.getOrders();const e=t.orders.reduce((s,c)=>s+c.total,0),o=t.orders.length;t.products.length;const r=t.users.filter(s=>s.role==="customer").length,a=t.products.filter(s=>s.stock<10);t.products.filter(s=>s.stock===0);const n=t.orders.slice(0,5),l=o>0?e/o:0,m={};t.products.forEach(s=>{m[s.category]=(m[s.category]||0)+1});const d=Object.entries(m).map(([s,c])=>({name:s,count:c})),g=[450,720,550,890,600,950,1200],v=Math.max(...g);return`
         <div class="admin-container">
             <div class="admin-header">
                 <div style="display: flex; align-items: center;">
@@ -777,8 +777,8 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                         <h3>📈 Revenue Trend (7 Days)</h3>
                     </div>
                     <div class="chart-container">
-                        ${m.map(s=>`
-                            <div class="chart-bar" style="height: ${s/u*100}%" data-value="${formatCurrency(s)}"></div>
+                        ${g.map(s=>`
+                            <div class="chart-bar" style="height: ${s/v*100}%" data-value="${formatCurrency(s)}"></div>
                         `).join("")}
                     </div>
                 </div>
@@ -886,11 +886,11 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                             </tr>
                         </thead>
                         <tbody>
-                            ${n.length>0?n.map(s=>{const h=t.users.find(C=>C.id===s.userId);return`
+                            ${n.length>0?n.map(s=>{const c=t.users.find(b=>b.id===s.userId);return`
                                     <tr>
                                         <td><strong>#${s.orderId}</strong></td>
                                         <td>${new Date(s.createdAt).toLocaleDateString()}</td>
-                                        <td>${h?h.name:"Unknown (ID: "+s.userId+")"}</td>
+                                        <td>${c?c.name:"Unknown (ID: "+s.userId+")"}</td>
                                         <td>${s.items.length} items</td>
                                         <td><strong>${formatCurrency(s.total)}</strong></td>
                                         <td>
@@ -990,7 +990,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 </div>
             </div>
         </div>
-    `},E=({state:t})=>{if(!t.currentUser)return navigate("login"),"";const e=t.orders.filter(m=>m.userId===t.currentUser.id),o=e.filter(m=>m.status==="Pending"),r=e.filter(m=>m.status==="Shipped"),a=e.filter(m=>m.status==="Delivered");window.handleProfileUpdate||(window.handleProfileUpdate=m=>{m.preventDefault();const u=m.target,s={...t.currentUser,name:u.name.value,email:u.email.value,phone:u.phone.value,address:u.address.value,gender:u.gender.value,birthDate:`${u.birthYear.value}-${u.birthMonth.value}-${u.birthDay.value}`};t.currentUser=s,localStorage.setItem("currentUser",JSON.stringify(s)),alert("Profile updated successfully!"),render()}),window.switchUserTab||(window.switchUserTab=m=>{document.querySelectorAll(".user-tab-content").forEach(s=>s.style.display="none"),document.getElementById(`user-tab-${m}`).style.display="block",document.querySelectorAll(".sidebar-link").forEach(s=>s.classList.remove("active"));const u=document.querySelector(`[data-tab="${m}"]`);u&&u.classList.add("active")});const n=(m,u)=>{let s="";for(let h=m;h<=u;h++)s+=`<option value="${h}">${h}</option>`;return s},c=["January","February","March","April","May","June","July","August","September","October","November","December"].map((m,u)=>`<option value="${u+1}">${m}</option>`).join(""),d=t.currentUser.birthDate?new Date(t.currentUser.birthDate):null;return d&&d.getDate(),d&&d.getMonth()+1,d&&d.getFullYear(),`
+    `},z=({state:t})=>{if(!t.currentUser)return navigate("login"),"";const e=t.orders.filter(s=>s.userId===t.currentUser.id);e.filter(s=>s.status==="Pending"||s.status==="Processing"),e.filter(s=>s.status==="Shipped"),e.filter(s=>s.status==="Delivered"||s.status==="Completed");const o=[{code:"MAKER100",title:"New Maker Discount",description:"₱100 OFF",condition:"Min. spend ₱500",color:"#6366f1"},{code:"SENSE10",title:"Sensor Bundle",description:"10% OFF",condition:"All Sensors",color:"#0ea5e9"},{code:"SHIPFREE",title:"Free Shipping",description:"FREE",condition:"Orders over ₱1,500",color:"#10b981"}];window.handleProfileUpdate||(window.handleProfileUpdate=s=>{s.preventDefault();const c=s.target,b=c.name.value.trim(),h=c.email.value.trim(),w=c.phone.value.trim(),P=c.gender.value,F=`${c.birthYear.value}-${c.birthMonth.value}-${c.birthDay.value}`;if(!b||!h||!w||!P||!c.birthYear.value||!c.birthMonth.value||!c.birthDay.value){showToast("Please fill in all fields.");return}if(/\d/.test(b)){showToast("Name should not contain numbers.");return}if(!h.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(w)){showToast("Phone number must be 11 digits and start with 09.");return}const E={...t.currentUser,name:b,email:h,phone:w,gender:P,birthDate:F};t.currentUser=E,localStorage.setItem("currentUser",JSON.stringify(E)),showToast("Profile updated successfully!"),render()}),window.handleImageUpload||(window.handleImageUpload=s=>{const c=s.target.files[0];if(!c)return;if(c.size>3*1024*1024){showToast("File size exceeds 3MB limit.");return}if(!["image/jpeg","image/png"].includes(c.type)){showToast("Only .JPEG and .PNG files are allowed.");return}const b=new FileReader;b.onload=h=>{const w={...t.currentUser,avatar:h.target.result};t.currentUser=w,localStorage.setItem("currentUser",JSON.stringify(w)),showToast("Profile image updated!"),render()},b.readAsDataURL(c)}),window.handleAddressUpdate||(window.handleAddressUpdate=s=>{s.preventDefault();const c=s.target,b={fullName:c.fullName.value,phone:c.phone.value,region:c.region.value,province:c.province.value,city:c.city.value,barangay:c.barangay.value,postalCode:c.postalCode.value,street:c.street.value,details:c.details.value};if(Object.values(b).some(w=>!w)){showToast("Please fill in all address fields.");return}const h={...t.currentUser,address:b};t.currentUser=h,localStorage.setItem("currentUser",JSON.stringify(h)),showToast("Address saved successfully!"),render()}),window.handlePasswordUpdate||(window.handlePasswordUpdate=s=>{s.preventDefault();const c=s.target,b=c.currentPassword.value,h=c.newPassword.value,w=c.confirmPassword.value;if(b!==t.currentUser.password){showToast("Incorrect current password.");return}if(h.length<6){showToast("New password must be at least 6 characters.");return}if(h!==w){showToast("New passwords do not match.");return}const P={...t.currentUser,password:h};t.currentUser=P,localStorage.setItem("currentUser",JSON.stringify(P)),showToast("Password changed successfully!"),c.reset()}),window.switchUserTab||(window.switchUserTab=s=>{document.querySelectorAll(".user-tab-content").forEach(h=>h.style.display="none");const c=document.getElementById(`user-tab-${s}`);c&&(c.style.display="block"),document.querySelectorAll(".sidebar-link").forEach(h=>h.classList.remove("active"));const b=document.querySelector(`[data-tab="${s}"]`);b&&b.classList.add("active"),window.scrollTo(0,0)}),window.switchOrderTab||(window.switchOrderTab=s=>{document.querySelectorAll(".order-status-tab").forEach(c=>c.classList.remove("active")),document.querySelector(`.order-status-tab[data-status="${s}"]`).classList.add("active"),document.querySelectorAll(".order-item").forEach(c=>{s==="All"||c.dataset.status===s?c.style.display="block":c.style.display="none"})});const r=(s,c,b)=>{let h="";for(let w=s;w<=c;w++)h+=`<option value="${w}" ${parseInt(b)===w?"selected":""}>${w}</option>`;return h},a=["January","February","March","April","May","June","July","August","September","October","November","December"],n=t.currentUser.birthDate?new Date(t.currentUser.birthDate):null,l=n?n.getDate():"",m=n?n.getMonth()+1:"",d=n?n.getFullYear():"",g=t.currentUser.address||{},v=typeof g=="object"&&g!==null;return`
         <div class="user-page-wrapper">
             <div class="container">
                 <div class="user-layout">
@@ -999,7 +999,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                     <aside class="user-sidebar">
                         <div class="user-brief">
                             <div class="user-avatar-small">
-                                ${t.currentUser.name.charAt(0).toUpperCase()}
+                                ${t.currentUser.avatar?`<img src="${t.currentUser.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`:t.currentUser.name.charAt(0).toUpperCase()}
                             </div>
                             <div class="user-brief-info">
                                 <div class="user-name-truncate">${t.currentUser.name}</div>
@@ -1018,9 +1018,8 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                                 </div>
                                 <ul class="nav-list">
                                     <li><a href="#" class="sidebar-link active" data-tab="profile" onclick="window.switchUserTab('profile'); return false;">Profile</a></li>
-                                    <li><a href="#" class="sidebar-link" onclick="return false;">Banks & Cards</a></li>
-                                    <li><a href="#" class="sidebar-link" onclick="return false;">Addresses</a></li>
-                                    <li><a href="#" class="sidebar-link" onclick="return false;">Change Password</a></li>
+                                    <li><a href="#" class="sidebar-link" data-tab="address" onclick="window.switchUserTab('address'); return false;">Addresses</a></li>
+                                    <li><a href="#" class="sidebar-link" data-tab="password" onclick="window.switchUserTab('password'); return false;">Change Password</a></li>
                                 </ul>
                             </div>
                             <div class="nav-group">
@@ -1034,9 +1033,12 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                             </div>
                             <div class="nav-group">
                                 <div class="nav-header">
-                                    <span class="nav-icon">🔔</span>
-                                    Notifications
+                                    <span class="nav-icon">🎟️</span>
+                                    My Vouchers
                                 </div>
+                                <ul class="nav-list">
+                                    <li><a href="#" class="sidebar-link" data-tab="coupons" onclick="window.switchUserTab('coupons'); return false;">My Coupons</a></li>
+                                </ul>
                             </div>
                         </nav>
                     </aside>
@@ -1044,7 +1046,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                     <!-- Main Content -->
                     <main class="user-content">
                         
-                        <!-- Profile Tab -->
+                        <!-- 1. Profile Tab -->
                         <div id="user-tab-profile" class="user-tab-content">
                             <div class="content-header">
                                 <h1>My Profile</h1>
@@ -1060,29 +1062,21 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                                         </div>
                                         <div class="form-row">
                                             <label>Name</label>
-                                            <input type="text" name="name" value="${t.currentUser.name}" class="form-input">
+                                            <input type="text" name="name" value="${t.currentUser.name}" class="form-input" required>
                                         </div>
                                         <div class="form-row">
                                             <label>Email</label>
-                                            <div class="form-value">
-                                                ${t.currentUser.email}
-                                                <a href="#" class="change-link">Change</a>
-                                            </div>
-                                            <input type="hidden" name="email" value="${t.currentUser.email}">
+                                            <input type="email" name="email" value="${t.currentUser.email}" class="form-input" required>
                                         </div>
                                         <div class="form-row">
                                             <label>Phone Number</label>
-                                            <div class="form-value">
-                                                ${t.currentUser.phone||"Not Set"}
-                                                <a href="#" class="change-link">Change</a>
-                                            </div>
-                                            <input type="hidden" name="phone" value="${t.currentUser.phone||""}">
+                                            <input type="text" name="phone" value="${t.currentUser.phone||""}" class="form-input" placeholder="09XXXXXXXXX" required>
                                         </div>
                                         <div class="form-row">
                                             <label>Gender</label>
                                             <div class="radio-group">
                                                 <label class="radio-label">
-                                                    <input type="radio" name="gender" value="Male" ${t.currentUser.gender==="Male"?"checked":""}> Male
+                                                    <input type="radio" name="gender" value="Male" ${t.currentUser.gender==="Male"?"checked":""} required> Male
                                                 </label>
                                                 <label class="radio-label">
                                                     <input type="radio" name="gender" value="Female" ${t.currentUser.gender==="Female"?"checked":""}> Female
@@ -1095,24 +1089,21 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                                         <div class="form-row">
                                             <label>Date of Birth</label>
                                             <div class="date-selects">
-                                                <select name="birthDay" class="form-select">
+                                                <select name="birthDay" class="form-select" required>
                                                     <option value="">Day</option>
-                                                    ${n(1,31)}
+                                                    ${r(1,31,l)}
                                                 </select>
-                                                <select name="birthMonth" class="form-select">
+                                                <select name="birthMonth" class="form-select" required>
                                                     <option value="">Month</option>
-                                                    ${c}
+                                                    ${a.map((s,c)=>`<option value="${c+1}" ${parseInt(m)===c+1?"selected":""}>${s}</option>`).join("")}
                                                 </select>
-                                                <select name="birthYear" class="form-select">
+                                                <select name="birthYear" class="form-select" required>
                                                     <option value="">Year</option>
-                                                    ${n(1950,2024)}
+                                                    ${r(1950,2024,d)}
                                                 </select>
                                             </div>
                                         </div>
                                         
-                                        <!-- Hidden Address Field to persist it -->
-                                        <input type="hidden" name="address" value="${t.currentUser.address||""}">
-
                                         <div class="form-actions">
                                             <button type="submit" class="btn-save">Save</button>
                                         </div>
@@ -1121,53 +1112,127 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
 
                                 <div class="profile-avatar-section">
                                     <div class="avatar-preview">
-                                        ${t.currentUser.name.charAt(0).toUpperCase()}
+                                        ${t.currentUser.avatar?`<img src="${t.currentUser.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`:t.currentUser.name.charAt(0).toUpperCase()}
                                     </div>
-                                    <button class="btn-select-image">Select Image</button>
+                                    <input type="file" id="avatarInput" accept=".jpeg, .png, .jpg" style="display: none;" onchange="window.handleImageUpload(event)">
+                                    <button class="btn-select-image" onclick="document.getElementById('avatarInput').click()">Select Image</button>
                                     <div class="avatar-help">
-                                        File size: maximum 1 MB<br>
+                                        File size: maximum 3 MB<br>
                                         File extension: .JPEG, .PNG
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Orders Tab -->
+                        <!-- 2. Address Tab -->
+                        <div id="user-tab-address" class="user-tab-content" style="display: none;">
+                            <div class="content-header">
+                                <h1>My Addresses</h1>
+                                <p>Manage your shipping addresses</p>
+                            </div>
+                            <form onsubmit="window.handleAddressUpdate(event)" style="max-width: 600px;">
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <label class="form-label">Full Name</label>
+                                    <input type="text" name="fullName" class="form-input" value="${v&&g.fullName||""}" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <label class="form-label">Phone Number</label>
+                                    <input type="text" name="phone" class="form-input" value="${v&&g.phone||""}" placeholder="09XXXXXXXXX" required>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">Region</label>
+                                        <input type="text" name="region" class="form-input" value="${v&&g.region||""}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Province</label>
+                                        <input type="text" name="province" class="form-input" value="${v&&g.province||""}" required>
+                                    </div>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                    <div class="form-group">
+                                        <label class="form-label">City</label>
+                                        <input type="text" name="city" class="form-input" value="${v&&g.city||""}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Barangay</label>
+                                        <input type="text" name="barangay" class="form-input" value="${v&&g.barangay||""}" required>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <label class="form-label">Postal Code</label>
+                                    <input type="text" name="postalCode" class="form-input" value="${v&&g.postalCode||""}" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 1rem;">
+                                    <label class="form-label">Street Name, Building, House No.</label>
+                                    <input type="text" name="street" class="form-input" value="${v&&g.street||""}" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 1.5rem;">
+                                    <label class="form-label">Additional Details (Landmark, etc.)</label>
+                                    <input type="text" name="details" class="form-input" value="${v&&g.details||""}">
+                                </div>
+                                <button type="submit" class="btn-save">Save Address</button>
+                            </form>
+                        </div>
+
+                        <!-- 3. Change Password Tab -->
+                        <div id="user-tab-password" class="user-tab-content" style="display: none;">
+                            <div class="content-header">
+                                <h1>Change Password</h1>
+                                <p>For your account's security, do not share your password with anyone else</p>
+                            </div>
+                            <form onsubmit="window.handlePasswordUpdate(event)" style="max-width: 400px;">
+                                <div class="form-group" style="margin-bottom: 1.5rem;">
+                                    <label class="form-label">Current Password</label>
+                                    <input type="password" name="currentPassword" class="form-input" required>
+                                </div>
+                                <div class="form-group" style="margin-bottom: 1.5rem;">
+                                    <label class="form-label">New Password</label>
+                                    <input type="password" name="newPassword" class="form-input" required minlength="6">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 2rem;">
+                                    <label class="form-label">Confirm Password</label>
+                                    <input type="password" name="confirmPassword" class="form-input" required minlength="6">
+                                </div>
+                                <button type="submit" class="btn-save">Confirm</button>
+                            </form>
+                        </div>
+
+                        <!-- 4. Orders Tab -->
                         <div id="user-tab-orders" class="user-tab-content" style="display: none;">
                             <div class="content-header">
                                 <h1>My Orders</h1>
                             </div>
                             
                             <div class="orders-tabs">
-                                <div class="order-status-tab active">All</div>
-                                <div class="order-status-tab">To Pay</div>
-                                <div class="order-status-tab">To Ship (${o.length})</div>
-                                <div class="order-status-tab">To Receive (${r.length})</div>
-                                <div class="order-status-tab">Completed (${a.length})</div>
+                                <div class="order-status-tab active" data-status="All" onclick="window.switchOrderTab('All')">All</div>
+                                <div class="order-status-tab" data-status="Pending" onclick="window.switchOrderTab('Pending')">To Ship</div>
+                                <div class="order-status-tab" data-status="Shipped" onclick="window.switchOrderTab('Shipped')">To Receive</div>
+                                <div class="order-status-tab" data-status="Completed" onclick="window.switchOrderTab('Completed')">Completed</div>
                             </div>
 
                             <div class="orders-list">
-                                ${e.length>0?e.map(m=>`
-                                    <div class="order-item">
+                                ${e.length>0?e.map(s=>`
+                                    <div class="order-item" data-status="${s.status==="Pending"||s.status==="Processing"?"Pending":s.status==="Shipped"?"Shipped":s.status==="Delivered"?"Completed":s.status}">
                                         <div class="order-header">
-                                            <span>Order ID: ${m.id}</span>
-                                            <span class="order-status status-${m.status.toLowerCase()}">${m.status}</span>
+                                            <span>Order ID: ${s.id||s.orderId}</span>
+                                            <span class="order-status status-${s.status.toLowerCase()}">${s.status}</span>
                                         </div>
                                         <div class="order-products">
-                                            ${m.items.map(u=>`
+                                            ${s.items.map(c=>`
                                                 <div class="order-product">
-                                                    <img src="${u.image||"assets/placeholder.png"}" alt="${u.name}">
+                                                    <img src="${c.image||"assets/placeholder.png"}" alt="${c.name}">
                                                     <div class="product-details">
-                                                        <div class="product-name">${u.name}</div>
-                                                        <div class="product-qty">x${u.quantity}</div>
+                                                        <div class="product-name">${c.name||c.productName}</div>
+                                                        <div class="product-qty">x${c.quantity}</div>
                                                     </div>
-                                                    <div class="product-price">${g(u.price)}</div>
+                                                    <div class="product-price">${u(c.price)}</div>
                                                 </div>
                                             `).join("")}
                                         </div>
                                         <div class="order-footer">
                                             <div class="order-total">
-                                                Order Total: <span>${g(m.total)}</span>
+                                                Order Total: <span>${u(s.total)}</span>
                                             </div>
                                             <div class="order-actions">
                                                 <button class="btn-buy-again">Buy Again</button>
@@ -1183,6 +1248,58 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                             </div>
                         </div>
 
+                        <!-- 5. My Coupons Tab -->
+                        <div id="user-tab-coupons" class="user-tab-content" style="display: none;">
+                            <div class="content-header">
+                                <h1>My Vouchers</h1>
+                                <div style="display: flex; gap: 1rem; font-size: 0.875rem;">
+                                    <a href="#" style="color: var(--primary);">Get more vouchers</a>
+                                    <span style="color: #ddd;">|</span>
+                                    <a href="#" style="color: var(--primary);">View voucher history</a>
+                                </div>
+                            </div>
+
+                            <!-- Add Voucher Section -->
+                            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 4px; display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
+                                <span style="font-weight: 500; color: #333;">Add Voucher</span>
+                                <input type="text" placeholder="Please enter voucher code" style="flex: 1; padding: 0.625rem; border: 1px solid #e0e0e0; border-radius: 2px; outline: none;">
+                                <button style="background: #e0e0e0; color: #999; border: none; padding: 0.625rem 1.5rem; border-radius: 2px; cursor: not-allowed;">Redeem</button>
+                            </div>
+
+                            <!-- Voucher Tabs -->
+                            <div style="border-bottom: 1px solid #e0e0e0; margin-bottom: 1.5rem;">
+                                <div style="display: inline-block; padding: 0.75rem 1.5rem; color: var(--primary); border-bottom: 2px solid var(--primary); font-weight: 500;">
+                                    All (${o.length})
+                                </div>
+                            </div>
+
+                            <!-- Vouchers List -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                ${o.map(s=>`
+                                    <div style="display: flex; background: white; border: 1px solid #e0e0e0; border-radius: 4px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                                        <!-- Left Side (Image/Icon) -->
+                                        <div style="width: 120px; background: ${s.color}; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; padding: 1rem; position: relative; border-right: 2px dashed white;">
+                                            <div style="font-size: 2rem; font-weight: 700;">%</div>
+                                            <div style="font-size: 0.75rem; margin-top: 0.25rem;">LUMINA</div>
+                                            <!-- Sawtooth border effect simulation -->
+                                            <div style="position: absolute; right: -6px; top: 0; bottom: 0; width: 10px; background-image: radial-gradient(circle, white 4px, transparent 5px); background-size: 10px 14px; background-repeat: repeat-y;"></div>
+                                        </div>
+                                        
+                                        <!-- Right Side (Details) -->
+                                        <div style="flex: 1; padding: 1rem; display: flex; flex-direction: column; justify-content: center;">
+                                            <div style="font-size: 1rem; font-weight: 600; color: #333; margin-bottom: 0.25rem;">${s.description}</div>
+                                            <div style="font-size: 0.875rem; color: #666; margin-bottom: 0.25rem;">${s.condition}</div>
+                                            <div style="font-size: 0.75rem; color: #999; margin-bottom: 0.5rem;">Valid till: 31.12.2025</div>
+                                            
+                                            <div style="display: flex; justify-content: flex-end;">
+                                                <button style="color: var(--primary); background: white; border: 1px solid var(--primary); padding: 0.25rem 0.75rem; font-size: 0.875rem; border-radius: 2px; cursor: pointer;">Use</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join("")}
+                            </div>
+                        </div>
+
                     </main>
                 </div>
             </div>
@@ -1191,7 +1308,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
         <style>
             .user-page-wrapper {
                 background-color: #f5f5f5;
-                min-height: calc(100vh - 64px); /* Adjust based on header height */
+                min-height: calc(100vh - 64px);
                 padding: 20px 0;
                 font-family: 'Inter', sans-serif;
             }
@@ -1279,12 +1396,13 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 text-decoration: none;
                 font-size: 14px;
                 display: block;
+                transition: color 0.2s;
             }
             .sidebar-link:hover {
                 color: var(--primary);
             }
             .sidebar-link.active {
-                color: var(--primary);
+                color: var(--accent); /* User requested accent color */
                 font-weight: 500;
             }
 
@@ -1301,6 +1419,9 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 border-bottom: 1px solid #efefef;
                 padding-bottom: 18px;
                 margin-bottom: 24px;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-end;
             }
             .content-header h1 {
                 font-size: 18px;
@@ -1314,7 +1435,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 margin: 4px 0 0;
             }
 
-            /* Profile Form */
+            /* Forms */
             .profile-layout {
                 display: flex;
                 gap: 40px;
@@ -1347,15 +1468,16 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 border-radius: 2px;
                 font-size: 14px;
                 outline: none;
+                transition: border-color 0.2s;
             }
             .form-input:focus {
                 border-color: #888;
             }
-            .change-link {
-                color: #05a;
-                text-decoration: underline;
-                font-size: 13px;
-                margin-left: 8px;
+            .form-label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-size: 0.875rem;
+                color: #555;
             }
             .radio-group {
                 display: flex;
@@ -1417,6 +1539,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 color: #555;
                 margin-bottom: 20px;
                 border: 1px solid #d0d0d0;
+                overflow: hidden;
             }
             .btn-select-image {
                 background: white;
@@ -1552,7 +1675,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 }
             }
         </style>
-    `},Y=({Breadcrumbs:t,state:e})=>{let o=[...e.products];switch(e.searchQuery&&(o=o.filter(r=>r.name.toLowerCase().includes(e.searchQuery.toLowerCase())||r.category.toLowerCase().includes(e.searchQuery.toLowerCase())||r.description.toLowerCase().includes(e.searchQuery.toLowerCase()))),e.filterCategory&&(o=o.filter(r=>r.category===e.filterCategory)),e.sortBy){case"price-asc":o.sort((r,a)=>r.price-a.price);break;case"price-desc":o.sort((r,a)=>a.price-r.price);break;case"name-asc":o.sort((r,a)=>r.name.localeCompare(a.name));break;case"name-desc":o.sort((r,a)=>a.name.localeCompare(r.name));break;case"featured":default:o.sort((r,a)=>r.id-a.id);break}return`
+    `},X=({Breadcrumbs:t,state:e})=>{let o=[...e.products];switch(e.searchQuery&&(o=o.filter(r=>r.name.toLowerCase().includes(e.searchQuery.toLowerCase())||r.category.toLowerCase().includes(e.searchQuery.toLowerCase())||r.description.toLowerCase().includes(e.searchQuery.toLowerCase()))),e.filterCategory&&(o=o.filter(r=>r.category===e.filterCategory)),e.sortBy){case"price-asc":o.sort((r,a)=>r.price-a.price);break;case"price-desc":o.sort((r,a)=>a.price-r.price);break;case"name-asc":o.sort((r,a)=>r.name.localeCompare(a.name));break;case"name-desc":o.sort((r,a)=>a.name.localeCompare(r.name));break;case"featured":default:o.sort((r,a)=>r.id-a.id);break}return`
         <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
             <!-- ... Breadcrumbs ... -->
             
@@ -1578,10 +1701,10 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
             </div>
             <!-- ... Product Grid ... -->
              <div class="product-grid">
-                ${o.map(_).join("")}
+                ${o.map(K).join("")}
             </div>
         </div>
-    `},_=t=>{const e=t.stock<10,o=e?"low-stock":"",r=e?"Low Stock":"In Stock";return`
+    `},K=t=>{const e=t.stock<10,o=e?"low-stock":"",r=e?"Low Stock":"In Stock";return`
         <div class="product-card" onclick="window.viewProduct(${t.id})" style="cursor: pointer;">
             <div class="product-badge ${o}">${r}</div>
             <div class="product-image">
@@ -1590,13 +1713,13 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
             <div class="product-info">
                 <div class="product-category">${t.category}</div>
                 <h3 class="product-title">${t.name}</h3>
-                <div class="product-price">${g(t.price)}</div>
+                <div class="product-price">${u(t.price)}</div>
                 <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${t.id})">
                     Add to Cart
                 </button>
             </div>
         </div>
-    `},J=({Breadcrumbs:t,state:e})=>{const o=e.products.find(l=>l.id===e.currentProductId);if(!o)return navigate("home"),"";o.stock<10;const r=o.stock>0?"In Stock":"Out of Stock",a=o.stock>0?"var(--success)":"var(--danger)",n=e.products.filter(l=>l.id!==o.id).sort(()=>.5-Math.random()).slice(0,4);return`
+    `},Z=({Breadcrumbs:t,state:e})=>{const o=e.products.find(l=>l.id===e.currentProductId);if(!o)return navigate("home"),"";o.stock<10;const r=o.stock>0?"In Stock":"Out of Stock",a=o.stock>0?"var(--success)":"var(--danger)",n=e.products.filter(l=>l.id!==o.id).sort(()=>.5-Math.random()).slice(0,4);return`
         <div class="product-detail-container">
             <div class="breadcrumbs">
                 <a href="#" onclick="window.navigate('home'); return false;">Home</a> &gt; 
@@ -1612,7 +1735,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 <div class="product-details-info">
                     <div class="product-sku">SKU: LUM-${o.id.toString().padStart(4,"0")}</div>
                     <h1 class="detail-title">${o.name}</h1>
-                    <div class="detail-price">${g(o.price)}</div>
+                    <div class="detail-price">${u(o.price)}</div>
 
                     <div class="detail-section">
                         <span class="detail-label">Description</span>
@@ -1642,11 +1765,11 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
             <div class="related-products">
                 <h3 class="related-title">You may also like</h3>
                 <div class="product-grid">
-                    ${n.map(M).join("")}
+                    ${n.map(L).join("")}
                 </div>
             </div>
         </div>
-    `},M=t=>{const e=t.stock<10,o=e?"low-stock":"",r=e?"Low Stock":"In Stock";return`
+    `},L=t=>{const e=t.stock<10,o=e?"low-stock":"",r=e?"Low Stock":"In Stock";return`
         <div class="product-card" onclick="window.viewProduct(${t.id})" style="cursor: pointer;">
             <div class="product-badge ${o}">${r}</div>
             <div class="product-image">
@@ -1655,19 +1778,19 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
             <div class="product-info">
                 <div class="product-category">${t.category}</div>
                 <h3 class="product-title">${t.name}</h3>
-                <div class="product-price">${g(t.price)}</div>
+                <div class="product-price">${u(t.price)}</div>
                 <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${t.id})">
                     Add to Cart
                 </button>
             </div>
         </div>
-    `},i={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:sessionStorage.getItem("currentRoute")||"home",mobileMenuOpen:!1,searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,devices:[],currentDeviceId:null,esp32Client:null,deviceStatus:{},telemetryData:{},sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,cartSynced:!1,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null},w={getProducts:async()=>{try{const t=await b("/products");i.products=t.data,y()}catch(t){console.error("Failed to load products:",t),p("Failed to load products")}},login:async(t,e)=>{console.log("Calling API login...");try{const o=await b("/users/login",{method:"POST",body:JSON.stringify({email:t,password:e})});i.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),await k.getMyDevices(),await X(),p(`Welcome back, ${i.currentUser.name}!`),v("home")}catch(o){throw p(o.message||"Login failed"),o}},register:async(t,e,o)=>{try{const r=await b("/users/register",{method:"POST",body:JSON.stringify({name:t,email:e,password:o})});i.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),p("Account created successfully!"),v("home")}catch(r){throw p(r.message||"Registration failed"),r}},createOrder:async t=>{try{const e=await b("/orders",{method:"POST",body:JSON.stringify(t)});return i.cart=[],f(),p("Order placed successfully!"),i.currentUser.role==="admin"&&w.getOrders(),e.data}catch(e){throw p(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await b("/orders");i.orders=t.data,y()}catch(t){console.error("Failed to load orders:",t)}},getUsers:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await b("/users");i.users=t.data,y()}catch(t){console.error("Failed to load users:",t)}}},k={getMyDevices:async()=>{if(i.currentUser)try{const t=await b(`/devices/my-devices?userId=${i.currentUser.id}`);i.devices=t.data,K(),y()}catch(t){console.error("Failed to load devices:",t),p("Failed to load devices")}},pairDevice:async(t,e)=>{try{const o=await b("/devices/pair",{method:"POST",body:JSON.stringify({deviceId:t,deviceToken:e,userId:i.currentUser.id})});p("Device paired successfully!"),await k.getMyDevices(),v("my-devices")}catch(o){throw p(o.message||"Device pairing failed"),o}}};function K(){i.esp32Client||(i.esp32Client=new ESP32SocketClient),!i.esp32Client.isConnected()&&i.currentUser&&i.esp32Client.connect(i.currentUser.id).catch(t=>{console.error("Failed to connect to WebSocket:",t)}),i.esp32Client.on("device:status",t=>{if(console.log("📊 Device status update:",t),i.devices){const e=i.devices.findIndex(o=>o.deviceId===t.deviceId);e!==-1&&(i.devices[e].status=t.status==="online"?"active":"offline",i.devices[e].lastOnline=t.timestamp,i.deviceStatus[t.deviceId]=t,i.route==="my-devices"&&y())}})}const f=()=>{localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(i.cart))},X=async()=>{if(!(!i.currentUser||i.cartSynced))try{const t=await b(`/users/${i.currentUser.id}/cart/sync`,{method:"POST",body:JSON.stringify({localCart:i.cart})});i.cart=t.data.map(e=>({id:e.productId,name:e.name,price:e.price,image:e.image,quantity:e.quantity,category:e.category,selected:e.selected})),i.cartSynced=!0,f(),y(),p("Cart synced!")}catch(t){console.error("Cart sync failed:",t)}},v=(t,e={})=>{i.route=t,i.params=e,i.mobileMenuOpen=!1,sessionStorage.setItem("currentRoute",t),y(),window.scrollTo(0,0)};window.navigate=v;const p=t=>{const e=document.createElement("div");e.className="toast",e.textContent=t,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)},x=t=>`
+    `},i={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:sessionStorage.getItem("currentRoute")||"home",mobileMenuOpen:!1,searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,devices:[],currentDeviceId:null,esp32Client:null,deviceStatus:{},telemetryData:{},sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,cartSynced:!1,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null},C={getProducts:async()=>{try{const t=await k("/products");i.products=t.data,f()}catch(t){console.error("Failed to load products:",t),p("Failed to load products")}},login:async(t,e)=>{console.log("Calling API login...");try{const o=await k("/users/login",{method:"POST",body:JSON.stringify({email:t,password:e})});i.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),await S.getMyDevices(),await te(),p(`Welcome back, ${i.currentUser.name}!`),y("home")}catch(o){throw p(o.message||"Login failed"),o}},register:async(t,e,o)=>{try{const r=await k("/users/register",{method:"POST",body:JSON.stringify({name:t,email:e,password:o})});i.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),p("Account created successfully!"),y("home")}catch(r){throw p(r.message||"Registration failed"),r}},createOrder:async t=>{try{const e=await k("/orders",{method:"POST",body:JSON.stringify(t)});return i.cart=[],x(),p("Order placed successfully!"),i.currentUser.role==="admin"&&C.getOrders(),e.data}catch(e){throw p(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await k("/orders");i.orders=t.data,f()}catch(t){console.error("Failed to load orders:",t)}},getUsers:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await k("/users");i.users=t.data,f()}catch(t){console.error("Failed to load users:",t)}}},S={getMyDevices:async()=>{if(i.currentUser)try{const t=await k(`/devices/my-devices?userId=${i.currentUser.id}`);i.devices=t.data,ee(),f()}catch(t){console.error("Failed to load devices:",t),p("Failed to load devices")}},pairDevice:async(t,e)=>{try{const o=await k("/devices/pair",{method:"POST",body:JSON.stringify({deviceId:t,deviceToken:e,userId:i.currentUser.id})});p("Device paired successfully!"),await S.getMyDevices(),y("my-devices")}catch(o){throw p(o.message||"Device pairing failed"),o}}};function ee(){i.esp32Client||(i.esp32Client=new ESP32SocketClient),!i.esp32Client.isConnected()&&i.currentUser&&i.esp32Client.connect(i.currentUser.id).catch(t=>{console.error("Failed to connect to WebSocket:",t)}),i.esp32Client.on("device:status",t=>{if(console.log("📊 Device status update:",t),i.devices){const e=i.devices.findIndex(o=>o.deviceId===t.deviceId);e!==-1&&(i.devices[e].status=t.status==="online"?"active":"offline",i.devices[e].lastOnline=t.timestamp,i.deviceStatus[t.deviceId]=t,i.route==="my-devices"&&f())}})}const x=()=>{localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(i.cart))},te=async()=>{if(!(!i.currentUser||i.cartSynced))try{const t=await k(`/users/${i.currentUser.id}/cart/sync`,{method:"POST",body:JSON.stringify({localCart:i.cart})});i.cart=t.data.map(e=>({id:e.productId,name:e.name,price:e.price,image:e.image,quantity:e.quantity,category:e.category,selected:e.selected})),i.cartSynced=!0,x(),f(),p("Cart synced!")}catch(t){console.error("Cart sync failed:",t)}},y=(t,e={})=>{i.route=t,i.params=e,i.mobileMenuOpen=!1,sessionStorage.setItem("currentRoute",t),f(),window.scrollTo(0,0)};window.navigate=y;const p=t=>{const e=document.createElement("div");e.className="toast",e.textContent=t,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)},$=t=>`
         <div class="breadcrumbs">
             <a href="#" onclick="window.navigate('home'); return false;">Home</a>
             <span class="breadcrumb-separator">›</span>
             <span>${{deals:"Deals",learn:"Learn","my-devices":"My Devices","device-pair":"Pair Device","remote-control":"Remote Control","about-us":"About Us","contact-us":"Contact Us",products:"Products",cart:"Cart",checkout:"Checkout"}[t]||t}</span>
         </div>
-    `,z=()=>{const t=i.currentUser!==null,e=i.currentUser?.role==="admin",o=i.route==="cart",r=i.cart.length;return`
+    `,O=()=>{const t=i.currentUser!==null,e=i.currentUser?.role==="admin",o=i.route==="cart",r=i.cart.length;return`
         <header>
             <div class="header-top">
                 <button class="hamburger-btn" onclick="window.toggleMobileMenu()" aria-label="Toggle menu">
@@ -1762,7 +1885,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                   <a href="#" class="nav-link ${i.route==="contact-us"?"active":""}" onclick="window.navigate('contact-us'); return false;">Contact Us</a>
             </nav>
         </header>
-    `},T=()=>{if(i.searchQuery){const o=i.products.filter(r=>r.name.toLowerCase().includes(i.searchQuery.toLowerCase())||r.category.toLowerCase().includes(i.searchQuery.toLowerCase())||r.description.toLowerCase().includes(i.searchQuery.toLowerCase()));return`
+    `},B=()=>{if(i.searchQuery){const o=i.products.filter(r=>r.name.toLowerCase().includes(i.searchQuery.toLowerCase())||r.category.toLowerCase().includes(i.searchQuery.toLowerCase())||r.description.toLowerCase().includes(i.searchQuery.toLowerCase()));return`
             <div class="hero">
                 <div class="hero-content">
                     <span class="hero-badge">Quality Components</span>
@@ -1785,7 +1908,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 <p style="color: var(--text-muted); margin-bottom: 1rem;">Found ${o.length} result${o.length!==1?"s":""} for "${i.searchQuery}"</p>
                 ${o.length>0?`
                     <div class="product-grid">
-                        ${o.map(M).join("")}
+                        ${o.map(L).join("")}
                     </div>
                 `:`
                     <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
@@ -1818,10 +1941,10 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 <a href="#" onclick="window.navigate('products'); return false;" style="font-size: 0.9rem; color: var(--primary); font-weight: 600;">View All Products &rarr;</a>
             </div>
             <div class="product-grid">
-                ${i.products.filter(o=>t.includes(o.id)).sort((o,r)=>t.indexOf(o.id)-t.indexOf(r.id)).map(M).join("")}
+                ${i.products.filter(o=>t.includes(o.id)).sort((o,r)=>t.indexOf(o.id)-t.indexOf(r.id)).map(L).join("")}
             </div>
         </div>
-    `},Z=()=>`
+    `},ie=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Welcome Back</h2>
             <form onsubmit="window.handleLogin(event)">
@@ -1839,7 +1962,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 Don't have an account? <a href="#" onclick="window.navigate('signup'); return false;" style="color: var(--accent)">Sign up</a>
             </p>
         </div>
-    `,ee=()=>`
+    `,oe=()=>`
         <div class="auth-container">
             <h2 class="auth-title">Create Account</h2>
             <form onsubmit="window.handleSignup(event)">
@@ -1864,7 +1987,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 Already have an account? <a href="#" onclick="window.openLoginModal(); return false;" style="color: var(--accent)">Login</a>
             </p>
         </div>
-    `,te=()=>{if(i.cart.length===0)return`
+    `,re=()=>{if(i.cart.length===0)return`
             <div class="text-center" style="padding: 4rem; max-width: 600px; margin: 0 auto;">
                 <div style="font-size: 4rem; margin-bottom: 1rem;">🛒</div>
                 <h2 style="margin-bottom: 1rem;">Your cart is empty</h2>
@@ -1929,7 +2052,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                             <img src="${e.image}" alt="${e.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                             <div style="flex: 1;">
                                 <h3 style="font-size: 1rem;">${e.name}</h3>
-                                <p class="text-muted">${g(e.price)}</p>
+                                <p class="text-muted">${u(e.price)}</p>
                             </div>
                             <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
                                 <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${e.id}, ${e.quantity-1})">-</button>
@@ -1960,7 +2083,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                                         <div class="similar-product-card" onclick="window.viewProduct(${r.id})">
                                             <img src="${r.image}" alt="${r.name}" class="similar-product-image">
                                             <div class="similar-product-title" title="${r.name}">${r.name}</div>
-                                            <div class="similar-product-price">${g(r.price)}</div>
+                                            <div class="similar-product-price">${u(r.price)}</div>
                                         </div>
                                     `).join("")}
                                 </div>
@@ -1972,7 +2095,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
             <div class="cart-summary">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                     <span>Total</span>
-                    <span>${g(i.cart.reduce((e,o)=>e+(o.selected!==!1?o.price*o.quantity:0),0))}</span>
+                    <span>${u(i.cart.reduce((e,o)=>e+(o.selected!==!1?o.price*o.quantity:0),0))}</span>
                 </div>
                 <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
                     Proceed to Checkout (${i.cart.filter(e=>e.selected!==!1).length})
@@ -1980,9 +2103,9 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
             </div>
         </div>
         </div>
-    `},ie=()=>{if(!i.currentUser)return v("login"),"";const t=i.devices||[];return`
+    `},ae=()=>{if(!i.currentUser)return y("login"),"";const t=i.devices||[];return`
         <div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
-            ${x("my-devices")}
+            ${$("my-devices")}
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin: 2rem 0;">
                 <h1 style="font-size: 2.5rem; margin: 0;">My Devices</h1>
@@ -2065,9 +2188,9 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 </div>
             `}
         </div>
-    `},oe=()=>i.currentUser?`
+    `},ne=()=>i.currentUser?`
         <div style="max-width: 600px; margin: 2rem auto; padding: 0 2rem;">
-            ${x("device-pair")}
+            ${$("device-pair")}
             
             <div style="background: var(--surface); padding: 2rem; border-radius: 12px; margin-top: 2rem;">
                 <h1 style="font-size: 2rem; margin-bottom: 1rem;">Pair New Device</h1>
@@ -2111,7 +2234,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
             </div>
         </div>
         
-    `:(v("login"),""),re=()=>{if(!i.currentUser)return v("login"),"";if(!i.currentDeviceId)return v("my-devices"),"";const t=i.devices?.find(d=>d.deviceId===i.currentDeviceId);if(!t)return v("my-devices"),"";const e=i.deviceStatus[t.deviceId]||{},o=i.telemetryData[t.deviceId]||{},r=e.status==="online",a=o.battery||0,n=2*Math.PI*20,l=n-a/100*n,c=Math.min(4,Math.max(0,Math.round((o.signal||0)/25)));return`
+    `:(y("login"),""),se=()=>{if(!i.currentUser)return y("login"),"";if(!i.currentDeviceId)return y("my-devices"),"";const t=i.devices?.find(d=>d.deviceId===i.currentDeviceId);if(!t)return y("my-devices"),"";const e=i.deviceStatus[t.deviceId]||{},o=i.telemetryData[t.deviceId]||{},r=e.status==="online",a=o.battery||0,n=2*Math.PI*20,l=n-a/100*n,m=Math.min(4,Math.max(0,Math.round((o.signal||0)/25)));return`
         <div style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
             <div style="margin-bottom: 1rem;">
                 <button class="btn btn-outline" onclick="window.stopRemoteControl()" style="padding: 0.75rem 1.5rem;">
@@ -2139,10 +2262,10 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                     <div class="hud-group">
                         <div class="icon-box">
                             <div class="signal-bars">
-                                <div class="bar ${c>=1?"active":""}"></div>
-                                <div class="bar ${c>=2?"active":""}"></div>
-                                <div class="bar ${c>=3?"active":""}"></div>
-                                <div class="bar ${c>=4?"active":""}"></div>
+                                <div class="bar ${m>=1?"active":""}"></div>
+                                <div class="bar ${m>=2?"active":""}"></div>
+                                <div class="bar ${m>=3?"active":""}"></div>
+                                <div class="bar ${m>=4?"active":""}"></div>
                             </div>
                         </div>
                         <div class="info">
@@ -2280,7 +2403,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 Use WASD or Arrow Keys to control
             </p>
         </div>
-    `},ae=()=>{if(!i.currentUser)return v("login"),"";const t=i.cart.filter(a=>a.selected!==!1);if(t.length===0)return p("No items selected for checkout"),v("cart"),"";const e=t.reduce((a,n)=>a+n.price*n.quantity,0),o=i.checkoutData.shippingFee,r=e+o;return`
+    `},de=()=>{if(!i.currentUser)return y("login"),"";const t=i.cart.filter(a=>a.selected!==!1);if(t.length===0)return p("No items selected for checkout"),y("cart"),"";const e=t.reduce((a,n)=>a+n.price*n.quantity,0),o=i.checkoutData.shippingFee,r=e+o;return`
         <div class="checkout-container" style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <div style="margin-bottom: 2rem;">
                 <button class="btn btn-outline" onclick="window.navigate('cart')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
@@ -2379,22 +2502,22 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                                         <div style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem;">${a.name}</div>
                                         <div style="font-size: 0.875rem; color: var(--text-muted);">Qty: ${a.quantity}</div>
                                     </div>
-                                    <div style="font-weight: 700; color: var(--primary);">${g(a.price*a.quantity)}</div>
+                                    <div style="font-weight: 700; color: var(--primary);">${u(a.price*a.quantity)}</div>
                                 </div>
                             `).join("")}
                         </div>
                         <div style="border-top: 1px solid var(--border); padding-top: 1rem; margin-bottom: 1rem;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span style="color: var(--text-muted);">Subtotal</span>
-                                <span>${g(e)}</span>
+                                <span>${u(e)}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span style="color: var(--text-muted);">Shipping Fee</span>
-                                <span>${g(o)}</span>
+                                <span>${u(o)}</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
                                 <span>Total</span>
-                                <span style="color: var(--primary);">${g(r)}</span>
+                                <span style="color: var(--primary);">${u(r)}</span>
                             </div>
                         </div>
                         <button class="btn btn-primary" onclick="window.placeOrder()" style="width: 100%; padding: 1rem; font-size: 1rem;">Place Order</button>
@@ -2403,7 +2526,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 </div>
             </div>
         </div>
-    `},ne=()=>{if(!i.lastOrderId)return v("home"),"";const t=i.orders.find(n=>n.orderId===i.lastOrderId);if(!t)return v("home"),"";const e=new Date,o=new Date(e);o.setDate(e.getDate()+3);const r=new Date(e);r.setDate(e.getDate()+5);const a=`${o.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${r.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} `;return`
+    `},le=()=>{if(!i.lastOrderId)return y("home"),"";const t=i.orders.find(n=>n.orderId===i.lastOrderId);if(!t)return y("home"),"";const e=new Date,o=new Date(e);o.setDate(e.getDate()+3);const r=new Date(e);r.setDate(e.getDate()+5);const a=`${o.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${r.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} `;return`
         <div style="max-width: 800px; margin: 4rem auto; padding: 0 2rem;">
             <div style="text-align: center; margin-bottom: 3rem;">
                 <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">✓</div>
@@ -2498,12 +2621,12 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                             <div style="font-weight: 600; margin-bottom: 0.25rem;">${n.productName||n.name}</div>
                             <div style="font-size: 0.875rem; color: var(--text-muted);">Quantity: ${n.quantity}</div>
                         </div>
-                        <div style="font-weight: 700; color: var(--primary);">${g(n.price*n.quantity)}</div>
+                        <div style="font-weight: 700; color: var(--primary);">${u(n.price*n.quantity)}</div>
                     </div>
                 `).join("")}
                 <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
                     <span>Total Amount</span>
-                    <span style="color: var(--primary);">${g(t.total)}</span>
+                    <span style="color: var(--primary);">${u(t.total)}</span>
                 </div>
             </div>
 
@@ -2517,7 +2640,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 <p style="font-size: 0.875rem; color: var(--text-muted);">Questions? Contact us at support@luminaelectronics.com</p>
             </div>
         </div>
-    `};window.navigateToTutorial=t=>{v("tutorial-detail",{id:t})};window.filterLearningContent=t=>{i.filterLearnCategory=t,y()};window.navigateToTutorial=t=>{v("tutorial-detail",{id:t})};window.updateOrderStatus=(t,e)=>{const o=i.orders.find(r=>r.id===t);o&&(o.status=e,f(),p(`Order #${t} updated to ${e}`),y())};window.toggleSelectAll=t=>{document.querySelectorAll(".product-checkbox").forEach(o=>o.checked=t.checked)};window.bulkAction=t=>{const e=document.querySelectorAll(".product-checkbox:checked"),o=Array.from(e).map(r=>parseInt(r.value));if(o.length===0){p("No products selected");return}t==="delete"?confirm(`Delete ${o.length} products?`)&&(i.products=i.products.filter(r=>!o.includes(r.id)),f(),y(),p("Products deleted")):t==="restock"&&(i.products.forEach(r=>{o.includes(r.id)&&(r.stock+=10)}),f(),y(),p("Products restocked"))};window.viewOrderDetails=t=>{const e=i.orders.find(a=>a.id===t);if(!e)return;const o=i.users.find(a=>a.id===e.userId),r=`
+    `};window.navigateToTutorial=t=>{y("tutorial-detail",{id:t})};window.filterLearningContent=t=>{i.filterLearnCategory=t,f()};window.navigateToTutorial=t=>{y("tutorial-detail",{id:t})};window.updateOrderStatus=(t,e)=>{const o=i.orders.find(r=>r.id===t);o&&(o.status=e,x(),p(`Order #${t} updated to ${e}`),f())};window.toggleSelectAll=t=>{document.querySelectorAll(".product-checkbox").forEach(o=>o.checked=t.checked)};window.bulkAction=t=>{const e=document.querySelectorAll(".product-checkbox:checked"),o=Array.from(e).map(r=>parseInt(r.value));if(o.length===0){p("No products selected");return}t==="delete"?confirm(`Delete ${o.length} products?`)&&(i.products=i.products.filter(r=>!o.includes(r.id)),x(),f(),p("Products deleted")):t==="restock"&&(i.products.forEach(r=>{o.includes(r.id)&&(r.stock+=10)}),x(),f(),p("Products restocked"))};window.viewOrderDetails=t=>{const e=i.orders.find(a=>a.id===t);if(!e)return;const o=i.users.find(a=>a.id===e.userId),r=`
         <div class="modal-overlay show" id="orderModal" onclick="if(event.target === this) window.closeModal()">
             <div class="modal-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -2542,17 +2665,17 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                             <tr style="border-bottom: 1px solid var(--border);">
                                 <td style="padding: 0.5rem;">${a.name}</td>
                                 <td style="padding: 0.5rem;">${a.quantity}</td>
-                                <td style="padding: 0.5rem;">${g(a.price)}</td>
+                                <td style="padding: 0.5rem;">${u(a.price)}</td>
                             </tr>
                         `).join("")}
                     </tbody>
                 </table>
                 <div style="text-align: right; font-size: 1.25rem; font-weight: bold;">
-                    Total: ${g(e.total)}
+                    Total: ${u(e.total)}
                 </div>
             </div>
         </div>
-    `;document.body.insertAdjacentHTML("beforeend",r)};window.closeModal=()=>{const t=document.getElementById("orderModal");t&&t.remove()};const se=(t=null)=>{const e=t?i.products.find(r=>r.id===t):null,o=!!e;return`
+    `;document.body.insertAdjacentHTML("beforeend",r)};window.closeModal=()=>{const t=document.getElementById("orderModal");t&&t.remove()};const ce=(t=null)=>{const e=t?i.products.find(r=>r.id===t):null,o=!!e;return`
         <div class="modal-overlay show" id="productModal" onclick="if(event.target === this) window.closeProductModal()">
             <div class="modal-content" style="max-width: 600px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -2600,7 +2723,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 </form>
             </div>
         </div>
-    `};window.navigate=v;window.toggleMobileMenu=()=>{i.mobileMenuOpen=!i.mobileMenuOpen,y()};window.showProductModal=(t=null)=>{document.body.insertAdjacentHTML("beforeend",se(t))};window.closeProductModal=()=>{document.getElementById("productModal")?.remove()};window.editProduct=t=>{window.showProductModal(t)};window.deleteProduct=async t=>{if(confirm("Delete this product?"))try{await b(`/products/${t}`,{method:"DELETE"}),await w.getProducts(),p("Product deleted")}catch{p("Delete failed")}};window.handleProductSubmit=async(t,e)=>{t.preventDefault();const o=new FormData(t.target);try{const r=e?"PUT":"POST",a=e?`/products/${e}`:"/products";if(!(await fetch(`${L}${a}`,{method:r,body:o})).ok)throw new Error("Failed");await w.getProducts(),window.closeProductModal(),p(e?"Product updated!":"Product created!")}catch{p("Operation failed")}};window.handleSort=t=>{i.sortBy=t,y()};window.viewProduct=t=>{i.currentProductId=t,v("product-detail")};window.adjustDetailQty=t=>{const e=document.getElementById("detailQty");let o=parseInt(e.value)+t;o<1&&(o=1),e.value=o};window.addToCartFromDetail=t=>{const e=parseInt(document.getElementById("detailQty").value);if(!i.currentUser){p("Please login to shop"),v("login");return}const o=i.products.find(a=>a.id===t),r=i.cart.find(a=>a.id===t);r?r.quantity+=e:i.cart.push({...o,quantity:e,selected:!0}),f(),p(`Added ${e} item(s) to cart`)};window.addToCart=async t=>{if(!i.currentUser){window.showToast("Please login to shop"),window.navigate("login");return}const e=i.products.find(r=>r.id===t);if(!e)return;const o=i.cart.find(r=>r.id===t);if(o?o.quantity+=1:i.cart.push({...e,quantity:1,selected:!0}),f(),y(),window.showToast(`Added ${e.name} to cart! 🛒`),i.currentUser)try{await b(`/users/${i.currentUser.id}/cart`,{method:"PUT",body:JSON.stringify({cart:i.cart.map(r=>({productId:r.id,name:r.name,price:r.price,image:r.image,quantity:r.quantity,category:r.category,selected:r.selected!==!1}))})})}catch(r){console.error("Failed to sync cart:",r)}};window.updateQuantity=(t,e)=>{if(e<1){window.removeFromCart(t);return}const o=i.cart.find(r=>r.id===t);o&&(o.quantity=e,f(),y())};window.removeFromCart=t=>{i.cart=i.cart.filter(e=>e.id!==t),f(),y()};window.checkout=async()=>{if(i.cart.length===0)return;if(!i.currentUser){p("Please login to checkout"),v("login");return}if(i.cart.filter(e=>e.selected!==!1).length===0){p("No items selected for checkout");return}v("checkout")};window.updateShippingInfo=(t,e)=>{i.checkoutData.shipping[t]=e};window.selectPaymentMethod=t=>{i.checkoutData.paymentMethod=t,y()};window.handlePhoneInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.phone=e};window.handleNameInput=t=>{const e=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=e,i.checkoutData.shipping.fullName=e};window.handleLocationInput=(t,e)=>{const o=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=o,i.checkoutData.shipping[e]=o};window.handlePostalInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.postalCode=e};window.showPaymentModal=t=>new Promise(e=>{let o="";const r=`
+    `};window.navigate=y;window.toggleMobileMenu=()=>{i.mobileMenuOpen=!i.mobileMenuOpen,f()};window.showProductModal=(t=null)=>{document.body.insertAdjacentHTML("beforeend",ce(t))};window.closeProductModal=()=>{document.getElementById("productModal")?.remove()};window.editProduct=t=>{window.showProductModal(t)};window.deleteProduct=async t=>{if(confirm("Delete this product?"))try{await k(`/products/${t}`,{method:"DELETE"}),await C.getProducts(),p("Product deleted")}catch{p("Delete failed")}};window.handleProductSubmit=async(t,e)=>{t.preventDefault();const o=new FormData(t.target);try{const r=e?"PUT":"POST",a=e?`/products/${e}`:"/products";if(!(await fetch(`${T}${a}`,{method:r,body:o})).ok)throw new Error("Failed");await C.getProducts(),window.closeProductModal(),p(e?"Product updated!":"Product created!")}catch{p("Operation failed")}};window.handleSort=t=>{i.sortBy=t,f()};window.viewProduct=t=>{i.currentProductId=t,y("product-detail")};window.adjustDetailQty=t=>{const e=document.getElementById("detailQty");let o=parseInt(e.value)+t;o<1&&(o=1),e.value=o};window.addToCartFromDetail=t=>{const e=parseInt(document.getElementById("detailQty").value);if(!i.currentUser){p("Please login to shop"),y("login");return}const o=i.products.find(a=>a.id===t),r=i.cart.find(a=>a.id===t);r?r.quantity+=e:i.cart.push({...o,quantity:e,selected:!0}),x(),p(`Added ${e} item(s) to cart`)};window.addToCart=async t=>{if(!i.currentUser){window.showToast("Please login to shop"),window.navigate("login");return}const e=i.products.find(r=>r.id===t);if(!e)return;const o=i.cart.find(r=>r.id===t);if(o?o.quantity+=1:i.cart.push({...e,quantity:1,selected:!0}),x(),f(),window.showToast(`Added ${e.name} to cart! 🛒`),i.currentUser)try{await k(`/users/${i.currentUser.id}/cart`,{method:"PUT",body:JSON.stringify({cart:i.cart.map(r=>({productId:r.id,name:r.name,price:r.price,image:r.image,quantity:r.quantity,category:r.category,selected:r.selected!==!1}))})})}catch(r){console.error("Failed to sync cart:",r)}};window.updateQuantity=(t,e)=>{if(e<1){window.removeFromCart(t);return}const o=i.cart.find(r=>r.id===t);o&&(o.quantity=e,x(),f())};window.removeFromCart=t=>{i.cart=i.cart.filter(e=>e.id!==t),x(),f()};window.checkout=async()=>{if(i.cart.length===0)return;if(!i.currentUser){p("Please login to checkout"),y("login");return}if(i.cart.filter(e=>e.selected!==!1).length===0){p("No items selected for checkout");return}y("checkout")};window.updateShippingInfo=(t,e)=>{i.checkoutData.shipping[t]=e};window.selectPaymentMethod=t=>{i.checkoutData.paymentMethod=t,f()};window.handlePhoneInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.phone=e};window.handleNameInput=t=>{const e=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=e,i.checkoutData.shipping.fullName=e};window.handleLocationInput=(t,e)=>{const o=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=o,i.checkoutData.shipping[e]=o};window.handlePostalInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.postalCode=e};window.showPaymentModal=t=>new Promise(e=>{let o="";const r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="payment-modal-header">
@@ -2612,11 +2735,11 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                         <div class="payment-summary">
                             <div class="payment-summary-row">
                                 <span>Total Amount:</span>
-                                <span style="font-weight: 700;">${g(t)}</span>
+                                <span style="font-weight: 700;">${u(t)}</span>
                             </div>
                             <div class="payment-summary-row total">
                                 <span>To Pay:</span>
-                                <span>${g(t)}</span>
+                                <span>${u(t)}</span>
                             </div>
                         </div>
                         
@@ -2653,7 +2776,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentAmountInput"),l=document.getElementById("paymentError"),c=document.getElementById("paymentChangeDisplay"),d=document.getElementById("changeAmount"),m=document.getElementById("paymentConfirmBtn"),u=document.getElementById("paymentCancelBtn");setTimeout(()=>n.focus(),100),n.addEventListener("input",s=>{let h=s.target.value.replace(/[^0-9.]/g,"");const C=h.split(".");C.length>2&&(h=C[0]+"."+C.slice(1).join("")),s.target.value=h,o=h;const $=parseFloat(h);if(!h||isNaN($)||$<0){l.textContent="",l.classList.remove("show"),n.classList.remove("error"),m.disabled=!0,c.classList.remove("show");return}if($<t){const I=t-$;l.textContent=`Insufficient! Need ${g(I)} more`,l.classList.add("show"),n.classList.add("error"),m.disabled=!0,c.classList.remove("show")}else{const I=$-t;l.classList.remove("show"),n.classList.remove("error"),m.disabled=!1,c.classList.add("show"),d.textContent=g(I)}}),document.querySelectorAll(".quick-amount-btn").forEach(s=>{s.addEventListener("click",()=>{const h=s.getAttribute("data-amount");n.value=h,n.dispatchEvent(new Event("input"))})}),u.addEventListener("click",()=>{a.remove(),e(null)}),a.addEventListener("click",s=>{s.target===a&&(a.remove(),e(null))}),m.addEventListener("click",()=>{const s=parseFloat(o);s>=t&&(a.remove(),e({amountPaid:s,change:s-t}))}),n.addEventListener("keypress",s=>{s.key==="Enter"&&!m.disabled&&m.click()}),document.addEventListener("keydown",function s(h){h.key==="Escape"&&(a.remove(),e(null),document.removeEventListener("keydown",s))})});window.showGCashModal=t=>new Promise(e=>{const o="GCASH-"+Date.now().toString().slice(-8),r=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentAmountInput"),l=document.getElementById("paymentError"),m=document.getElementById("paymentChangeDisplay"),d=document.getElementById("changeAmount"),g=document.getElementById("paymentConfirmBtn"),v=document.getElementById("paymentCancelBtn");setTimeout(()=>n.focus(),100),n.addEventListener("input",s=>{let c=s.target.value.replace(/[^0-9.]/g,"");const b=c.split(".");b.length>2&&(c=b[0]+"."+b.slice(1).join("")),s.target.value=c,o=c;const h=parseFloat(c);if(!c||isNaN(h)||h<0){l.textContent="",l.classList.remove("show"),n.classList.remove("error"),g.disabled=!0,m.classList.remove("show");return}if(h<t){const w=t-h;l.textContent=`Insufficient! Need ${u(w)} more`,l.classList.add("show"),n.classList.add("error"),g.disabled=!0,m.classList.remove("show")}else{const w=h-t;l.classList.remove("show"),n.classList.remove("error"),g.disabled=!1,m.classList.add("show"),d.textContent=u(w)}}),document.querySelectorAll(".quick-amount-btn").forEach(s=>{s.addEventListener("click",()=>{const c=s.getAttribute("data-amount");n.value=c,n.dispatchEvent(new Event("input"))})}),v.addEventListener("click",()=>{a.remove(),e(null)}),a.addEventListener("click",s=>{s.target===a&&(a.remove(),e(null))}),g.addEventListener("click",()=>{const s=parseFloat(o);s>=t&&(a.remove(),e({amountPaid:s,change:s-t}))}),n.addEventListener("keypress",s=>{s.key==="Enter"&&!g.disabled&&g.click()}),document.addEventListener("keydown",function s(c){c.key==="Escape"&&(a.remove(),e(null),document.removeEventListener("keydown",s))})});window.showGCashModal=t=>new Promise(e=>{const o="GCASH-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -2666,7 +2789,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Pay:</span>
-                                <span>${g(t)}</span>
+                                <span>${u(t)}</span>
                             </div>
                         </div>
                         
@@ -2721,7 +2844,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),c=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),e(null)}),n.addEventListener("click",()=>{c.classList.add("show"),setTimeout(()=>{c.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"gcash",reference:o})},1e3)},1500)}),a.addEventListener("click",m=>{m.target===a&&(a.remove(),e(null))})});window.showMayaModal=t=>new Promise(e=>{const o="MAYA-"+Date.now().toString().slice(-8),r=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),m=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),e(null)}),n.addEventListener("click",()=>{m.classList.add("show"),setTimeout(()=>{m.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"gcash",reference:o})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),e(null))})});window.showMayaModal=t=>new Promise(e=>{const o="MAYA-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -2734,7 +2857,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Pay:</span>
-                                <span>${g(t)}</span>
+                                <span>${u(t)}</span>
                             </div>
                         </div>
                         
@@ -2789,7 +2912,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),c=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),e(null)}),n.addEventListener("click",()=>{c.classList.add("show"),setTimeout(()=>{c.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"maya",reference:o})},1e3)},1500)}),a.addEventListener("click",m=>{m.target===a&&(a.remove(),e(null))})});window.showCardModal=t=>new Promise(e=>{const l=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),m=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),e(null)}),n.addEventListener("click",()=>{m.classList.add("show"),setTimeout(()=>{m.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"maya",reference:o})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),e(null))})});window.showCardModal=t=>new Promise(e=>{const l=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -2802,7 +2925,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Charge:</span>
-                                <span>${g(t)}</span>
+                                <span>${u(t)}</span>
                             </div>
                         </div>
                         
@@ -2873,7 +2996,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",l);const c=document.getElementById("paymentModalOverlay"),d=document.getElementById("paymentConfirmBtn"),m=document.getElementById("paymentCancelBtn"),u=document.getElementById("processingOverlay"),s=document.getElementById("successOverlay");m.addEventListener("click",()=>{c.remove(),e(null)}),d.addEventListener("click",()=>{u.classList.add("show"),setTimeout(()=>{u.classList.remove("show"),s.classList.add("show"),setTimeout(()=>{c.remove(),e({method:"card",last4:"1111"})},1e3)},2e3)}),c.addEventListener("click",h=>{h.target===c&&(c.remove(),e(null))})});window.showBankModal=t=>new Promise(e=>{const o="BDO-"+Date.now().toString().slice(-8),r=`
+        `;document.body.insertAdjacentHTML("beforeend",l);const m=document.getElementById("paymentModalOverlay"),d=document.getElementById("paymentConfirmBtn"),g=document.getElementById("paymentCancelBtn"),v=document.getElementById("processingOverlay"),s=document.getElementById("successOverlay");g.addEventListener("click",()=>{m.remove(),e(null)}),d.addEventListener("click",()=>{v.classList.add("show"),setTimeout(()=>{v.classList.remove("show"),s.classList.add("show"),setTimeout(()=>{m.remove(),e({method:"card",last4:"1111"})},1e3)},2e3)}),m.addEventListener("click",c=>{c.target===m&&(m.remove(),e(null))})});window.showBankModal=t=>new Promise(e=>{const o="BDO-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -2886,7 +3009,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Transfer:</span>
-                                <span>${g(t)}</span>
+                                <span>${u(t)}</span>
                             </div>
                         </div>
                         
@@ -2944,7 +3067,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),c=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),e(null)}),n.addEventListener("click",()=>{c.classList.add("show"),setTimeout(()=>{c.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"bank",reference:o})},1e3)},1500)}),a.addEventListener("click",m=>{m.target===a&&(a.remove(),e(null))})});window.placeOrder=async()=>{const t=i.checkoutData.shipping;if(!t.fullName||!t.fullName.trim()){p("Please enter your full name");return}if(!t.address||!t.address.trim()){p("Please enter your address");return}if(!t.city||!t.city.trim()){p("Please enter your city");return}if(!t.province||!t.province.trim()){p("Please enter your province");return}if(!t.phone||!t.phone.trim()){p("Please enter your phone number");return}if(!/^09\d{9}$/.test(t.phone)){p('Phone number must start with "09" and contain exactly 11 digits');return}const o=/^[a-zA-Z\s]+$/;if(!o.test(t.fullName)){p("Full Name must contain letters and spaces only");return}if(!o.test(t.city)){p("City must contain letters and spaces only");return}if(!o.test(t.province)){p("Province must contain letters and spaces only");return}if(t.postalCode&&!/^\d+$/.test(t.postalCode)){p("Postal Code must contain numbers only");return}if(!i.checkoutData.paymentMethod){p("Please select a payment method");return}const r=i.cart.filter(u=>u.selected!==!1),n=r.reduce((u,s)=>u+s.price*s.quantity,0)+i.checkoutData.shippingFee;let l=null;switch(i.checkoutData.paymentMethod){case"cod":l=await showPaymentModal(n);break;case"gcash":l=await showGCashModal(n);break;case"maya":l=await showMayaModal(n);break;case"card":l=await showCardModal(n);break;case"bank":l=await showBankModal(n);break;default:p("Please select a payment method");return}if(!l)return;let c=l.amountPaid||n,d=l.change||0;const m={userId:i.currentUser.id,items:r.map(u=>({productId:u.id,quantity:u.quantity,price:u.price,name:u.name})),total:n,shippingInfo:i.checkoutData.shipping,paymentMethod:i.checkoutData.paymentMethod,shippingFee:i.checkoutData.shippingFee,amountPaid:c,change:d};try{const u=await w.createOrder(m);i.lastOrderId=u.orderId,i.lastOrderPayment={amountPaid:c,change:d},i.orders.push({orderId:u.orderId,...u,items:r,total:n,createdAt:new Date().toISOString(),userId:i.currentUser.id,devices:u.devices||[]}),i.cart=i.cart.filter(s=>s.selected===!1),f(),v("order-confirmation")}catch{}};window.printReceipt=()=>{if(!i.lastOrderId){p("No order found to print");return}const t=i.orders.find(n=>n.orderId===i.lastOrderId);if(!t){p("Order not found");return}const e=i.lastOrderPayment||{},o=new Date,r=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),m=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),e(null)}),n.addEventListener("click",()=>{m.classList.add("show"),setTimeout(()=>{m.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"bank",reference:o})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),e(null))})});window.placeOrder=async()=>{const t=i.checkoutData.shipping;if(!t.fullName||!t.fullName.trim()){p("Please enter your full name");return}if(!t.address||!t.address.trim()){p("Please enter your address");return}if(!t.city||!t.city.trim()){p("Please enter your city");return}if(!t.province||!t.province.trim()){p("Please enter your province");return}if(!t.phone||!t.phone.trim()){p("Please enter your phone number");return}if(!/^09\d{9}$/.test(t.phone)){p('Phone number must start with "09" and contain exactly 11 digits');return}const o=/^[a-zA-Z\s]+$/;if(!o.test(t.fullName)){p("Full Name must contain letters and spaces only");return}if(!o.test(t.city)){p("City must contain letters and spaces only");return}if(!o.test(t.province)){p("Province must contain letters and spaces only");return}if(t.postalCode&&!/^\d+$/.test(t.postalCode)){p("Postal Code must contain numbers only");return}if(!i.checkoutData.paymentMethod){p("Please select a payment method");return}const r=i.cart.filter(v=>v.selected!==!1),n=r.reduce((v,s)=>v+s.price*s.quantity,0)+i.checkoutData.shippingFee;let l=null;switch(i.checkoutData.paymentMethod){case"cod":l=await showPaymentModal(n);break;case"gcash":l=await showGCashModal(n);break;case"maya":l=await showMayaModal(n);break;case"card":l=await showCardModal(n);break;case"bank":l=await showBankModal(n);break;default:p("Please select a payment method");return}if(!l)return;let m=l.amountPaid||n,d=l.change||0;const g={userId:i.currentUser.id,items:r.map(v=>({productId:v.id,quantity:v.quantity,price:v.price,name:v.name})),total:n,shippingInfo:i.checkoutData.shipping,paymentMethod:i.checkoutData.paymentMethod,shippingFee:i.checkoutData.shippingFee,amountPaid:m,change:d};try{const v=await C.createOrder(g);i.lastOrderId=v.orderId,i.lastOrderPayment={amountPaid:m,change:d},i.orders.push({orderId:v.orderId,...v,items:r,total:n,createdAt:new Date().toISOString(),userId:i.currentUser.id,devices:v.devices||[]}),i.cart=i.cart.filter(s=>s.selected===!1),x(),y("order-confirmation")}catch{}};window.printReceipt=()=>{if(!i.lastOrderId){p("No order found to print");return}const t=i.orders.find(n=>n.orderId===i.lastOrderId);if(!t){p("Order not found");return}const e=i.lastOrderPayment||{},o=new Date,r=`
         <!DOCTYPE html>
         <html>
         <head>
@@ -3148,9 +3271,9 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                     <div class="item-row">
                         <div class="item-name">${n.productName||n.name}</div>
                         <div class="item-details">
-                            <div>${g(n.price)}</div>
+                            <div>${u(n.price)}</div>
                             <div class="text-center">x${n.quantity}</div>
-                            <div class="text-right"><strong>${g(n.price*n.quantity)}</strong></div>
+                            <div class="text-right"><strong>${u(n.price*n.quantity)}</strong></div>
                         </div>
                     </div>
                 `).join("")}
@@ -3159,15 +3282,15 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
             <div class="totals-section">
                 <div class="total-row">
                     <span>Subtotal:</span>
-                    <span>${g(t.total-i.checkoutData.shippingFee)}</span>
+                    <span>${u(t.total-i.checkoutData.shippingFee)}</span>
                 </div>
                 <div class="total-row">
                     <span>Shipping Fee:</span>
-                    <span>${g(i.checkoutData.shippingFee)}</span>
+                    <span>${u(i.checkoutData.shippingFee)}</span>
                 </div>
                 <div class="total-row grand-total">
                     <span>TOTAL:</span>
-                    <span>${g(t.total)}</span>
+                    <span>${u(t.total)}</span>
                 </div>
             </div>
             
@@ -3175,11 +3298,11 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 <div class="payment-section">
                     <div class="payment-row">
                         <span>Amount Paid:</span>
-                        <span>${g(e.amountPaid)}</span>
+                        <span>${u(e.amountPaid)}</span>
                     </div>
                     <div class="payment-row change-row">
                         <span>Change:</span>
-                        <span>${g(e.change)}</span>
+                        <span>${u(e.change)}</span>
                     </div>
                 </div>
             `:""}
@@ -3201,7 +3324,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
             </div>
         </body>
         </html>
-    `,a=window.open("","_blank","width=300,height=600");a.document.write(r),a.document.close(),a.onload=function(){setTimeout(()=>{a.print()},250)}};window.handleSearchInput=t=>{const e=t.target.value;if(i.searchQuery=e,e.trim()){const o=new Set;i.products.forEach(r=>{const a=r.name.toLowerCase(),n=r.category.toLowerCase(),l=e.toLowerCase();a.includes(l)&&o.add(r.name),n.includes(l)&&o.add(r.category),a.split(" ").forEach(d=>{d.toLowerCase().startsWith(l)&&d.length>2&&o.add(d.charAt(0).toUpperCase()+d.slice(1))})}),i.searchSuggestions=Array.from(o).slice(0,8),i.showSuggestions=!0}else if(i.searchSuggestions=[],i.showSuggestions=!1,i.route==="home"||i.route==="products"){y();return}U()};function U(){const t=document.querySelector(".search-container");if(!t)return;const e=t.querySelector(".search-suggestions");if(e&&e.remove(),i.showSuggestions&&i.searchQuery){const o=`
+    `,a=window.open("","_blank","width=300,height=600");a.document.write(r),a.document.close(),a.onload=function(){setTimeout(()=>{a.print()},250)}};window.handleSearchInput=t=>{const e=t.target.value;if(i.searchQuery=e,e.trim()){const o=new Set;i.products.forEach(r=>{const a=r.name.toLowerCase(),n=r.category.toLowerCase(),l=e.toLowerCase();a.includes(l)&&o.add(r.name),n.includes(l)&&o.add(r.category),a.split(" ").forEach(d=>{d.toLowerCase().startsWith(l)&&d.length>2&&o.add(d.charAt(0).toUpperCase()+d.slice(1))})}),i.searchSuggestions=Array.from(o).slice(0,8),i.showSuggestions=!0}else if(i.searchSuggestions=[],i.showSuggestions=!1,i.route==="home"||i.route==="products"){f();return}q()};function q(){const t=document.querySelector(".search-container");if(!t)return;const e=t.querySelector(".search-suggestions");if(e&&e.remove(),i.showSuggestions&&i.searchQuery){const o=`
             <div class="search-suggestions" id="searchSuggestions">
                 <div class="suggestions-header">Suggestions</div>
                 ${i.searchSuggestions.slice(0,5).map(r=>`
@@ -3216,7 +3339,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                     </div>
                 `:""}
             </div>
-        `;t.insertAdjacentHTML("beforeend",o)}}window.showSearchSuggestions=()=>{i.searchQuery&&(i.showSuggestions=!0,U())};window.selectSuggestion=t=>{i.searchQuery=t,i.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=t),handleSearch()};window.handleSearch=()=>{i.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(i.searchQuery=t.value.trim()),v("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{i.searchQuery="",i.showSuggestions=!1,i.searchSuggestions=[],y()};document.addEventListener("click",t=>{if(!t.target.closest(".search-container")&&i.showSuggestions){i.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async t=>{console.log("Login attempt started"),t.preventDefault();const e=t.target.email.value,o=t.target.password.value;console.log("Credentials:",{email:e,password:o});try{await w.login(e,o),console.log("Login successful")}catch(r){console.error("Login error:",r)}};window.handleSignup=async t=>{console.log("Signup attempt started"),t.preventDefault();const e=t.target.name.value,o=t.target.email.value,r=t.target.password.value;try{await w.register(e,o,r)}catch(a){console.error("Signup error:",a)}};window.logout=()=>{i.currentUser=null,i.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),p("Logged out successfully"),sessionStorage.removeItem("currentRoute"),v("home")};window.handleContactSubmit=t=>{t.preventDefault();const e=t.target,o={name:e.name.value,email:e.email.value,subject:e.subject.value,message:e.message.value};console.log("Contact form submitted:",o),p("Thank you for your message! We will get back to you soon."),e.reset()};window.deleteProduct=t=>{confirm("Are you sure you want to remove this product?")&&(i.products=i.products.filter(e=>e.id!==t),f(),y(),p("Product removed"))};window.viewOrderDetails=t=>{const e=i.orders.find(l=>l.orderId===t);if(!e){p("Order not found");return}const o=i.users.find(l=>l.id===e.userId),r=o?o.name:`User ID: ${e.userId}`,a=document.createElement("div");a.className="order-details-modal",a.innerHTML=`
+        `;t.insertAdjacentHTML("beforeend",o)}}window.showSearchSuggestions=()=>{i.searchQuery&&(i.showSuggestions=!0,q())};window.selectSuggestion=t=>{i.searchQuery=t,i.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=t),handleSearch()};window.handleSearch=()=>{i.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(i.searchQuery=t.value.trim()),y("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{i.searchQuery="",i.showSuggestions=!1,i.searchSuggestions=[],f()};document.addEventListener("click",t=>{if(!t.target.closest(".search-container")&&i.showSuggestions){i.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async t=>{console.log("Login attempt started"),t.preventDefault();const e=t.target.email.value,o=t.target.password.value;console.log("Credentials:",{email:e,password:o});try{await C.login(e,o),console.log("Login successful")}catch(r){console.error("Login error:",r)}};window.handleSignup=async t=>{console.log("Signup attempt started"),t.preventDefault();const e=t.target.name.value,o=t.target.email.value,r=t.target.password.value;try{await C.register(e,o,r)}catch(a){console.error("Signup error:",a)}};window.logout=()=>{i.currentUser=null,i.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),p("Logged out successfully"),sessionStorage.removeItem("currentRoute"),y("home")};window.handleContactSubmit=t=>{t.preventDefault();const e=t.target,o={name:e.name.value,email:e.email.value,subject:e.subject.value,message:e.message.value};console.log("Contact form submitted:",o),p("Thank you for your message! We will get back to you soon."),e.reset()};window.deleteProduct=t=>{confirm("Are you sure you want to remove this product?")&&(i.products=i.products.filter(e=>e.id!==t),x(),f(),p("Product removed"))};window.viewOrderDetails=t=>{const e=i.orders.find(l=>l.orderId===t);if(!e){p("Order not found");return}const o=i.users.find(l=>l.id===e.userId),r=o?o.name:`User ID: ${e.userId}`,a=document.createElement("div");a.className="order-details-modal",a.innerHTML=`
         <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -3251,28 +3374,28 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                         <div class="order-item-row">
                             <div class="item-details">
                                 <div class="item-name">${l.productName||"Product ID: "+l.productId}</div>
-                                <div class="item-meta">Quantity: ${l.quantity} × ${g(l.price)}</div>
+                                <div class="item-meta">Quantity: ${l.quantity} × ${u(l.price)}</div>
                             </div>
-                            <div class="item-total">${g(l.price*l.quantity)}</div>
+                            <div class="item-total">${u(l.price*l.quantity)}</div>
                         </div>
                     `).join("")}
                 </div>
                 
                 <div class="order-total">
                     <span>Total Amount:</span>
-                    <span class="total-amount">${g(e.total)}</span>
+                    <span class="total-amount">${u(e.total)}</span>
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(a);const n=l=>{l.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const y=()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=T();break;case"products":e=Y({Breadcrumbs:x,state:i});break;case"product-detail":e=J({Breadcrumbs:x,state:i});break;case"login":e=Z();break;case"signup":e=ee();break;case"cart":e=te();break;case"checkout":e=ae();break;case"order-confirmation":e=ne();break;case"contact-us":e=W({Breadcrumbs:x});break;case"about-us":e=R({Breadcrumbs:x});break;case"learn":e=H({Breadcrumbs:x,state:i});break;case"tutorial-detail":e=Q({Breadcrumbs:x,state:i});break;case"deals":e=G({Breadcrumbs:x,state:i});break;case"admin":e=V([i]);break;case"user":e=E({state:i});break;case"my-devices":e=ie();break;case"device-pair":e=oe();break;case"remote-control":e=re();break;default:e=T()}if(i.route==="user"){t.innerHTML=z()+E({state:i});return}t.innerHTML=`
-        ${z()}
+    `,document.body.appendChild(a);const n=l=>{l.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const f=()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=B();break;case"products":e=X({Breadcrumbs:$,state:i});break;case"product-detail":e=Z({Breadcrumbs:$,state:i});break;case"login":e=ie();break;case"signup":e=oe();break;case"cart":e=re();break;case"checkout":e=de();break;case"order-confirmation":e=le();break;case"contact-us":e=Y({Breadcrumbs:$});break;case"about-us":e=V({Breadcrumbs:$});break;case"learn":e=W({Breadcrumbs:$,state:i});break;case"tutorial-detail":e=G({Breadcrumbs:$,state:i});break;case"deals":e=_({Breadcrumbs:$,state:i});break;case"admin":e=J([i]);break;case"user":e=z({state:i});break;case"my-devices":e=ae();break;case"device-pair":e=ne();break;case"remote-control":e=se();break;default:e=B()}if(i.route==="user"){t.innerHTML=O()+z({state:i});return}t.innerHTML=`
+        ${O()}
         <main>
             ${e}
         </main>
         <footer style="text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
             &copy; 2024 Lumina Electronics. All rights reserved.
         </footer>
-    `,i.route==="deals"&&setTimeout(()=>window.startDealsTimer(),100)};window.handleCartSearch=t=>{i.cartSearchQuery=t.target.value,P()};window.clearCartSearch=()=>{i.cartSearchQuery="",P()};window.toggleCartItem=t=>{const e=i.cart.find(o=>o.id===t);e&&(e.selected=e.selected===!1,f(),P())};window.toggleFindSimilar=t=>{const e=i.cart.find(o=>o.id===t);e&&(i.cart.forEach(o=>{o.id!==t&&(o.showSimilar=!1)}),e.showSimilar=!e.showSimilar,f(),P())};function P(){const t=document.querySelector(".cart-items"),e=document.querySelector(".cart-summary"),o=document.querySelector(".cart-search-message");if(!t)return;let r=i.cart;if(i.cartSearchQuery&&(r=i.cart.filter(n=>n.name.toLowerCase().includes(i.cartSearchQuery.toLowerCase())||n.category.toLowerCase().includes(i.cartSearchQuery.toLowerCase()))),t.innerHTML=r.map(n=>{const l=i.products.filter(c=>c.category===n.category&&c.id!==n.id).slice(0,4);return`
+    `,i.route==="deals"&&setTimeout(()=>window.startDealsTimer(),100)};window.handleCartSearch=t=>{i.cartSearchQuery=t.target.value,D()};window.clearCartSearch=()=>{i.cartSearchQuery="",D()};window.toggleCartItem=t=>{const e=i.cart.find(o=>o.id===t);e&&(e.selected=e.selected===!1,x(),D())};window.toggleFindSimilar=t=>{const e=i.cart.find(o=>o.id===t);e&&(i.cart.forEach(o=>{o.id!==t&&(o.showSimilar=!1)}),e.showSimilar=!e.showSimilar,x(),D())};function D(){const t=document.querySelector(".cart-items"),e=document.querySelector(".cart-summary"),o=document.querySelector(".cart-search-message");if(!t)return;let r=i.cart;if(i.cartSearchQuery&&(r=i.cart.filter(n=>n.name.toLowerCase().includes(i.cartSearchQuery.toLowerCase())||n.category.toLowerCase().includes(i.cartSearchQuery.toLowerCase()))),t.innerHTML=r.map(n=>{const l=i.products.filter(m=>m.category===n.category&&m.id!==n.id).slice(0,4);return`
         <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
             <div class="cart-item" style="border-bottom: none;">
                 <input type="checkbox" 
@@ -3283,7 +3406,7 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 <img src="${n.image}" alt="${n.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                 <div style="flex: 1;">
                     <h3 style="font-size: 1rem;">${n.name}</h3>
-                    <p class="text-muted">${g(n.price)}</p>
+                    <p class="text-muted">${u(n.price)}</p>
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
                     <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${n.id}, ${n.quantity-1})">-</button>
@@ -3311,21 +3434,21 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 </div>
                 ${l.length>0?`
                     <div class="similar-products-grid">
-                        ${l.map(c=>`
-                            <div class="similar-product-card" onclick="window.viewProduct(${c.id})">
-                                <img src="${c.image}" alt="${c.name}" class="similar-product-image">
-                                <div class="similar-product-title" title="${c.name}">${c.name}</div>
-                                <div class="similar-product-price">${g(c.price)}</div>
+                        ${l.map(m=>`
+                            <div class="similar-product-card" onclick="window.viewProduct(${m.id})">
+                                <img src="${m.image}" alt="${m.name}" class="similar-product-image">
+                                <div class="similar-product-title" title="${m.name}">${m.name}</div>
+                                <div class="similar-product-price">${u(m.price)}</div>
                             </div>
                         `).join("")}
                     </div>
                 `:'<p class="text-muted text-center">No similar products found.</p>'}
             </div>
         </div>
-    `}).join(""),e){const n=i.cart.reduce((c,d)=>c+(d.selected!==!1?d.price*d.quantity:0),0),l=i.cart.filter(c=>c.selected!==!1).length;e.innerHTML=`
+    `}).join(""),e){const n=i.cart.reduce((m,d)=>m+(d.selected!==!1?d.price*d.quantity:0),0),l=i.cart.filter(m=>m.selected!==!1).length;e.innerHTML=`
             <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                 <span>Total</span>
-                <span>${g(n)}</span>
+                <span>${u(n)}</span>
             </div>
             <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
                 Proceed to Checkout (${l})
@@ -3344,14 +3467,14 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-        `)}let B=null;window.startDealsTimer=()=>{const t=new Date().getTime()+864e5;B=setInterval(()=>{const e=new Date().getTime(),o=t-e,r=Math.floor(o%(1e3*60*60*24)/(1e3*60*60)),a=Math.floor(o%(1e3*60*60)/(1e3*60)),n=Math.floor(o%(1e3*60)/1e3),l=document.getElementById("deal-hours"),c=document.getElementById("deal-minutes"),d=document.getElementById("deal-seconds");l&&(l.textContent=String(r).padStart(2,"0")),c&&(c.textContent=String(a).padStart(2,"0")),d&&(d.textContent=String(n).padStart(2,"0")),o<0&&(clearInterval(B),l&&(l.textContent="00"),c&&(c.textContent="00"),d&&(d.textContent="00"))},1e3)};window.filterLearningContent=t=>{const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".topic-filter").forEach(r=>{r.dataset.filter===t?(r.style.background="#6366f1",r.style.color="white",r.style.borderColor="#6366f1"):(r.style.background="white",r.style.color="#64748b",r.style.borderColor="#e2e8f0")}),e.forEach(r=>{const a=r.dataset.category,n=r.dataset.topic;t==="all"||a===t||n===t?r.style.display="block":r.style.display="none"})};window.currentLearnCategory="all";window.filterTutorials=t=>{window.currentLearnCategory=t;const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".category-tab").forEach(r=>{r.classList.remove("active"),r.dataset.category===t&&r.classList.add("active")}),e.forEach(r=>{t==="all"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.filterDeals=t=>{const e=document.querySelectorAll(".deal-product-card");document.querySelectorAll(".deal-category-tab").forEach(r=>{r.dataset.category===t?(r.style.background="#6366f1",r.style.color="white"):(r.style.background="white",r.style.color="#64748b")}),e.forEach(r=>{t==="all"||t==="clearance"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.openVideoModal=t=>{const e=document.createElement("div");e.className="video-modal",e.innerHTML=`
+        `)}let A=null;window.startDealsTimer=()=>{const t=new Date().getTime()+864e5;A=setInterval(()=>{const e=new Date().getTime(),o=t-e,r=Math.floor(o%(1e3*60*60*24)/(1e3*60*60)),a=Math.floor(o%(1e3*60*60)/(1e3*60)),n=Math.floor(o%(1e3*60)/1e3),l=document.getElementById("deal-hours"),m=document.getElementById("deal-minutes"),d=document.getElementById("deal-seconds");l&&(l.textContent=String(r).padStart(2,"0")),m&&(m.textContent=String(a).padStart(2,"0")),d&&(d.textContent=String(n).padStart(2,"0")),o<0&&(clearInterval(A),l&&(l.textContent="00"),m&&(m.textContent="00"),d&&(d.textContent="00"))},1e3)};window.filterLearningContent=t=>{const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".topic-filter").forEach(r=>{r.dataset.filter===t?(r.style.background="#6366f1",r.style.color="white",r.style.borderColor="#6366f1"):(r.style.background="white",r.style.color="#64748b",r.style.borderColor="#e2e8f0")}),e.forEach(r=>{const a=r.dataset.category,n=r.dataset.topic;t==="all"||a===t||n===t?r.style.display="block":r.style.display="none"})};window.currentLearnCategory="all";window.filterTutorials=t=>{window.currentLearnCategory=t;const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".category-tab").forEach(r=>{r.classList.remove("active"),r.dataset.category===t&&r.classList.add("active")}),e.forEach(r=>{t==="all"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.filterDeals=t=>{const e=document.querySelectorAll(".deal-product-card");document.querySelectorAll(".deal-category-tab").forEach(r=>{r.dataset.category===t?(r.style.background="#6366f1",r.style.color="white"):(r.style.background="white",r.style.color="#64748b")}),e.forEach(r=>{t==="all"||t==="clearance"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.openVideoModal=t=>{const e=document.createElement("div");e.className="video-modal",e.innerHTML=`
         <div class="video-modal-content">
             <div class="video-modal-close" onclick="this.closest('.video-modal').remove()">✕</div>
             <div class="video-container">
                 <iframe src="https://www.youtube.com/embed/${t}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         </div>
-    `,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),10)};const de=async()=>{await w.getProducts(),i.currentUser?.role==="admin"?await Promise.all([w.getOrders(),k.getMyDevices(),w.getUsers()]):i.currentUser&&await k.getMyDevices(),y()};window.showLoading=()=>{let t=document.querySelector(".loading-overlay");t||(t=document.createElement("div"),t.className="loading-overlay",t.innerHTML='<div class="spinner"></div>',document.body.appendChild(t)),t.offsetWidth,t.classList.add("active")};window.hideLoading=()=>{const t=document.querySelector(".loading-overlay");t&&(t.classList.remove("active"),setTimeout(()=>{t.parentNode&&t.parentNode.removeChild(t)},300))};window.openLoginModal=()=>{document.body.insertAdjacentHTML("beforeend",`
+    `,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),10)};const me=async()=>{await C.getProducts(),i.currentUser?.role==="admin"?await Promise.all([C.getOrders(),S.getMyDevices(),C.getUsers()]):i.currentUser&&await S.getMyDevices(),f()};window.showLoading=()=>{let t=document.querySelector(".loading-overlay");t||(t=document.createElement("div"),t.className="loading-overlay",t.innerHTML='<div class="spinner"></div>',document.body.appendChild(t)),t.offsetWidth,t.classList.add("active")};window.hideLoading=()=>{const t=document.querySelector(".loading-overlay");t&&(t.classList.remove("active"),setTimeout(()=>{t.parentNode&&t.parentNode.removeChild(t)},300))};window.openLoginModal=()=>{document.body.insertAdjacentHTML("beforeend",`
         <div class="login-modal-overlay" id="loginModal" onclick="window.closeLoginModalOnOverlay(event)">
             <div class="login-modal">
                 <div class="login-modal-header">
@@ -3383,4 +3506,4 @@ var N=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var ce=N((ue,S)=>{
                 </div>
             </div>
         </div>
-    `),setTimeout(()=>{document.getElementById("loginModal").classList.add("show")},10)};window.closeLoginModal=()=>{const t=document.getElementById("loginModal");t&&(t.classList.remove("show"),setTimeout(()=>t.remove(),300))};window.closeLoginModalOnOverlay=t=>{t.target.id==="loginModal"&&window.closeLoginModal()};window.handleModalLogin=async t=>{t.preventDefault();const e=new FormData(t.target),o=e.get("email"),r=e.get("password");try{await w.login(o,r),window.closeLoginModal()}catch(a){console.error("Login error:",a)}};const le=window.navigate;window.navigate=(t,e)=>{window.showLoading(),setTimeout(()=>{le(t,e),window.hideLoading()},300)};window.handleDevicePairing=async t=>{t.preventDefault();const e=t.target,o=e.deviceId.value.trim(),r=e.deviceToken.value.trim();try{await k.pairDevice(o,r)}catch{}};window.handleDeviceUnpairing=async t=>{try{await k.unpairDevice(t)}catch{}};window.startRemoteControl=async t=>{i.currentDeviceId=t,i.esp32Client||(i.esp32Client=new ESP32SocketClient);try{await i.esp32Client.connect(i.currentUser.id),i.esp32Client.monitorDevice(t),i.esp32Client.on("device:status",e=>{i.deviceStatus[e.deviceId]=e,O()}),i.esp32Client.on("device:telemetry",e=>{i.telemetryData[e.deviceId]=e,O()}),i.esp32Client.on("command:sent",e=>{D(`Command sent: ${e.command}`)}),i.esp32Client.on("command:response",e=>{e.success?D(`✓ ${e.message||"Command executed"}`):D(`✗ ${e.error||"Command failed"}`)}),v("remote-control")}catch(e){p("Failed to connect to device"),console.error(e)}};window.stopRemoteControl=()=>{i.esp32Client&&i.esp32Client.stopMonitoring(),i.currentDeviceId=null,v("my-devices")};window.sendCarCommand=t=>{if(!(!i.esp32Client||!i.currentDeviceId))try{t==="stop"?i.esp32Client.stop(i.currentDeviceId):i.esp32Client.move(i.currentDeviceId,t,255)}catch(e){p("Failed to send command"),console.error(e)}};window.toggleLights=()=>{if(!i.esp32Client||!i.currentDeviceId)return;const t=document.getElementById("lightsToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{i.esp32Client.sendCommand(i.currentDeviceId,"lights",{state:e?"on":"off"}),p(`Lights ${e?"ON":"OFF"}`)}catch(o){console.error("Failed to toggle lights:",o),t.classList.toggle("active")}}};window.toggleHorn=()=>{if(!i.esp32Client||!i.currentDeviceId)return;const t=document.getElementById("hornToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{i.esp32Client.sendCommand(i.currentDeviceId,"horn",{state:e?"on":"off"}),p(`Horn ${e?"ON":"OFF"}`)}catch(o){console.error("Failed to toggle horn:",o),t.classList.toggle("active")}}};function O(){i.route==="remote-control"&&y()}function D(t){const e=document.getElementById("commandLogContent");if(e){const o=document.createElement("div");for(o.className="log-entry",o.textContent=`[${new Date().toLocaleTimeString()}] ${t}`,e.insertBefore(o,e.firstChild);e.children.length>10;)e.removeChild(e.lastChild)}}window.toggleToken=t=>{i.showTokens||(i.showTokens={}),i.showTokens[t]=!i.showTokens[t],y()};window.handleCategoryFilter=t=>{i.filterCategory=t||null,y()};document.addEventListener("keydown",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase(),o={w:"forward",arrowup:"forward",s:"backward",arrowdown:"backward",a:"left",arrowleft:"left",d:"right",arrowright:"right"," ":"stop"};o[e]&&(t.preventDefault(),window.sendCarCommand(o[e]))});document.addEventListener("keydown",t=>{t.key==="Escape"&&document.getElementById("loginModal")&&window.closeLoginModal()});document.addEventListener("keyup",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase();["w","s","a","d","arrowup","arrowdown","arrowleft","arrowright"].includes(e)&&(t.preventDefault(),window.sendCarCommand("stop"))});de()});export default ce();
+    `),setTimeout(()=>{document.getElementById("loginModal").classList.add("show")},10)};window.closeLoginModal=()=>{const t=document.getElementById("loginModal");t&&(t.classList.remove("show"),setTimeout(()=>t.remove(),300))};window.closeLoginModalOnOverlay=t=>{t.target.id==="loginModal"&&window.closeLoginModal()};window.handleModalLogin=async t=>{t.preventDefault();const e=new FormData(t.target),o=e.get("email"),r=e.get("password");try{await C.login(o,r),window.closeLoginModal()}catch(a){console.error("Login error:",a)}};const pe=window.navigate;window.navigate=(t,e)=>{window.showLoading(),setTimeout(()=>{pe(t,e),window.hideLoading()},300)};window.handleDevicePairing=async t=>{t.preventDefault();const e=t.target,o=e.deviceId.value.trim(),r=e.deviceToken.value.trim();try{await S.pairDevice(o,r)}catch{}};window.handleDeviceUnpairing=async t=>{try{await S.unpairDevice(t)}catch{}};window.startRemoteControl=async t=>{i.currentDeviceId=t,i.esp32Client||(i.esp32Client=new ESP32SocketClient);try{await i.esp32Client.connect(i.currentUser.id),i.esp32Client.monitorDevice(t),i.esp32Client.on("device:status",e=>{i.deviceStatus[e.deviceId]=e,U()}),i.esp32Client.on("device:telemetry",e=>{i.telemetryData[e.deviceId]=e,U()}),i.esp32Client.on("command:sent",e=>{M(`Command sent: ${e.command}`)}),i.esp32Client.on("command:response",e=>{e.success?M(`✓ ${e.message||"Command executed"}`):M(`✗ ${e.error||"Command failed"}`)}),y("remote-control")}catch(e){p("Failed to connect to device"),console.error(e)}};window.stopRemoteControl=()=>{i.esp32Client&&i.esp32Client.stopMonitoring(),i.currentDeviceId=null,y("my-devices")};window.sendCarCommand=t=>{if(!(!i.esp32Client||!i.currentDeviceId))try{t==="stop"?i.esp32Client.stop(i.currentDeviceId):i.esp32Client.move(i.currentDeviceId,t,255)}catch(e){p("Failed to send command"),console.error(e)}};window.toggleLights=()=>{if(!i.esp32Client||!i.currentDeviceId)return;const t=document.getElementById("lightsToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{i.esp32Client.sendCommand(i.currentDeviceId,"lights",{state:e?"on":"off"}),p(`Lights ${e?"ON":"OFF"}`)}catch(o){console.error("Failed to toggle lights:",o),t.classList.toggle("active")}}};window.toggleHorn=()=>{if(!i.esp32Client||!i.currentDeviceId)return;const t=document.getElementById("hornToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{i.esp32Client.sendCommand(i.currentDeviceId,"horn",{state:e?"on":"off"}),p(`Horn ${e?"ON":"OFF"}`)}catch(o){console.error("Failed to toggle horn:",o),t.classList.toggle("active")}}};function U(){i.route==="remote-control"&&f()}function M(t){const e=document.getElementById("commandLogContent");if(e){const o=document.createElement("div");for(o.className="log-entry",o.textContent=`[${new Date().toLocaleTimeString()}] ${t}`,e.insertBefore(o,e.firstChild);e.children.length>10;)e.removeChild(e.lastChild)}}window.toggleToken=t=>{i.showTokens||(i.showTokens={}),i.showTokens[t]=!i.showTokens[t],f()};window.handleCategoryFilter=t=>{i.filterCategory=t||null,f()};document.addEventListener("keydown",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase(),o={w:"forward",arrowup:"forward",s:"backward",arrowdown:"backward",a:"left",arrowleft:"left",d:"right",arrowright:"right"," ":"stop"};o[e]&&(t.preventDefault(),window.sendCarCommand(o[e]))});document.addEventListener("keydown",t=>{t.key==="Escape"&&document.getElementById("loginModal")&&window.closeLoginModal()});document.addEventListener("keyup",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase();["w","s","a","d","arrowup","arrowdown","arrowleft","arrowright"].includes(e)&&(t.preventDefault(),window.sendCarCommand("stop"))});me()});export default ue();
