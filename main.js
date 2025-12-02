@@ -9,7 +9,7 @@ import { UserPage } from './pages/UserPage.js';
 import { ProductsPage } from './pages/ProductsPage.js';
 import { ProductDetailPage } from './pages/ProductDetailPage.js';
 import { ProductCard } from './pages/ProductDetailPage.js';
-import { formatCurrency } from './src/utils.js';
+import { formatCurrency } from '../src/utils.js';
 
 //  --- State Management ---
 const state = {

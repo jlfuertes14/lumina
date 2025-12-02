@@ -1,5 +1,5 @@
 
-import { formatCurrency } from './src/utils.js';
+import { formatCurrency } from '../src/utils.js';
 
 export const ProductsPage = ({ Breadcrumbs, state }) => {
     // Apply filtering

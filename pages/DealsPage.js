@@ -1,4 +1,4 @@
-import { formatCurrency } from './src/utils.js';
+import { formatCurrency } from '../src/utils.js';
 
 // --- Deals Page ---
 export const DealsPage = ({ Breadcrumbs, state }) => {
