@@ -187,6 +187,82 @@ router.put('/:id', async (req, res) => {
     }
 });
 
+// PUT update user profile (name, email, phone, gender, birthDate)
+router.put('/:id/profile', async (req, res) => {
+    try {
+        const { name, email, phone, gender, birthDate } = req.body;
+
+        const updates = {};
+        if (name) updates.name = name;
+        if (email) updates.email = email;
+        if (phone) updates.phone = phone;
+        if (gender) updates.gender = gender;
+        if (birthDate) updates.birthDate = birthDate;
+
+        const user = await User.findOneAndUpdate(
+            { id: parseInt(req.params.id) },
+            updates,
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        res.json({ success: true, data: user });
+    } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+    }
+});
+
+// PUT update user address
+router.put('/:id/address', async (req, res) => {
+    try {
+        const addressData = req.body;
+
+        const user = await User.findOneAndUpdate(
+            { id: parseInt(req.params.id) },
+            { address: addressData },
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        res.json({ success: true, data: user });
+    } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+    }
+});
+
+// PUT change password
+router.put('/:id/password', async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        const user = await User.findOne({ id: parseInt(req.params.id) });
+
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        // Verify current password
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, error: 'Current password is incorrect' });
+        }
+
+        // Update password (will be hashed by pre-save hook)
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ success: true, message: 'Password updated successfully' });
+    } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+    }
+});
+
 // DELETE user (admin only)
 router.delete('/:id', async (req, res) => {
     try {

@@ -33,8 +33,15 @@ const userSchema = new mongoose.Schema({
         trim: true
     },
     address: {
-        type: String,
-        trim: true
+        fullName: String,
+        phone: String,
+        region: String,
+        province: String,
+        city: String,
+        barangay: String,
+        postalCode: String,
+        street: String,
+        details: String
     },
     gender: {
         type: String,

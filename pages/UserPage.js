@@ -108,7 +108,7 @@ export const UserPage = ({ state }) => {
 
     // 3. Address Update
     if (!window.handleAddressUpdate) {
-        window.handleAddressUpdate = (event) => {
+        window.handleAddressUpdate = async (event) => {
             event.preventDefault();
             const form = event.target;
             const addressData = {
@@ -129,31 +129,24 @@ export const UserPage = ({ state }) => {
                 return;
             }
 
-            const updatedUser = {
-                ...state.currentUser,
-                address: addressData // Storing as object now
-            };
-
-            state.currentUser = updatedUser;
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-            showToast('Address saved successfully!');
-            render();
+            // Call API to update address in database
+            try {
+                await api.updateAddress(state.currentUser.id, addressData);
+                render();
+            } catch (error) {
+                console.error('Address update failed:', error);
+            }
         };
     }
 
     // 4. Password Update
     if (!window.handlePasswordUpdate) {
-        window.handlePasswordUpdate = (event) => {
+        window.handlePasswordUpdate = async (event) => {
             event.preventDefault();
             const form = event.target;
             const currentPass = form.currentPassword.value;
             const newPass = form.newPassword.value;
             const confirmPass = form.confirmPassword.value;
-
-            if (currentPass !== state.currentUser.password) {
-                showToast('Incorrect current password.');
-                return;
-            }
 
             if (newPass.length < 6) {
                 showToast('New password must be at least 6 characters.');
@@ -165,15 +158,13 @@ export const UserPage = ({ state }) => {
                 return;
             }
 
-            const updatedUser = {
-                ...state.currentUser,
-                password: newPass
-            };
-
-            state.currentUser = updatedUser;
-            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-            showToast('Password changed successfully!');
-            form.reset();
+            // Call API to change password in database
+            try {
+                await api.changePassword(state.currentUser.id, currentPass, newPass);
+                form.reset();
+            } catch (error) {
+                console.error('Password change failed:', error);
+            }
         };
     }
 

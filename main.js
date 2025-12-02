@@ -147,6 +147,54 @@ const api = {
             console.error('Failed to load users:', error);
         }
     },
+
+    // Update user profile
+    updateProfile: async (userId, profileData) => {
+        try {
+            const response = await apiCall(`/users/${userId}/profile`, {
+                method: 'PUT',
+                body: JSON.stringify(profileData)
+            });
+            state.currentUser = response.data;
+            localStorage.setItem('currentUser', JSON.stringify(response.data));
+            window.showToast('Profile updated successfully!');
+            return response.data;
+        } catch (error) {
+            window.showToast(error.message || 'Failed to update profile');
+            throw error;
+        }
+    },
+
+    // Update user address
+    updateAddress: async (userId, addressData) => {
+        try {
+            const response = await apiCall(`/users/${userId}/address`, {
+                method: 'PUT',
+                body: JSON.stringify(addressData)
+            });
+            state.currentUser = response.data;
+            localStorage.setItem('currentUser', JSON.stringify(response.data));
+            window.showToast('Address saved successfully!');
+            return response.data;
+        } catch (error) {
+            window.showToast(error.message || 'Failed to save address');
+            throw error;
+        }
+    },
+
+    // Change password
+    changePassword: async (userId, currentPassword, newPassword) => {
+        try {
+            await apiCall(`/users/${userId}/password`, {
+                method: 'PUT',
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+            window.showToast('Password changed successfully!');
+        } catch (error) {
+            window.showToast(error.message || 'Failed to change password');
+            throw error;
+        }
+    }
 };
 
 const deviceAPI = {
