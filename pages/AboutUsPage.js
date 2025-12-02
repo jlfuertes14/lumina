@@ -7,20 +7,9 @@ export const AboutUsPage = ({ Breadcrumbs }) => {
         { name: "Ella Ramirez", role: "Customer Service Lead", image: "https://ui-avatars.com/api/?name=Ella+Ramirez&background=6366f1&color=fff&size=120" }
     ];
 
-    // Images (using generated assets where available, falling back to placeholders or Unsplash if needed)
-    // Note: In a real build, we'd import these or put them in public/images. 
-    // For now, assuming they are in the artifacts folder or we use absolute paths/URLs.
-    // Since I can't easily reference artifact paths in the browser without moving them to public,
-    // I will assume the user will move them or I should copy them to public/images.
-    // I will use placeholders for now and ask the user to move the generated images.
-    // Actually, I can use the Unsplash URLs from the prompt as fallbacks or the generated ones if I copy them.
-
-    // I'll use the Unsplash images from the original code for now, but updated with the new design.
-    // The user asked to "ADD PICTURES". I generated them. I should copy them to public/images.
-
-    const heroImage = "./images/about_us_hero.png"; // I will copy this
-    const originImage = "./images/about_us_origin.png"; // I will copy this
-    const communityImage = "https://images.unsplash.com/photo-1581092921461-eab62e97a78e?auto=format&fit=crop&w=800&q=80"; // Fallback since generation failed
+    const heroImage = "assets/about_us_hero.png";
+    const originImage = "assets/about_us_origin.png";
+    const communityImage = "assets/about_us_community.png";
 
     return `
         <div class="about-us-page">
@@ -72,8 +61,7 @@ export const AboutUsPage = ({ Breadcrumbs }) => {
                 </div>
 
                 <!-- Mission Section -->
-                <div style="background: #1e1b4b; border-radius: 24px; padding: 4rem; margin-bottom: 6rem; text-align: center; color: white; position: relative; overflow: hidden;">
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://www.transparenttextures.com/patterns/circuit-board.png'); opacity: 0.1;"></div>
+                <div style="background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('${communityImage}'); background-size: cover; background-position: center; border-radius: 24px; padding: 4rem; margin-bottom: 6rem; text-align: center; color: white; position: relative; overflow: hidden;">
                     <div style="position: relative; z-index: 1; max-width: 800px; margin: 0 auto;">
                         <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem; font-weight: 700;">Our Mission</h2>
                         <p style="font-size: 1.25rem; line-height: 1.8; color: #cbd5e1; margin-bottom: 3rem;">

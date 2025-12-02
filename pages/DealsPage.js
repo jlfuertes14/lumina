@@ -1,3 +1,7 @@
+const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount);
+};
+
 // --- Deals Page ---
 export const DealsPage = ({ Breadcrumbs, state }) => {
     // Filter products with discounts (for demo, we'll show all products as deals)

@@ -507,7 +507,10 @@ const SignupPage = () => {
             <form onsubmit="window.handleSignup(event)">
                 <div class="form-group">
                     <label class="form-label">Full Name</label>
-                    <input type="text" name="name" class="form-input" required>
+                    <input type="text" name="name" class="form-input" required 
+                           pattern="[a-zA-Z\\s]+" 
+                           title="Please enter letters only."
+                           oninput="this.value = this.value.replace(/[^a-zA-Z\\s]/g, '')">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Email</label>
@@ -520,7 +523,7 @@ const SignupPage = () => {
                 <button type="submit" class="btn btn-primary" style="width: 100%">Sign Up</button>
             </form>
             <p class="text-center mt-4 text-sm">
-                Already have an account? <a href="#" onclick="window.navigate('login'); return false;" style="color: var(--accent)">Login</a>
+                Already have an account? <a href="#" onclick="window.openLoginModal(); return false;" style="color: var(--accent)">Login</a>
             </p>
         </div>
     `;
