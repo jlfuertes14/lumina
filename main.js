@@ -1,4 +1,14 @@
 import { API_BASE_URL, apiCall } from './src/api-config.js';
+import { AboutUsPage } from './pages/AboutUsPage.js';
+import { LearnPage } from './pages/LearnPage.js';
+import { TutorialDetailPage } from './pages/TutorialDetailPage.js';
+import { ContactUsPage } from './pages/ContactUsPage.js';
+import { DealsPage } from './pages/DealsPage.js';
+import { AdminPage } from './pages/AdminPage.js';
+import { UserPage } from './pages/UserPage.js';
+import { ProductsPage } from './pages/ProductsPage.js';
+import { ProductDetailPage } from './pages/ProductDetailPage.js';
+import { ProductCard } from './pages/ProductDetailPage.js';
 
 //  --- State Management ---
 const state = {
@@ -245,18 +255,22 @@ const syncCartWithServer = async () => {
     }
 };
 
-const formatCurrency = (amount) => {
+export const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount);
 };
 
 // --- Router ---
-const navigate = (route) => {
+const navigate = (route, params = {}) => {
     state.route = route;
+    state.params = params; // Store params for components to use
     state.mobileMenuOpen = false; // Close mobile menu on navigation
     sessionStorage.setItem('currentRoute', route); // Persist route!
     render();
     window.scrollTo(0, 0);
 };
+
+// Expose navigate to window for onclick handlers
+window.navigate = navigate;
 
 const showToast = (message) => {
     const toast = document.createElement('div');
@@ -303,7 +317,6 @@ const Header = () => {
     const isAdmin = state.currentUser?.role === 'admin';
     const isCartPage = state.route === 'cart';
     const cartCount = state.cart.length;
-
     return `
         <header>
             <div class="header-top">
@@ -317,42 +330,19 @@ const Header = () => {
                 </a>
                 
                 ${!isCartPage ? `
+                    <!-- Search Bar Code (Keep existing search bar code here) -->
                     <div class="search-bar">
                         <div class="search-container">
-                            <input 
-                                type="text" 
-                                id="searchInput" 
-                                class="search-input" 
-                                placeholder="Search for Products..." 
-                                value="${state.searchQuery}"
-                                oninput="window.handleSearchInput(event)"
-                                onkeyup="if(event.key === 'Enter') window.handleSearch()"
-                                onfocus="window.showSearchSuggestions()"
-                            >
+                            <input type="text" id="searchInput" class="search-input" placeholder="Search for Products..." 
+                                value="${state.searchQuery}" oninput="window.handleSearchInput(event)"
+                                onkeyup="if(event.key === 'Enter') window.handleSearch()" onfocus="window.showSearchSuggestions()">
                             <button class="search-btn" onclick="window.handleSearch()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                             </button>
-                            ${state.showSuggestions && state.searchQuery ? `
-                                <div class="search-suggestions" id="searchSuggestions">
-                                    <div class="suggestions-header">Suggestions</div>
-                                    ${state.searchSuggestions.slice(0, 5).map(suggestion => `
-                                        <div class="suggestion-item" onclick="window.selectSuggestion('${suggestion.replace(/'/g, "\\'")}')"> 
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                                            <span>${suggestion}</span>
-                                        </div>
-                                    `).join('')}
-                                    ${state.searchQuery ? `
-                                        <div class="suggestion-search-all" onclick="window.handleSearch()">
-                                            Search for "${state.searchQuery}" →
-                                        </div>
-                                    ` : ''}
-                                </div>
-                            ` : ''}
                         </div>
                     </div>
                 ` : ''}
-
-                <div class="nav-actions">
+                <div class="nav-actions" style="gap: 1.5rem;"> <!-- Increased gap -->
                     ${!isAdmin ? `
                     <a href="#" class="action-icon" onclick="window.navigate('cart'); return false;">
                         <div style="position: relative;">
@@ -364,135 +354,47 @@ const Header = () => {
                     ` : ''}
                     
                     ${isLoggedIn ? `
-                        <div class="action-icon" onclick="window.logout()" style="cursor: pointer;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                            <span>Logout</span>
+                        <div class="user-dropdown">
+                            <div class="action-icon">
+                                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                                    ${state.currentUser.name.charAt(0).toUpperCase()}
+                                </div>
+                                <span>${state.currentUser.name.split(' ')[0]}</span>
+                            </div>
+                            <div class="user-menu">
+                                <a href="#" class="user-menu-item" onclick="window.navigate('profile'); return false;">
+                                    <span>👤 My Profile</span>
+                                </a>
+                                <a href="#" class="user-menu-item" onclick="window.navigate('my-devices'); return false;">
+                                    <span>🚗 My Devices</span>
+                                </a>
+                                <div class="user-menu-item" onclick="window.logout()" style="cursor: pointer; color: var(--danger);">
+                                    <span>🚪 Logout</span>
+                                </div>
+                            </div>
                         </div>
                     ` : `
-                        <a href="#" class="action-icon" onclick="window.navigate('login'); return false;">
+                         <a href="#" class="action-icon" onclick="window.openLoginModal(); return false;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             <span>Login</span>
                         </a>
                     `}
                 </div>
             </div>
-            
+            <!-- Keep existing nav links below -->
             <nav class="header-nav ${state.mobileMenuOpen ? 'mobile-open' : ''}">
                 <a href="#" class="nav-link ${state.route === 'home' ? 'active' : ''}" onclick="window.navigate('home'); return false;">Home</a>
                 <a href="#" class="nav-link ${state.route === 'products' ? 'active' : ''}" onclick="window.navigate('products'); return false;">Products</a>
                 <a href="#" class="nav-link ${state.route === 'deals' ? 'active' : ''}" onclick="window.navigate('deals'); return false;">Deals</a>
                 <a href="#" class="nav-link ${state.route === 'learn' ? 'active' : ''}" onclick="window.navigate('learn'); return false;">Learn</a>
-                ${isLoggedIn && !isAdmin ? `
-                    <a href="#" class="nav-link ${state.route === 'my-devices' ? 'active' : ''}" 
-                       onclick="window.navigate('my-devices'); return false;">My Devices 🚗</a>
-                ` : ''}
-                <a href="#" class="nav-link ${state.route === 'about-us' ? 'active' : ''}" onclick="window.navigate('about-us'); return false;">About Us</a>
-                <a href="#" class="nav-link ${state.route === 'contact-us' ? 'active' : ''}" onclick="window.navigate('contact-us'); return false;">Contact Us</a>
-                ${isAdmin ? `<a href="#" class="nav-link ${state.route === 'admin' ? 'active' : ''}" onclick="window.navigate('admin'); return false;">Admin Dashboard</a>` : ''}
-                ${isLoggedIn ? `
-                    <div class="mobile-logout" onclick="window.logout()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                        <span>Logout</span>
-                    </div>
-                ` : ''}
+                <!-- Removed My Devices from here as it's in dropdown now, but can keep for mobile if desired -->
+                 <a href="#" class="nav-link ${state.route === 'about-us' ? 'active' : ''}" onclick="window.navigate('about-us'); return false;">About Us</a>
+                  <a href="#" class="nav-link ${state.route === 'contact-us' ? 'active' : ''}" onclick="window.navigate('contact-us'); return false;">Contact Us</a>
             </nav>
         </header>
     `;
 };
 
-const ProductCard = (product) => {
-    const isLowStock = product.stock < 10;
-    const badgeClass = isLowStock ? 'low-stock' : '';
-    const badgeText = isLowStock ? 'Low Stock' : 'In Stock';
-
-    return `
-        <div class="product-card" onclick="window.viewProduct(${product.id})" style="cursor: pointer;">
-            <div class="product-badge ${badgeClass}">${badgeText}</div>
-            <div class="product-image">
-                <img src="${product.image}" alt="${product.name}" />
-            </div>
-            <div class="product-info">
-                <div class="product-category">${product.category}</div>
-                <h3 class="product-title">${product.name}</h3>
-                <div class="product-price">${formatCurrency(product.price)}</div>
-                <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${product.id})">
-                    Add to Cart
-                </button>
-            </div>
-        </div>
-    `;
-};
-
-const ProductDetailPage = () => {
-    const product = state.products.find(p => p.id === state.currentProductId);
-
-    if (!product) {
-        navigate('home');
-        return '';
-    }
-
-    const isLowStock = product.stock < 10;
-    const stockStatus = product.stock > 0 ? 'In Stock' : 'Out of Stock';
-    const stockColor = product.stock > 0 ? 'var(--success)' : 'var(--danger)';
-
-    // Get 4 random related products (excluding current)
-    const relatedProducts = state.products
-        .filter(p => p.id !== product.id)
-        .sort(() => 0.5 - Math.random())
-        .slice(0, 4);
-
-    return `
-        <div class="product-detail-container">
-            <div class="breadcrumbs">
-                <a href="#" onclick="window.navigate('home'); return false;">Home</a> &gt; 
-                <a href="#" onclick="window.navigate('products'); return false;">Products</a> &gt; 
-                <span>${product.name}</span>
-            </div>
-
-            <div class="product-main">
-                <div class="product-gallery">
-                    <img src="${product.image}" alt="${product.name}">
-                </div>
-
-                <div class="product-details-info">
-                    <div class="product-sku">SKU: LUM-${product.id.toString().padStart(4, '0')}</div>
-                    <h1 class="detail-title">${product.name}</h1>
-                    <div class="detail-price">${formatCurrency(product.price)}</div>
-
-                    <div class="detail-section">
-                        <span class="detail-label">Description</span>
-                        <p style="color: var(--text-muted); line-height: 1.6;">${product.description}</p>
-                    </div>
-
-                    <div class="detail-section">
-                        <span class="detail-label">Quantity</span>
-                        <div class="quantity-selector">
-                            <button class="qty-btn" onclick="window.adjustDetailQty(-1)">-</button>
-                            <input type="number" id="detailQty" class="qty-input" value="1" min="1" max="${product.stock}" readonly>
-                            <button class="qty-btn" onclick="window.adjustDetailQty(1)">+</button>
-                        </div>
-                    </div>
-
-                    <button class="btn-add-large" onclick="window.addToCartFromDetail(${product.id})">
-                        Add To Cart
-                    </button>
-
-                    <div class="stock-status" style="color: ${stockColor}">
-                        <span class="stock-dot" style="background-color: ${stockColor}"></span>
-                        ${stockStatus} (${product.stock} available)
-                    </div>
-                </div>
-            </div>
-
-            <div class="related-products">
-                <h3 class="related-title">You may also like</h3>
-                <div class="product-grid">
-                    ${relatedProducts.map(ProductCard).join('')}
-                </div>
-            </div>
-        </div>
-    `;
-};
 
 const HomePage = () => {
     // Filter products based on search query
@@ -575,94 +477,6 @@ const HomePage = () => {
     `;
 };
 
-const ProductsPage = () => {
-    // Apply filtering
-    let displayedProducts = [...state.products];
-
-    // Apply search query filter
-    if (state.searchQuery) {
-        displayedProducts = displayedProducts.filter(product =>
-            product.name.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-            product.category.toLowerCase().includes(state.searchQuery.toLowerCase()) ||
-            product.description.toLowerCase().includes(state.searchQuery.toLowerCase())
-        );
-    }
-
-    // Apply category filter
-    if (state.filterCategory) {
-        displayedProducts = displayedProducts.filter(p => p.category === state.filterCategory);
-    }
-
-    // Apply sorting
-    switch (state.sortBy) {
-        case 'price-asc':
-            displayedProducts.sort((a, b) => a.price - b.price);
-            break;
-        case 'price-desc':
-            displayedProducts.sort((a, b) => b.price - a.price);
-            break;
-        case 'name-asc':
-            displayedProducts.sort((a, b) => a.name.localeCompare(b.name));
-            break;
-        case 'name-desc':
-            displayedProducts.sort((a, b) => b.name.localeCompare(a.name));
-            break;
-        case 'featured':
-        default:
-            // Default ID sort or custom logic
-            displayedProducts.sort((a, b) => a.id - b.id);
-            break;
-    }
-
-    return `
-        <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
-            <div class="products-header">
-                <div class="breadcrumbs">
-                    <a href="#" onclick="window.navigate('home'); return false;">Home</a>
-                    <span>&gt;</span>
-                    <span>Products</span>
-                </div>
-                
-                <div class="products-toolbar">
-                    <div class="toolbar-left">
-                        <button class="filter-btn" onclick="window.showToast('Filter drawer coming soon!')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
-                            Filter
-                        </button>
-                        <span style="color: var(--text-muted); font-size: 0.9rem;">${displayedProducts.length} products</span>
-                    </div>
-                    
-                    <div class="sort-container">
-                        <span class="sort-label">Sort by:</span>
-                        <select class="sort-select" onchange="window.handleSort(this.value)">
-                            <option value="featured" ${state.sortBy === 'featured' ? 'selected' : ''}>Featured</option>
-                            <option value="price-asc" ${state.sortBy === 'price-asc' ? 'selected' : ''}>Price: Low to High</option>
-                            <option value="price-desc" ${state.sortBy === 'price-desc' ? 'selected' : ''}>Price: High to Low</option>
-                            <option value="name-asc" ${state.sortBy === 'name-asc' ? 'selected' : ''}>Alphabetical: A-Z</option>
-                            <option value="name-desc" ${state.sortBy === 'name-desc' ? 'selected' : ''}>Alphabetical: Z-A</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            ${state.searchQuery ? `
-                <div style="display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: var(--surface); border-radius: 8px; margin-bottom: 1.5rem;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <span>
-                        Showing results for <strong>"${state.searchQuery}"</strong>
-                    </span>
-                </div>
-            ` : ''}
-
-            <div class="product-grid">
-                ${displayedProducts.map(ProductCard).join('')}
-            </div>
-        </div>
-    `;
-};
 
 const LoginPage = () => {
     return `
@@ -715,14 +529,14 @@ const SignupPage = () => {
 const CartPage = () => {
     if (state.cart.length === 0) {
         return `
-            <div class="text-center" style="padding: 4rem;">
-                <h2>Your cart is empty</h2>
+            <div class="text-center" style="padding: 4rem; max-width: 600px; margin: 0 auto;">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">🛒</div>
+                <h2 style="margin-bottom: 1rem;">Your cart is empty</h2>
                 <p class="text-muted mb-4">Looks like you haven't added anything yet.</p>
                 <button class="btn btn-primary" onclick="window.navigate('products')">Start Shopping</button>
             </div>
         `;
     }
-
     // Filter cart items based on cart search query
     let displayedCartItems = state.cart;
     if (state.cartSearchQuery) {
@@ -731,9 +545,7 @@ const CartPage = () => {
             item.category.toLowerCase().includes(state.cartSearchQuery.toLowerCase())
         );
     }
-
     const total = state.cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-
     return `
         <div style="margin: 2rem auto; padding: 0 2rem;">
             <button class="btn btn-outline" onclick="window.navigate('products')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
@@ -786,7 +598,6 @@ const CartPage = () => {
         const similarProducts = state.products
             .filter(p => p.category === item.category && p.id !== item.id)
             .slice(0, 4); // Show up to 4 similar items
-
         return `
                     <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
                         <div class="cart-item" style="border-bottom: none;">
@@ -806,17 +617,16 @@ const CartPage = () => {
                                 <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
                             </div>
                             
-                            <div class="cart-item-actions">
-                                <button class="btn-delete" onclick="window.removeFromCart(${item.id})">Delete</button>
-                                <button class="btn-find-similar" onclick="window.toggleFindSimilar(${item.id})">
+                            <div class="cart-item-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <button class="btn-find-similar" onclick="window.toggleFindSimilar(${item.id})" style="display: flex; align-items: center; gap: 0.25rem;">
                                     Find Similar 
                                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${item.showSimilar ? 'rotate(180deg)' : 'rotate(0deg)'}; transition: transform 0.2s;">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </button>
+                                <button class="btn-delete" onclick="window.removeFromCart(${item.id})" style="color: var(--danger); border-color: var(--danger);">Delete</button>
                             </div>
                         </div>
-
                         <div class="similar-products-dropdown ${item.showSimilar ? 'show' : ''}">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <h4 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Similar Products</h4>
@@ -848,15 +658,14 @@ const CartPage = () => {
                 <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
                     Proceed to Checkout (${state.cart.filter(i => i.selected !== false).length})
                 </button>
-
             </div>
         </div>
         </div>
     `;
 };
 
-// ===== Page Components =====
 
+// ===== Page Components =====
 const MyDevicesPage = () => {
     if (!state.currentUser) {
         navigate('login');
@@ -864,7 +673,6 @@ const MyDevicesPage = () => {
     }
 
     const devices = state.devices || [];
-
     return `
         <div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             ${Breadcrumbs('my-devices')}
@@ -875,7 +683,6 @@ const MyDevicesPage = () => {
                     + Pair New Device
                 </button>
             </div>
-
             ${devices.length === 0 ? `
                 <div style="text-align: center; padding: 4rem 2rem; background: var(--surface); border-radius: 12px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 1rem; opacity: 0.3;">
@@ -890,7 +697,9 @@ const MyDevicesPage = () => {
                 </div>
             ` : `
                 <div class="device-grid">
-                    ${devices.map(device => `
+                    ${devices.map(device => {
+        const isMasked = !state.showTokens?.[device.deviceId];
+        return `
                         <div class="device-card">
                             <div class="device-status-badge ${(device.status === 'active' || state.deviceStatus[device.deviceId]?.status === 'online') ? 'online' : 'offline'}">
                                 <span class="status-dot"></span>
@@ -903,9 +712,17 @@ const MyDevicesPage = () => {
                             
                             <h3 class="device-name">${device.deviceName}</h3>
                             <p class="device-id">ID: ${device.deviceId}</p>
-                            <p class="device-id" style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">
-                                🔑 Token: ${device.deviceToken ? device.deviceToken.substring(0, 16) + '...' : 'N/A'}
-                            </p>
+                            <div class="info-row" style="margin-top: 0.5rem;">
+                                <span class="label" style="color: var(--text-muted); font-size: 0.85rem;">Token:</span>
+                                <div class="token-display" style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.05); padding: 0.25rem 0.5rem; border-radius: 4px;">
+                                    <span class="token-value ${isMasked ? 'masked' : ''}" style="font-family: monospace; font-size: 0.85rem;">
+                                        ${isMasked ? '••••••••' : device.deviceToken}
+                                    </span>
+                                    <button onclick="window.toggleToken('${device.deviceId}')" style="background:none; border:none; cursor: pointer; padding: 0; display: flex; align-items: center; color: var(--text-muted);">
+                                        ${isMasked ? '👁️' : '🔒'}
+                                    </button>
+                                </div>
+                            </div>
                             
                             <div class="device-info">
                                 <div class="info-item">
@@ -939,13 +756,13 @@ const MyDevicesPage = () => {
                                 `}
                             </div>
                         </div>
-                    `).join('')}
+                    `;
+    }).join('')}
                 </div>
             `}
         </div>
     `;
 };
-
 const DevicePairingPage = () => {
     if (!state.currentUser) {
         navigate('login');
@@ -1006,30 +823,24 @@ const RemoteControlPage = () => {
         navigate('login');
         return '';
     }
-
     if (!state.currentDeviceId) {
         navigate('my-devices');
         return '';
     }
-
     const device = state.devices?.find(d => d.deviceId === state.currentDeviceId);
     if (!device) {
         navigate('my-devices');
         return '';
     }
-
     const statusData = state.deviceStatus[device.deviceId] || {};
     const telemetry = state.telemetryData[device.deviceId] || {};
     const isConnected = statusData.status === 'online';
-
     // Calculate battery ring progress
     const battery = telemetry.battery || 0;
     const batteryCircumference = 2 * Math.PI * 20; // radius = 20
     const batteryOffset = batteryCircumference - (battery / 100) * batteryCircumference;
-
     // Calculate signal strength (convert to 0-4 scale)
     const signalStrength = Math.min(4, Math.max(0, Math.round((telemetry.signal || 0) / 25)));
-
     return `
         <div style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
             <div style="margin-bottom: 1rem;">
@@ -1037,7 +848,6 @@ const RemoteControlPage = () => {
                     ← Back to My Devices
                 </button>
             </div>
-
             <div class="cyber-container">
                 <!-- HUD Strip -->
                 <div class="cyber-hud">
@@ -1055,7 +865,6 @@ const RemoteControlPage = () => {
                             <div class="value">${battery >= 70 ? 'Good' : battery >= 30 ? 'Low' : 'Critical'}</div>
                         </div>
                     </div>
-
                     <!-- Signal Strength -->
                     <div class="hud-group">
                         <div class="icon-box">
@@ -1071,7 +880,6 @@ const RemoteControlPage = () => {
                             <div class="value">${telemetry.signal || 0}%</div>
                         </div>
                     </div>
-
                     <!-- Movement Status -->
                     <div class="hud-group">
                         <div class="icon-box">⚡</div>
@@ -1080,7 +888,6 @@ const RemoteControlPage = () => {
                             <div class="value">${telemetry.isMoving ? 'Moving' : 'Idle'}</div>
                         </div>
                     </div>
-
                     <!-- Connection Status -->
                     <div class="hud-group">
                         <div class="icon-box">${isConnected ? '🟢' : '🔴'}</div>
@@ -1090,22 +897,20 @@ const RemoteControlPage = () => {
                         </div>
                     </div>
                 </div>
-
                 <!-- Obstacle Alert (only show if detected) -->
                 ${telemetry.frontSensor ? `
                     <div class="obstacle-alert">
                         ⚠️ OBSTACLE DETECTED AHEAD
                     </div>
                 ` : ''}
-
                 <!-- Control Deck (D-Pad) -->
                 <div class="control-deck">
                     <div class="d-pad-grid">
                         <button class="d-pad-btn" data-dir="forward"
-                            onmousedown="window.sendCarCommand('forward')"
-                            onmouseup="window.sendCarCommand('stop')"
-                            ontouchstart="window.sendCarCommand('forward')"
-                            ontouchend="window.sendCarCommand('stop')"
+                            onmousedown="window.sendCarCommand('forward'); this.classList.add('active')"
+                            onmouseup="window.sendCarCommand('stop'); this.classList.remove('active')"
+                            ontouchstart="window.sendCarCommand('forward'); this.classList.add('active')"
+                            ontouchend="window.sendCarCommand('stop'); this.classList.remove('active')"
                             ${!isConnected ? 'disabled' : ''}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="12" y1="19" x2="12" y2="5"></line>
@@ -1115,10 +920,10 @@ const RemoteControlPage = () => {
                         </button>
                         
                         <button class="d-pad-btn" data-dir="left"
-                            onmousedown="window.sendCarCommand('left')"
-                            onmouseup="window.sendCarCommand('stop')"
-                            ontouchstart="window.sendCarCommand('left')"
-                            ontouchend="window.sendCarCommand('stop')"
+                            onmousedown="window.sendCarCommand('left'); this.classList.add('active')"
+                            onmouseup="window.sendCarCommand('stop'); this.classList.remove('active')"
+                            ontouchstart="window.sendCarCommand('left'); this.classList.add('active')"
+                            ontouchend="window.sendCarCommand('stop'); this.classList.remove('active')"
                             ${!isConnected ? 'disabled' : ''}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -1137,10 +942,10 @@ const RemoteControlPage = () => {
                         </button>
                         
                         <button class="d-pad-btn" data-dir="right"
-                            onmousedown="window.sendCarCommand('right')"
-                            onmouseup="window.sendCarCommand('stop')"
-                            ontouchstart="window.sendCarCommand('right')"
-                            ontouchend="window.sendCarCommand('stop')"
+                            onmousedown="window.sendCarCommand('right'); this.classList.add('active')"
+                            onmouseup="window.sendCarCommand('stop'); this.classList.remove('active')"
+                            ontouchstart="window.sendCarCommand('right'); this.classList.add('active')"
+                            ontouchend="window.sendCarCommand('stop'); this.classList.remove('active')"
                             ${!isConnected ? 'disabled' : ''}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -1150,10 +955,10 @@ const RemoteControlPage = () => {
                         </button>
                         
                         <button class="d-pad-btn" data-dir="backward"
-                            onmousedown="window.sendCarCommand('backward')"
-                            onmouseup="window.sendCarCommand('stop')"
-                            ontouchstart="window.sendCarCommand('backward')"
-                            ontouchend="window.sendCarCommand('stop')"
+                            onmousedown="window.sendCarCommand('backward'); this.classList.add('active')"
+                            onmouseup="window.sendCarCommand('stop'); this.classList.remove('active')"
+                            ontouchstart="window.sendCarCommand('backward'); this.classList.add('active')"
+                            ontouchend="window.sendCarCommand('stop'); this.classList.remove('active')"
                             ${!isConnected ? 'disabled' : ''}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -1163,7 +968,6 @@ const RemoteControlPage = () => {
                         </button>
                     </div>
                 </div>
-
                 <!-- Action Bar -->
                 <div class="action-bar">
                     <!-- Speed Control -->
@@ -1175,7 +979,6 @@ const RemoteControlPage = () => {
                         <input type="range" min="0" max="100" value="50" class="cyber-slider" id="speedSlider"
                             oninput="document.getElementById('speedValue').textContent = this.value + '%'">
                     </div>
-
                     <!-- Auxiliary Controls -->
                     <div class="aux-controls">
                         <button class="cyber-toggle-btn" id="lightsToggle" onclick="window.toggleLights()">
@@ -1203,14 +1006,12 @@ const RemoteControlPage = () => {
                     </div>
                 </div>
             </div>
-
             <p style="text-align: center; color: var(--cyber-text-muted); margin-top: 1rem; font-size: 0.875rem;">
                 Use WASD or Arrow Keys to control
             </p>
         </div>
     `;
 };
-
 const CheckoutPage = () => {
     if (!state.currentUser) {
         navigate('login');
@@ -1497,684 +1298,21 @@ const OrderConfirmationPage = () => {
     `;
 };
 
-// --- Contact Us Page ---
-const ContactUsPage = () => {
-    return `
-        <div style="max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;">
-            ${Breadcrumbs('contact-us')}
-            
-            <!-- Hero Section -->
-            <div style="text-align: center; margin-bottom: 4rem;">
-                <h1 style="font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, var(--primary), #0EA5E9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Get in Touch</h1>
-                <p style="font-size: 1.125rem; color: var(--text-muted); max-width: 600px; margin: 0 auto;">Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
-            </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 4rem;">
-                <!-- Contact Form -->
-                <div class="admin-section" style="padding: 2rem;">
-                    <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Send Us a Message</h2>
-                    <form onsubmit="window.handleContactSubmit(event)" id="contactForm">
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Name *</label>
-                            <input type="text" name="name" required 
-                                style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius-md); font-size: 1rem; transition: border-color 0.3s;"
-                                onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" />
-                        </div>
-                        
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Email *</label>
-                            <input type="email" name="email" required 
-                                style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius-md); font-size: 1rem; transition: border-color 0.3s;"
-                                onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" />
-                        </div>
-                        
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Subject *</label>
-                            <input type="text" name="subject" required 
-                                style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius-md); font-size: 1rem; transition: border-color 0.3s;"
-                                onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" />
-                        </div>
-                        
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Message *</label>
-                            <textarea name="message" required rows="6"
-                                style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius-md); font-size: 1rem; resize: vertical; transition: border-color 0.3s; font-family: inherit;"
-                                onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.125rem;">
-                            Send Message
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Contact Information -->
-                <div>
-                    <div class="admin-section" style="padding: 2rem; margin-bottom: 2rem;">
-                        <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Contact Information</h2>
-                        
-                        <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1.5rem;">
-                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), #0EA5E9); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            </div>
-                            <div>
-                                <h3 style="margin-bottom: 0.5rem;">Address</h3>
-                                <p style="color: var(--text-muted); line-height: 1.6;">123 Electronics Street<br/>Makati City, Metro Manila<br/>Philippines 1200</p>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1.5rem;">
-                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), #0EA5E9); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                            </div>
-                            <div>
-                                <h3 style="margin-bottom: 0.5rem;">Phone</h3>
-                                <p style="color: var(--text-muted);">(02) 8123-4567<br/>+63 917 123 4567</p>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; align-items: start; gap: 1rem;">
-                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), #0EA5E9); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            </div>
-                            <div>
-                                <h3 style="margin-bottom: 0.5rem;">Email</h3>
-                                <p style="color: var(--text-muted);">support@luminaelectronics.com<br/>sales@luminaelectronics.com</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Business Hours -->
-                    <div class="admin-section" style="padding: 2rem;">
-                        <h3 style="margin-bottom: 1rem; color: var(--primary);">Business Hours</h3>
-                        <div style="color: var(--text-muted); line-height: 2;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <span>Monday - Friday:</span>
-                                <strong>9:00 AM - 6:00 PM</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <span>Saturday:</span>
-                                <strong>10:00 AM - 4:00 PM</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span>Sunday:</span>
-                                <strong>Closed</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Map Section -->
-            <div class="admin-section" style="padding: 0; overflow: hidden;">
-                <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.5489358476346!2d121.0244036!3d14.5547146!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c90264a0f917%3A0x1299c768397f2d01!2sAyala%20Avenue%2C%20Makati%2C%20Metro%20Manila!5e0!3m2!1sen!2sph!4v1234567890123!5m2!1sen!2sph" 
-                    width="100%" 
-                    height="400" 
-                    style="border:0;" 
-                    allowfullscreen="" 
-                    loading="lazy" 
-                    referrerpolicy="no-referrer-when-downgrade">
-                </iframe>
-            </div>
-        </div>
-    `;
+// Helper function for tutorial navigation
+window.navigateToTutorial = (tutorialId) => {
+    navigate('tutorial-detail', { id: tutorialId });
 };
 
-// --- About Us Page ---
-const AboutUsPage = () => {
-    const teamMembers = [
-        { name: "Alex Santos", role: "Founder & CEO", image: "https://ui-avatars.com/api/?name=Alex+Santos&background=6366f1&color=fff&size=120" },
-        { name: "Sarah Lee", role: "Operations Manager", image: "https://ui-avatars.com/api/?name=Sarah+Lee&background=6366f1&color=fff&size=120" },
-        { name: "Mike Chen", role: "Technical Support", image: "https://ui-avatars.com/api/?name=Mike+Chen&background=6366f1&color=fff&size=120" },
-        { name: "Jenny Reyes", role: "Customer Service", image: "https://ui-avatars.com/api/?name=Jenny+Reyes&background=6366f1&color=fff&size=120" }
-    ];
-
-    return `
-        <div style="background: #f8f9fa; min-height: 100vh; padding: 2rem 0;">
-            <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-                ${Breadcrumbs('about-us')}
-                
-                <!-- Hero Section with Real Photo -->
-                <div style="position: relative; border-radius: 4px; overflow: hidden; margin-bottom: 2.5rem; height: 250px; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center;">
-                    <div style="text-align: center; color: white; padding: 2rem;">
-                        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem; font-weight: 700; color: white;">About Lumina Electronics</h1>
-                        <p style="font-size: 1.125rem; opacity: 0.95;">Your trusted source for quality electronics components since 2020</p>
-                    </div>
-                </div>
-
-                <!-- Mission & Stats -->
-                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2.5rem;">
-                    <div style="background: white; padding: 2rem; border-radius: 4px; border: 1px solid #e2e8f0;">
-                        <h2 style="font-size: 1.5rem; margin-bottom: 1rem; color: #1e293b; font-weight: 600;">Our Mission</h2>
-                        <p style="font-size: 1rem; line-height: 1.8; color: #475569; margin-bottom: 1rem; text-align: left;">
-                            To provide high-quality, affordable electronics components to engineers, students, and hobbyists across the Philippines. We believe in fostering innovation by making technology accessible to everyone.
-                        </p>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1.5rem;">
-                            <div style="padding: 1rem; background: #f8f9fa; border-radius: 4px; border-left: 3px solid #6366f1;">
-                                <h3 style="font-size: 0.875rem; margin-bottom: 0.25rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; text-align: left;">Quality First</h3>
-                                <p style="font-size: 0.875rem; color: #475569; text-align: left;">Authentic components from trusted suppliers</p>
-                            </div>
-                            <div style="padding: 1rem; background: #f8f9fa; border-radius: 4px; border-left: 3px solid #6366f1;">
-                                <h3 style="font-size: 0.875rem; margin-bottom: 0.25rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; text-align: left;">Fast Delivery</h3>
-                                <p style="font-size: 0.875rem; color: #475569; text-align: left;">Same-day Metro Manila shipping</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="background: white; padding: 2rem; border-radius: 4px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; gap: 1.5rem;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 2.5rem; font-weight: 700; color: #6366f1; margin-bottom: 0.25rem;">50k+</div>
-                            <div style="font-size: 0.875rem; color: #64748b;">Happy Customers</div>
-                        </div>
-                        <div style="height: 1px; background: #e2e8f0;"></div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 2.5rem; font-weight: 700; color: #6366f1; margin-bottom: 0.25rem;">1000+</div>
-                            <div style="font-size: 0.875rem; color: #64748b;">Products</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Clean Timeline -->
-                <div style="background: white; padding: 2rem; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 2.5rem;">
-                    <h2 style="font-size: 1.5rem; margin-bottom: 2rem; color: #1e293b; font-weight: 600;">Our Journey</h2>
-                    <div style="position: relative; padding-left: 2.5rem;">
-                        <div style="position: absolute; left: 0.625rem; top: 0; bottom: 0; width: 2px; background: #e2e8f0;"></div>
-                        
-                        <div style="position: relative; margin-bottom: 2rem;">
-                            <div style="position: absolute; left: -2.125rem; top: 0.25rem; width: 12px; height: 12px; background: #6366f1; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px #e2e8f0;"></div>
-                            <div style="display: flex; gap: 1rem; align-items: baseline;">
-                                <span style="font-size: 0.875rem; font-weight: 700; color: #6366f1; min-width: 3rem;">2020</span>
-                                <div>
-                                    <h3 style="font-size: 1rem; margin-bottom: 0.25rem; color: #1e293b; font-weight: 600; text-align: left;">Founded</h3>
-                                    <p style="font-size: 0.875rem; color: #64748b; line-height: 1.6; text-align: left;">Started as a small online shop with 50 products, driven by a passion for electronics.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="position: relative; margin-bottom: 2rem;">
-                            <div style="position: absolute; left: -2.125rem; top: 0.25rem; width: 12px; height: 12px; background: #6366f1; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px #e2e8f0;"></div>
-                            <div style="display: flex; gap: 1rem; align-items: baseline;">
-                                <span style="font-size: 0.875rem; font-weight: 700; color: #6366f1; min-width: 3rem;">2022</span>
-                                <div>
-                                    <h3 style="font-size: 1rem; margin-bottom: 0.25rem; color: #1e293b; font-weight: 600; text-align: left;">Expansion</h3>
-                                    <p style="font-size: 0.875rem; color: #64748b; line-height: 1.6; text-align: left;">Grew to 500+ products and established partnerships with major manufacturers worldwide.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="position: relative;">
-                            <div style="position: absolute; left: -2.125rem; top: 0.25rem; width: 12px; height: 12px; background: #6366f1; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 0 2px #e2e8f0;"></div>
-                            <div style="display: flex; gap: 1rem; align-items: baseline;">
-                                <span style="font-size: 0.875rem; font-weight: 700; color: #6366f1; min-width: 3rem;">2024</span>
-                                <div>
-                                    <h3 style="font-size: 1rem; margin-bottom: 0.25rem; color: #1e293b; font-weight: 600; text-align: left;">Today</h3>
-                                    <p style="font-size: 0.875rem; color: #64748b; line-height: 1.6; text-align: left;">Serving 50,000+ customers with 1000+ products, same-day shipping, and dedicated support.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Team Section -->
-                <div style="background: white; padding: 2rem; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 2.5rem;">
-                    <h2 style="font-size: 1.5rem; margin-bottom: 2rem; color: #1e293b; font-weight: 600;">Meet Our Team</h2>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
-                        ${teamMembers.map(member => `
-                            <div style="text-align: center;">
-                                <div style="width: 80px; height: 80px; margin: 0 auto 1rem; border-radius: 50%; overflow: hidden; border: 2px solid #e2e8f0;">
-                                    <img src="${member.image}" alt="${member.name}" style="width: 100%; height: 100%; object-fit: cover;">
-                                </div>
-                                <h3 style="font-size: 0.875rem; margin-bottom: 0.25rem; color: #1e293b; font-weight: 600;">${member.name}</h3>
-                                <p style="font-size: 0.75rem; color: #64748b;">${member.role}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <!-- Why Choose Us -->
-                <div>
-                    <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem; color: #1e293b; font-weight: 600;">Why Choose Us</h2>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
-                        <div style="background: white; padding: 1.5rem; border-radius: 4px; border: 1px solid #e2e8f0;">
-                            <div style="width: 40px; height: 40px; background: #f0fdf4; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
-                            </div>
-                            <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #1e293b; font-weight: 600; text-align: left;">Authentic Products</h3>
-                            <p style="font-size: 0.875rem; color: #64748b; line-height: 1.6; text-align: left;">Only genuine components from trusted manufacturers</p>
-                        </div>
-
-                        <div style="background: white; padding: 1.5rem; border-radius: 4px; border: 1px solid #e2e8f0;">
-                            <div style="width: 40px; height: 40px; background: #fef3c7; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                            </div>
-                            <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #1e293b; font-weight: 600; text-align: left;">Expert Support</h3>
-                            <p style="font-size: 0.875rem; color: #64748b; line-height: 1.6; text-align: left;">Technical assistance from experienced engineers</p>
-                        </div>
-
-                        <div style="background: white; padding: 1.5rem; border-radius: 4px; border: 1px solid #e2e8f0;">
-                            <div style="width: 40px; height: 40px; background: #ede9fe; border-radius: 4px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-                            </div>
-                            <h3 style="font-size: 1rem; margin-bottom: 0.5rem; color: #1e293b; font-weight: 600; text-align: left;">Fast Shipping</h3>
-                            <p style="font-size: 0.875rem; color: #64748b; line-height: 1.6; text-align: left;">Same-day delivery for Metro Manila orders</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
+// Helper for Learn Filter
+window.filterLearningContent = (category) => {
+    state.filterLearnCategory = category;
+    render();
 };
 
-// --- Learn Page ---
-const LearnPage = () => {
-    const tutorials = [
-        { id: 1, title: "Getting Started with Arduino", category: "Beginner", topic: "Microcontrollers", duration: "15 min", videoId: "nL34zDTPkcs", featured: true },
-        { id: 2, title: "Raspberry Pi Setup Guide", category: "Beginner", topic: "Microcontrollers", duration: "20 min", videoId: "BpJCAafw2qE", featured: true },
-        { id: 3, title: "Understanding Sensors", category: "Intermediate", topic: "IoT", duration: "18 min", videoId: "DlG6LY84MUU", recent: true },
-        { id: 4, title: "DIY Obstacle Avoidance Car", category: "Intermediate", topic: "IoT", duration: "6 min", videoId: "1n_KjpMfVT0", recent: true },
-        { id: 5, title: "PCB Design Basics", category: "Advanced", topic: "PCB Design", duration: "60 min", videoId: "vaCVh2SAZY4", featured: true },
-        { id: 6, title: "IoT Projects with ESP32", category: "Advanced", topic: "IoT", duration: "50 min", videoId: "xPlN_Tk3VLQ", recent: true },
-        { id: 7, title: "8 Brilliant Projects with 3D Printing and Electronics!", category: "Intermediate", topic: "Microcontrollers", duration: "8 min", videoId: "UkWoPMa6V-M", featured: true },
-        { id: 8, title: "Building a Weather Station", category: "Advanced", topic: "IoT", duration: "42 min", videoId: "U0kPgFcALac", recent: true }
-    ];
-
-    const featuredVideos = tutorials.filter(t => t.featured);
-    const recentVideos = tutorials.filter(t => t.recent);
-
-    const getBadgeColor = (category) => {
-        if (category === 'Beginner') return { bg: '#dcfce7', text: '#16a34a' };
-        if (category === 'Intermediate') return { bg: '#dbeafe', text: '#2563eb' };
-        return { bg: '#f3e8ff', text: '#9333ea' };
-    };
-
-    return `
-        <div style="background: #f8f9fa; min-height: 100vh; padding-bottom: 3rem;">
-            <!-- Hero Banner -->
-            <div style="width: 100%; margin-top: 2rem; margin-bottom: 2rem; overflow: hidden;">
-                <div style="max-width: 1400px; margin: 0 auto;">
-                    <img src="assets/learning-hub-banner.png" alt="Lumina Learning Hub" style="width: 100%; max-height: 200px; object-fit: cover; display: block; border-radius: 8px;" />
-                </div>
-            </div>
-
-            <div style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
-                ${Breadcrumbs('learn')}
-                
-                <!-- Filter Chips -->
-                <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap; overflow-x: auto; padding-bottom: 0.5rem;">
-                    <!-- Difficulty Filters -->
-                    <button class="topic-filter active" data-filter="all" onclick="window.filterLearningContent('all')" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background: #6366f1; color: white; border: 2px solid #6366f1; border-radius: 24px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                        All
-                    </button>
-                    <button class="topic-filter" data-filter="Beginner" onclick="window.filterLearningContent('Beginner')" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background: white; color: #64748b; border: 2px solid #e2e8f0; border-radius: 24px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        Beginner
-                    </button>
-                    <button class="topic-filter" data-filter="Intermediate" onclick="window.filterLearningContent('Intermediate')" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background: white; color: #64748b; border: 2px solid #e2e8f0; border-radius: 24px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        Intermediate
-                    </button>
-                    <button class="topic-filter" data-filter="Advanced" onclick="window.filterLearningContent('Advanced')" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background: white; color: #64748b; border: 2px solid #e2e8f0; border-radius: 24px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                        Advanced
-                    </button>
-                    <!-- Topic Filters -->
-                    <button class="topic-filter" data-filter="Microcontrollers" onclick="window.filterLearningContent('Microcontrollers')" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background: white; color: #64748b; border: 2px solid #e2e8f0; border-radius: 24px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>
-                        Microcontrollers
-                    </button>
-                    <button class="topic-filter" data-filter="IoT" onclick="window.filterLearningContent('IoT')" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background: white; color: #64748b; border: 2px solid #e2e8f0; border-radius: 24px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
-                        IoT
-                    </button>
-                    <button class="topic-filter" data-filter="PCB Design" onclick="window.filterLearningContent('PCB Design')" style="display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; background: white; color: #64748b; border: 2px solid #e2e8f0; border-radius: 24px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
-                        PCB Design
-                    </button>
-                </div>
-
-                <!-- Featured Playlist Carousel -->
-                <div style="margin-bottom: 3rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2 style="font-size: 1.5rem; color: #1e293b; font-weight: 600;">Featured Playlist</h2>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                        ${featuredVideos.map(tutorial => {
-        const colors = getBadgeColor(tutorial.category);
-        return `
-                            <div class="tutorial-card" data-category="${tutorial.category}" data-topic="${tutorial.topic}" 
-                                 style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" 
-                                 onclick="window.openVideoModal('${tutorial.videoId}')"
-                                 onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.12)'"
-                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
-                                <div style="position: relative; aspect-ratio: 16/9; background: #000; overflow: hidden;">
-                                    <img src="https://img.youtube.com/vi/${tutorial.videoId}/maxresdefault.jpg" alt="${tutorial.title}" style="width: 100%; height: 100%; object-fit: cover;" />
-                                    <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3);">
-                                        <div style="width: 56px; height: 56px; background: rgba(220, 38, 38, 0.95); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                                        </div>
-                                    </div>
-                                    <div style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.85); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">
-                                        ⏱ ${tutorial.duration}
-                                    </div>
-                                    <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: ${colors.bg}; color: ${colors.text}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;">
-                                        ${tutorial.category}
-                                    </div>
-                                </div>
-                                <div style="padding: 1rem;">
-                                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.4; color: #1e293b; font-weight: 600; text-align: left;">${tutorial.title}</h3>
-                                    <p style="font-size: 0.875rem; color: #64748b; text-align: left;">Watch this ${tutorial.category.toLowerCase()}-level tutorial</p>
-                                </div>
-                            </div>
-                        `}).join('')}
-                    </div>
-                </div>
-
-                <!-- Recently Added Carousel -->
-                <div style="margin-bottom: 3rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2 style="font-size: 1.5rem; color: #1e293b; font-weight: 600;">Recently Added</h2>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
-                        ${recentVideos.map(tutorial => {
-            const colors = getBadgeColor(tutorial.category);
-            return `
-                            <div class="tutorial-card" data-category="${tutorial.category}" data-topic="${tutorial.topic}"
-                                 style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" 
-                                 onclick="window.openVideoModal('${tutorial.videoId}')"
-                                 onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.12)'"
-                                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
-                                <div style="position: relative; aspect-ratio: 16/9; background: #000; overflow: hidden;">
-                                    <img src="https://img.youtube.com/vi/${tutorial.videoId}/maxresdefault.jpg" alt="${tutorial.title}" style="width: 100%; height: 100%; object-fit: cover;" />
-                                    <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3);">
-                                        <div style="width: 56px; height: 56px; background: rgba(220, 38, 38, 0.95); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                                        </div>
-                                    </div>
-                                    <div style="position: absolute; bottom: 0.5rem; right: 0.5rem; background: rgba(0,0,0,0.85); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600;">
-                                        ⏱ ${tutorial.duration}
-                                    </div>
-                                    <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: ${colors.bg}; color: ${colors.text}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;">
-                                        ${tutorial.category}
-                                    </div>
-                                </div>
-                                <div style="padding: 1rem;">
-                                    <h3 style="font-size: 1rem; margin-bottom: 0.5rem; line-height: 1.4; color: #1e293b; font-weight: 600; text-align: left;">${tutorial.title}</h3>
-                                    <p style="font-size: 0.875rem; color: #64748b; text-align: left;">Watch this ${tutorial.category.toLowerCase()}-level tutorial</p>
-                                </div>
-                            </div>
-                        `}).join('')}
-                    </div>
-                </div>
-
-                <!-- Additional Learning Resources -->
-                <div style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; padding: 2.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                    <h2 style="font-size: 1.5rem; margin-bottom: 2rem; color: #1e293b; font-weight: 600;">Additional Learning Resources</h2>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;">
-                        <div style="text-align: center;">
-                            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                            </div>
-                            <h3 style="font-size: 1.125rem; margin-bottom: 0.625rem; color: #1e293b; font-weight: 600;">Documentation</h3>
-                            <p style="font-size: 0.875rem; color: #64748b; line-height: 1.6;">Comprehensive product datasheets and guides</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #fef3c7, #fef08a); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                            </div>
-                            <h3 style="font-size: 1.125rem; margin-bottom: 0.625rem; color: #1e293b; font-weight: 600;">Community Forum</h3>
-                            <p style="font-size: 0.875rem; color: #64748b; line-height: 1.6;">Get help and share projects with the maker community</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #f3e8ff, #e9d5ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9333ea" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M9 3v18"></path><path d="M15 3v18"></path></svg>
-                            </div>
-                            <h3 style="font-size: 1.125rem; margin-bottom: 0.625rem; color: #1e293b; font-weight: 600;">Project Kits</h3>
-                            <p style="font-size: 0.875rem; color: #64748b; line-height: 1.6;">Curated starter kits with all components</p>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
-                            </div>
-                            <h3 style="font-size: 1.125rem; margin-bottom: 0.625rem; color: #1e293b; font-weight: 600;">Workshops & Webinars</h3>
-                            <p style="font-size: 0.875rem; color: #64748b; line-height: 1.6;">Workshops & Webinars to help you learn live</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-};
-
-// --- Deals Page ---
-const DealsPage = () => {
-    // Filter products with discounts (for demo, we'll show all products as deals)
-    const dealProducts = state.products.slice(0, 8).map((product, index) => ({
-        ...product,
-        originalPrice: product.price * 1.3,
-        discount: [10, 15, 20, 25, 30][index % 5],
-        stock: [45, 67, 23, 89, 12][index % 5],
-        category: ['Microcontrollers', 'Sensors', 'Tools', 'Robotics', 'Components'][index % 5]
-    }));
-
-    const coupons = [
-        { code: 'MAKER100', title: 'New Maker Discount', description: '₱100 OFF', condition: 'Min. spend ₱500', color: '#6366f1' },
-        { code: 'SENSE10', title: 'Sensor Bundle', description: '10% OFF', condition: 'All Sensors', color: '#0ea5e9' },
-        { code: 'SHIPFREE', title: 'Free Shipping', description: 'FREE', condition: 'Orders over ₱1,500', color: '#10b981' }
-    ];
-
-    return `
-        <div style="background: #f8f9fa; min-height: 100vh; padding: 2rem 0;">
-            <!-- Content Container -->
-            <div style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
-                ${Breadcrumbs('deals')}
-                
-                <!-- Hero Banner -->
-                <div style="width: 100%; background: #e5e7eb; margin-bottom: 2rem; border-radius: 8px; overflow: hidden;">
-                    <img src="assets/deals-hero.png" alt="Raspberry Pi 5 Kit Deal" style="width: 100%; max-width: 100%; height: auto; display: block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />
-                </div>
-
-                <!-- COUPON ZONE -->
-                <div style="margin-bottom: 2rem;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                        <h2 style="font-size: 1.125rem; color: #1e293b; font-weight: 700;">Active Coupon Codes</h2>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
-                        <!-- Coupon 1: Gold Gradient -->
-                        <div style="background: linear-gradient(135deg, #b8860b, #daa520); border-radius: 8px; padding: 1.5rem; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <div style="position: absolute; top: 1rem; right: 1rem; width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
-                            </div>
-                            <div style="color: white;">
-                                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; opacity: 0.9;">NEW MAKER DISCOUNT</div>
-                                <div style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem;">₱100 OFF</div>
-                                <div style="font-size: 0.75rem; margin-bottom: 1.5rem; opacity: 0.9;">Min. spend ₱500</div>
-                                <div style="background: white; border-radius: 4px; padding: 0.625rem; display: flex; align-items: center; justify-content: space-between;">
-                                    <code style="color: #1e293b; font-size: 0.875rem; font-weight: 600;">MAKER100</code>
-                                    <button onclick="navigator.clipboard.writeText('MAKER100'); alert('Code copied!')" style="background: #1e293b; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                        Copy Code
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Coupon 2: Cyan Gradient -->
-                        <div style="background: linear-gradient(135deg, #06b6d4, #0ea5e9); border-radius: 8px; padding: 1.5rem; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <div style="position: absolute; top: 1rem; right: 1rem; width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                            </div>
-                            <div style="color: white;">
-                                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; opacity: 0.9;">SENSOR BUNDLE</div>
-                                <div style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem;">10% OFF</div>
-                                <div style="font-size: 0.75rem; margin-bottom: 1.5rem; opacity: 0.9;">All Sensors</div>
-                                <div style="background: white; border-radius: 4px; padding: 0.625rem; display: flex; align-items: center; justify-content: space-between;">
-                                    <code style="color: #1e293b; font-size: 0.875rem; font-weight: 600;">SENSE10</code>
-                                    <button onclick="navigator.clipboard.writeText('SENSE10'); alert('Code copied!')" style="background: #1e293b; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                        Copy Code
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Coupon 3: Green Gradient -->
-                        <div style="background: linear-gradient(135deg, #10b981, #059669); border-radius: 8px; padding: 1.5rem; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <div style="position: absolute; top: 1rem; right: 1rem; width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-                            </div>
-                            <div style="color: white;">
-                                <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; opacity: 0.9;">FREE SHIPPING</div>
-                                <div style="font-size: 1.75rem; font-weight: 700; margin-bottom: 0.25rem;">FREE</div>
-                                <div style="font-size: 0.75rem; margin-bottom: 1.5rem; opacity: 0.9;">Orders over ₱1,500</div>
-                                <div style="background: white; border-radius: 4px; padding: 0.625rem; display: flex; align-items: center; justify-content: space-between;">
-                                    <code style="color: #1e293b; font-size: 0.875rem; font-weight: 600;">SHIPFREE</code>
-                                    <button onclick="navigator.clipboard.writeText('SHIPFREE'); alert('Code copied!')" style="background: #1e293b; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                        Copy Code
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CATEGORY TABS -->
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button onclick="window.filterDeals('all')" class="deal-category-tab active" data-category="all" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: #6366f1; color: white; border-radius: 4px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">All Deals</button>
-                        <button onclick="window.filterDeals('Microcontrollers')" class="deal-category-tab" data-category="Microcontrollers" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 4px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Microcontrollers</button>
-                        <button onclick="window.filterDeals('Sensors')" class="deal-category-tab" data-category="Sensors" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 4px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Sensors</button>
-                        <button onclick="window.filterDeals('Tools')" class="deal-category-tab" data-category="Tools" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 4px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Tools</button>
-                        <button onclick="window.filterDeals('Robotics')" class="deal-category-tab" data-category="Robotics" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 4px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Robotics</button>
-                        <button onclick="window.filterDeals('clearance')" class="deal-category-tab" data-category="clearance" style="padding: 0.5rem 1rem; border: 1px solid #dc2626; background: white; color: #dc2626; border-radius: 4px; font-size: 0.875rem; font-weight: 700; cursor: pointer;">🔥 Clearance Bin</button>
-                    </div>
-                </div>
-
-                <!-- DEALS GRID -->
-                <div style="margin-bottom: 2rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <div style="font-size: 0.875rem; color: #64748b;">${dealProducts.length} products on sale</div>
-                        <select style="padding: 0.5rem 0.75rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; outline: none;" onchange="window.sortDeals(this.value)">
-                            <option value="featured">Sort: Featured</option>
-                            <option value="discount">Highest Discount</option>
-                            <option value="price-low">Price: Low to High</option>
-                            <option value="price-high">Price: High to Low</option>
-                        </select>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem;">
-                        ${dealProducts.map(product => `
-                            <div class="deal-product-card" data-category="${product.category}" style="background: white; border-radius: 4px; border: 1px solid #e2e8f0; overflow: hidden; position: relative; cursor: pointer; transition: border-color 0.15s;" 
-                                 onclick="window.viewProduct(${product.id})"
-                                 onmouseover="this.style.borderColor='#cbd5e1'" 
-                                 onmouseout="this.style.borderColor='#e2e8f0'">
-                                <!-- Discount Badge -->
-                                <div style="position: absolute; top: 0.5rem; left: 0.5rem; background: #6366f1; color: white; padding: 0.375rem 0.625rem; border-radius: 4px; font-size: 0.875rem; font-weight: 700; z-index: 1; box-shadow: 0 2px 4px rgba(99, 102, 241, 0.3);">
-                                    -${product.discount}%
-                                </div>
-                                
-                                <!-- Product Image -->
-                                <div style="aspect-ratio: 1; background: #f8f9fa; display: flex; align-items: center; justify-content: center; padding: 1.5rem; border-bottom: 1px solid #f1f5f9;">
-                                    <img src="${product.image}" alt="${product.name}" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-                                </div>
-                                
-                                <!-- Product Info -->
-                                <div style="padding: 1rem;">
-                                    <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">${product.category}</div>
-                                    <h3 style="margin-bottom: 0.75rem; font-size: 0.875rem; line-height: 1.4; height: 2.8em; overflow: hidden; color: #1e293b; font-weight: 600;">${product.name}</h3>
-                                    
-                                    <!-- Price Display (Star of the Card) -->
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.25rem;">
-                                            <span style="font-size: 1.5rem; font-weight: 700; color: #6366f1;">${formatCurrency(product.price)}</span>
-                                            <span style="font-size: 0.875rem; text-decoration: line-through; color: #94a3b8;">${formatCurrency(product.originalPrice)}</span>
-                                        </div>
-                                        <div style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">You save ${formatCurrency(product.originalPrice - product.price)}</div>
-                                    </div>
-                                    
-                                    <!-- Stock Indicator -->
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <div style="font-size: 0.75rem; color: ${product.stock < 30 ? '#dc2626' : '#16a34a'}; font-weight: 600; margin-bottom: 0.25rem;">
-                                            ${product.stock < 30 ? '⚠️ Only ' + product.stock + ' left!' : '✓ In Stock'}
-                                        </div>
-                                    </div>
-                                    
-                                    <button class="btn btn-primary" style="width: 100%; padding: 0.625rem; font-size: 0.875rem; font-weight: 500; border-radius: 4px;" onclick="event.stopPropagation(); window.addToCart(${product.id})">
-                                        Add to Cart
-                                    </button>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <!-- BULK BUY SECTION -->
-                <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-radius: 8px; padding: 2rem; margin-bottom: 2rem;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#1e40af" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
-                        <h2 style="font-size: 1.25rem; color: #1e40af; font-weight: 700;">Bulk Buy Deals - Save More!</h2>
-                    </div>
-                    <p style="font-size: 0.875rem; color: #1e3a8a; margin-bottom: 1.5rem;">Perfect for workshops, classrooms, or large projects</p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
-                        <!-- Arduino Pack -->
-                        <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <div style="aspect-ratio: 1; background: #f8f9fa; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-                                <img src="assets/bulk-arduino.png" alt="10x Arduino Nano" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-                            </div>
-                            <div style="padding: 1.25rem;">
-                                <div style="font-size: 0.75rem; color: #6366f1; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">BULK PACK</div>
-                                <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: #1e293b; font-weight: 600;">10x Arduino Nano</h3>
-                                <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                    <span style="font-size: 1.5rem; font-weight: 700; color: #6366f1;">₱1,500</span>
-                                    <span style="font-size: 0.875rem; text-decoration: line-through; color: #94a3b8;">₱1,800</span>
-                                </div>
-                                <div style="font-size: 0.75rem; color: #16a34a; font-weight: 600; margin-bottom: 1rem;">Save ₱300 (17% OFF)</div>
-                                <button class="btn btn-primary" style="width: 100%; padding: 0.625rem; font-size: 0.875rem; border-radius: 4px;" onclick="window.addToCart(21)">Add Pack</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Sensor Bundle -->
-                        <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <div style="aspect-ratio: 1; background: #f8f9fa; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-                                <img src="assets/bulk-sensors.png" alt="20x Assorted Sensors" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-                            </div>
-                            <div style="padding: 1.25rem;">
-                                <div style="font-size: 0.75rem; color: #6366f1; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">SENSOR BUNDLE</div>
-                                <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: #1e293b; font-weight: 600;">20x Assorted Sensors</h3>
-                                <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                    <span style="font-size: 1.5rem; font-weight: 700; color: #6366f1;">₱2,400</span>
-                                    <span style="font-size: 0.875rem; text-decoration: line-through; color: #94a3b8;">₱3,000</span>
-                                </div>
-                                <div style="font-size: 0.75rem; color: #16a34a; font-weight: 600; margin-bottom: 1rem;">Save ₱600 (20% OFF)</div>
-                                <button class="btn btn-primary" style="width: 100%; padding: 0.625rem; font-size: 0.875rem; border-radius: 4px;" onclick="window.addToCart(22)">Add Bundle</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Resistor Pack -->
-                        <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                            <div style="aspect-ratio: 1; background: #f8f9fa; display: flex; align-items: center; justify-content: center; padding: 1rem;">
-                                <img src="assets/bulk-resistors.png" alt="500x Resistors" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-                            </div>
-                            <div style="padding: 1.25rem;">
-                                <div style="font-size: 0.75rem; color: #6366f1; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">RESISTOR PACK</div>
-                                <h3 style="font-size: 1rem; margin-bottom: 0.75rem; color: #1e293b; font-weight: 600;">500x Resistors (Assorted)</h3>
-                                <div style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.5rem;">
-                                    <span style="font-size: 1.5rem; font-weight: 700; color: #6366f1;">₱800</span>
-                                    <span style="font-size: 0.875rem; text-decoration: line-through; color: #94a3b8;">₱1,200</span>
-                                </div>
-                                <div style="font-size: 0.75rem; color: #16a34a; font-weight: 600; margin-bottom: 1rem;">Save ₱400 (33% OFF)</div>
-                                <button class="btn btn-primary" style="width: 100%; padding: 0.625rem; font-size: 0.875rem; border-radius: 4px;" onclick="window.addToCart(23)">Add Pack</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
+// Helper function for tutorial navigation
+window.navigateToTutorial = (tutorialId) => {
+    navigate('tutorial-detail', { id: tutorialId });
 };
 
 // --- Admin Helpers ---
@@ -2271,292 +1409,6 @@ window.closeModal = () => {
     const modal = document.getElementById('orderModal');
     if (modal) modal.remove();
 };
-
-const AdminPage = () => {
-    if (!state.currentUser || state.currentUser.role !== 'admin') {
-        navigate('home');
-        return '';
-    }
-
-    // Auto-load orders on dashboard mount!
-    if (state.orders.length === 0) {
-        api.getOrders();
-    }
-
-    // Calculate metrics
-    const totalSales = state.orders.reduce((acc, order) => acc + order.total, 0);
-    const totalOrders = state.orders.length;
-    const totalProducts = state.products.length;
-    const totalCustomers = state.users.filter(u => u.role === 'customer').length;
-
-    // Low stock products
-    const lowStockProducts = state.products.filter(p => p.stock < 10);
-    const outOfStockProducts = state.products.filter(p => p.stock === 0);
-
-    // Recent orders (last 5)
-    const recentOrders = state.orders.slice(0, 5);
-
-    // Average order value
-    const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
-
-    // Category Distribution Data
-    const categories = {};
-    state.products.forEach(p => {
-        categories[p.category] = (categories[p.category] || 0) + 1;
-    });
-    const categoryData = Object.entries(categories).map(([name, count]) => ({ name, count }));
-
-    // Mock Revenue Data (Last 7 Days)
-    const revenueData = [450, 720, 550, 890, 600, 950, 1200];
-    const maxRevenue = Math.max(...revenueData);
-
-    return `
-        <div class="admin-container">
-            <div class="admin-header">
-                <div style="display: flex; align-items: center;">
-                    <h1>📊 Admin Dashboard</h1>
-                </div>
-                <div class="admin-actions" style="display: flex; align-items: center;">
-                    <div class="notification-bell" onclick="window.showToast('No new notifications')">
-                        🔔
-                        ${lowStockProducts.length > 0 ? `<span class="notification-badge">${lowStockProducts.length}</span>` : ''}
-                    </div>
-                    <button class="btn-action" onclick="window.showToast('Exporting data...')">
-                        📥 Export CSV
-                    </button>
-                    <button class="btn-action" onclick="window.showToast('Report generated!')">
-                        Generate Report
-                    </button>
-                </div>
-            </div>
-
-            <!-- Analytics Overview -->
-            <div class="analytics-grid">
-                <!-- Revenue Trend -->
-                <div class="admin-section">
-                    <div class="section-header">
-                        <h3>📈 Revenue Trend (7 Days)</h3>
-                    </div>
-                    <div class="chart-container">
-                        ${revenueData.map(val => `
-                            <div class="chart-bar" style="height: ${(val / maxRevenue) * 100}%" data-value="${formatCurrency(val)}"></div>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <!-- Category Distribution -->
-                <div class="admin-section">
-                    <div class="section-header">
-                        <h3>🥧 Categories</h3>
-                    </div>
-                    <div class="donut-chart">
-                        <div class="donut-hole">
-                            ${categoryData.length} Cats
-                        </div>
-                    </div>
-                    <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
-                        ${categoryData.slice(0, 3).map(c => `<span class="badge badge-info">${c.name}: ${c.count}</span>`).join('')}
-                    </div>
-                </div>
-
-                <!-- Top Products -->
-                <div class="admin-section">
-                    <div class="section-header">
-                        <h3>🏆 Top Products</h3>
-                    </div>
-                    <div class="top-products-list">
-                        ${state.products.slice(0, 4).map(p => `
-                            <div class="top-product-item">
-                                <img src="${p.image}" style="width: 32px; height: 32px; object-fit: contain;">
-                                <div style="flex: 1;">
-                                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
-                                        <span>${p.name}</span>
-                                        <span>${formatCurrency(p.price)}</span>
-                                    </div>
-                                    <div class="progress-bar-bg">
-                                        <div class="progress-bar-fill" style="width: ${Math.random() * 40 + 60}%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Key Metrics -->
-            <div class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">💰</div>
-                    <div class="metric-content">
-                        <div class="metric-label">Total Revenue</div>
-                        <div class="metric-value">${formatCurrency(totalSales)}</div>
-                        <div class="metric-change positive">+15.3%</div>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🛍️</div>
-                    <div class="metric-content">
-                        <div class="metric-label">Total Orders</div>
-                        <div class="metric-value">${totalOrders}</div>
-                        <div class="metric-change positive">+8 new today</div>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">👥</div>
-                    <div class="metric-content">
-                        <div class="metric-label">Total Customers</div>
-                        <div class="metric-value">${totalCustomers}</div>
-                        <div class="metric-change">2 new this week</div>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">📊</div>
-                    <div class="metric-content">
-                        <div class="metric-label">Avg. Order Value</div>
-                        <div class="metric-value">${formatCurrency(avgOrderValue)}</div>
-                        <div class="metric-change positive">+5.2%</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Order Management -->
-            <div class="admin-section">
-                <div class="section-header">
-                    <h3>🛍️ Order Management</h3>
-                    <div class="filter-bar" style="margin-bottom: 0;">
-                        <input type="date" class="filter-input">
-                        <select class="filter-input">
-                            <option value="">All Status</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Shipped">Shipped</option>
-                            <option value="Delivered">Delivered</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Items</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${recentOrders.length > 0 ? recentOrders.map(order => {
-        const customer = state.users.find(u => u.id === order.userId);
-        return `
-                                    <tr>
-                                        <td><strong>#${order.orderId}</strong></td>
-                                        <td>${new Date(order.createdAt).toLocaleDateString()}</td>
-                                        <td>${customer ? customer.name : 'Unknown (ID: ' + order.userId + ')'}</td>
-                                        <td>${order.items.length} items</td>
-                                        <td><strong>${formatCurrency(order.total)}</strong></td>
-                                        <td>
-                                            <select class="status-select" onchange="window.updateOrderStatus('${order.orderId}', this.value)">
-                                                <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                                                <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
-                                                <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <button class="btn-icon" onclick="window.viewOrderDetails('${order.orderId}')" title="Quick View">👁️</button>
-                                        </td>
-                                    </tr>
-                                `;
-    }).join('') : '<tr><td colspan="7" class="text-center text-muted">No orders yet</td></tr>'}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Inventory Management -->
-            <div class="admin-section">
-                <div class="section-header">
-                    <h3>📦 Inventory Management</h3>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button class="btn-small btn-accent" onclick="window.showProductModal()">
-                            ➕ Add New Product
-                        </button>
-                        <button class="btn-small btn-accent" onclick="window.bulkAction('restock')">Restock Selected</button>
-                        <button class="btn-small" style="background: var(--danger); color: white;" onclick="window.bulkAction('delete')">Delete Selected</button>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 40px;"><input type="checkbox" onclick="window.toggleSelectAll(this)"></th>
-                                <th>Product</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Stock</th>
-                                <th>Est. Days Left</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${state.products.map(product => `
-                                <tr>
-                                    <td><input type="checkbox" class="product-checkbox" value="${product.id}"></td>
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                            <img src="${product.image}" style="width: 40px; height: 40px; object-fit: contain; background: #f1f5f9; border-radius: 6px; padding: 4px;">
-                                            <span>${product.name}</span>
-                                        </div>
-                                    </td>
-                                    <td><span class="category-tag">${product.category}</span></td>
-                                    <td>${formatCurrency(product.price)}</td>
-                                    <td>
-                                        <span class="stock-badge ${product.stock < 10 ? 'low' : ''} ${product.stock === 0 ? 'out' : ''}" style="${product.stock < 10 ? 'color: var(--danger); font-weight: bold;' : ''}">
-                                            ${product.stock}
-                                        </span>
-                                    </td>
-                                    <td>${product.stock > 0 ? Math.floor(product.stock / 2) + ' days' : 'Out of Stock'}</td>
-                                    <td>
-                                        <button class="btn-icon" onclick="window.showToast('Editing ${product.name}...')" title="Edit">✏️</button>
-                                        <button class="btn-icon danger" onclick="window.deleteProduct(${product.id})" title="Delete">🗑️</button>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Customer Insights (New) -->
-            <div class="admin-section">
-                <div class="section-header">
-                    <h3>👥 Customer Insights</h3>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                    <div>
-                        <h4>Top Spenders</h4>
-                        <ul style="list-style: none; padding: 0; margin-top: 1rem;">
-                            ${state.users.filter(u => u.role === 'customer').slice(0, 3).map(u => `
-                                <li style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid var(--border);">
-                                    <span>${u.name}</span>
-                                    <span style="font-weight: bold; color: var(--primary);">$${(Math.random() * 500 + 100).toFixed(2)}</span>
-                                </li>
-                            `).join('')}
-                        </ul>
-                    </div>
-                    <div>
-                        <h4>Geographic Distribution</h4>
-                        <div class="map-widget">
-                            Map Widget Placeholder
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-};
-
 
 const ProductModal = (productId = null) => {
     const product = productId ? state.products.find(p => p.id === productId) : null;
@@ -2698,7 +1550,7 @@ window.addToCartFromDetail = (productId) => {
     if (existingItem) {
         existingItem.quantity += qty;
     } else {
-        state.cart.push({ ...product, quantity: qty });
+        state.cart.push({ ...product, quantity: qty, selected: true });
     }
 
     saveState();
@@ -2708,37 +1560,47 @@ window.addToCartFromDetail = (productId) => {
 
 window.addToCart = async (productId) => {
     if (!state.currentUser) {
-        showToast('Please login to shop');
-        navigate('login');
+        window.showToast('Please login to shop');
+        window.navigate('login');
         return;
     }
     const product = state.products.find(p => p.id === productId);
+    if (!product) return;
     const existingItem = state.cart.find(item => item.id === productId);
+
     if (existingItem) {
         existingItem.quantity += 1;
     } else {
-        state.cart.push({ ...product, quantity: 1 });
+        state.cart.push({ ...product, quantity: 1, selected: true });
     }
+    // Save state locally
     saveState();
-    render();
-    showToast('Added to cart');
 
+    // Update Header Cart Count
+    render();
+
+    // Show Feedback Toast
+    window.showToast(`Added ${product.name} to cart! 🛒`);
     // Sync to server!
     if (state.currentUser) {
-        await apiCall(`/users/${state.currentUser.id}/cart`, {
-            method: 'PUT',
-            body: JSON.stringify({
-                cart: state.cart.map(item => ({
-                    productId: item.id,
-                    name: item.name,
-                    price: item.price,
-                    image: item.image,
-                    quantity: item.quantity,
-                    category: item.category,
-                    selected: item.selected !== false
-                }))
-            })
-        });
+        try {
+            await apiCall(`/users/${state.currentUser.id}/cart`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    cart: state.cart.map(item => ({
+                        productId: item.id,
+                        name: item.name,
+                        price: item.price,
+                        image: item.image,
+                        quantity: item.quantity,
+                        category: item.category,
+                        selected: item.selected !== false
+                    }))
+                })
+            });
+        } catch (error) {
+            console.error('Failed to sync cart:', error);
+        }
     }
 };
 
@@ -4176,22 +3038,31 @@ const render = () => {
 
     switch (state.route) {
         case 'home': content = HomePage(); break;
-        case 'products': content = ProductsPage(); break;
-        case 'product-detail': content = ProductDetailPage(); break;
+        case 'products': content = ProductsPage({ Breadcrumbs, state }); break;
+        case 'product-detail': content = ProductDetailPage({ Breadcrumbs, state }); break;
         case 'login': content = LoginPage(); break;
         case 'signup': content = SignupPage(); break;
         case 'cart': content = CartPage(); break;
         case 'checkout': content = CheckoutPage(); break;
         case 'order-confirmation': content = OrderConfirmationPage(); break;
-        case 'contact-us': content = ContactUsPage(); break;
-        case 'about-us': content = AboutUsPage(); break;
-        case 'learn': content = LearnPage(); break;
-        case 'deals': content = DealsPage(); break;
-        case 'admin': content = AdminPage(); break;
+        case 'contact-us': content = ContactUsPage({ Breadcrumbs }); break;
+        case 'about-us': content = AboutUsPage({ Breadcrumbs }); break;
+        case 'learn': content = LearnPage({ Breadcrumbs, state }); break;
+        case 'tutorial-detail': content = TutorialDetailPage({ Breadcrumbs, state }); break;
+        case 'deals': content = DealsPage({ Breadcrumbs, state }); break;
+        case 'admin': content = AdminPage(state); break;
+        case 'user': content = UserPage(state); break;
         case 'my-devices': content = MyDevicesPage(); break;
         case 'device-pair': content = DevicePairingPage(); break;
         case 'remote-control': content = RemoteControlPage(); break;
         default: content = HomePage();
+    }
+
+
+    // Add this case:
+    if (state.route === 'user') {
+        app.innerHTML = Header() + UserPage({ state });
+        return;
     }
 
     app.innerHTML = `
@@ -4520,6 +3391,127 @@ const initApp = async () => {
     render();
 };
 
+
+// Add this to your initApp or at the top of main.js
+window.showLoading = () => {
+    let overlay = document.querySelector('.loading-overlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'loading-overlay';
+        overlay.innerHTML = '<div class="spinner"></div>';
+        document.body.appendChild(overlay);
+    }
+    // Force reflow
+    void overlay.offsetWidth;
+    overlay.classList.add('active');
+};
+window.hideLoading = () => {
+    const overlay = document.querySelector('.loading-overlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        setTimeout(() => {
+            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 300);
+    }
+};
+
+// === Login Modal Functions ===
+window.openLoginModal = () => {
+    const modalHTML = `
+        <div class="login-modal-overlay" id="loginModal" onclick="window.closeLoginModalOnOverlay(event)">
+            <div class="login-modal">
+                <div class="login-modal-header">
+                    <h2 class="login-modal-title">Welcome Back</h2>
+                    <button class="login-modal-close" onclick="window.closeLoginModal()" aria-label="Close">×</button>
+                </div>
+                <div class="login-modal-body">
+                    <form onsubmit="window.handleModalLogin(event)">
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="text" name="email" class="form-input" required autocomplete="email">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-input" required autocomplete="current-password">
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.875rem;">
+                            Login
+                        </button>
+                    </form>
+                </div>
+                <div class="login-modal-footer">
+                    <p>
+                        Don't have an account? 
+                        <a href="#" onclick="window.closeLoginModal(); window.navigate('signup'); return false;">
+                            Sign up
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Show modal with animation
+    setTimeout(() => {
+        document.getElementById('loginModal').classList.add('show');
+    }, 10);
+};
+window.closeLoginModal = () => {
+    const modal = document.getElementById('loginModal');
+    if (modal) {
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 300);
+    }
+};
+window.closeLoginModalOnOverlay = (event) => {
+    if (event.target.id === 'loginModal') {
+        window.closeLoginModal();
+    }
+};
+window.handleModalLogin = async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
+    const email = formData.get('email');
+    const password = formData.get('password');
+
+    try {
+        const user = state.users.find(u => u.email === email && u.password === password);
+
+        if (user) {
+            state.currentUser = user;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+
+            // Close modal
+            window.closeLoginModal();
+
+            // Show success message
+            showToast(`Welcome back, ${user.name}!`);
+
+            // Refresh page to show logged-in state
+            render();
+        } else {
+            alert('Invalid email or password');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        alert('Login failed. Please try again.');
+    }
+};
+
+// Example usage in navigate:
+const originalNavigate = window.navigate;
+window.navigate = (route, params) => {
+    window.showLoading();
+    setTimeout(() => {
+        originalNavigate(route, params);
+        window.hideLoading();
+    }, 300); // Fake delay to show spinner
+};
+
 //Device Management Handlers
 
 window.handleDevicePairing = async (event) => {
@@ -4670,6 +3662,18 @@ function addCommandLog(message) {
     }
 }
 
+// Toggle Token Visibility
+window.toggleToken = (deviceId) => {
+    if (!state.showTokens) state.showTokens = {};
+    state.showTokens[deviceId] = !state.showTokens[deviceId];
+    render();
+};
+// Handle Category Filter
+window.handleCategoryFilter = (category) => {
+    state.filterCategory = category || null;
+    render();
+};
+
 // Keyboard event listeners
 document.addEventListener('keydown', (e) => {
     if (state.route !== 'remote-control') return;
@@ -4693,6 +3697,16 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// ESC key to close login modal
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const loginModal = document.getElementById('loginModal');
+        if (loginModal) {
+            window.closeLoginModal();
+        }
+    }
+});
+
 document.addEventListener('keyup', (e) => {
     if (state.route !== 'remote-control') return;
 
@@ -4702,5 +3716,7 @@ document.addEventListener('keyup', (e) => {
         window.sendCarCommand('stop');
     }
 });
+
+
 // Initial Render
 initApp();
