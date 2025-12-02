@@ -378,6 +378,11 @@ const Header = () => {
                                     <span class="menu-icon">🎟️</span>
                                     <span>My Coupons</span>
                                 </a>
+
+                                <a href="#" class="user-menu-item" onclick="window.navigate('my-devices'); return false;">
+                                    <span class="menu-icon">🚗</span>
+                                    <span>My Devices</span>
+                                </a>
                                 
                                 <a href="#" class="user-menu-item logout" onclick="window.logout(); return false;">
                                     <span class="menu-icon">🚪</span>
