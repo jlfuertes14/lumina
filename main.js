@@ -3494,26 +3494,11 @@ window.handleModalLogin = async (event) => {
     const password = formData.get('password');
 
     try {
-        const user = state.users.find(u => u.email === email && u.password === password);
-
-        if (user) {
-            state.currentUser = user;
-            localStorage.setItem('currentUser', JSON.stringify(user));
-
-            // Close modal
-            window.closeLoginModal();
-
-            // Show success message
-            showToast(`Welcome back, ${user.name}!`);
-
-            // Refresh page to show logged-in state
-            render();
-        } else {
-            alert('Invalid email or password');
-        }
+        await api.login(email, password);
+        window.closeLoginModal();
     } catch (error) {
         console.error('Login error:', error);
-        alert('Login failed. Please try again.');
+        // Toast is already shown by api.login
     }
 };
 
