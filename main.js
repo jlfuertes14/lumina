@@ -279,7 +279,10 @@ const showToast = (message) => {
         toast.classList.remove('show');
         setTimeout(() => toast.remove(), 300);
     }, 3000);
-};
+}
+
+// Make showToast globally accessible
+window.showToast = showToast;
 
 // --- Components ---
 
