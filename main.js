@@ -359,7 +359,7 @@ const Header = () => {
                                 <span>${state.currentUser.name.split(' ')[0]}</span>
                             </div>
                             <div class="user-menu">
-                                <a href="#" class="user-menu-item" onclick="window.navigate('profile'); return false;">
+                                <a href="#" class="user-menu-item" onclick="window.navigate('user'); return false;">
                                     <span>👤 My Profile</span>
                                 </a>
                                 <a href="#" class="user-menu-item" onclick="window.navigate('my-devices'); return false;">
