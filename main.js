@@ -197,6 +197,9 @@ const api = {
     }
 };
 
+// Make api globally accessible
+window.api = api;
+
 const deviceAPI = {
 
     // Inside the existing `api` object:
