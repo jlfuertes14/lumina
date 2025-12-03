@@ -3341,16 +3341,17 @@ header.scrolled .nav-link {
 }
 
 /* Force admin page to be truly full-screen */
-#app:has(.admin-wrapper) {
-    padding: 0 !important;
+/* Override for admin page */
+body:has(.admin-wrapper) {
     margin: 0 !important;
+    padding: 0 !important;
 }
 
-.admin-wrapper,
-.admin-custom-header,
-.admin-container {
-    box-sizing: border-box;
+body:has(.admin-wrapper) #app {
+    margin: 0 !important;
+    padding: 0 !important;
 }
+
 
 .admin-custom-header {
     background: white;
