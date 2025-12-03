@@ -83,6 +83,9 @@ const api = {
             // Sync cart after login!
             await syncCartWithServer();
 
+            // Fetch user's orders
+            await api.getMyOrders();
+
             showToast(`Welcome back, ${state.currentUser.name}!`);
             navigate('home');
         } catch (error) {
@@ -130,6 +133,17 @@ const api = {
         if (!state.currentUser || state.currentUser.role !== 'admin') return;
         try {
             const response = await apiCall('/orders');
+            state.orders = response.data;
+            render();
+        } catch (error) {
+            console.error('Failed to load orders:', error);
+        }
+    },
+
+    getMyOrders: async () => {
+        if (!state.currentUser) return;
+        try {
+            const response = await apiCall(`/orders/my-orders?userId=${state.currentUser.id}`);
             state.orders = response.data;
             render();
         } catch (error) {
@@ -3135,6 +3149,10 @@ const render = () => {
 
     // Add this case:
     if (state.route === 'user') {
+        // Fetch orders if not already loaded
+        if (state.currentUser && state.orders.length === 0) {
+            api.getMyOrders();
+        }
         app.innerHTML = Header() + UserPage({ state });
         return;
     }
@@ -3238,14 +3256,14 @@ function updateCartItems() {
                     <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
                 </div>
                 
-                <div class="cart-item-actions">
-                    <button class="btn-delete" onclick="window.removeFromCart(${item.id})">Delete</button>
-                    <button class="btn-find-similar" onclick="window.toggleFindSimilar(${item.id})">
+                <div class="cart-item-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <button class="btn-find-similar" onclick="window.toggleFindSimilar(${item.id})" style="display: flex; align-items: center; gap: 0.25rem;">
                         Find Similar 
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${item.showSimilar ? 'rotate(180deg)' : 'rotate(0deg)'}; transition: transform 0.2s;">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                     </button>
+                    <button class="btn-delete" onclick="window.removeFromCart(${item.id})" style="color: var(--danger); border-color: var(--danger);">Delete</button>
                 </div>
             </div>
 
