@@ -1,4 +1,4 @@
-import { formatCurrency } from '../utils.js';
+import { formatCurrency } from '../src/utils.js';
 
 // pages/AdminPage.js
 export const AdminPage = (state) => {
@@ -11,7 +11,6 @@ export const AdminPage = (state) => {
     const totalSales = state.orders.reduce((acc, order) => acc + (order.total || 0), 0);
     const totalOrders = state.orders.length;
     const lowStockCount = state.products.filter(p => p.stock < 10).length;
-    const activeCustomers = state.users.filter(u => u.role === 'customer').length;
     // Recent Orders
     const recentOrders = [...state.orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
     return `
