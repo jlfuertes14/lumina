@@ -431,7 +431,6 @@ const Header = () => {
                 </a>
                 
                 ${!isCartPage ? `
-                    <!-- Search Bar Code (Keep existing search bar code here) -->
                     <div class="search-bar">
                         <div class="search-container">
                             <input type="text" id="searchInput" class="search-input" placeholder="Search for Products..." 
@@ -443,7 +442,7 @@ const Header = () => {
                         </div>
                     </div>
                 ` : ''}
-                <div class="nav-actions" style="gap: 1.5rem;"> <!-- Increased gap -->
+                <div class="nav-actions" style="gap: 1.5rem;">
                     ${!isAdmin ? `
                     <a href="#" class="action-icon" onclick="window.navigate('cart'); return false;">
                         <div style="position: relative;">
@@ -455,67 +454,71 @@ const Header = () => {
                     ` : ''}
                     
                     ${isLoggedIn ? `
-                        <div class="user-dropdown">
-                            <div class="action-icon" style="cursor: pointer;">
-                                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
+                        <div class="user-menu-container" style="position: relative;">
+                            <div class="action-icon" onclick="window.toggleUserMenu()" style="cursor: pointer; display: flex; flex-direction: column; align-items: center;">
+                                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-bottom: 4px;">
                                     ${state.currentUser.name.charAt(0).toUpperCase()}
                                 </div>
                                 <span>${state.currentUser.name.split(' ')[0]}</span>
                             </div>
                             
-                            <!-- Stardust Popover Menu -->
-                            <div class="user-menu">
-                                <div class="user-menu-header">
-                                    <div class="user-menu-name">${state.currentUser.name}</div>
-                                    <div class="user-menu-email">${state.currentUser.email}</div>
+                            <div id="user-menu-dropdown" class="user-menu-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); min-width: 220px; z-index: 1000; overflow: hidden; margin-top: 0.5rem;">
+                                <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0; background-color: #f8fafc;">
+                                    <div style="font-weight: bold; color: #1e293b;">${state.currentUser.name}</div>
+                                    <div style="font-size: 0.8rem; color: #64748b;">${state.currentUser.email}</div>
                                 </div>
                                 
-                                <a href="#" class="user-menu-item" onclick="window.navigate('user'); window.switchUserTab('profile'); return false;">
-                                    <span class="menu-icon">👤</span>
-                                    <span>My Account</span>
-                                </a>
-                                <a href="#" class="user-menu-item" onclick="window.navigate('user'); window.switchUserTab('orders'); return false;">
-                                    <span class="menu-icon">📦</span>
-                                    <span>My Purchase</span>
-                                </a>
-                                <a href="#" class="user-menu-item" onclick="window.navigate('user'); window.switchUserTab('coupons'); return false;">
-                                    <span class="menu-icon">🎟️</span>
-                                    <span>My Coupons</span>
-                                </a>
-
-                                <a href="#" class="user-menu-item" onclick="window.navigate('my-devices'); return false;">
-                                    <span class="menu-icon">🚗</span>
-                                    <span>My Devices</span>
-                                </a>
+                                <div style="padding: 0.5rem 0;">
+                                    <a href="#" onclick="window.navigate('profile'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
+                                        👤 My Account
+                                    </a>
+                                    
+                                    ${state.currentUser.role === 'admin' ? `
+                                        <!-- Admin Only Items -->
+                                        <a href="#" onclick="window.navigate('admin'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
+                                            📊 Admin Dashboard
+                                        </a>
+                                    ` : `
+                                        <!-- Customer Only Items -->
+                                        <a href="#" onclick="window.navigate('orders'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
+                                            📦 My Orders
+                                        </a>
+                                        <a href="#" onclick="window.navigate('my-devices'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
+                                            📱 My Devices
+                                        </a>
+                                        <a href="#" onclick="window.navigate('my-coupons'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
+                                            🎟️ My Coupons
+                                        </a>
+                                    `}
+                                </div>
                                 
-                                <a href="#" class="user-menu-item logout" onclick="window.logout(); return false;">
-                                    <span class="menu-icon">🚪</span>
-                                    <span>Logout</span>
-                                </a>
+                                <div style="border-top: 1px solid #e2e8f0; padding: 0.5rem 0;">
+                                    <a href="#" onclick="window.logout(); return false;" style="display: block; padding: 0.75rem 1rem; color: #ef4444; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#fef2f2'" onmouseout="this.style.backgroundColor='transparent'">
+                                        🚪 Logout
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     ` : `
-                         <a href="#" class="action-icon" onclick="window.openLoginModal(); return false;">
+                        <a href="#" class="action-icon" onclick="window.openLoginModal(); return false;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                             <span>Login</span>
                         </a>
                     `}
                 </div>
             </div>
-            <!-- Keep existing nav links below -->
+            
             <nav class="header-nav ${state.mobileMenuOpen ? 'mobile-open' : ''}">
                 <a href="#" class="nav-link ${state.route === 'home' ? 'active' : ''}" onclick="window.navigate('home'); return false;">Home</a>
                 <a href="#" class="nav-link ${state.route === 'products' ? 'active' : ''}" onclick="window.navigate('products'); return false;">Products</a>
                 <a href="#" class="nav-link ${state.route === 'deals' ? 'active' : ''}" onclick="window.navigate('deals'); return false;">Deals</a>
                 <a href="#" class="nav-link ${state.route === 'learn' ? 'active' : ''}" onclick="window.navigate('learn'); return false;">Learn</a>
-                <!-- Removed My Devices from here as it's in dropdown now, but can keep for mobile if desired -->
-                 <a href="#" class="nav-link ${state.route === 'about-us' ? 'active' : ''}" onclick="window.navigate('about-us'); return false;">About Us</a>
-                  <a href="#" class="nav-link ${state.route === 'contact-us' ? 'active' : ''}" onclick="window.navigate('contact-us'); return false;">Contact Us</a>
+                <a href="#" class="nav-link ${state.route === 'about-us' ? 'active' : ''}" onclick="window.navigate('about-us'); return false;">About Us</a>
+                <a href="#" class="nav-link ${state.route === 'contact-us' ? 'active' : ''}" onclick="window.navigate('contact-us'); return false;">Contact Us</a>
             </nav>
         </header>
     `;
 };
-
 
 const HomePage = () => {
     // Filter products based on search query
@@ -3032,6 +3035,22 @@ window.handleLogin = async (e) => {
         console.error('Login error:', err);
     }
 };
+
+// Toggle User Menu
+window.toggleUserMenu = () => {
+    const menu = document.getElementById('user-menu-dropdown');
+    if (menu) {
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+};
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.user-menu-container')) {
+        const menu = document.getElementById('user-menu-dropdown');
+        if (menu) menu.style.display = 'none';
+    }
+});
+
 
 window.handleSignup = async (e) => {
     console.log('Signup attempt started');
