@@ -16,7 +16,8 @@ export const AdminPage = (state) => {
     return `
         <div class="admin-wrapper">
             <!-- CUSTOM HEADER -->
-            <header class="admin-custom-header">
+        <header class="admin-custom-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 2rem;">
                 <div class="admin-logo">
                     Lumina <span style="color: #F97316;">Electronics</span>
                 </div>
@@ -26,7 +27,8 @@ export const AdminPage = (state) => {
                     </div>
                     <span class="admin-role-text">Admin</span>
                 </div>
-            </header>
+            </div>
+        </header>
             <!-- Main Layout (Sidebar + Content) -->
             <div class="admin-container">
                 <!-- Sidebar -->
