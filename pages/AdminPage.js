@@ -1,5 +1,5 @@
 // pages/AdminPage.js
-export const AdminPage = () => {
+export const AdminPage = (state) => {
     // Redirect if not admin
     if (!state.currentUser || state.currentUser.role !== 'admin') {
         setTimeout(() => window.navigate('home'), 0);

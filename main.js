@@ -3194,7 +3194,7 @@ const render = async () => {
         case 'learn': content = LearnPage({ Breadcrumbs, state }); break;
         case 'tutorial-detail': content = TutorialDetailPage({ Breadcrumbs, state }); break;
         case 'deals': content = DealsPage({ Breadcrumbs, state }); break;
-        case 'admin': content = AdminPage([state]); break;
+        case 'admin': content = AdminPage(state); break;
         case 'user': content = UserPage({ state }); break;
         case 'my-devices': content = MyDevicesPage(); break;
         case 'device-pair': content = DevicePairingPage(); break;
