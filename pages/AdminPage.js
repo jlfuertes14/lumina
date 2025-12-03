@@ -7,12 +7,18 @@ export const AdminPage = (state) => {
         setTimeout(() => window.navigate('home'), 0);
         return '';
     }
+
+    console.log('AdminPage State:', state);
+
     // Calculate Metrics
     const totalSales = state.orders.reduce((acc, order) => acc + (order.total || 0), 0);
     const totalOrders = state.orders.length;
     const lowStockCount = state.products.filter(p => p.stock < 10).length;
+    const activeCustomersCount = state.users ? state.users.filter(u => u.role === 'customer').length : 0;
+
     // Recent Orders
     const recentOrders = [...state.orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+
     return `
         <div class="admin-container">
             <!-- Sidebar -->
@@ -88,7 +94,7 @@ export const AdminPage = (state) => {
                         <div class="stat-header">
                             <div>
                                 <div class="stat-title">Active Customers</div>
-                                <div class="stat-value">${activeCustomers}</div>
+                                <div class="stat-value">${activeCustomersCount}</div>
                             </div>
                             <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">👥</div>
                         </div>
@@ -144,6 +150,7 @@ export const AdminPage = (state) => {
         </div>
     `;
 };
+
 // Initialize Charts Function
 window.initAdminCharts = () => {
     // Sales Chart
@@ -170,6 +177,7 @@ window.initAdminCharts = () => {
             }
         });
     }
+
     // Demographics Chart
     const demoCtx = document.getElementById('demographicsChart');
     if (demoCtx) {
