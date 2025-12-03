@@ -992,7 +992,7 @@ var H=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=H((ve,D)=>{
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn-cancel" onclick="window.toggleAdminModal(false)">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Create Account</button>
+                        <button type="submit" class="btn btn-primary">Add Staff</button>
                     </div>
                 </form>
             `),`

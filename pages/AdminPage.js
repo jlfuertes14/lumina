@@ -118,13 +118,11 @@ window.handleSaveProduct = async (event) => {
     productData.price = parseFloat(productData.price);
     productData.stock = parseInt(productData.stock);
 
-    // Use uploaded image if available, otherwise use the URL input (if we kept it, but we replaced it)
-    // Or if we want to support both, we can check. For now, let's use the uploaded image.
+    // Use uploaded image if available
     if (window.adminState.uploadedImage) {
         productData.image = window.adminState.uploadedImage;
     } else {
-        // Fallback or error if image is required
-        // For this demo, let's allow saving without image or use a placeholder
+        // Fallback placeholder
         productData.image = 'https://via.placeholder.com/150'; 
     }
 
@@ -452,7 +450,7 @@ export const AdminPage = (state) => {
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn-cancel" onclick="window.toggleAdminModal(false)">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Create Account</button>
+                        <button type="submit" class="btn btn-primary">Add Staff</button>
                     </div>
                 </form>
             `;
