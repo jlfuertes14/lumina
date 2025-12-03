@@ -756,16 +756,6 @@ header {
    ADMIN DASHBOARD STYLES
    ======================================== */
 
-/* Admin Container */
-.admin-container {
-    display: flex;
-    min-height: 100vh;
-    /* Changed from calc(100vh - 60px) */
-    margin-left: 0;
-    padding: 0;
-    background-color: var(--admin-bg);
-    font-family: system-ui, -apple-system, sans-serif;
-}
 
 /* Admin Header */
 .admin-header {
@@ -3407,7 +3397,7 @@ body:has(.admin-wrapper) #app {
     flex: 1;
     min-height: 0;
     width: 100%;
-    margin: 0;
+    margin-left: 0;
     padding: 0;
 }
 
@@ -3624,18 +3614,4 @@ body:has(.admin-wrapper) #app {
 .status-delivered {
     background: #f0fdf4;
     color: #15803d;
-}
-
-/* Sidebar Positioning Fix - Stick to left and align with header */
-.admin-container {
-    gap: 0 !important;
-}
-
-.admin-sidebar {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.sidebar-nav {
-    margin: 0;
 }
