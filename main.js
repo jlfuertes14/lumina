@@ -1628,7 +1628,7 @@ window.addToCartFromDetail = (productId) => {
     const qty = parseInt(document.getElementById('detailQty').value);
     if (!state.currentUser) {
         showToast('Please login to shop');
-        navigate('login');
+        window.openLoginModal();
         return;
     }
 
@@ -1649,7 +1649,7 @@ window.addToCartFromDetail = (productId) => {
 window.addToCart = async (productId) => {
     if (!state.currentUser) {
         window.showToast('Please login to shop');
-        window.navigate('login');
+        window.openLoginModal();
         return;
     }
     const product = state.products.find(p => p.id === productId);
