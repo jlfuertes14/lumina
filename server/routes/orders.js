@@ -36,6 +36,27 @@ router.get('/', async (req, res) => {
     }
 });
 
+// GET user's orders
+router.get('/my-orders', async (req, res) => {
+    try {
+        const { userId } = req.query;
+
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                error: 'userId is required'
+            });
+        }
+
+        const orders = await Order.find({ userId: parseInt(userId) })
+            .sort({ createdAt: -1 });
+
+        res.json({ success: true, data: orders, count: orders.length });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // GET single order
 router.get('/:orderId', async (req, res) => {
     try {
