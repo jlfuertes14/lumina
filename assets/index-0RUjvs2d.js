@@ -1,4 +1,4 @@
-var H=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=H((ve,I)=>{(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))r(a);new MutationObserver(a=>{for(const n of a)if(n.type==="childList")for(const s of n.addedNodes)s.tagName==="LINK"&&s.rel==="modulepreload"&&r(s)}).observe(document,{childList:!0,subtree:!0});function o(a){const n={};return a.integrity&&(n.integrity=a.integrity),a.referrerPolicy&&(n.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?n.credentials="include":a.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function r(a){if(a.ep)return;a.ep=!0;const n=o(a);fetch(a.href,n)}})();let j=class{constructor(e="https://lumina-production-a4bb.up.railway.app"){this.serverUrl=e,this.socket=null,this.connected=!1,this.currentDeviceId=null,this.eventHandlers=new Map}async connect(e,o=""){if(this.socket&&this.connected){console.warn("Already connected to WebSocket");return}return new Promise((r,a)=>{if(typeof io>"u"){const n=document.createElement("script");n.src="https://cdn.socket.io/4.5.4/socket.io.min.js",n.onload=()=>this._initializeSocket(e,o,r,a),n.onerror=()=>a(new Error("Failed to load Socket.IO")),document.head.appendChild(n)}else this._initializeSocket(e,o,r,a)})}_initializeSocket(e,o,r,a){try{this.socket=io(`${this.serverUrl}/control`,{auth:{userId:e,sessionToken:o},transports:["websocket","polling"]}),this.socket.on("connect",()=>{console.log("✅ Connected to ESP32 WebSocket server"),this.connected=!0,this._triggerEvent("connected"),r()}),this.socket.on("connect_error",n=>{console.error("❌ Connection error:",n.message),this.connected=!1,this._triggerEvent("error",n),a(n)}),this.socket.on("disconnect",()=>{console.log("❌ Disconnected from WebSocket server"),this.connected=!1,this._triggerEvent("disconnected")}),this.socket.on("device:status",n=>{console.log("📊 Device status:",n),this._triggerEvent("device:status",n)}),this.socket.on("device:telemetry",n=>{this._triggerEvent("device:telemetry",n)}),this.socket.on("command:response",n=>{this._triggerEvent("command:response",n)}),this.socket.on("command:sent",n=>{this._triggerEvent("command:sent",n)}),this.socket.on("device:error",n=>{console.error("Device error:",n),this._triggerEvent("device:error",n)}),this.socket.on("devices:list",n=>{this._triggerEvent("devices:list",n)}),this.socket.on("error",n=>{console.error("System error:",n),this._triggerEvent("error",n)})}catch(n){a(n)}}monitorDevice(e){if(!this.connected)throw new Error("Not connected to WebSocket server");this.currentDeviceId=e,this.socket.emit("monitor:device",e),console.log(`👁️ Monitoring device: ${e}`)}stopMonitoring(){this.currentDeviceId&&this.connected&&(this.socket.emit("monitor:stop",this.currentDeviceId),this.currentDeviceId=null)}sendCommand(e,o,r={}){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("control:command",{deviceId:e,command:o,payload:r}),console.log(`📤 Sent command to ${e}:`,o,r)}move(e,o,r=255){this.sendCommand(e,"move",{direction:o,speed:r})}stop(e){this.sendCommand(e,"stop")}turnLeft(e,o=200){this.sendCommand(e,"move",{direction:"left",speed:o})}turnRight(e,o=200){this.sendCommand(e,"move",{direction:"right",speed:o})}forward(e,o=255){this.sendCommand(e,"move",{direction:"forward",speed:o})}backward(e,o=255){this.sendCommand(e,"move",{direction:"backward",speed:o})}requestDeviceList(){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("devices:list")}on(e,o){this.eventHandlers.has(e)||this.eventHandlers.set(e,[]),this.eventHandlers.get(e).push(o)}off(e,o){if(!this.eventHandlers.has(e))return;const r=this.eventHandlers.get(e),a=r.indexOf(o);a>-1&&r.splice(a,1)}_triggerEvent(e,o=null){if(!this.eventHandlers.has(e))return;this.eventHandlers.get(e).forEach(a=>{try{a(o)}catch(n){console.error(`Error in event handler for ${e}:`,n)}})}disconnect(){this.socket&&(this.stopMonitoring(),this.socket.disconnect(),this.socket=null,this.connected=!1,console.log("👋 Disconnected from WebSocket"))}isConnected(){return this.connected}getCurrentDevice(){return this.currentDeviceId}};typeof I<"u"&&I.exports&&(I.exports=j);typeof window<"u"&&(window.ESP32SocketClient=j);const Q="https://lumina-production-a4bb.up.railway.app",W="http://localhost:3000",N=window.location.hostname==="jlfuertes14.github.io",T=N?`${Q}/api`:`${W}/api`;async function x(t,e={}){const o=`${T}${t}`;try{const r=await fetch(o,{...e,headers:{"Content-Type":"application/json",...e.headers}}),a=await r.json();if(!r.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${N?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${T}`);const G=({Breadcrumbs:t})=>{const e=[{name:"Marco Dela Cruz",role:"Founder & CEO",image:"https://ui-avatars.com/api/?name=Marco+Dela+Cruz&background=6366f1&color=fff&size=120"},{name:"Rina Gonzales",role:"Operations Manager",image:"https://ui-avatars.com/api/?name=Rina+Gonzales&background=6366f1&color=fff&size=120"},{name:"Luis Navarro",role:"Technical Support Engineer",image:"https://ui-avatars.com/api/?name=Luis+Navarro&background=6366f1&color=fff&size=120"},{name:"Ella Ramirez",role:"Customer Service Lead",image:"https://ui-avatars.com/api/?name=Ella+Ramirez&background=6366f1&color=fff&size=120"}];return`
+var H=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=H((ve,I)=>{(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))r(a);new MutationObserver(a=>{for(const n of a)if(n.type==="childList")for(const s of n.addedNodes)s.tagName==="LINK"&&s.rel==="modulepreload"&&r(s)}).observe(document,{childList:!0,subtree:!0});function o(a){const n={};return a.integrity&&(n.integrity=a.integrity),a.referrerPolicy&&(n.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?n.credentials="include":a.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function r(a){if(a.ep)return;a.ep=!0;const n=o(a);fetch(a.href,n)}})();let j=class{constructor(e="https://lumina-production-a4bb.up.railway.app"){this.serverUrl=e,this.socket=null,this.connected=!1,this.currentDeviceId=null,this.eventHandlers=new Map}async connect(e,o=""){if(this.socket&&this.connected){console.warn("Already connected to WebSocket");return}return new Promise((r,a)=>{if(typeof io>"u"){const n=document.createElement("script");n.src="https://cdn.socket.io/4.5.4/socket.io.min.js",n.onload=()=>this._initializeSocket(e,o,r,a),n.onerror=()=>a(new Error("Failed to load Socket.IO")),document.head.appendChild(n)}else this._initializeSocket(e,o,r,a)})}_initializeSocket(e,o,r,a){try{this.socket=io(`${this.serverUrl}/control`,{auth:{userId:e,sessionToken:o},transports:["websocket","polling"]}),this.socket.on("connect",()=>{console.log("✅ Connected to ESP32 WebSocket server"),this.connected=!0,this._triggerEvent("connected"),r()}),this.socket.on("connect_error",n=>{console.error("❌ Connection error:",n.message),this.connected=!1,this._triggerEvent("error",n),a(n)}),this.socket.on("disconnect",()=>{console.log("❌ Disconnected from WebSocket server"),this.connected=!1,this._triggerEvent("disconnected")}),this.socket.on("device:status",n=>{console.log("📊 Device status:",n),this._triggerEvent("device:status",n)}),this.socket.on("device:telemetry",n=>{this._triggerEvent("device:telemetry",n)}),this.socket.on("command:response",n=>{this._triggerEvent("command:response",n)}),this.socket.on("command:sent",n=>{this._triggerEvent("command:sent",n)}),this.socket.on("device:error",n=>{console.error("Device error:",n),this._triggerEvent("device:error",n)}),this.socket.on("devices:list",n=>{this._triggerEvent("devices:list",n)}),this.socket.on("error",n=>{console.error("System error:",n),this._triggerEvent("error",n)})}catch(n){a(n)}}monitorDevice(e){if(!this.connected)throw new Error("Not connected to WebSocket server");this.currentDeviceId=e,this.socket.emit("monitor:device",e),console.log(`👁️ Monitoring device: ${e}`)}stopMonitoring(){this.currentDeviceId&&this.connected&&(this.socket.emit("monitor:stop",this.currentDeviceId),this.currentDeviceId=null)}sendCommand(e,o,r={}){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("control:command",{deviceId:e,command:o,payload:r}),console.log(`📤 Sent command to ${e}:`,o,r)}move(e,o,r=255){this.sendCommand(e,"move",{direction:o,speed:r})}stop(e){this.sendCommand(e,"stop")}turnLeft(e,o=200){this.sendCommand(e,"move",{direction:"left",speed:o})}turnRight(e,o=200){this.sendCommand(e,"move",{direction:"right",speed:o})}forward(e,o=255){this.sendCommand(e,"move",{direction:"forward",speed:o})}backward(e,o=255){this.sendCommand(e,"move",{direction:"backward",speed:o})}requestDeviceList(){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("devices:list")}on(e,o){this.eventHandlers.has(e)||this.eventHandlers.set(e,[]),this.eventHandlers.get(e).push(o)}off(e,o){if(!this.eventHandlers.has(e))return;const r=this.eventHandlers.get(e),a=r.indexOf(o);a>-1&&r.splice(a,1)}_triggerEvent(e,o=null){if(!this.eventHandlers.has(e))return;this.eventHandlers.get(e).forEach(a=>{try{a(o)}catch(n){console.error(`Error in event handler for ${e}:`,n)}})}disconnect(){this.socket&&(this.stopMonitoring(),this.socket.disconnect(),this.socket=null,this.connected=!1,console.log("👋 Disconnected from WebSocket"))}isConnected(){return this.connected}getCurrentDevice(){return this.currentDeviceId}};typeof I<"u"&&I.exports&&(I.exports=j);typeof window<"u"&&(window.ESP32SocketClient=j);const Q="https://lumina-production-a4bb.up.railway.app",W="http://localhost:3000",N=window.location.hostname==="jlfuertes14.github.io",E=N?`${Q}/api`:`${W}/api`;async function x(t,e={}){const o=`${E}${t}`;try{const r=await fetch(o,{...e,headers:{"Content-Type":"application/json",...e.headers}}),a=await r.json();if(!r.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${N?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${E}`);const G=({Breadcrumbs:t})=>{const e=[{name:"Marco Dela Cruz",role:"Founder & CEO",image:"https://ui-avatars.com/api/?name=Marco+Dela+Cruz&background=6366f1&color=fff&size=120"},{name:"Rina Gonzales",role:"Operations Manager",image:"https://ui-avatars.com/api/?name=Rina+Gonzales&background=6366f1&color=fff&size=120"},{name:"Luis Navarro",role:"Technical Support Engineer",image:"https://ui-avatars.com/api/?name=Luis+Navarro&background=6366f1&color=fff&size=120"},{name:"Ella Ramirez",role:"Customer Service Lead",image:"https://ui-avatars.com/api/?name=Ella+Ramirez&background=6366f1&color=fff&size=120"}];return`
         <div class="about-us-page">
             <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
                 ${t("about-us")}
@@ -749,153 +749,160 @@ var H=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=H((ve,I)=>{
                 </div>
             </div>
         </div>
-    `},E=t=>{if(!t.currentUser||t.currentUser.role!=="admin")return setTimeout(()=>window.navigate("home"),0),"";const e=t.orders.reduce((s,c)=>s+(c.total||0),0),o=t.orders.length,r=t.products.filter(s=>s.stock<10).length,a=t.users?t.users.filter(s=>s.role==="customer").length:0,n=[...t.orders].sort((s,c)=>new Date(c.createdAt)-new Date(s.createdAt)).slice(0,5);return`
-        <div class="admin-container">
-            <!-- Sidebar -->
-            <aside class="admin-sidebar">
-                <div class="sidebar-header">
-                    <span>Admin Dashboard</span>
+    `},T=t=>{if(!t.currentUser||t.currentUser.role!=="admin")return setTimeout(()=>window.navigate("home"),0),"";const e=t.orders.reduce((s,c)=>s+(c.total||0),0),o=t.orders.length,r=t.products.filter(s=>s.stock<10).length,a=t.users?t.users.filter(s=>s.role==="customer").length:0,n=[...t.orders].sort((s,c)=>new Date(c.createdAt)-new Date(s.createdAt)).slice(0,5);return`
+        <div class="admin-wrapper">
+            <!-- CUSTOM HEADER -->
+            <header class="admin-custom-header">
+                <div class="admin-logo">
+                    Lumina <span style="color: #F97316;">Electronics</span>
                 </div>
-                <nav class="sidebar-nav">
-                    <div class="sidebar-item active">
-                        <span>📊</span> Dashboard
+                <div class="admin-profile-header">
+                    <div class="admin-avatar-circle">
+                        ${t.currentUser.name.charAt(0).toUpperCase()}
                     </div>
-                    <div class="sidebar-item" onclick="window.showToast('Inventory feature coming soon')">
-                        <span>📦</span> Inventory
-                    </div>
-                    <div class="sidebar-item" onclick="window.showToast('Analytics feature coming soon')">
-                        <span>📈</span> Analytics
-                    </div>
-                    <div class="sidebar-item" onclick="window.showToast('Settings feature coming soon')">
-                        <span>⚙️</span> Settings
-                    </div>
-                    
-                    <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
-                        <div class="sidebar-item" onclick="window.navigate('home')">
-                            <span>🏠</span> Back to Home
-                        </div>
-                    </div>
-                </nav>
-            </aside>
-            <!-- Main Content -->
-            <main class="admin-main">
-                <div class="admin-page-header">
-                    <div>
-                        <h1 class="admin-title">Overview</h1>
-                        <p class="text-muted" style="margin: 0; font-size: 0.9rem;">Welcome back, ${t.currentUser.name}</p>
-                    </div>
-                    <!-- EMBEDDED SEARCH BAR -->
-                    <div style="flex: 1; max-width: 400px; margin: 0 2rem;">
-                        <div class="search-container" style="background: white; border: 1px solid #e2e8f0;">
-                            <input type="text" class="search-input" placeholder="Search orders, products..." 
-                                style="background: transparent;"
-                                onkeyup="if(event.key === 'Enter') window.showToast('Global search coming soon')">
-                            <button class="search-btn">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div style="width: 40px; height: 40px; background: #0B1E3B; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem;">
-                            ${t.currentUser.name.charAt(0).toUpperCase()}
-                        </div>
-                    </div>
+                    <span class="admin-role-text">Admin</span>
                 </div>
-                <!-- Stats Row -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div>
-                                <div class="stat-title">Total Sales</div>
-                                <div class="stat-value">${u(e)}</div>
+            </header>
+            <!-- Main Layout (Sidebar + Content) -->
+            <div class="admin-container">
+                <!-- Sidebar -->
+                <aside class="admin-sidebar">
+                    <nav class="sidebar-nav" style="padding-top: 1rem;">
+                        <div class="sidebar-item active">
+                            <span>📊</span> Dashboard
+                        </div>
+                        <div class="sidebar-item" onclick="window.showToast('Inventory feature coming soon')">
+                            <span>📦</span> Inventory
+                        </div>
+                        <div class="sidebar-item" onclick="window.showToast('Analytics feature coming soon')">
+                            <span>📈</span> Analytics
+                        </div>
+                        <div class="sidebar-item" onclick="window.showToast('Settings feature coming soon')">
+                            <span>⚙️</span> Settings
+                        </div>
+                        
+                        <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                            <div class="sidebar-item" onclick="window.navigate('home')">
+                                <span>🏠</span> Back to Home
                             </div>
-                            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">💰</div>
                         </div>
-                        <div class="trend-indicator trend-up">
-                            <span>↑ 12%</span> <span class="text-muted" style="font-weight: normal;">vs last month</span>
+                    </nav>
+                </aside>
+                <!-- Main Content -->
+                <main class="admin-main">
+                    <div class="admin-page-header">
+                        <div>
+                            <h1 class="admin-title">Overview</h1>
+                            <p class="text-muted" style="margin: 0; font-size: 0.9rem;">Welcome back, ${t.currentUser.name}</p>
                         </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div>
-                                <div class="stat-title">New Orders</div>
-                                <div class="stat-value">${o}</div>
+                        <!-- EMBEDDED SEARCH BAR -->
+                        <div style="flex: 1; max-width: 400px; margin: 0 2rem;">
+                            <div class="search-container" style="background: white; border: 1px solid #e2e8f0;">
+                                <input type="text" class="search-input" placeholder="Search orders, products..." 
+                                    style="background: transparent;"
+                                    onkeyup="if(event.key === 'Enter') window.showToast('Global search coming soon')">
+                                <button class="search-btn">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                </button>
                             </div>
-                            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">📄</div>
-                        </div>
-                        <div class="trend-indicator trend-up">
-                            <span>↑ 5%</span> <span class="text-muted" style="font-weight: normal;">vs last week</span>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div>
-                                <div class="stat-title">Low Stock Items</div>
-                                <div class="stat-value">${r}</div>
+                    <!-- Stats Row -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Total Sales</div>
+                                    <div class="stat-value">${u(e)}</div>
+                                </div>
+                                <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">💰</div>
                             </div>
-                            <div class="stat-icon" style="background: rgba(244, 63, 94, 0.1); color: #f43f5e;">⚠️</div>
-                        </div>
-                        <div class="trend-indicator ${r>0?"trend-down":"trend-up"}">
-                            <span>${r} items</span> <span class="text-muted" style="font-weight: normal;">need attention</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div>
-                                <div class="stat-title">Active Customers</div>
-                                <div class="stat-value">${a}</div>
+                            <div class="trend-indicator trend-up">
+                                <span>↑ 12%</span> <span class="text-muted" style="font-weight: normal;">vs last month</span>
                             </div>
-                            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">👥</div>
                         </div>
-                        <div class="trend-indicator trend-up">
-                            <span>↑ 3%</span> <span class="text-muted" style="font-weight: normal;">vs last month</span>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">New Orders</div>
+                                    <div class="stat-value">${o}</div>
+                                </div>
+                                <div class="stat-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">📄</div>
+                            </div>
+                            <div class="trend-indicator trend-up">
+                                <span>↑ 5%</span> <span class="text-muted" style="font-weight: normal;">vs last week</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Low Stock Items</div>
+                                    <div class="stat-value">${r}</div>
+                                </div>
+                                <div class="stat-icon" style="background: rgba(244, 63, 94, 0.1); color: #f43f5e;">⚠️</div>
+                            </div>
+                            <div class="trend-indicator ${r>0?"trend-down":"trend-up"}">
+                                <span>${r} items</span> <span class="text-muted" style="font-weight: normal;">need attention</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Active Customers</div>
+                                    <div class="stat-value">${a}</div>
+                                </div>
+                                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">👥</div>
+                            </div>
+                            <div class="trend-indicator trend-up">
+                                <span>↑ 3%</span> <span class="text-muted" style="font-weight: normal;">vs last month</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <!-- Charts Row -->
-                <div class="charts-grid">
-                    <!-- Sales Chart -->
-                    <div class="chart-card">
-                        <h3 class="font-bold text-slate-800 mb-4">Sales Overview</h3>
-                        <div style="height: 300px;">
-                            <canvas id="salesChart"></canvas>
+                    <!-- Charts Row -->
+                    <div class="charts-grid">
+                        <!-- Sales Chart -->
+                        <div class="chart-card">
+                            <h3 class="font-bold text-slate-800 mb-4">Sales Overview</h3>
+                            <div style="height: 300px;">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Demographics Chart -->
+                        <div class="chart-card">
+                            <h3 class="font-bold text-slate-800 mb-4">Customers</h3>
+                            <div style="height: 300px; display: flex; justify-content: center;">
+                                <canvas id="demographicsChart"></canvas>
+                            </div>
                         </div>
                     </div>
-                    <!-- Demographics Chart -->
-                    <div class="chart-card">
-                        <h3 class="font-bold text-slate-800 mb-4">Customers</h3>
-                        <div style="height: 300px; display: flex; justify-content: center;">
-                            <canvas id="demographicsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-                <!-- Recent Orders -->
-                <div class="table-card">
-                    <h3 class="font-bold text-slate-800 mb-4">Recent Orders</h3>
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${n.map(s=>`
+                    <!-- Recent Orders -->
+                    <div class="table-card">
+                        <h3 class="font-bold text-slate-800 mb-4">Recent Orders</h3>
+                        <table class="admin-table">
+                            <thead>
                                 <tr>
-                                    <td>#${s.orderId}</td>
-                                    <td>${new Date(s.createdAt).toLocaleDateString()}</td>
-                                    <td>${t.users.find(c=>c.id===s.userId)?.name||"Unknown"}</td>
-                                    <td>${u(s.total)}</td>
-                                    <td><span class="status-badge status-${s.status?.toLowerCase()||"pending"}">${s.status||"Pending"}</span></td>
+                                    <th>Order ID</th>
+                                    <th>Date</th>
+                                    <th>Customer</th>
+                                    <th>Total</th>
+                                    <th>Status</th>
                                 </tr>
-                            `).join("")}
-                        </tbody>
-                    </table>
-                </div>
-            </main>
+                            </thead>
+                            <tbody>
+                                ${n.map(s=>`
+                                    <tr>
+                                        <td>#${s.orderId}</td>
+                                        <td>${new Date(s.createdAt).toLocaleDateString()}</td>
+                                        <td>${t.users.find(c=>c.id===s.userId)?.name||"Unknown"}</td>
+                                        <td>${u(s.total)}</td>
+                                        <td><span class="status-badge status-${s.status?.toLowerCase()||"pending"}">${s.status||"Pending"}</span></td>
+                                    </tr>
+                                `).join("")}
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
+            </div>
         </div>
     `};window.initAdminCharts=()=>{const t=document.getElementById("salesChart");t&&new Chart(t,{type:"line",data:{labels:["Jan","Feb","Mar","Apr","May","Jun","Jul"],datasets:[{label:"Sales",data:[4e3,3e3,5e3,2780,6890,2390,3490],borderColor:"#3b82f6",tension:.4,fill:!0,backgroundColor:"rgba(59, 130, 246, 0.1)"}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0,grid:{borderDash:[2,4]}},x:{grid:{display:!1}}}}});const e=document.getElementById("demographicsChart");e&&new Chart(e,{type:"doughnut",data:{labels:["Male","Female","Other"],datasets:[{data:[400,300,100],backgroundColor:["#0F172A","#F97316","#CBD5E1"],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:"bottom"}}}})};const z=({state:t})=>{if(!t.currentUser)return navigate("login"),"";const e=t.orders.filter(l=>l.userId===t.currentUser.id);e.filter(l=>l.status==="Pending"||l.status==="Processing"),e.filter(l=>l.status==="Shipped"),e.filter(l=>l.status==="Delivered"||l.status==="Completed");const o=t.myCoupons||[];window.handleProfileUpdate||(window.handleProfileUpdate=async l=>{l.preventDefault();const m=l.target,b=m.name.value.trim(),y=m.email.value.trim(),w=m.phone.value.trim(),P=m.gender.value,F=`${m.birthYear.value}-${m.birthMonth.value}-${m.birthDay.value}`;if(!b||!y||!w||!P||!m.birthYear.value||!m.birthMonth.value||!m.birthDay.value){showToast("Please fill in all fields.");return}if(/\d/.test(b)){showToast("Name should not contain numbers.");return}if(!y.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(w)){showToast("Phone number must be 11 digits and start with 09.");return}try{await api.updateProfile(t.currentUser.id,{name:b,email:y,phone:w,gender:P,birthDate:F}),window.render()}catch(R){console.error("Profile update failed:",R)}}),window.handleImageUpload||(window.handleImageUpload=l=>{const m=l.target.files[0];if(!m)return;if(m.size>3*1024*1024){showToast("File size exceeds 3MB limit.");return}if(!["image/jpeg","image/png"].includes(m.type)){showToast("Only .JPEG and .PNG files are allowed.");return}const b=new FileReader;b.onload=y=>{const w={...t.currentUser,avatar:y.target.result};t.currentUser=w,localStorage.setItem("currentUser",JSON.stringify(w)),showToast("Profile image updated!"),render()},b.readAsDataURL(m)}),window.handleAddressUpdate||(window.handleAddressUpdate=async l=>{l.preventDefault();const m=l.target,b={fullName:m.fullName.value,phone:m.phone.value,region:m.region.value,province:m.province.value,city:m.city.value,barangay:m.barangay.value,postalCode:m.postalCode.value,street:m.street.value,details:m.details.value};if(Object.values(b).some(y=>!y)){showToast("Please fill in all address fields.");return}try{await api.updateAddress(t.currentUser.id,b),render()}catch(y){console.error("Address update failed:",y)}}),window.handlePasswordUpdate||(window.handlePasswordUpdate=async l=>{l.preventDefault();const m=l.target,b=m.currentPassword.value,y=m.newPassword.value,w=m.confirmPassword.value;if(y.length<6){showToast("New password must be at least 6 characters.");return}if(y!==w){showToast("New passwords do not match.");return}try{await api.changePassword(t.currentUser.id,b,y),m.reset()}catch(P){console.error("Password change failed:",P)}}),window.switchUserTab||(window.switchUserTab=l=>{document.querySelectorAll(".user-tab-content").forEach(y=>y.style.display="none");const m=document.getElementById(`user-tab-${l}`);m&&(m.style.display="block"),document.querySelectorAll(".sidebar-link").forEach(y=>y.classList.remove("active"));const b=document.querySelector(`[data-tab="${l}"]`);b&&b.classList.add("active"),window.scrollTo(0,0)}),window.switchOrderTab||(window.switchOrderTab=l=>{document.querySelectorAll(".order-status-tab").forEach(m=>m.classList.remove("active")),document.querySelector(`.order-status-tab[data-status="${l}"]`).classList.add("active"),document.querySelectorAll(".order-item").forEach(m=>{l==="All"||m.dataset.status===l?m.style.display="block":m.style.display="none"})});const r=(l,m,b)=>{let y="";for(let w=l;w<=m;w++)y+=`<option value="${w}" ${parseInt(b)===w?"selected":""}>${w}</option>`;return y},a=["January","February","March","April","May","June","July","August","September","October","November","December"],n=t.currentUser.birthDate?new Date(t.currentUser.birthDate):null,s=n?n.getDate():"",c=n?n.getMonth()+1:"",d=n?n.getFullYear():"",g=t.currentUser.address||{},v=typeof g=="object"&&g!==null;return`
         <div class="user-page-wrapper">
@@ -2619,7 +2626,7 @@ var H=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=H((ve,I)=>{
                 </form>
             </div>
         </div>
-    `};window.navigate=f;window.toggleMobileMenu=()=>{i.mobileMenuOpen=!i.mobileMenuOpen,h()};window.showProductModal=(t=null)=>{document.body.insertAdjacentHTML("beforeend",le(t))};window.closeProductModal=()=>{document.getElementById("productModal")?.remove()};window.editProduct=t=>{window.showProductModal(t)};window.deleteProduct=async t=>{if(confirm("Delete this product?"))try{await x(`/products/${t}`,{method:"DELETE"}),await k.getProducts(),p("Product deleted")}catch{p("Delete failed")}};window.handleProductSubmit=async(t,e)=>{t.preventDefault();const o=new FormData(t.target);try{const r=e?"PUT":"POST",a=e?`/products/${e}`:"/products";if(!(await fetch(`${T}${a}`,{method:r,body:o})).ok)throw new Error("Failed");await k.getProducts(),window.closeProductModal(),p(e?"Product updated!":"Product created!")}catch{p("Operation failed")}};window.handleSort=t=>{i.sortBy=t,h()};window.viewProduct=t=>{i.currentProductId=t,f("product-detail")};window.adjustDetailQty=t=>{const e=document.getElementById("detailQty");let o=parseInt(e.value)+t;o<1&&(o=1),e.value=o};window.addToCartFromDetail=t=>{const e=parseInt(document.getElementById("detailQty").value);if(!i.currentUser){p("Please login to shop"),window.openLoginModal();return}const o=i.products.find(a=>a.id===t),r=i.cart.find(a=>a.id===t);r?r.quantity+=e:i.cart.push({...o,quantity:e,selected:!0}),C(),p(`Added ${e} item(s) to cart`)};window.addToCart=async t=>{if(!i.currentUser){window.showToast("Please login to shop"),window.openLoginModal();return}const e=i.products.find(r=>r.id===t);if(!e)return;const o=i.cart.find(r=>r.id===t);if(o?o.quantity+=1:i.cart.push({...e,quantity:1,selected:!0}),C(),h(),window.showToast(`Added ${e.name} to cart! 🛒`),i.currentUser)try{await x(`/users/${i.currentUser.id}/cart`,{method:"PUT",body:JSON.stringify({cart:i.cart.map(r=>({productId:r.id,name:r.name,price:r.price,image:r.image,quantity:r.quantity,category:r.category,selected:r.selected!==!1}))})})}catch(r){console.error("Failed to sync cart:",r)}};window.updateQuantity=(t,e)=>{if(e<1){window.removeFromCart(t);return}const o=i.cart.find(r=>r.id===t);o&&(o.quantity=e,C(),h())};window.removeFromCart=t=>{i.cart=i.cart.filter(e=>e.id!==t),C(),h()};window.checkout=async()=>{if(i.cart.length===0)return;if(!i.currentUser){p("Please login to checkout"),f("login");return}if(i.cart.filter(e=>e.selected!==!1).length===0){p("No items selected for checkout");return}f("checkout")};window.updateShippingInfo=(t,e)=>{i.checkoutData.shipping[t]=e};window.selectPaymentMethod=t=>{i.checkoutData.paymentMethod=t,h()};window.handlePhoneInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.phone=e};window.handleNameInput=t=>{const e=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=e,i.checkoutData.shipping.fullName=e};window.handleLocationInput=(t,e)=>{const o=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=o,i.checkoutData.shipping[e]=o};window.handlePostalInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.postalCode=e};window.showPaymentModal=t=>new Promise(e=>{let o="";const r=`
+    `};window.navigate=f;window.toggleMobileMenu=()=>{i.mobileMenuOpen=!i.mobileMenuOpen,h()};window.showProductModal=(t=null)=>{document.body.insertAdjacentHTML("beforeend",le(t))};window.closeProductModal=()=>{document.getElementById("productModal")?.remove()};window.editProduct=t=>{window.showProductModal(t)};window.deleteProduct=async t=>{if(confirm("Delete this product?"))try{await x(`/products/${t}`,{method:"DELETE"}),await k.getProducts(),p("Product deleted")}catch{p("Delete failed")}};window.handleProductSubmit=async(t,e)=>{t.preventDefault();const o=new FormData(t.target);try{const r=e?"PUT":"POST",a=e?`/products/${e}`:"/products";if(!(await fetch(`${E}${a}`,{method:r,body:o})).ok)throw new Error("Failed");await k.getProducts(),window.closeProductModal(),p(e?"Product updated!":"Product created!")}catch{p("Operation failed")}};window.handleSort=t=>{i.sortBy=t,h()};window.viewProduct=t=>{i.currentProductId=t,f("product-detail")};window.adjustDetailQty=t=>{const e=document.getElementById("detailQty");let o=parseInt(e.value)+t;o<1&&(o=1),e.value=o};window.addToCartFromDetail=t=>{const e=parseInt(document.getElementById("detailQty").value);if(!i.currentUser){p("Please login to shop"),window.openLoginModal();return}const o=i.products.find(a=>a.id===t),r=i.cart.find(a=>a.id===t);r?r.quantity+=e:i.cart.push({...o,quantity:e,selected:!0}),C(),p(`Added ${e} item(s) to cart`)};window.addToCart=async t=>{if(!i.currentUser){window.showToast("Please login to shop"),window.openLoginModal();return}const e=i.products.find(r=>r.id===t);if(!e)return;const o=i.cart.find(r=>r.id===t);if(o?o.quantity+=1:i.cart.push({...e,quantity:1,selected:!0}),C(),h(),window.showToast(`Added ${e.name} to cart! 🛒`),i.currentUser)try{await x(`/users/${i.currentUser.id}/cart`,{method:"PUT",body:JSON.stringify({cart:i.cart.map(r=>({productId:r.id,name:r.name,price:r.price,image:r.image,quantity:r.quantity,category:r.category,selected:r.selected!==!1}))})})}catch(r){console.error("Failed to sync cart:",r)}};window.updateQuantity=(t,e)=>{if(e<1){window.removeFromCart(t);return}const o=i.cart.find(r=>r.id===t);o&&(o.quantity=e,C(),h())};window.removeFromCart=t=>{i.cart=i.cart.filter(e=>e.id!==t),C(),h()};window.checkout=async()=>{if(i.cart.length===0)return;if(!i.currentUser){p("Please login to checkout"),f("login");return}if(i.cart.filter(e=>e.selected!==!1).length===0){p("No items selected for checkout");return}f("checkout")};window.updateShippingInfo=(t,e)=>{i.checkoutData.shipping[t]=e};window.selectPaymentMethod=t=>{i.checkoutData.paymentMethod=t,h()};window.handlePhoneInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.phone=e};window.handleNameInput=t=>{const e=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=e,i.checkoutData.shipping.fullName=e};window.handleLocationInput=(t,e)=>{const o=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=o,i.checkoutData.shipping[e]=o};window.handlePostalInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.postalCode=e};window.showPaymentModal=t=>new Promise(e=>{let o="";const r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="payment-modal-header">
@@ -3283,7 +3290,7 @@ var H=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=H((ve,I)=>{
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(a);const n=s=>{s.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const h=async()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=B();break;case"products":e=X({Breadcrumbs:$,state:i});break;case"product-detail":e=Z({Breadcrumbs:$,state:i});break;case"signup":e=ie();break;case"cart":e=oe();break;case"checkout":e=se();break;case"order-confirmation":e=de();break;case"contact-us":e=_({Breadcrumbs:$});break;case"about-us":e=G({Breadcrumbs:$});break;case"learn":e=Y({Breadcrumbs:$,state:i});break;case"tutorial-detail":e=V({Breadcrumbs:$,state:i});break;case"deals":e=J({Breadcrumbs:$,state:i});break;case"admin":e=E(i);break;case"user":e=z({state:i});break;case"my-devices":e=re();break;case"device-pair":e=ae();break;case"remote-control":e=ne();break;default:e=B()}if(i.route==="admin"){t.innerHTML=E(i),window.initAdminCharts&&setTimeout(()=>window.initAdminCharts(),100);return}if(i.route==="user"){i.currentUser&&i.orders.length===0&&await k.getMyOrders(),i.currentUser&&!i.myCoupons&&await k.getMyCoupons(),t.innerHTML=A()+z({state:i});return}t.innerHTML=`
+    `,document.body.appendChild(a);const n=s=>{s.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const h=async()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=B();break;case"products":e=X({Breadcrumbs:$,state:i});break;case"product-detail":e=Z({Breadcrumbs:$,state:i});break;case"signup":e=ie();break;case"cart":e=oe();break;case"checkout":e=se();break;case"order-confirmation":e=de();break;case"contact-us":e=_({Breadcrumbs:$});break;case"about-us":e=G({Breadcrumbs:$});break;case"learn":e=Y({Breadcrumbs:$,state:i});break;case"tutorial-detail":e=V({Breadcrumbs:$,state:i});break;case"deals":e=J({Breadcrumbs:$,state:i});break;case"admin":e=T(i);break;case"user":e=z({state:i});break;case"my-devices":e=re();break;case"device-pair":e=ae();break;case"remote-control":e=ne();break;default:e=B()}if(i.route==="admin"){t.innerHTML=T(i),window.initAdminCharts&&setTimeout(()=>window.initAdminCharts(),100);return}if(i.route==="user"){i.currentUser&&i.orders.length===0&&await k.getMyOrders(),i.currentUser&&!i.myCoupons&&await k.getMyCoupons(),t.innerHTML=A()+z({state:i});return}t.innerHTML=`
         ${A()}
         <main>
             ${e}
