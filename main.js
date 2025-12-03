@@ -34,6 +34,7 @@ const state = {
     cartSearchQuery: '',
     isLoading: false,
     cartSynced: false, // Track if cart has been synced with server
+    myCoupons: null,  // Track user's coupons
     checkoutData: {
         shipping: {
             fullName: '',
