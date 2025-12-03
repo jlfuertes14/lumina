@@ -3615,3 +3615,17 @@ body:has(.admin-wrapper) #app {
     background: #f0fdf4;
     color: #15803d;
 }
+
+/* Sidebar Positioning Fix - Stick to left and align with header */
+.admin-container {
+    gap: 0 !important;
+}
+
+.admin-sidebar {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.sidebar-nav {
+    margin: 0;
+}
