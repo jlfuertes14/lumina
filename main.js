@@ -34,7 +34,6 @@ const state = {
     cartSearchQuery: '',
     isLoading: false,
     cartSynced: false, // Track if cart has been synced with server
-    myCoupons: null,  // Track user's coupons
     checkoutData: {
         shipping: {
             fullName: '',
@@ -110,42 +109,6 @@ const api = {
             throw error; // Re-throw to handle in caller
         }
     },
-
-    // Coupons
-    claimCoupon: async (couponCode) => {
-        if (!state.currentUser) {
-            showToast('Please login to claim coupons');
-            window.openLoginModal();
-            return;
-        }
-
-        try {
-            const response = await apiCall('/coupons/claim', {
-                method: 'POST',
-                body: JSON.stringify({
-                    userId: state.currentUser.id,
-                    couponCode
-                })
-            });
-
-            showToast('Coupon claimed successfully! 🎉');
-            return response.data;
-        } catch (error) {
-            showToast(error.message || 'Failed to claim coupon');
-            throw error;
-        }
-    },
-    getMyCoupons: async () => {
-        if (!state.currentUser) return;
-        try {
-            const response = await apiCall(`/coupons/my-coupons?userId=${state.currentUser.id}`);
-            state.myCoupons = response.data;
-            render();
-        } catch (error) {
-            console.error('Failed to load coupons:', error);
-        }
-    },
-
 
     // Orders
     createOrder: async (orderData) => {
@@ -600,6 +563,27 @@ const HomePage = () => {
 };
 
 
+const LoginPage = () => {
+    return `
+        <div class="auth-container">
+            <h2 class="auth-title">Welcome Back</h2>
+            <form onsubmit="window.handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="text" name="email" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" name="password" class="form-input" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%">Login</button>
+            </form>
+            <p class="text-center mt-4 text-sm">
+                Don't have an account? <a href="#" onclick="window.navigate('signup'); return false;" style="color: var(--accent)">Sign up</a>
+            </p>
+        </div>
+    `;
+};
 
 const SignupPage = () => {
     return `
@@ -1412,89 +1396,6 @@ window.navigateToTutorial = (tutorialId) => {
 window.filterLearningContent = (category) => {
     state.filterLearnCategory = category;
     render();
-};
-
-// Deals Page: Sort Function
-window.sortDeals = (sortBy) => {
-    const container = document.querySelector('[style*="grid-template-columns: repeat(4, 1fr)"]');
-    if (!container) return;
-
-    const cards = Array.from(container.children);
-
-    cards.sort((a, b) => {
-        const getPrice = (card) => {
-            const priceText = card.querySelector('[style*="font-size: 1.5rem"]')?.textContent;
-            return parseFloat(priceText?.replace(/[₱,]/g, '') || '0');
-        };
-
-        const getDiscount = (card) => {
-            const discountText = card.querySelector('[style*="background: #6366f1"]')?.textContent;
-            return parseInt(discountText?.replace(/[-%]/g, '') || '0');
-        };
-
-        switch (sortBy) {
-            case 'discount':
-                return getDiscount(b) - getDiscount(a);
-            case 'price-low':
-                return getPrice(a) - getPrice(b);
-            case 'price-high':
-                return getPrice(b) - getPrice(a);
-            default:
-                return 0;
-        }
-    });
-
-    cards.forEach(card => container.appendChild(card));
-};
-
-// Deals Page: Category Filter Function
-window.filterDeals = (category) => {
-    // Update active tab styling
-    document.querySelectorAll('.deal-category-tab').forEach(tab => {
-        const isActive = tab.dataset.category === category;
-        tab.style.background = isActive ? '#6366f1' : 'white';
-        tab.style.color = isActive ? 'white' : '#64748b';
-
-        // Special handling for clearance button
-        if (tab.dataset.category === 'clearance') {
-            if (category === 'clearance') {
-                tab.style.background = '#dc2626';
-                tab.style.color = 'white';
-                tab.style.borderColor = '#dc2626';
-            } else {
-                tab.style.background = 'white';
-                tab.style.color = '#dc2626';
-                tab.style.borderColor = '#dc2626';
-            }
-        }
-    });
-
-    // Filter product cards
-    document.querySelectorAll('.deal-product-card').forEach(card => {
-        const cardCategory = card.dataset.category;
-
-        if (category === 'all') {
-            card.style.display = 'block';
-        } else if (category === 'clearance') {
-            // Show products with >= 25% discount for clearance
-            const discountText = card.querySelector('[style*="background: #6366f1"]')?.textContent;
-            const discount = parseInt(discountText?.replace(/[-%]/g, '') || '0');
-            card.style.display = discount >= 25 ? 'block' : 'none';
-        } else {
-            card.style.display = cardCategory === category ? 'block' : 'none';
-        }
-    });
-};
-
-// Claim coupon from Deals page
-window.claimCoupon = async (couponCode) => {
-    try {
-        await api.claimCoupon(couponCode);
-        // Also copy to clipboard for convenience
-        navigator.clipboard.writeText(couponCode);
-    } catch (error) {
-        console.error('Claim failed:', error);
-    }
 };
 
 // Helper function for tutorial navigation
@@ -3245,18 +3146,16 @@ const render = () => {
     }
 
 
+    // Add this case:
     if (state.route === 'user') {
         // Fetch orders if not already loaded
         if (state.currentUser && state.orders.length === 0) {
             api.getMyOrders();
         }
-        // Fetch coupons if not already loaded
-        if (state.currentUser && !state.myCoupons) {
-            api.getMyCoupons();
-        }
         app.innerHTML = Header() + UserPage({ state });
         return;
     }
+
     app.innerHTML = `
         ${Header()}
         <main>
