@@ -990,7 +990,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </div>
             </div>
         </div>
-    `},z=({state:t})=>{if(!t.currentUser)return navigate("login"),"";const e=t.orders.filter(s=>s.userId===t.currentUser.id);e.filter(s=>s.status==="Pending"||s.status==="Processing"),e.filter(s=>s.status==="Shipped"),e.filter(s=>s.status==="Delivered"||s.status==="Completed");const o=t.myCoupons||[];window.handleProfileUpdate||(window.handleProfileUpdate=async s=>{s.preventDefault();const c=s.target,b=c.name.value.trim(),y=c.email.value.trim(),w=c.phone.value.trim(),P=c.gender.value,q=`${c.birthYear.value}-${c.birthMonth.value}-${c.birthDay.value}`;if(!b||!y||!w||!P||!c.birthYear.value||!c.birthMonth.value||!c.birthDay.value){showToast("Please fill in all fields.");return}if(/\d/.test(b)){showToast("Name should not contain numbers.");return}if(!y.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(w)){showToast("Phone number must be 11 digits and start with 09.");return}try{await api.updateProfile(t.currentUser.id,{name:b,email:y,phone:w,gender:P,birthDate:q}),window.render()}catch(F){console.error("Profile update failed:",F)}}),window.handleImageUpload||(window.handleImageUpload=s=>{const c=s.target.files[0];if(!c)return;if(c.size>3*1024*1024){showToast("File size exceeds 3MB limit.");return}if(!["image/jpeg","image/png"].includes(c.type)){showToast("Only .JPEG and .PNG files are allowed.");return}const b=new FileReader;b.onload=y=>{const w={...t.currentUser,avatar:y.target.result};t.currentUser=w,localStorage.setItem("currentUser",JSON.stringify(w)),showToast("Profile image updated!"),render()},b.readAsDataURL(c)}),window.handleAddressUpdate||(window.handleAddressUpdate=async s=>{s.preventDefault();const c=s.target,b={fullName:c.fullName.value,phone:c.phone.value,region:c.region.value,province:c.province.value,city:c.city.value,barangay:c.barangay.value,postalCode:c.postalCode.value,street:c.street.value,details:c.details.value};if(Object.values(b).some(y=>!y)){showToast("Please fill in all address fields.");return}try{await api.updateAddress(t.currentUser.id,b),render()}catch(y){console.error("Address update failed:",y)}}),window.handlePasswordUpdate||(window.handlePasswordUpdate=async s=>{s.preventDefault();const c=s.target,b=c.currentPassword.value,y=c.newPassword.value,w=c.confirmPassword.value;if(y.length<6){showToast("New password must be at least 6 characters.");return}if(y!==w){showToast("New passwords do not match.");return}try{await api.changePassword(t.currentUser.id,b,y),c.reset()}catch(P){console.error("Password change failed:",P)}}),window.switchUserTab||(window.switchUserTab=s=>{document.querySelectorAll(".user-tab-content").forEach(y=>y.style.display="none");const c=document.getElementById(`user-tab-${s}`);c&&(c.style.display="block"),document.querySelectorAll(".sidebar-link").forEach(y=>y.classList.remove("active"));const b=document.querySelector(`[data-tab="${s}"]`);b&&b.classList.add("active"),window.scrollTo(0,0)}),window.switchOrderTab||(window.switchOrderTab=s=>{document.querySelectorAll(".order-status-tab").forEach(c=>c.classList.remove("active")),document.querySelector(`.order-status-tab[data-status="${s}"]`).classList.add("active"),document.querySelectorAll(".order-item").forEach(c=>{s==="All"||c.dataset.status===s?c.style.display="block":c.style.display="none"})});const r=(s,c,b)=>{let y="";for(let w=s;w<=c;w++)y+=`<option value="${w}" ${parseInt(b)===w?"selected":""}>${w}</option>`;return y},a=["January","February","March","April","May","June","July","August","September","October","November","December"],n=t.currentUser.birthDate?new Date(t.currentUser.birthDate):null,l=n?n.getDate():"",m=n?n.getMonth()+1:"",d=n?n.getFullYear():"",g=t.currentUser.address||{},v=typeof g=="object"&&g!==null;return`
+    `},E=({state:t})=>{if(!t.currentUser)return navigate("login"),"";const e=t.orders.filter(s=>s.userId===t.currentUser.id);e.filter(s=>s.status==="Pending"||s.status==="Processing"),e.filter(s=>s.status==="Shipped"),e.filter(s=>s.status==="Delivered"||s.status==="Completed");const o=t.myCoupons||[];window.handleProfileUpdate||(window.handleProfileUpdate=async s=>{s.preventDefault();const c=s.target,b=c.name.value.trim(),y=c.email.value.trim(),w=c.phone.value.trim(),P=c.gender.value,q=`${c.birthYear.value}-${c.birthMonth.value}-${c.birthDay.value}`;if(!b||!y||!w||!P||!c.birthYear.value||!c.birthMonth.value||!c.birthDay.value){showToast("Please fill in all fields.");return}if(/\d/.test(b)){showToast("Name should not contain numbers.");return}if(!y.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(w)){showToast("Phone number must be 11 digits and start with 09.");return}try{await api.updateProfile(t.currentUser.id,{name:b,email:y,phone:w,gender:P,birthDate:q}),window.render()}catch(F){console.error("Profile update failed:",F)}}),window.handleImageUpload||(window.handleImageUpload=s=>{const c=s.target.files[0];if(!c)return;if(c.size>3*1024*1024){showToast("File size exceeds 3MB limit.");return}if(!["image/jpeg","image/png"].includes(c.type)){showToast("Only .JPEG and .PNG files are allowed.");return}const b=new FileReader;b.onload=y=>{const w={...t.currentUser,avatar:y.target.result};t.currentUser=w,localStorage.setItem("currentUser",JSON.stringify(w)),showToast("Profile image updated!"),render()},b.readAsDataURL(c)}),window.handleAddressUpdate||(window.handleAddressUpdate=async s=>{s.preventDefault();const c=s.target,b={fullName:c.fullName.value,phone:c.phone.value,region:c.region.value,province:c.province.value,city:c.city.value,barangay:c.barangay.value,postalCode:c.postalCode.value,street:c.street.value,details:c.details.value};if(Object.values(b).some(y=>!y)){showToast("Please fill in all address fields.");return}try{await api.updateAddress(t.currentUser.id,b),render()}catch(y){console.error("Address update failed:",y)}}),window.handlePasswordUpdate||(window.handlePasswordUpdate=async s=>{s.preventDefault();const c=s.target,b=c.currentPassword.value,y=c.newPassword.value,w=c.confirmPassword.value;if(y.length<6){showToast("New password must be at least 6 characters.");return}if(y!==w){showToast("New passwords do not match.");return}try{await api.changePassword(t.currentUser.id,b,y),c.reset()}catch(P){console.error("Password change failed:",P)}}),window.switchUserTab||(window.switchUserTab=s=>{document.querySelectorAll(".user-tab-content").forEach(y=>y.style.display="none");const c=document.getElementById(`user-tab-${s}`);c&&(c.style.display="block"),document.querySelectorAll(".sidebar-link").forEach(y=>y.classList.remove("active"));const b=document.querySelector(`[data-tab="${s}"]`);b&&b.classList.add("active"),window.scrollTo(0,0)}),window.switchOrderTab||(window.switchOrderTab=s=>{document.querySelectorAll(".order-status-tab").forEach(c=>c.classList.remove("active")),document.querySelector(`.order-status-tab[data-status="${s}"]`).classList.add("active"),document.querySelectorAll(".order-item").forEach(c=>{s==="All"||c.dataset.status===s?c.style.display="block":c.style.display="none"})});const r=(s,c,b)=>{let y="";for(let w=s;w<=c;w++)y+=`<option value="${w}" ${parseInt(b)===w?"selected":""}>${w}</option>`;return y},a=["January","February","March","April","May","June","July","August","September","October","November","December"],n=t.currentUser.birthDate?new Date(t.currentUser.birthDate):null,l=n?n.getDate():"",m=n?n.getMonth()+1:"",d=n?n.getFullYear():"",g=t.currentUser.address||{},v=typeof g=="object"&&g!==null;return`
         <div class="user-page-wrapper">
             <div class="container">
                 <div class="user-layout">
@@ -1790,7 +1790,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
             <span class="breadcrumb-separator">›</span>
             <span>${{deals:"Deals",learn:"Learn","my-devices":"My Devices","device-pair":"Pair Device","remote-control":"Remote Control","about-us":"About Us","contact-us":"Contact Us",products:"Products",cart:"Cart",checkout:"Checkout"}[t]||t}</span>
         </div>
-    `,E=()=>{const t=i.currentUser!==null,e=i.currentUser?.role==="admin",o=i.route==="cart",r=i.cart.length;return`
+    `,z=()=>{const t=i.currentUser!==null,e=i.currentUser?.role==="admin",o=i.route==="cart",r=i.cart.length;return`
         <header>
             <div class="header-top">
                 <button class="hamburger-btn" onclick="window.toggleMobileMenu()" aria-label="Toggle menu">
@@ -1826,49 +1826,52 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                     `}
                     
                     ${t?`
-                        <div class="user-menu-container" style="position: relative;">
-                            <div class="action-icon" onclick="window.toggleUserMenu()" style="cursor: pointer; display: flex; flex-direction: column; align-items: center;">
-                                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-bottom: 4px;">
+                        <div class="user-dropdown">
+                            <div class="action-icon" style="cursor: pointer;">
+                                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
                                     ${i.currentUser.name.charAt(0).toUpperCase()}
                                 </div>
                                 <span>${i.currentUser.name.split(" ")[0]}</span>
                             </div>
                             
-                            <div id="user-menu-dropdown" class="user-menu-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); min-width: 220px; z-index: 1000; overflow: hidden; margin-top: 0.5rem;">
-                                <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0; background-color: #f8fafc;">
-                                    <div style="font-weight: bold; color: #1e293b;">${i.currentUser.name}</div>
-                                    <div style="font-size: 0.8rem; color: #64748b;">${i.currentUser.email}</div>
+                            <!-- Stardust Popover Menu -->
+                            <div class="user-menu">
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">${i.currentUser.name}</div>
+                                    <div class="user-menu-email">${i.currentUser.email}</div>
                                 </div>
                                 
-                                <div style="padding: 0.5rem 0;">
-                                    <a href="#" onclick="window.navigate('profile'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
-                                        👤 My Account
-                                    </a>
-                                    
-                                    ${i.currentUser.role==="admin"?`
-                                        <!-- Admin Only Items -->
-                                        <a href="#" onclick="window.navigate('admin'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
-                                            📊 Admin Dashboard
-                                        </a>
-                                    `:`
-                                        <!-- Customer Only Items -->
-                                        <a href="#" onclick="window.navigate('orders'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
-                                            📦 My Orders
-                                        </a>
-                                        <a href="#" onclick="window.navigate('my-devices'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
-                                            📱 My Devices
-                                        </a>
-                                        <a href="#" onclick="window.navigate('my-coupons'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
-                                            🎟️ My Coupons
-                                        </a>
-                                    `}
-                                </div>
+                                <a href="#" class="user-menu-item" onclick="window.navigate('profile'); return false;">
+                                    <span class="menu-icon">👤</span>
+                                    <span>My Account</span>
+                                </a>
                                 
-                                <div style="border-top: 1px solid #e2e8f0; padding: 0.5rem 0;">
-                                    <a href="#" onclick="window.logout(); return false;" style="display: block; padding: 0.75rem 1rem; color: #ef4444; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#fef2f2'" onmouseout="this.style.backgroundColor='transparent'">
-                                        🚪 Logout
+                                ${i.currentUser.role==="admin"?`
+                                    <!-- Admin Only Items -->
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('admin'); return false;">
+                                        <span class="menu-icon">📊</span>
+                                        <span>Admin Dashboard</span>
                                     </a>
-                                </div>
+                                `:`
+                                    <!-- Customer Only Items -->
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('orders'); return false;">
+                                        <span class="menu-icon">📦</span>
+                                        <span>My Orders</span>
+                                    </a>
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('my-devices'); return false;">
+                                        <span class="menu-icon">📱</span>
+                                        <span>My Devices</span>
+                                    </a>
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('my-coupons'); return false;">
+                                        <span class="menu-icon">🎟️</span>
+                                        <span>My Coupons</span>
+                                    </a>
+                                `}
+                                
+                                <a href="#" class="user-menu-item logout" onclick="window.logout(); return false;">
+                                    <span class="menu-icon">🚪</span>
+                                    <span>Logout</span>
+                                </a>
                             </div>
                         </div>
                     `:`
@@ -3373,8 +3376,8 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(a);const n=l=>{l.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const h=async()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=O();break;case"products":e=X({Breadcrumbs:$,state:i});break;case"product-detail":e=Z({Breadcrumbs:$,state:i});break;case"signup":e=ie();break;case"cart":e=oe();break;case"checkout":e=se();break;case"order-confirmation":e=de();break;case"contact-us":e=Y({Breadcrumbs:$});break;case"about-us":e=W({Breadcrumbs:$});break;case"learn":e=V({Breadcrumbs:$,state:i});break;case"tutorial-detail":e=G({Breadcrumbs:$,state:i});break;case"deals":e=_({Breadcrumbs:$,state:i});break;case"admin":e=J([i]);break;case"user":e=z({state:i});break;case"my-devices":e=re();break;case"device-pair":e=ae();break;case"remote-control":e=ne();break;default:e=O()}if(i.route==="user"){i.currentUser&&i.orders.length===0&&await k.getMyOrders(),i.currentUser&&!i.myCoupons&&await k.getMyCoupons(),t.innerHTML=E()+z({state:i});return}t.innerHTML=`
-        ${E()}
+    `,document.body.appendChild(a);const n=l=>{l.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const h=async()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=O();break;case"products":e=X({Breadcrumbs:$,state:i});break;case"product-detail":e=Z({Breadcrumbs:$,state:i});break;case"signup":e=ie();break;case"cart":e=oe();break;case"checkout":e=se();break;case"order-confirmation":e=de();break;case"contact-us":e=Y({Breadcrumbs:$});break;case"about-us":e=W({Breadcrumbs:$});break;case"learn":e=V({Breadcrumbs:$,state:i});break;case"tutorial-detail":e=G({Breadcrumbs:$,state:i});break;case"deals":e=_({Breadcrumbs:$,state:i});break;case"admin":e=J([i]);break;case"user":e=E({state:i});break;case"my-devices":e=re();break;case"device-pair":e=ae();break;case"remote-control":e=ne();break;default:e=O()}if(i.route==="user"){i.currentUser&&i.orders.length===0&&await k.getMyOrders(),i.currentUser&&!i.myCoupons&&await k.getMyCoupons(),t.innerHTML=z()+E({state:i});return}t.innerHTML=`
+        ${z()}
         <main>
             ${e}
         </main>

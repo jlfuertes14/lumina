@@ -412,7 +412,6 @@ const Breadcrumbs = (pageName) => {
         </div>
     `;
 };
-
 const Header = () => {
     const isLoggedIn = state.currentUser !== null;
     const isAdmin = state.currentUser?.role === 'admin';
@@ -454,49 +453,52 @@ const Header = () => {
                     ` : ''}
                     
                     ${isLoggedIn ? `
-                        <div class="user-menu-container" style="position: relative;">
-                            <div class="action-icon" onclick="window.toggleUserMenu()" style="cursor: pointer; display: flex; flex-direction: column; align-items: center;">
-                                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-bottom: 4px;">
+                        <div class="user-dropdown">
+                            <div class="action-icon" style="cursor: pointer;">
+                                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
                                     ${state.currentUser.name.charAt(0).toUpperCase()}
                                 </div>
                                 <span>${state.currentUser.name.split(' ')[0]}</span>
                             </div>
                             
-                            <div id="user-menu-dropdown" class="user-menu-dropdown" style="display: none; position: absolute; top: 100%; right: 0; background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); min-width: 220px; z-index: 1000; overflow: hidden; margin-top: 0.5rem;">
-                                <div style="padding: 1rem; border-bottom: 1px solid #e2e8f0; background-color: #f8fafc;">
-                                    <div style="font-weight: bold; color: #1e293b;">${state.currentUser.name}</div>
-                                    <div style="font-size: 0.8rem; color: #64748b;">${state.currentUser.email}</div>
+                            <!-- Stardust Popover Menu -->
+                            <div class="user-menu">
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">${state.currentUser.name}</div>
+                                    <div class="user-menu-email">${state.currentUser.email}</div>
                                 </div>
                                 
-                                <div style="padding: 0.5rem 0;">
-                                    <a href="#" onclick="window.navigate('profile'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
-                                        👤 My Account
-                                    </a>
-                                    
-                                    ${state.currentUser.role === 'admin' ? `
-                                        <!-- Admin Only Items -->
-                                        <a href="#" onclick="window.navigate('admin'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
-                                            📊 Admin Dashboard
-                                        </a>
-                                    ` : `
-                                        <!-- Customer Only Items -->
-                                        <a href="#" onclick="window.navigate('orders'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
-                                            📦 My Orders
-                                        </a>
-                                        <a href="#" onclick="window.navigate('my-devices'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
-                                            📱 My Devices
-                                        </a>
-                                        <a href="#" onclick="window.navigate('my-coupons'); return false;" style="display: block; padding: 0.75rem 1rem; color: #334155; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f1f5f9'" onmouseout="this.style.backgroundColor='transparent'">
-                                            🎟️ My Coupons
-                                        </a>
-                                    `}
-                                </div>
+                                <a href="#" class="user-menu-item" onclick="window.navigate('profile'); return false;">
+                                    <span class="menu-icon">👤</span>
+                                    <span>My Account</span>
+                                </a>
                                 
-                                <div style="border-top: 1px solid #e2e8f0; padding: 0.5rem 0;">
-                                    <a href="#" onclick="window.logout(); return false;" style="display: block; padding: 0.75rem 1rem; color: #ef4444; text-decoration: none; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#fef2f2'" onmouseout="this.style.backgroundColor='transparent'">
-                                        🚪 Logout
+                                ${state.currentUser.role === 'admin' ? `
+                                    <!-- Admin Only Items -->
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('admin'); return false;">
+                                        <span class="menu-icon">📊</span>
+                                        <span>Admin Dashboard</span>
                                     </a>
-                                </div>
+                                ` : `
+                                    <!-- Customer Only Items -->
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('orders'); return false;">
+                                        <span class="menu-icon">📦</span>
+                                        <span>My Orders</span>
+                                    </a>
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('my-devices'); return false;">
+                                        <span class="menu-icon">📱</span>
+                                        <span>My Devices</span>
+                                    </a>
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('my-coupons'); return false;">
+                                        <span class="menu-icon">🎟️</span>
+                                        <span>My Coupons</span>
+                                    </a>
+                                `}
+                                
+                                <a href="#" class="user-menu-item logout" onclick="window.logout(); return false;">
+                                    <span class="menu-icon">🚪</span>
+                                    <span>Logout</span>
+                                </a>
                             </div>
                         </div>
                     ` : `
@@ -519,7 +521,6 @@ const Header = () => {
         </header>
     `;
 };
-
 
 const HomePage = () => {
     // Filter products based on search query
