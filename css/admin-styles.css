@@ -3,11 +3,6 @@
    ======================================== */
 
 /* Admin Container */
-.admin-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem;
-}
 
 /* Admin Header */
 .admin-header {
@@ -362,9 +357,6 @@
 
 /* Responsive Admin Dashboard */
 @media (max-width: 768px) {
-    .admin-container {
-        padding: 1rem;
-    }
 
     .admin-header {
         flex-direction: column;
