@@ -105,7 +105,8 @@ router.post('/', async (req, res) => {
                 productId: product.id,
                 productName: product.name,
                 price: product.price,
-                quantity: item.quantity
+                quantity: item.quantity,
+                image: product.image  // Add image field
             });
 
             total += product.price * item.quantity;
