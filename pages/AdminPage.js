@@ -1,3 +1,5 @@
+import { formatCurrency } from '../utils.js';
+
 // pages/AdminPage.js
 export const AdminPage = (state) => {
     // Redirect if not admin
