@@ -3223,6 +3223,12 @@ const render = async () => {
         </footer>
     `;
 
+    // Initialize Admin Charts if on admin page
+    if (state.route === 'admin' && window.initAdminCharts) {
+        // Small timeout to ensure DOM is ready
+        setTimeout(() => window.initAdminCharts(), 100);
+    }
+
     // Start deals timer if on deals page
     if (state.route === 'deals') {
         setTimeout(() => window.startDealsTimer(), 100);

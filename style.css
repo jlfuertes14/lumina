@@ -3316,3 +3316,232 @@ header.scrolled .nav-link {
     font-size: 0.875rem;
     color: var(--text-muted);
 }
+
+/* --- Admin Dashboard Styles --- */
+:root {
+    --admin-sidebar-bg: #0B1E3B;
+    --admin-bg: #f8fafc;
+    --stat-card-bg: #ffffff;
+}
+
+.admin-container {
+    display: flex;
+    min-height: calc(100vh - 60px);
+    /* Adjust based on header height */
+    background-color: var(--admin-bg);
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    width: 260px;
+    background-color: var(--admin-sidebar-bg);
+    color: white;
+    flex-shrink: 0;
+    display: none;
+    /* Hidden on mobile by default */
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .admin-sidebar {
+        display: flex;
+    }
+}
+
+.sidebar-header {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.sidebar-nav {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.sidebar-item:hover,
+.sidebar-item.active {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* Main Content */
+.admin-main {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+.admin-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.admin-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1e293b;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.stat-card {
+    background: var(--stat-card-bg);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+.stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.stat-title {
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.stat-icon {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+
+.trend-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.trend-up {
+    color: #10b981;
+}
+
+.trend-down {
+    color: #f43f5e;
+}
+
+/* Charts Section */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .charts-grid {
+        grid-template-columns: 3fr 1fr;
+    }
+}
+
+.chart-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+}
+
+/* Recent Orders Table */
+.table-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.admin-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    color: #64748b;
+    font-weight: 500;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.admin-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-pending {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.status-shipped {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.status-delivered {
+    background: #f0fdf4;
+    color: #15803d;
+}
