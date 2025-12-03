@@ -520,6 +520,7 @@ const Header = () => {
     `;
 };
 
+
 const HomePage = () => {
     // Filter products based on search query
     if (state.searchQuery) {
