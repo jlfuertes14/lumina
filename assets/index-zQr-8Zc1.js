@@ -752,7 +752,8 @@ var H=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=H((ve,I)=>{
     `},T=t=>{if(!t.currentUser||t.currentUser.role!=="admin")return setTimeout(()=>window.navigate("home"),0),"";const e=t.orders.reduce((s,c)=>s+(c.total||0),0),o=t.orders.length,r=t.products.filter(s=>s.stock<10).length,a=t.users?t.users.filter(s=>s.role==="customer").length:0,n=[...t.orders].sort((s,c)=>new Date(c.createdAt)-new Date(s.createdAt)).slice(0,5);return`
         <div class="admin-wrapper">
             <!-- CUSTOM HEADER -->
-            <header class="admin-custom-header">
+        <header class="admin-custom-header">
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 2rem;">
                 <div class="admin-logo">
                     Lumina <span style="color: #F97316;">Electronics</span>
                 </div>
@@ -762,7 +763,8 @@ var H=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=H((ve,I)=>{
                     </div>
                     <span class="admin-role-text">Admin</span>
                 </div>
-            </header>
+            </div>
+        </header>
             <!-- Main Layout (Sidebar + Content) -->
             <div class="admin-container">
                 <!-- Sidebar -->
