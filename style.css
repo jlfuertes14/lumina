@@ -3388,10 +3388,15 @@ header.scrolled .nav-link {
     /* Prevent overflow issues */
 }
 
-/* Adjust Sidebar to sit correctly below header */
+/* Sidebar */
 .admin-sidebar {
-    height: auto;
-    /* Let it fill the container */
+    width: 260px;
+    background-color: #002b5b;
+    /* Restored Dark Blue Background */
+    color: white;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
     min-height: 100%;
 }
 
