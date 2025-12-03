@@ -1,4 +1,4 @@
-var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))r(a);new MutationObserver(a=>{for(const n of a)if(n.type==="childList")for(const s of n.addedNodes)s.tagName==="LINK"&&s.rel==="modulepreload"&&r(s)}).observe(document,{childList:!0,subtree:!0});function o(a){const n={};return a.integrity&&(n.integrity=a.integrity),a.referrerPolicy&&(n.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?n.credentials="include":a.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function r(a){if(a.ep)return;a.ep=!0;const n=o(a);fetch(a.href,n)}})();let U=class{constructor(e="https://lumina-production-a4bb.up.railway.app"){this.serverUrl=e,this.socket=null,this.connected=!1,this.currentDeviceId=null,this.eventHandlers=new Map}async connect(e,o=""){if(this.socket&&this.connected){console.warn("Already connected to WebSocket");return}return new Promise((r,a)=>{if(typeof io>"u"){const n=document.createElement("script");n.src="https://cdn.socket.io/4.5.4/socket.io.min.js",n.onload=()=>this._initializeSocket(e,o,r,a),n.onerror=()=>a(new Error("Failed to load Socket.IO")),document.head.appendChild(n)}else this._initializeSocket(e,o,r,a)})}_initializeSocket(e,o,r,a){try{this.socket=io(`${this.serverUrl}/control`,{auth:{userId:e,sessionToken:o},transports:["websocket","polling"]}),this.socket.on("connect",()=>{console.log("✅ Connected to ESP32 WebSocket server"),this.connected=!0,this._triggerEvent("connected"),r()}),this.socket.on("connect_error",n=>{console.error("❌ Connection error:",n.message),this.connected=!1,this._triggerEvent("error",n),a(n)}),this.socket.on("disconnect",()=>{console.log("❌ Disconnected from WebSocket server"),this.connected=!1,this._triggerEvent("disconnected")}),this.socket.on("device:status",n=>{console.log("📊 Device status:",n),this._triggerEvent("device:status",n)}),this.socket.on("device:telemetry",n=>{this._triggerEvent("device:telemetry",n)}),this.socket.on("command:response",n=>{this._triggerEvent("command:response",n)}),this.socket.on("command:sent",n=>{this._triggerEvent("command:sent",n)}),this.socket.on("device:error",n=>{console.error("Device error:",n),this._triggerEvent("device:error",n)}),this.socket.on("devices:list",n=>{this._triggerEvent("devices:list",n)}),this.socket.on("error",n=>{console.error("System error:",n),this._triggerEvent("error",n)})}catch(n){a(n)}}monitorDevice(e){if(!this.connected)throw new Error("Not connected to WebSocket server");this.currentDeviceId=e,this.socket.emit("monitor:device",e),console.log(`👁️ Monitoring device: ${e}`)}stopMonitoring(){this.currentDeviceId&&this.connected&&(this.socket.emit("monitor:stop",this.currentDeviceId),this.currentDeviceId=null)}sendCommand(e,o,r={}){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("control:command",{deviceId:e,command:o,payload:r}),console.log(`📤 Sent command to ${e}:`,o,r)}move(e,o,r=255){this.sendCommand(e,"move",{direction:o,speed:r})}stop(e){this.sendCommand(e,"stop")}turnLeft(e,o=200){this.sendCommand(e,"move",{direction:"left",speed:o})}turnRight(e,o=200){this.sendCommand(e,"move",{direction:"right",speed:o})}forward(e,o=255){this.sendCommand(e,"move",{direction:"forward",speed:o})}backward(e,o=255){this.sendCommand(e,"move",{direction:"backward",speed:o})}requestDeviceList(){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("devices:list")}on(e,o){this.eventHandlers.has(e)||this.eventHandlers.set(e,[]),this.eventHandlers.get(e).push(o)}off(e,o){if(!this.eventHandlers.has(e))return;const r=this.eventHandlers.get(e),a=r.indexOf(o);a>-1&&r.splice(a,1)}_triggerEvent(e,o=null){if(!this.eventHandlers.has(e))return;this.eventHandlers.get(e).forEach(a=>{try{a(o)}catch(n){console.error(`Error in event handler for ${e}:`,n)}})}disconnect(){this.socket&&(this.stopMonitoring(),this.socket.disconnect(),this.socket=null,this.connected=!1,console.log("👋 Disconnected from WebSocket"))}isConnected(){return this.connected}getCurrentDevice(){return this.currentDeviceId}};typeof I<"u"&&I.exports&&(I.exports=U);typeof window<"u"&&(window.ESP32SocketClient=U);const H="https://lumina-production-a4bb.up.railway.app",Q="http://localhost:3000",j=window.location.hostname==="jlfuertes14.github.io",T=j?`${H}/api`:`${Q}/api`;async function x(t,e={}){const o=`${T}${t}`;try{const r=await fetch(o,{...e,headers:{"Content-Type":"application/json",...e.headers}}),a=await r.json();if(!r.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${j?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${T}`);const W=({Breadcrumbs:t})=>{const e=[{name:"Marco Dela Cruz",role:"Founder & CEO",image:"https://ui-avatars.com/api/?name=Marco+Dela+Cruz&background=6366f1&color=fff&size=120"},{name:"Rina Gonzales",role:"Operations Manager",image:"https://ui-avatars.com/api/?name=Rina+Gonzales&background=6366f1&color=fff&size=120"},{name:"Luis Navarro",role:"Technical Support Engineer",image:"https://ui-avatars.com/api/?name=Luis+Navarro&background=6366f1&color=fff&size=120"},{name:"Ella Ramirez",role:"Customer Service Lead",image:"https://ui-avatars.com/api/?name=Ella+Ramirez&background=6366f1&color=fff&size=120"}];return`
+var q=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var le=q((pe,I)=>{(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))r(a);new MutationObserver(a=>{for(const n of a)if(n.type==="childList")for(const s of n.addedNodes)s.tagName==="LINK"&&s.rel==="modulepreload"&&r(s)}).observe(document,{childList:!0,subtree:!0});function o(a){const n={};return a.integrity&&(n.integrity=a.integrity),a.referrerPolicy&&(n.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?n.credentials="include":a.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function r(a){if(a.ep)return;a.ep=!0;const n=o(a);fetch(a.href,n)}})();let B=class{constructor(e="https://lumina-production-a4bb.up.railway.app"){this.serverUrl=e,this.socket=null,this.connected=!1,this.currentDeviceId=null,this.eventHandlers=new Map}async connect(e,o=""){if(this.socket&&this.connected){console.warn("Already connected to WebSocket");return}return new Promise((r,a)=>{if(typeof io>"u"){const n=document.createElement("script");n.src="https://cdn.socket.io/4.5.4/socket.io.min.js",n.onload=()=>this._initializeSocket(e,o,r,a),n.onerror=()=>a(new Error("Failed to load Socket.IO")),document.head.appendChild(n)}else this._initializeSocket(e,o,r,a)})}_initializeSocket(e,o,r,a){try{this.socket=io(`${this.serverUrl}/control`,{auth:{userId:e,sessionToken:o},transports:["websocket","polling"]}),this.socket.on("connect",()=>{console.log("✅ Connected to ESP32 WebSocket server"),this.connected=!0,this._triggerEvent("connected"),r()}),this.socket.on("connect_error",n=>{console.error("❌ Connection error:",n.message),this.connected=!1,this._triggerEvent("error",n),a(n)}),this.socket.on("disconnect",()=>{console.log("❌ Disconnected from WebSocket server"),this.connected=!1,this._triggerEvent("disconnected")}),this.socket.on("device:status",n=>{console.log("📊 Device status:",n),this._triggerEvent("device:status",n)}),this.socket.on("device:telemetry",n=>{this._triggerEvent("device:telemetry",n)}),this.socket.on("command:response",n=>{this._triggerEvent("command:response",n)}),this.socket.on("command:sent",n=>{this._triggerEvent("command:sent",n)}),this.socket.on("device:error",n=>{console.error("Device error:",n),this._triggerEvent("device:error",n)}),this.socket.on("devices:list",n=>{this._triggerEvent("devices:list",n)}),this.socket.on("error",n=>{console.error("System error:",n),this._triggerEvent("error",n)})}catch(n){a(n)}}monitorDevice(e){if(!this.connected)throw new Error("Not connected to WebSocket server");this.currentDeviceId=e,this.socket.emit("monitor:device",e),console.log(`👁️ Monitoring device: ${e}`)}stopMonitoring(){this.currentDeviceId&&this.connected&&(this.socket.emit("monitor:stop",this.currentDeviceId),this.currentDeviceId=null)}sendCommand(e,o,r={}){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("control:command",{deviceId:e,command:o,payload:r}),console.log(`📤 Sent command to ${e}:`,o,r)}move(e,o,r=255){this.sendCommand(e,"move",{direction:o,speed:r})}stop(e){this.sendCommand(e,"stop")}turnLeft(e,o=200){this.sendCommand(e,"move",{direction:"left",speed:o})}turnRight(e,o=200){this.sendCommand(e,"move",{direction:"right",speed:o})}forward(e,o=255){this.sendCommand(e,"move",{direction:"forward",speed:o})}backward(e,o=255){this.sendCommand(e,"move",{direction:"backward",speed:o})}requestDeviceList(){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("devices:list")}on(e,o){this.eventHandlers.has(e)||this.eventHandlers.set(e,[]),this.eventHandlers.get(e).push(o)}off(e,o){if(!this.eventHandlers.has(e))return;const r=this.eventHandlers.get(e),a=r.indexOf(o);a>-1&&r.splice(a,1)}_triggerEvent(e,o=null){if(!this.eventHandlers.has(e))return;this.eventHandlers.get(e).forEach(a=>{try{a(o)}catch(n){console.error(`Error in event handler for ${e}:`,n)}})}disconnect(){this.socket&&(this.stopMonitoring(),this.socket.disconnect(),this.socket=null,this.connected=!1,console.log("👋 Disconnected from WebSocket"))}isConnected(){return this.connected}getCurrentDevice(){return this.currentDeviceId}};typeof I<"u"&&I.exports&&(I.exports=B);typeof window<"u"&&(window.ESP32SocketClient=B);const F="https://lumina-production-a4bb.up.railway.app",R="http://localhost:3000",A=window.location.hostname==="jlfuertes14.github.io",z=A?`${F}/api`:`${R}/api`;async function x(t,e={}){const o=`${z}${t}`;try{const r=await fetch(o,{...e,headers:{"Content-Type":"application/json",...e.headers}}),a=await r.json();if(!r.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${A?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${z}`);const H=({Breadcrumbs:t})=>{const e=[{name:"Marco Dela Cruz",role:"Founder & CEO",image:"https://ui-avatars.com/api/?name=Marco+Dela+Cruz&background=6366f1&color=fff&size=120"},{name:"Rina Gonzales",role:"Operations Manager",image:"https://ui-avatars.com/api/?name=Rina+Gonzales&background=6366f1&color=fff&size=120"},{name:"Luis Navarro",role:"Technical Support Engineer",image:"https://ui-avatars.com/api/?name=Luis+Navarro&background=6366f1&color=fff&size=120"},{name:"Ella Ramirez",role:"Customer Service Lead",image:"https://ui-avatars.com/api/?name=Ella+Ramirez&background=6366f1&color=fff&size=120"}];return`
         <div class="about-us-page">
             <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
                 ${t("about-us")}
@@ -178,7 +178,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </div>
             </div>
         </div>
-    `},Y=({Breadcrumbs:t,state:e})=>{const o=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",featured:!0},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",featured:!0},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",recent:!0},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",recent:!0},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",featured:!0},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",recent:!0},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",featured:!0},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",recent:!0}],r=o.filter(d=>d.featured),a=o.filter(d=>d.recent),n=d=>d==="Beginner"?{bg:"#dcfce7",text:"#16a34a"}:d==="Intermediate"?{bg:"#dbeafe",text:"#2563eb"}:{bg:"#f3e8ff",text:"#9333ea"},s=e.filterLearnCategory&&e.filterLearnCategory!=="all",c=s?o.filter(d=>d.category===e.filterLearnCategory):o;return`
+    `},Q=({Breadcrumbs:t,state:e})=>{const o=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",featured:!0},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",featured:!0},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",recent:!0},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",recent:!0},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",featured:!0},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",recent:!0},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",featured:!0},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",recent:!0}],r=o.filter(d=>d.featured),a=o.filter(d=>d.recent),n=d=>d==="Beginner"?{bg:"#dcfce7",text:"#16a34a"}:d==="Intermediate"?{bg:"#dbeafe",text:"#2563eb"}:{bg:"#f3e8ff",text:"#9333ea"},s=e.filterLearnCategory&&e.filterLearnCategory!=="all",c=s?o.filter(d=>d.category===e.filterLearnCategory):o;return`
         <div style="background: #f8f9fa; min-height: 100vh; padding-bottom: 3rem;">
             <!-- Hero Banner -->
             <div style="width: 100%; margin-top: 2rem; margin-bottom: 2rem; overflow: hidden;">
@@ -334,7 +334,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 `}
             </div>
         </div>
-    `},G=({Breadcrumbs:t,state:e})=>{const o=e.params?.id,a=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",description:"Dive into the world of Arduino microcontrollers with this comprehensive beginner's guide. You'll learn the fundamental concepts of Arduino programming, understand the hardware components, and create your first working projects. This tutorial covers everything from setting up your development environment to uploading your first sketch onto the Arduino board. Perfect for absolute beginners with no prior programming or electronics experience.",learningPoints:["Setting up the Arduino IDE and connecting your board","Understanding Arduino pin configurations and digital I/O","Writing and uploading your first Arduino sketch","Working with basic sensors and LED circuits"]},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",description:"Get your Raspberry Pi up and running with this detailed setup tutorial. Learn how to install the operating system, configure essential settings, and prepare your Pi for your first projects. This guide covers both the hardware setup process and the software configuration you'll need to start building amazing IoT projects. Whether you're using Raspberry Pi 3, 4, or 5, this tutorial will help you get started quickly and correctly.",learningPoints:["Installing Raspberry Pi OS using the official imager","Configuring network settings and enabling SSH","Installing essential packages and development tools","Understanding the GPIO pinout and basic Python programming"]},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",description:"Explore the fascinating world of electronic sensors and learn how to integrate them into your projects. This tutorial provides an in-depth look at various sensor types including temperature sensors (DHT11, DS18B20), motion sensors (PIR), ultrasonic distance sensors (HC-SR04), and light sensors (LDR, BH1750). You'll understand how sensors work, how to read their data, and how to calibrate them for accurate measurements in real-world applications.",learningPoints:["Understanding analog vs digital sensors and their applications","Reading data from temperature and humidity sensors","Working with motion detection and ultrasonic distance measurement","Implementing sensor calibration and data filtering techniques"]},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",description:"Build an intelligent autonomous car that can navigate around obstacles using ultrasonic sensors and Arduino. This hands-on project combines motor control, sensor integration, and basic robotics programming. You'll learn how to read ultrasonic sensor data, implement decision-making logic, and control DC motors using an L298N motor driver. This is a perfect project for understanding the basics of autonomous navigation and robotics.",learningPoints:["Wiring and controlling DC motors with an L298N driver","Reading and processing ultrasonic sensor data for obstacle detection","Implementing autonomous navigation logic and decision trees","Troubleshooting common issues in robotic car projects"]},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",description:"Master the art of printed circuit board (PCB) design from scratch. This comprehensive tutorial takes you through the entire PCB design workflow using professional tools like KiCad or EasyEDA. Learn how to create schematics, design PCB layouts, route traces efficiently, and prepare your designs for manufacturing. You'll understand design rules, layer stackups, component placement strategies, and how to export Gerber files for fabrication. Essential knowledge for anyone serious about electronics development.",learningPoints:["Creating professional schematics with proper component symbols","PCB layout best practices: trace width, clearances, and ground planes","Routing strategies for signal integrity and EMI reduction","Preparing and exporting Gerber files for PCB manufacturing"]},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",description:"Unlock the power of the ESP32 microcontroller for advanced IoT applications. This tutorial covers WiFi connectivity, web server creation, MQTT protocol implementation, and cloud integration. You'll build real IoT projects including a web-based temperature monitor, remote-controlled devices, and data logging systems. Learn how to use the ESP32's dual-core processor, Bluetooth capabilities, and low-power modes to create professional-grade IoT solutions.",learningPoints:["Setting up ESP32 development environment and WiFi connectivity","Creating web servers and REST APIs on the ESP32","Implementing MQTT for real-time IoT communication","Integrating with cloud platforms (Firebase, AWS IoT, ThingSpeak)"]},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",description:"Discover the perfect fusion of 3D printing and electronics in this inspiring project showcase. See how makers are combining custom 3D-printed enclosures with Arduino and Raspberry Pi to create amazing devices. From smart home sensors to robotic mechanisms, this video demonstrates practical applications and design techniques. Learn how to design functional enclosures, integrate electronics seamlessly, and bring your maker ideas to life with the power of additive manufacturing.",learningPoints:["Designing functional 3D-printed enclosures for electronics","Integrating sensors and displays into custom housings","Creating cable management and mounting solutions","Prototyping techniques for iterative design improvements"]},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",description:"Create a complete IoT weather station that measures temperature, humidity, atmospheric pressure, and more. This advanced project teaches you how to interface with BME280/BMP280 sensors, implement accurate data logging, visualize weather data on web dashboards, and even integrate with weather services like Weather Underground. You'll learn about sensor calibration, data averaging techniques, power management for outdoor deployment, and how to create professional data visualizations using Chart.js or similar libraries.",learningPoints:["Interfacing with BME280/BMP280 environmental sensors via I2C","Implementing data logging with timestamps and SD card storage","Creating real-time data visualizations and web dashboards","Power management and weatherproofing for outdoor installations"]}].find(c=>c.id===parseInt(o));if(!a)return`
+    `},W=({Breadcrumbs:t,state:e})=>{const o=e.params?.id,a=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",description:"Dive into the world of Arduino microcontrollers with this comprehensive beginner's guide. You'll learn the fundamental concepts of Arduino programming, understand the hardware components, and create your first working projects. This tutorial covers everything from setting up your development environment to uploading your first sketch onto the Arduino board. Perfect for absolute beginners with no prior programming or electronics experience.",learningPoints:["Setting up the Arduino IDE and connecting your board","Understanding Arduino pin configurations and digital I/O","Writing and uploading your first Arduino sketch","Working with basic sensors and LED circuits"]},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",description:"Get your Raspberry Pi up and running with this detailed setup tutorial. Learn how to install the operating system, configure essential settings, and prepare your Pi for your first projects. This guide covers both the hardware setup process and the software configuration you'll need to start building amazing IoT projects. Whether you're using Raspberry Pi 3, 4, or 5, this tutorial will help you get started quickly and correctly.",learningPoints:["Installing Raspberry Pi OS using the official imager","Configuring network settings and enabling SSH","Installing essential packages and development tools","Understanding the GPIO pinout and basic Python programming"]},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",description:"Explore the fascinating world of electronic sensors and learn how to integrate them into your projects. This tutorial provides an in-depth look at various sensor types including temperature sensors (DHT11, DS18B20), motion sensors (PIR), ultrasonic distance sensors (HC-SR04), and light sensors (LDR, BH1750). You'll understand how sensors work, how to read their data, and how to calibrate them for accurate measurements in real-world applications.",learningPoints:["Understanding analog vs digital sensors and their applications","Reading data from temperature and humidity sensors","Working with motion detection and ultrasonic distance measurement","Implementing sensor calibration and data filtering techniques"]},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",description:"Build an intelligent autonomous car that can navigate around obstacles using ultrasonic sensors and Arduino. This hands-on project combines motor control, sensor integration, and basic robotics programming. You'll learn how to read ultrasonic sensor data, implement decision-making logic, and control DC motors using an L298N motor driver. This is a perfect project for understanding the basics of autonomous navigation and robotics.",learningPoints:["Wiring and controlling DC motors with an L298N driver","Reading and processing ultrasonic sensor data for obstacle detection","Implementing autonomous navigation logic and decision trees","Troubleshooting common issues in robotic car projects"]},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",description:"Master the art of printed circuit board (PCB) design from scratch. This comprehensive tutorial takes you through the entire PCB design workflow using professional tools like KiCad or EasyEDA. Learn how to create schematics, design PCB layouts, route traces efficiently, and prepare your designs for manufacturing. You'll understand design rules, layer stackups, component placement strategies, and how to export Gerber files for fabrication. Essential knowledge for anyone serious about electronics development.",learningPoints:["Creating professional schematics with proper component symbols","PCB layout best practices: trace width, clearances, and ground planes","Routing strategies for signal integrity and EMI reduction","Preparing and exporting Gerber files for PCB manufacturing"]},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",description:"Unlock the power of the ESP32 microcontroller for advanced IoT applications. This tutorial covers WiFi connectivity, web server creation, MQTT protocol implementation, and cloud integration. You'll build real IoT projects including a web-based temperature monitor, remote-controlled devices, and data logging systems. Learn how to use the ESP32's dual-core processor, Bluetooth capabilities, and low-power modes to create professional-grade IoT solutions.",learningPoints:["Setting up ESP32 development environment and WiFi connectivity","Creating web servers and REST APIs on the ESP32","Implementing MQTT for real-time IoT communication","Integrating with cloud platforms (Firebase, AWS IoT, ThingSpeak)"]},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",description:"Discover the perfect fusion of 3D printing and electronics in this inspiring project showcase. See how makers are combining custom 3D-printed enclosures with Arduino and Raspberry Pi to create amazing devices. From smart home sensors to robotic mechanisms, this video demonstrates practical applications and design techniques. Learn how to design functional enclosures, integrate electronics seamlessly, and bring your maker ideas to life with the power of additive manufacturing.",learningPoints:["Designing functional 3D-printed enclosures for electronics","Integrating sensors and displays into custom housings","Creating cable management and mounting solutions","Prototyping techniques for iterative design improvements"]},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",description:"Create a complete IoT weather station that measures temperature, humidity, atmospheric pressure, and more. This advanced project teaches you how to interface with BME280/BMP280 sensors, implement accurate data logging, visualize weather data on web dashboards, and even integrate with weather services like Weather Underground. You'll learn about sensor calibration, data averaging techniques, power management for outdoor deployment, and how to create professional data visualizations using Chart.js or similar libraries.",learningPoints:["Interfacing with BME280/BMP280 environmental sensors via I2C","Implementing data logging with timestamps and SD card storage","Creating real-time data visualizations and web dashboards","Power management and weatherproofing for outdoor installations"]}].find(c=>c.id===parseInt(o));if(!a)return`
             <div style="max-width: 1200px; margin: 4rem auto; padding: 2rem; text-align: center;">
                 <h1>Tutorial Not Found</h1>
                 <p style="color: #64748b; margin: 1rem 0;">The tutorial you're looking for doesn't exist.</p>
@@ -420,126 +420,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </div>
             </div>
         </div>
-    `},V=({Breadcrumbs:t,state:e})=>`
-        <div style="max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;">
-            ${t("contact-us")}
-            
-            <!-- Hero Section -->
-            <div style="text-align: center; margin-bottom: 4rem;">
-                <h1 style="font-size: 2.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, var(--primary), #0EA5E9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Get in Touch</h1>
-                <p style="font-size: 1.125rem; color: var(--text-muted); max-width: 600px; margin: 0 auto;">Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 4rem;">
-                <!-- Contact Form -->
-                <div class="admin-section" style="padding: 2rem;">
-                    <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Send Us a Message</h2>
-                    <form onsubmit="window.handleContactSubmit(event)" id="contactForm">
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Name *</label>
-                            <input type="text" name="name" required 
-                                style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius-md); font-size: 1rem; transition: border-color 0.3s;"
-                                onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" />
-                        </div>
-                        
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Email *</label>
-                            <input type="email" name="email" required 
-                                style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius-md); font-size: 1rem; transition: border-color 0.3s;"
-                                onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" />
-                        </div>
-                        
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Subject *</label>
-                            <input type="text" name="subject" required 
-                                style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius-md); font-size: 1rem; transition: border-color 0.3s;"
-                                onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'" />
-                        </div>
-                        
-                        <div style="margin-bottom: 1.5rem;">
-                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Message *</label>
-                            <textarea name="message" required rows="6"
-                                style="width: 100%; padding: 0.75rem; border: 2px solid var(--border); border-radius: var(--radius-md); font-size: 1rem; resize: vertical; transition: border-color 0.3s; font-family: inherit;"
-                                onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.125rem;">
-                            Send Message
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Contact Information -->
-                <div>
-                    <div class="admin-section" style="padding: 2rem; margin-bottom: 2rem;">
-                        <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Contact Information</h2>
-                        
-                        <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1.5rem;">
-                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), #0EA5E9); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                            </div>
-                            <div>
-                                <h3 style="margin-bottom: 0.5rem;">Address</h3>
-                                <p style="color: var(--text-muted); line-height: 1.6;">123 Electronics Street<br/>Makati City, Metro Manila<br/>Philippines 1200</p>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1.5rem;">
-                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), #0EA5E9); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                            </div>
-                            <div>
-                                <h3 style="margin-bottom: 0.5rem;">Phone</h3>
-                                <p style="color: var(--text-muted);">(02) 8123-4567<br/>+63 917 123 4567</p>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; align-items: start; gap: 1rem;">
-                            <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), #0EA5E9); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                            </div>
-                            <div>
-                                <h3 style="margin-bottom: 0.5rem;">Email</h3>
-                                <p style="color: var(--text-muted);">support@luminaelectronics.com<br/>sales@luminaelectronics.com</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Business Hours -->
-                    <div class="admin-section" style="padding: 2rem;">
-                        <h3 style="margin-bottom: 1rem; color: var(--primary);">Business Hours</h3>
-                        <div style="color: var(--text-muted); line-height: 2;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <span>Monday - Friday:</span>
-                                <strong>9:00 AM - 6:00 PM</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <span>Saturday:</span>
-                                <strong>10:00 AM - 4:00 PM</strong>
-                            </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span>Sunday:</span>
-                                <strong>Closed</strong>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Map Section -->
-            <div class="admin-section" style="padding: 0; overflow: hidden;">
-                <iframe 
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3861.5489358476346!2d121.0244036!3d14.5547146!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c90264a0f917%3A0x1299c768397f2d01!2sAyala%20Avenue%2C%20Makati%2C%20Metro%20Manila!5e0!3m2!1sen!2sph!4v1234567890123!5m2!1sen!2sph" 
-                    width="100%" 
-                    height="400" 
-                    style="border:0;" 
-                    allowfullscreen="" 
-                    loading="lazy" 
-                    referrerpolicy="no-referrer-when-downgrade">
-                </iframe>
-            </div>
-        </div>
-    `,u=t=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(t),_=({Breadcrumbs:t,state:e})=>{const o=e.products.slice(0,8).map((r,a)=>({...r,originalPrice:r.price*1.3,discount:[10,15,20,25,30][a%5],category:["Microcontrollers","Sensors","Tools","Robotics","Components"][a%5]}));return e.myCoupons,`
+    `},u=t=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(t),Y=({Breadcrumbs:t,state:e})=>{const o=e.products.slice(0,8).map((r,a)=>({...r,originalPrice:r.price*1.3,discount:[10,15,20,25,30][a%5],category:["Microcontrollers","Sensors","Tools","Robotics","Components"][a%5]}));return e.myCoupons,`
         <div style="background: #f8f9fa; min-height: 100vh; padding: 2rem 0;">
             <!-- Content Container -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
@@ -749,136 +630,415 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </div>
             </div>
         </div>
-    `},J=t=>{if(!t.currentUser||t.currentUser.role!=="admin")return setTimeout(()=>window.navigate("home"),0),"";console.log("AdminPage State:",t);const e=t.orders.reduce((s,c)=>s+(c.total||0),0),o=t.orders.length,r=t.products.filter(s=>s.stock<10).length,a=t.users?t.users.filter(s=>s.role==="customer").length:0,n=[...t.orders].sort((s,c)=>new Date(c.createdAt)-new Date(s.createdAt)).slice(0,5);return`
-        <div class="admin-container">
-            <!-- Sidebar -->
-            <aside class="admin-sidebar">
-                <div class="sidebar-header">
-                    <span>Admin Dashboard</span>
+    `},G=t=>{if(!t.currentUser||t.currentUser.role!=="admin")return setTimeout(()=>window.navigate("home"),0),"";console.log("AdminPage State:",t);const e=t.orders.reduce((s,c)=>s+(c.total||0),0),o=t.orders.length,r=t.products.filter(s=>s.stock<10).length,a=t.users?t.users.filter(s=>s.role==="customer").length:0,n=[...t.orders].sort((s,c)=>new Date(c.createdAt)-new Date(s.createdAt)).slice(0,5);return`
+        <div class="admin-layout">
+            <!-- Top Header Bar -->
+            <header class="admin-header">
+                <div class="admin-brand">
+                    <span class="brand-text">Lumina <span class="brand-highlight">Electronics</span></span>
                 </div>
-                <nav class="sidebar-nav">
-                    <div class="sidebar-item active">
-                        <span>📊</span> Dashboard
-                    </div>
-                    <div class="sidebar-item" onclick="window.showToast('Inventory feature coming soon')">
-                        <span>📦</span> Inventory
-                    </div>
-                    <div class="sidebar-item" onclick="window.showToast('Analytics feature coming soon')">
-                        <span>📈</span> Analytics
-                    </div>
-                    <div class="sidebar-item" onclick="window.showToast('Settings feature coming soon')">
-                        <span>⚙️</span> Settings
-                    </div>
-                </nav>
-            </aside>
-            <!-- Main Content -->
-            <main class="admin-main">
-                <div class="admin-page-header">
-                    <h1 class="admin-title">Overview</h1>
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <span class="text-muted">Welcome, ${t.currentUser.name}</span>
-                        <div style="width: 32px; height: 32px; background: #0B1E3B; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-                            A
+                <div class="admin-header-right">
+                    <div class="admin-user-profile">
+                        <div class="admin-avatar">
+                            ${t.currentUser.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="admin-user-info">
+                            <span class="admin-name">${t.currentUser.name}</span>
+                            <span class="admin-role">Admin</span>
                         </div>
                     </div>
                 </div>
-                <!-- Stats Row -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div>
-                                <div class="stat-title">Total Sales</div>
-                                <div class="stat-value">${u(e)}</div>
+            </header>
+
+            <div class="admin-body">
+                <!-- Sidebar -->
+                <aside class="admin-sidebar">
+                    <nav class="sidebar-nav">
+                        <div class="sidebar-item active">
+                            <span>📊</span> Dashboard
+                        </div>
+                        <div class="sidebar-item" onclick="window.showToast('Inventory feature coming soon')">
+                            <span>📦</span> Inventory
+                        </div>
+                        <div class="sidebar-item" onclick="window.showToast('Analytics feature coming soon')">
+                            <span>📈</span> Analytics
+                        </div>
+                        <div class="sidebar-item" onclick="window.showToast('Order Management feature coming soon')">
+                            <span>📋</span> Order Management
+                        </div>
+                        <div class="sidebar-item" onclick="window.showToast('Customer Insights feature coming soon')">
+                            <span>👥</span> Customer Insights
+                        </div>
+                        <div class="sidebar-item" onclick="window.showToast('Reports feature coming soon')">
+                            <span>📄</span> Reports
+                        </div>
+                        <div class="sidebar-item" onclick="window.showToast('Settings feature coming soon')">
+                            <span>⚙️</span> Settings
+                        </div>
+                        <div class="sidebar-item logout-item" onclick="window.logout()">
+                            <span>🚪</span> Logout
+                        </div>
+                    </nav>
+                </aside>
+
+                <!-- Main Content -->
+                <main class="admin-main">
+                    <div class="admin-page-header">
+                        <h1 class="admin-title">Key Metrics</h1>
+                    </div>
+                    
+                    <!-- Stats Row -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Total Sales</div>
+                                    <div class="stat-value">${u(e)}</div>
+                                </div>
+                                <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">💰</div>
                             </div>
-                            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">💰</div>
-                        </div>
-                        <div class="trend-indicator trend-up">
-                            <span>↑ 12%</span> <span class="text-muted" style="font-weight: normal;">vs last month</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div>
-                                <div class="stat-title">New Orders</div>
-                                <div class="stat-value">${o}</div>
+                            <div class="trend-indicator trend-up">
+                                <span>↑ 0.36%</span> <span class="text-muted" style="font-weight: normal;">vs last month</span>
                             </div>
-                            <div class="stat-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">📄</div>
                         </div>
-                        <div class="trend-indicator trend-up">
-                            <span>↑ 5%</span> <span class="text-muted" style="font-weight: normal;">vs last week</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div>
-                                <div class="stat-title">Low Stock Items</div>
-                                <div class="stat-value">${r}</div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">New Orders</div>
+                                    <div class="stat-value">${o}</div>
+                                </div>
+                                <div class="stat-icon" style="background: rgba(6, 182, 212, 0.1); color: #06b6d4;">📄</div>
                             </div>
-                            <div class="stat-icon" style="background: rgba(244, 63, 94, 0.1); color: #f43f5e;">⚠️</div>
-                        </div>
-                        <div class="trend-indicator ${r>0?"trend-down":"trend-up"}">
-                            <span>${r} items</span> <span class="text-muted" style="font-weight: normal;">need attention</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-header">
-                            <div>
-                                <div class="stat-title">Active Customers</div>
-                                <div class="stat-value">${a}</div>
+                            <div class="trend-indicator trend-up">
+                                <span>↑ 3.79%</span> <span class="text-muted" style="font-weight: normal;">vs last week</span>
                             </div>
-                            <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">👥</div>
                         </div>
-                        <div class="trend-indicator trend-up">
-                            <span>↑ 3%</span> <span class="text-muted" style="font-weight: normal;">vs last month</span>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Low Stock Items</div>
+                                    <div class="stat-value">${r}</div>
+                                </div>
+                                <div class="stat-icon" style="background: rgba(244, 63, 94, 0.1); color: #f43f5e;">⚠️</div>
+                            </div>
+                            <div class="trend-indicator ${r>0?"trend-down":"trend-up"}">
+                                <span>${r>0?"↓ 4.27%":"Stable"}</span> <span class="text-muted" style="font-weight: normal;">${r} items</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div>
+                                    <div class="stat-title">Active Customers</div>
+                                    <div class="stat-value">${a}</div>
+                                </div>
+                                <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">👥</div>
+                            </div>
+                            <div class="trend-indicator trend-up">
+                                <span>↑ 3.27%</span> <span class="text-muted" style="font-weight: normal;">vs last month</span>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <!-- Charts Row -->
-                <div class="charts-grid">
-                    <!-- Sales Chart -->
-                    <div class="chart-card">
-                        <h3 class="font-bold text-slate-800 mb-4">Sales Overview</h3>
-                        <div style="height: 300px;">
-                            <canvas id="salesChart"></canvas>
+
+                    <!-- Charts Row -->
+                    <div class="charts-grid">
+                        <!-- Sales Chart -->
+                        <div class="chart-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <h3 class="font-bold text-slate-800">Sales Overview</h3>
+                                <select style="padding: 4px 8px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.875rem;">
+                                    <option>Last Month</option>
+                                    <option>Last Year</option>
+                                </select>
+                            </div>
+                            <div style="height: 300px;">
+                                <canvas id="salesChart"></canvas>
+                            </div>
+                        </div>
+                        <!-- Recent Orders -->
+                        <div class="table-card">
+                            <h3 class="font-bold text-slate-800 mb-4">Recent Orders</h3>
+                            <table class="admin-table">
+                                <thead>
+                                    <tr>
+                                        <th>Order</th>
+                                        <th>Sales</th>
+                                        <th>Production</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${n.map(s=>`
+                                        <tr>
+                                            <td>${s.orderId}</td>
+                                            <td>${u(s.total)}</td>
+                                            <td>Lumina</td>
+                                            <td>${new Date(s.createdAt).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</td>
+                                        </tr>
+                                    `).join("")}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                    <!-- Demographics Chart -->
-                    <div class="chart-card">
-                        <h3 class="font-bold text-slate-800 mb-4">Customers</h3>
-                        <div style="height: 300px; display: flex; justify-content: center;">
-                            <canvas id="demographicsChart"></canvas>
+                    
+                    <div class="charts-grid" style="margin-top: 1.5rem;">
+                         <!-- Top Selling Products (Placeholder) -->
+                        <div class="chart-card">
+                            <h3 class="font-bold text-slate-800 mb-4">Top Selling Products</h3>
+                             <div style="height: 200px; display: flex; align-items: flex-end; gap: 1rem; padding-bottom: 1rem;">
+                                <div style="flex: 1; background: #0ea5e9; height: 80%; border-radius: 4px 4px 0 0;"></div>
+                                <div style="flex: 1; background: #0ea5e9; height: 60%; border-radius: 4px 4px 0 0;"></div>
+                                <div style="flex: 1; background: #0ea5e9; height: 40%; border-radius: 4px 4px 0 0;"></div>
+                                <div style="flex: 1; background: #0ea5e9; height: 30%; border-radius: 4px 4px 0 0;"></div>
+                                <div style="flex: 1; background: #0ea5e9; height: 20%; border-radius: 4px 4px 0 0;"></div>
+                             </div>
+                        </div>
+
+                        <!-- Demographics Chart -->
+                        <div class="chart-card">
+                            <h3 class="font-bold text-slate-800 mb-4">Customer Demographics</h3>
+                            <div style="height: 250px; display: flex; justify-content: center;">
+                                <canvas id="demographicsChart"></canvas>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <!-- Recent Orders -->
-                <div class="table-card">
-                    <h3 class="font-bold text-slate-800 mb-4">Recent Orders</h3>
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Customer</th>
-                                <th>Total</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${n.map(s=>`
-                                <tr>
-                                    <td>#${s.orderId}</td>
-                                    <td>${new Date(s.createdAt).toLocaleDateString()}</td>
-                                    <td>${t.users.find(c=>c.id===s.userId)?.name||"Unknown"}</td>
-                                    <td>${u(s.total)}</td>
-                                    <td><span class="status-badge status-${s.status?.toLowerCase()||"pending"}">${s.status||"Pending"}</span></td>
-                                </tr>
-                            `).join("")}
-                        </tbody>
-                    </table>
-                </div>
-            </main>
+
+                </main>
+            </div>
         </div>
-    `};window.initAdminCharts=()=>{const t=document.getElementById("salesChart");t&&new Chart(t,{type:"line",data:{labels:["Jan","Feb","Mar","Apr","May","Jun","Jul"],datasets:[{label:"Sales",data:[4e3,3e3,5e3,2780,6890,2390,3490],borderColor:"#3b82f6",tension:.4,fill:!0,backgroundColor:"rgba(59, 130, 246, 0.1)"}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0,grid:{borderDash:[2,4]}},x:{grid:{display:!1}}}}});const e=document.getElementById("demographicsChart");e&&new Chart(e,{type:"doughnut",data:{labels:["Male","Female","Other"],datasets:[{data:[400,300,100],backgroundColor:["#0F172A","#F97316","#CBD5E1"],borderWidth:0}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:"bottom"}}}})};const E=({state:t})=>{if(!t.currentUser)return navigate("login"),"";const e=t.orders.filter(l=>l.userId===t.currentUser.id);e.filter(l=>l.status==="Pending"||l.status==="Processing"),e.filter(l=>l.status==="Shipped"),e.filter(l=>l.status==="Delivered"||l.status==="Completed");const o=t.myCoupons||[];window.handleProfileUpdate||(window.handleProfileUpdate=async l=>{l.preventDefault();const m=l.target,b=m.name.value.trim(),y=m.email.value.trim(),w=m.phone.value.trim(),P=m.gender.value,q=`${m.birthYear.value}-${m.birthMonth.value}-${m.birthDay.value}`;if(!b||!y||!w||!P||!m.birthYear.value||!m.birthMonth.value||!m.birthDay.value){showToast("Please fill in all fields.");return}if(/\d/.test(b)){showToast("Name should not contain numbers.");return}if(!y.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(w)){showToast("Phone number must be 11 digits and start with 09.");return}try{await api.updateProfile(t.currentUser.id,{name:b,email:y,phone:w,gender:P,birthDate:q}),window.render()}catch(F){console.error("Profile update failed:",F)}}),window.handleImageUpload||(window.handleImageUpload=l=>{const m=l.target.files[0];if(!m)return;if(m.size>3*1024*1024){showToast("File size exceeds 3MB limit.");return}if(!["image/jpeg","image/png"].includes(m.type)){showToast("Only .JPEG and .PNG files are allowed.");return}const b=new FileReader;b.onload=y=>{const w={...t.currentUser,avatar:y.target.result};t.currentUser=w,localStorage.setItem("currentUser",JSON.stringify(w)),showToast("Profile image updated!"),render()},b.readAsDataURL(m)}),window.handleAddressUpdate||(window.handleAddressUpdate=async l=>{l.preventDefault();const m=l.target,b={fullName:m.fullName.value,phone:m.phone.value,region:m.region.value,province:m.province.value,city:m.city.value,barangay:m.barangay.value,postalCode:m.postalCode.value,street:m.street.value,details:m.details.value};if(Object.values(b).some(y=>!y)){showToast("Please fill in all address fields.");return}try{await api.updateAddress(t.currentUser.id,b),render()}catch(y){console.error("Address update failed:",y)}}),window.handlePasswordUpdate||(window.handlePasswordUpdate=async l=>{l.preventDefault();const m=l.target,b=m.currentPassword.value,y=m.newPassword.value,w=m.confirmPassword.value;if(y.length<6){showToast("New password must be at least 6 characters.");return}if(y!==w){showToast("New passwords do not match.");return}try{await api.changePassword(t.currentUser.id,b,y),m.reset()}catch(P){console.error("Password change failed:",P)}}),window.switchUserTab||(window.switchUserTab=l=>{document.querySelectorAll(".user-tab-content").forEach(y=>y.style.display="none");const m=document.getElementById(`user-tab-${l}`);m&&(m.style.display="block"),document.querySelectorAll(".sidebar-link").forEach(y=>y.classList.remove("active"));const b=document.querySelector(`[data-tab="${l}"]`);b&&b.classList.add("active"),window.scrollTo(0,0)}),window.switchOrderTab||(window.switchOrderTab=l=>{document.querySelectorAll(".order-status-tab").forEach(m=>m.classList.remove("active")),document.querySelector(`.order-status-tab[data-status="${l}"]`).classList.add("active"),document.querySelectorAll(".order-item").forEach(m=>{l==="All"||m.dataset.status===l?m.style.display="block":m.style.display="none"})});const r=(l,m,b)=>{let y="";for(let w=l;w<=m;w++)y+=`<option value="${w}" ${parseInt(b)===w?"selected":""}>${w}</option>`;return y},a=["January","February","March","April","May","June","July","August","September","October","November","December"],n=t.currentUser.birthDate?new Date(t.currentUser.birthDate):null,s=n?n.getDate():"",c=n?n.getMonth()+1:"",d=n?n.getFullYear():"",g=t.currentUser.address||{},v=typeof g=="object"&&g!==null;return`
+        <style>
+            /* Admin Layout Styles */
+            .admin-layout {
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                background-color: #f8fafc;
+                font-family: 'Inter', sans-serif;
+            }
+            
+            .admin-header {
+                height: 64px;
+                background: white;
+                border-bottom: 1px solid #e2e8f0;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 2rem;
+                flex-shrink: 0;
+            }
+            
+            .admin-brand {
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: #0f172a;
+            }
+            
+            .brand-highlight {
+                color: #f97316;
+            }
+            
+            .admin-header-right {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            .admin-user-profile {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            
+            .admin-avatar {
+                width: 36px;
+                height: 36px;
+                background: #0f172a;
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+            }
+            
+            .admin-user-info {
+                display: flex;
+                flex-direction: column;
+                line-height: 1.2;
+            }
+            
+            .admin-name {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: #0f172a;
+            }
+            
+            .admin-role {
+                font-size: 0.75rem;
+                color: #64748b;
+            }
+            
+            .admin-body {
+                display: flex;
+                flex: 1;
+                overflow: hidden;
+            }
+            
+            .admin-sidebar {
+                width: 260px;
+                background: #0f172a;
+                color: white;
+                display: flex;
+                flex-direction: column;
+                flex-shrink: 0;
+            }
+            
+            .sidebar-nav {
+                padding: 1rem 0;
+                flex: 1;
+            }
+            
+            .sidebar-item {
+                padding: 0.75rem 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                color: #94a3b8;
+                cursor: pointer;
+                transition: all 0.2s;
+                font-size: 0.95rem;
+            }
+            
+            .sidebar-item:hover, .sidebar-item.active {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+            }
+            
+            .logout-item {
+                margin-top: auto;
+                border-top: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .admin-main {
+                flex: 1;
+                padding: 2rem;
+                overflow-y: auto;
+            }
+            
+            .admin-page-header {
+                margin-bottom: 2rem;
+            }
+            
+            .admin-title {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #0f172a;
+            }
+            
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            
+            .stat-card {
+                background: white;
+                padding: 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            
+            .stat-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 1rem;
+            }
+            
+            .stat-title {
+                font-size: 0.875rem;
+                color: #64748b;
+                margin-bottom: 0.5rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #0f172a;
+            }
+            
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 8px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.25rem;
+            }
+            
+            .trend-indicator {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.875rem;
+            }
+            
+            .trend-up { color: #10b981; }
+            .trend-down { color: #ef4444; }
+            
+            .charts-grid {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 1.5rem;
+            }
+            
+            @media (max-width: 1024px) {
+                .charts-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+            
+            .chart-card, .table-card {
+                background: white;
+                padding: 1.5rem;
+                border-radius: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            
+            .admin-table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            
+            .admin-table th {
+                text-align: left;
+                padding: 0.75rem 0;
+                color: #64748b;
+                font-weight: 600;
+                font-size: 0.875rem;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            
+            .admin-table td {
+                padding: 1rem 0;
+                border-bottom: 1px solid #f1f5f9;
+                color: #334155;
+                font-size: 0.875rem;
+            }
+            
+            .status-badge {
+                padding: 0.25rem 0.75rem;
+                border-radius: 9999px;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+            
+            .status-pending { background: #fff7ed; color: #c2410c; }
+            .status-shipped { background: #eff6ff; color: #1d4ed8; }
+            .status-delivered { background: #f0fdf4; color: #15803d; }
+        </style>
+    `};window.initAdminCharts=()=>{const t=document.getElementById("salesChart");t&&(window.salesChartInstance&&window.salesChartInstance.destroy(),window.salesChartInstance=new Chart(t,{type:"line",data:{labels:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug"],datasets:[{label:"Sales",data:[300,1100,1600,1100,2200,1600,2100,2600],borderColor:"#0ea5e9",tension:.4,fill:!0,backgroundColor:"rgba(14, 165, 233, 0.1)",pointRadius:4,pointBackgroundColor:"#fff",pointBorderColor:"#0ea5e9",pointBorderWidth:2}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{y:{beginAtZero:!0,grid:{borderDash:[2,4],color:"#f1f5f9"},ticks:{font:{size:11},color:"#94a3b8"}},x:{grid:{display:!1},ticks:{font:{size:11},color:"#94a3b8"}}}}}));const e=document.getElementById("demographicsChart");e&&(window.demoChartInstance&&window.demoChartInstance.destroy(),window.demoChartInstance=new Chart(e,{type:"doughnut",data:{labels:["Male","Female","Other"],datasets:[{data:[45,35,20],backgroundColor:["#0f172a","#f97316","#cbd5e1"],borderWidth:0,hoverOffset:4}]},options:{responsive:!0,maintainAspectRatio:!1,cutout:"70%",plugins:{legend:{position:"bottom",labels:{usePointStyle:!0,padding:20}}}}}))};const V=({state:t})=>{if(!t.currentUser)return navigate("login"),"";const e=t.orders.filter(l=>l.userId===t.currentUser.id);e.filter(l=>l.status==="Pending"||l.status==="Processing"),e.filter(l=>l.status==="Shipped"),e.filter(l=>l.status==="Delivered"||l.status==="Completed");const o=t.myCoupons||[];window.handleProfileUpdate||(window.handleProfileUpdate=async l=>{l.preventDefault();const m=l.target,b=m.name.value.trim(),y=m.email.value.trim(),w=m.phone.value.trim(),P=m.gender.value,j=`${m.birthYear.value}-${m.birthMonth.value}-${m.birthDay.value}`;if(!b||!y||!w||!P||!m.birthYear.value||!m.birthMonth.value||!m.birthDay.value){showToast("Please fill in all fields.");return}if(/\d/.test(b)){showToast("Name should not contain numbers.");return}if(!y.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(w)){showToast("Phone number must be 11 digits and start with 09.");return}try{await api.updateProfile(t.currentUser.id,{name:b,email:y,phone:w,gender:P,birthDate:j}),window.render()}catch(N){console.error("Profile update failed:",N)}}),window.handleImageUpload||(window.handleImageUpload=l=>{const m=l.target.files[0];if(!m)return;if(m.size>3*1024*1024){showToast("File size exceeds 3MB limit.");return}if(!["image/jpeg","image/png"].includes(m.type)){showToast("Only .JPEG and .PNG files are allowed.");return}const b=new FileReader;b.onload=y=>{const w={...t.currentUser,avatar:y.target.result};t.currentUser=w,localStorage.setItem("currentUser",JSON.stringify(w)),showToast("Profile image updated!"),render()},b.readAsDataURL(m)}),window.handleAddressUpdate||(window.handleAddressUpdate=async l=>{l.preventDefault();const m=l.target,b={fullName:m.fullName.value,phone:m.phone.value,region:m.region.value,province:m.province.value,city:m.city.value,barangay:m.barangay.value,postalCode:m.postalCode.value,street:m.street.value,details:m.details.value};if(Object.values(b).some(y=>!y)){showToast("Please fill in all address fields.");return}try{await api.updateAddress(t.currentUser.id,b),render()}catch(y){console.error("Address update failed:",y)}}),window.handlePasswordUpdate||(window.handlePasswordUpdate=async l=>{l.preventDefault();const m=l.target,b=m.currentPassword.value,y=m.newPassword.value,w=m.confirmPassword.value;if(y.length<6){showToast("New password must be at least 6 characters.");return}if(y!==w){showToast("New passwords do not match.");return}try{await api.changePassword(t.currentUser.id,b,y),m.reset()}catch(P){console.error("Password change failed:",P)}}),window.switchUserTab||(window.switchUserTab=l=>{document.querySelectorAll(".user-tab-content").forEach(y=>y.style.display="none");const m=document.getElementById(`user-tab-${l}`);m&&(m.style.display="block"),document.querySelectorAll(".sidebar-link").forEach(y=>y.classList.remove("active"));const b=document.querySelector(`[data-tab="${l}"]`);b&&b.classList.add("active"),window.scrollTo(0,0)}),window.switchOrderTab||(window.switchOrderTab=l=>{document.querySelectorAll(".order-status-tab").forEach(m=>m.classList.remove("active")),document.querySelector(`.order-status-tab[data-status="${l}"]`).classList.add("active"),document.querySelectorAll(".order-item").forEach(m=>{l==="All"||m.dataset.status===l?m.style.display="block":m.style.display="none"})});const r=(l,m,b)=>{let y="";for(let w=l;w<=m;w++)y+=`<option value="${w}" ${parseInt(b)===w?"selected":""}>${w}</option>`;return y},a=["January","February","March","April","May","June","July","August","September","October","November","December"],n=t.currentUser.birthDate?new Date(t.currentUser.birthDate):null,s=n?n.getDate():"",c=n?n.getMonth()+1:"",d=n?n.getFullYear():"",g=t.currentUser.address||{},v=typeof g=="object"&&g!==null;return`
         <div class="user-page-wrapper">
             <div class="container">
                 <div class="user-layout">
@@ -1563,7 +1723,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 }
             }
         </style>
-    `},X=({Breadcrumbs:t,state:e})=>{let o=[...e.products];switch(e.searchQuery&&(o=o.filter(r=>r.name.toLowerCase().includes(e.searchQuery.toLowerCase())||r.category.toLowerCase().includes(e.searchQuery.toLowerCase())||r.description.toLowerCase().includes(e.searchQuery.toLowerCase()))),e.filterCategory&&(o=o.filter(r=>r.category===e.filterCategory)),e.sortBy){case"price-asc":o.sort((r,a)=>r.price-a.price);break;case"price-desc":o.sort((r,a)=>a.price-r.price);break;case"name-asc":o.sort((r,a)=>r.name.localeCompare(a.name));break;case"name-desc":o.sort((r,a)=>a.name.localeCompare(r.name));break;case"featured":default:o.sort((r,a)=>r.id-a.id);break}return`
+    `},_=({Breadcrumbs:t,state:e})=>{let o=[...e.products];switch(e.searchQuery&&(o=o.filter(r=>r.name.toLowerCase().includes(e.searchQuery.toLowerCase())||r.category.toLowerCase().includes(e.searchQuery.toLowerCase())||r.description.toLowerCase().includes(e.searchQuery.toLowerCase()))),e.filterCategory&&(o=o.filter(r=>r.category===e.filterCategory)),e.sortBy){case"price-asc":o.sort((r,a)=>r.price-a.price);break;case"price-desc":o.sort((r,a)=>a.price-r.price);break;case"name-asc":o.sort((r,a)=>r.name.localeCompare(a.name));break;case"name-desc":o.sort((r,a)=>a.name.localeCompare(r.name));break;case"featured":default:o.sort((r,a)=>r.id-a.id);break}return`
         <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
             <!-- ... Breadcrumbs ... -->
             
@@ -1589,10 +1749,10 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
             </div>
             <!-- ... Product Grid ... -->
              <div class="product-grid">
-                ${o.map(K).join("")}
+                ${o.map(J).join("")}
             </div>
         </div>
-    `},K=t=>{const e=t.stock<10,o=e?"low-stock":"",r=e?"Low Stock":"In Stock";return`
+    `},J=t=>{const e=t.stock<10,o=e?"low-stock":"",r=e?"Low Stock":"In Stock";return`
         <div class="product-card" onclick="window.viewProduct(${t.id})" style="cursor: pointer;">
             <div class="product-badge ${o}">${r}</div>
             <div class="product-image">
@@ -1607,7 +1767,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </button>
             </div>
         </div>
-    `},Z=({Breadcrumbs:t,state:e})=>{const o=e.products.find(s=>s.id===e.currentProductId);if(!o)return navigate("home"),"";o.stock<10;const r=o.stock>0?"In Stock":"Out of Stock",a=o.stock>0?"var(--success)":"var(--danger)",n=e.products.filter(s=>s.id!==o.id).sort(()=>.5-Math.random()).slice(0,4);return`
+    `},X=({Breadcrumbs:t,state:e})=>{const o=e.products.find(s=>s.id===e.currentProductId);if(!o)return navigate("home"),"";o.stock<10;const r=o.stock>0?"In Stock":"Out of Stock",a=o.stock>0?"var(--success)":"var(--danger)",n=e.products.filter(s=>s.id!==o.id).sort(()=>.5-Math.random()).slice(0,4);return`
         <div class="product-detail-container">
             <div class="breadcrumbs">
                 <a href="#" onclick="window.navigate('home'); return false;">Home</a> &gt; 
@@ -1653,11 +1813,11 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
             <div class="related-products">
                 <h3 class="related-title">You may also like</h3>
                 <div class="product-grid">
-                    ${n.map(L).join("")}
+                    ${n.map(T).join("")}
                 </div>
             </div>
         </div>
-    `},L=t=>{const e=t.stock<10,o=e?"low-stock":"",r=e?"Low Stock":"In Stock";return`
+    `},T=t=>{const e=t.stock<10,o=e?"low-stock":"",r=e?"Low Stock":"In Stock";return`
         <div class="product-card" onclick="window.viewProduct(${t.id})" style="cursor: pointer;">
             <div class="product-badge ${o}">${r}</div>
             <div class="product-image">
@@ -1672,115 +1832,13 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </button>
             </div>
         </div>
-    `},i={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:sessionStorage.getItem("currentRoute")||"home",mobileMenuOpen:!1,searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,devices:[],currentDeviceId:null,esp32Client:null,deviceStatus:{},telemetryData:{},sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,cartSynced:!1,myCoupons:null,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null},k={getProducts:async()=>{try{const t=await x("/products");i.products=t.data,h()}catch(t){console.error("Failed to load products:",t),p("Failed to load products")}},login:async(t,e)=>{console.log("Calling API login...");try{const o=await x("/users/login",{method:"POST",body:JSON.stringify({email:t,password:e})});i.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),await S.getMyDevices(),await te(),await k.getMyOrders(),p(`Welcome back, ${i.currentUser.name}!`),f("home")}catch(o){throw p(o.message||"Login failed"),o}},register:async(t,e,o)=>{try{const r=await x("/users/register",{method:"POST",body:JSON.stringify({name:t,email:e,password:o})});i.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),p("Account created successfully!"),f("home")}catch(r){throw p(r.message||"Registration failed"),r}},createOrder:async t=>{try{const e=await x("/orders",{method:"POST",body:JSON.stringify(t)});return i.cart=[],C(),p("Order placed successfully!"),i.currentUser.role==="admin"&&k.getOrders(),e.data}catch(e){throw p(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await x("/orders");i.orders=t.data,h()}catch(t){console.error("Failed to load orders:",t)}},getMyOrders:async()=>{if(i.currentUser)try{const t=await x(`/orders/my-orders?userId=${i.currentUser.id}`);i.orders=t.data,h()}catch(t){console.error("Failed to load orders:",t)}},getUsers:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await x("/users");i.users=t.data,h()}catch(t){console.error("Failed to load users:",t)}},updateProfile:async(t,e)=>{try{const o=await x(`/users/${t}/profile`,{method:"PUT",body:JSON.stringify(e)});return i.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(o.data)),window.showToast("Profile updated successfully!"),o.data}catch(o){throw window.showToast(o.message||"Failed to update profile"),o}},updateAddress:async(t,e)=>{try{const o=await x(`/users/${t}/address`,{method:"PUT",body:JSON.stringify(e)});return i.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(o.data)),window.showToast("Address saved successfully!"),o.data}catch(o){throw window.showToast(o.message||"Failed to save address"),o}},changePassword:async(t,e,o)=>{try{await x(`/users/${t}/password`,{method:"PUT",body:JSON.stringify({currentPassword:e,newPassword:o})}),window.showToast("Password changed successfully!")}catch(r){throw window.showToast(r.message||"Failed to change password"),r}},claimCoupon:async t=>{if(!i.currentUser){p("Please login to claim coupons"),window.openLoginModal();return}try{const e=await x("/coupons/claim",{method:"POST",body:JSON.stringify({userId:i.currentUser.id,couponCode:t})});return p("Coupon claimed successfully! 🎉"),e.data}catch(e){throw p(e.message||"Failed to claim coupon"),e}},getMyCoupons:async()=>{if(i.currentUser)try{const t=await x(`/coupons/my-coupons?userId=${i.currentUser.id}`);i.myCoupons=t.data,h()}catch(t){console.error("Failed to load coupons:",t)}}};window.api=k;const S={getMyDevices:async()=>{if(i.currentUser)try{const t=await x(`/devices/my-devices?userId=${i.currentUser.id}`);i.devices=t.data,ee(),h()}catch(t){console.error("Failed to load devices:",t),p("Failed to load devices")}},pairDevice:async(t,e)=>{try{const o=await x("/devices/pair",{method:"POST",body:JSON.stringify({deviceId:t,deviceToken:e,userId:i.currentUser.id})});p("Device paired successfully!"),await S.getMyDevices(),f("my-devices")}catch(o){throw p(o.message||"Device pairing failed"),o}}};function ee(){i.esp32Client||(i.esp32Client=new ESP32SocketClient),!i.esp32Client.isConnected()&&i.currentUser&&i.esp32Client.connect(i.currentUser.id).catch(t=>{console.error("Failed to connect to WebSocket:",t)}),i.esp32Client.on("device:status",t=>{if(console.log("📊 Device status update:",t),i.devices){const e=i.devices.findIndex(o=>o.deviceId===t.deviceId);e!==-1&&(i.devices[e].status=t.status==="online"?"active":"offline",i.devices[e].lastOnline=t.timestamp,i.deviceStatus[t.deviceId]=t,i.route==="my-devices"&&h())}})}const C=()=>{localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(i.cart))},te=async()=>{if(!(!i.currentUser||i.cartSynced))try{const t=await x(`/users/${i.currentUser.id}/cart/sync`,{method:"POST",body:JSON.stringify({localCart:i.cart})});i.cart=t.data.map(e=>({id:e.productId,name:e.name,price:e.price,image:e.image,quantity:e.quantity,category:e.category,selected:e.selected})),i.cartSynced=!0,C(),h(),p("Cart synced!")}catch(t){console.error("Cart sync failed:",t)}},f=(t,e={})=>{i.route=t,i.params=e,i.mobileMenuOpen=!1,sessionStorage.setItem("currentRoute",t),h(),window.scrollTo(0,0)};window.navigate=f;const p=t=>{const e=document.createElement("div");e.className="toast",e.textContent=t,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)};window.showToast=p;const $=t=>`
+    `},i={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:sessionStorage.getItem("currentRoute")||"home",mobileMenuOpen:!1,searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,devices:[],currentDeviceId:null,esp32Client:null,deviceStatus:{},telemetryData:{},sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,cartSynced:!1,myCoupons:null,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null},k={getProducts:async()=>{try{const t=await x("/products");i.products=t.data,h()}catch(t){console.error("Failed to load products:",t),p("Failed to load products")}},login:async(t,e)=>{console.log("Calling API login...");try{const o=await x("/users/login",{method:"POST",body:JSON.stringify({email:t,password:e})});i.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),await S.getMyDevices(),await Z(),await k.getMyOrders(),p(`Welcome back, ${i.currentUser.name}!`),f("home")}catch(o){throw p(o.message||"Login failed"),o}},register:async(t,e,o)=>{try{const r=await x("/users/register",{method:"POST",body:JSON.stringify({name:t,email:e,password:o})});i.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),p("Account created successfully!"),f("home")}catch(r){throw p(r.message||"Registration failed"),r}},createOrder:async t=>{try{const e=await x("/orders",{method:"POST",body:JSON.stringify(t)});return i.cart=[],C(),p("Order placed successfully!"),i.currentUser.role==="admin"&&k.getOrders(),e.data}catch(e){throw p(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await x("/orders");i.orders=t.data,h()}catch(t){console.error("Failed to load orders:",t)}},getMyOrders:async()=>{if(i.currentUser)try{const t=await x(`/orders/my-orders?userId=${i.currentUser.id}`);i.orders=t.data,h()}catch(t){console.error("Failed to load orders:",t)}},getUsers:async()=>{if(!(!i.currentUser||i.currentUser.role!=="admin"))try{const t=await x("/users");i.users=t.data,h()}catch(t){console.error("Failed to load users:",t)}},updateProfile:async(t,e)=>{try{const o=await x(`/users/${t}/profile`,{method:"PUT",body:JSON.stringify(e)});return i.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(o.data)),window.showToast("Profile updated successfully!"),o.data}catch(o){throw window.showToast(o.message||"Failed to update profile"),o}},updateAddress:async(t,e)=>{try{const o=await x(`/users/${t}/address`,{method:"PUT",body:JSON.stringify(e)});return i.currentUser=o.data,localStorage.setItem("currentUser",JSON.stringify(o.data)),window.showToast("Address saved successfully!"),o.data}catch(o){throw window.showToast(o.message||"Failed to save address"),o}},changePassword:async(t,e,o)=>{try{await x(`/users/${t}/password`,{method:"PUT",body:JSON.stringify({currentPassword:e,newPassword:o})}),window.showToast("Password changed successfully!")}catch(r){throw window.showToast(r.message||"Failed to change password"),r}},claimCoupon:async t=>{if(!i.currentUser){p("Please login to claim coupons"),window.openLoginModal();return}try{const e=await x("/coupons/claim",{method:"POST",body:JSON.stringify({userId:i.currentUser.id,couponCode:t})});return p("Coupon claimed successfully! 🎉"),e.data}catch(e){throw p(e.message||"Failed to claim coupon"),e}},getMyCoupons:async()=>{if(i.currentUser)try{const t=await x(`/coupons/my-coupons?userId=${i.currentUser.id}`);i.myCoupons=t.data,h()}catch(t){console.error("Failed to load coupons:",t)}}};window.api=k;const S={getMyDevices:async()=>{if(i.currentUser)try{const t=await x(`/devices/my-devices?userId=${i.currentUser.id}`);i.devices=t.data,K(),h()}catch(t){console.error("Failed to load devices:",t),p("Failed to load devices")}},pairDevice:async(t,e)=>{try{const o=await x("/devices/pair",{method:"POST",body:JSON.stringify({deviceId:t,deviceToken:e,userId:i.currentUser.id})});p("Device paired successfully!"),await S.getMyDevices(),f("my-devices")}catch(o){throw p(o.message||"Device pairing failed"),o}}};function K(){i.esp32Client||(i.esp32Client=new ESP32SocketClient),!i.esp32Client.isConnected()&&i.currentUser&&i.esp32Client.connect(i.currentUser.id).catch(t=>{console.error("Failed to connect to WebSocket:",t)}),i.esp32Client.on("device:status",t=>{if(console.log("📊 Device status update:",t),i.devices){const e=i.devices.findIndex(o=>o.deviceId===t.deviceId);e!==-1&&(i.devices[e].status=t.status==="online"?"active":"offline",i.devices[e].lastOnline=t.timestamp,i.deviceStatus[t.deviceId]=t,i.route==="my-devices"&&h())}})}const C=()=>{localStorage.setItem("currentUser",JSON.stringify(i.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(i.cart))},Z=async()=>{if(!(!i.currentUser||i.cartSynced))try{const t=await x(`/users/${i.currentUser.id}/cart/sync`,{method:"POST",body:JSON.stringify({localCart:i.cart})});i.cart=t.data.map(e=>({id:e.productId,name:e.name,price:e.price,image:e.image,quantity:e.quantity,category:e.category,selected:e.selected})),i.cartSynced=!0,C(),h(),p("Cart synced!")}catch(t){console.error("Cart sync failed:",t)}},f=(t,e={})=>{i.route=t,i.params=e,i.mobileMenuOpen=!1,sessionStorage.setItem("currentRoute",t),h(),window.scrollTo(0,0)};window.navigate=f;const p=t=>{const e=document.createElement("div");e.className="toast",e.textContent=t,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)};window.showToast=p;const $=t=>`
         <div class="breadcrumbs">
             <a href="#" onclick="window.navigate('home'); return false;">Home</a>
             <span class="breadcrumb-separator">›</span>
             <span>${{deals:"Deals",learn:"Learn","my-devices":"My Devices","device-pair":"Pair Device","remote-control":"Remote Control","about-us":"About Us","contact-us":"Contact Us",products:"Products",cart:"Cart",checkout:"Checkout"}[t]||t}</span>
         </div>
-    `,z=()=>{const t=i.currentUser!==null,e=i.currentUser?.role==="admin",o=i.route==="cart",r=i.cart.length;return`
-        <header>
-            <div class="header-top">
-                <button class="hamburger-btn" onclick="window.toggleMobileMenu()" aria-label="Toggle menu">
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                    <span class="hamburger-line"></span>
-                </button>
-                <a href="#" class="logo" onclick="window.navigate('home'); return false;">
-                    Lumina<span>Electronics</span>
-                </a>
-                
-                ${o?"":`
-                    <div class="search-bar">
-                        <div class="search-container">
-                            <input type="text" id="searchInput" class="search-input" placeholder="Search for Products..." 
-                                value="${i.searchQuery}" oninput="window.handleSearchInput(event)"
-                                onkeyup="if(event.key === 'Enter') window.handleSearch()" onfocus="window.showSearchSuggestions()">
-                            <button class="search-btn" onclick="window.handleSearch()">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                            </button>
-                        </div>
-                    </div>
-                `}
-                <div class="nav-actions" style="gap: 1.5rem;">
-                    ${e?"":`
-                    <a href="#" class="action-icon" onclick="window.navigate('cart'); return false;">
-                        <div style="position: relative;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-                            ${r>0?`<span class="cart-count">${r}</span>`:""}
-                        </div>
-                        <span>Cart</span>
-                    </a>
-                    `}
-                    
-                    ${t?`
-                        <div class="user-dropdown">
-                            <div class="action-icon" style="cursor: pointer;">
-                                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                    ${i.currentUser.name.charAt(0).toUpperCase()}
-                                </div>
-                                <span>${i.currentUser.name.split(" ")[0]}</span>
-                            </div>
-                            
-                            <!-- Stardust Popover Menu -->
-                            <div class="user-menu">
-                                <div class="user-menu-header">
-                                    <div class="user-menu-name">${i.currentUser.name}</div>
-                                    <div class="user-menu-email">${i.currentUser.email}</div>
-                                </div>
-                                
-                                <a href="#" class="user-menu-item" onclick="window.navigate('profile'); return false;">
-                                    <span class="menu-icon">👤</span>
-                                    <span>My Account</span>
-                                </a>
-                                
-                                ${i.currentUser.role==="admin"?`
-                                    <!-- Admin Only Items -->
-                                    <a href="#" class="user-menu-item" onclick="window.navigate('admin'); return false;">
-                                        <span class="menu-icon">📊</span>
-                                        <span>Admin Dashboard</span>
-                                    </a>
-                                `:`
-                                    <!-- Customer Only Items -->
-                                    <a href="#" class="user-menu-item" onclick="window.navigate('orders'); return false;">
-                                        <span class="menu-icon">📦</span>
-                                        <span>My Orders</span>
-                                    </a>
-                                    <a href="#" class="user-menu-item" onclick="window.navigate('my-devices'); return false;">
-                                        <span class="menu-icon">📱</span>
-                                        <span>My Devices</span>
-                                    </a>
-                                    <a href="#" class="user-menu-item" onclick="window.navigate('my-coupons'); return false;">
-                                        <span class="menu-icon">🎟️</span>
-                                        <span>My Coupons</span>
-                                    </a>
-                                `}
-                                
-                                <a href="#" class="user-menu-item logout" onclick="window.logout(); return false;">
-                                    <span class="menu-icon">🚪</span>
-                                    <span>Logout</span>
-                                </a>
-                            </div>
-                        </div>
-                    `:`
-                        <a href="#" class="action-icon" onclick="window.openLoginModal(); return false;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-                            <span>Login</span>
-                        </a>
-                    `}
-                </div>
-            </div>
-            
-            <nav class="header-nav ${i.mobileMenuOpen?"mobile-open":""}">
-                <a href="#" class="nav-link ${i.route==="home"?"active":""}" onclick="window.navigate('home'); return false;">Home</a>
-                <a href="#" class="nav-link ${i.route==="products"?"active":""}" onclick="window.navigate('products'); return false;">Products</a>
-                <a href="#" class="nav-link ${i.route==="deals"?"active":""}" onclick="window.navigate('deals'); return false;">Deals</a>
-                <a href="#" class="nav-link ${i.route==="learn"?"active":""}" onclick="window.navigate('learn'); return false;">Learn</a>
-                <a href="#" class="nav-link ${i.route==="about-us"?"active":""}" onclick="window.navigate('about-us'); return false;">About Us</a>
-                <a href="#" class="nav-link ${i.route==="contact-us"?"active":""}" onclick="window.navigate('contact-us'); return false;">Contact Us</a>
-            </nav>
-        </header>
-    `},A=()=>{if(i.searchQuery){const o=i.products.filter(r=>r.name.toLowerCase().includes(i.searchQuery.toLowerCase())||r.category.toLowerCase().includes(i.searchQuery.toLowerCase())||r.description.toLowerCase().includes(i.searchQuery.toLowerCase()));return`
+    `,M=()=>{if(i.searchQuery){const o=i.products.filter(r=>r.name.toLowerCase().includes(i.searchQuery.toLowerCase())||r.category.toLowerCase().includes(i.searchQuery.toLowerCase())||r.description.toLowerCase().includes(i.searchQuery.toLowerCase()));return`
             <div class="hero">
                 <div class="hero-content">
                     <span class="hero-badge">Quality Components</span>
@@ -1803,7 +1861,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 <p style="color: var(--text-muted); margin-bottom: 1rem;">Found ${o.length} result${o.length!==1?"s":""} for "${i.searchQuery}"</p>
                 ${o.length>0?`
                     <div class="product-grid">
-                        ${o.map(L).join("")}
+                        ${o.map(T).join("")}
                     </div>
                 `:`
                     <div style="text-align: center; padding: 4rem 2rem; color: var(--text-muted);">
@@ -1836,35 +1894,10 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 <a href="#" onclick="window.navigate('products'); return false;" style="font-size: 0.9rem; color: var(--primary); font-weight: 600;">View All Products &rarr;</a>
             </div>
             <div class="product-grid">
-                ${i.products.filter(o=>t.includes(o.id)).sort((o,r)=>t.indexOf(o.id)-t.indexOf(r.id)).map(L).join("")}
+                ${i.products.filter(o=>t.includes(o.id)).sort((o,r)=>t.indexOf(o.id)-t.indexOf(r.id)).map(T).join("")}
             </div>
         </div>
-    `},ie=()=>`
-        <div class="auth-container">
-            <h2 class="auth-title">Create Account</h2>
-            <form onsubmit="window.handleSignup(event)">
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" name="name" class="form-input" required 
-                           pattern="[a-zA-Z\\s]+" 
-                           title="Please enter letters only."
-                           oninput="this.value = this.value.replace(/[^a-zA-Z\\s]/g, '')">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" name="email" class="form-input" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input type="password" name="password" class="form-input" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%">Sign Up</button>
-            </form>
-            <p class="text-center mt-4 text-sm">
-                Already have an account? <a href="#" onclick="window.openLoginModal(); return false;" style="color: var(--accent)">Login</a>
-            </p>
-        </div>
-    `,oe=()=>{if(i.cart.length===0)return`
+    `},ee=()=>{if(i.cart.length===0)return`
             <div class="text-center" style="padding: 4rem; max-width: 600px; margin: 0 auto;">
                 <div style="font-size: 4rem; margin-bottom: 1rem;">🛒</div>
                 <h2 style="margin-bottom: 1rem;">Your cart is empty</h2>
@@ -1980,7 +2013,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
             </div>
         </div>
         </div>
-    `},re=()=>{if(!i.currentUser)return f("login"),"";const t=i.devices||[];return`
+    `},te=()=>{if(!i.currentUser)return f("login"),"";const t=i.devices||[];return`
         <div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             ${$("my-devices")}
             
@@ -2065,7 +2098,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </div>
             `}
         </div>
-    `},ae=()=>i.currentUser?`
+    `},ie=()=>i.currentUser?`
         <div style="max-width: 600px; margin: 2rem auto; padding: 0 2rem;">
             ${$("device-pair")}
             
@@ -2111,7 +2144,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
             </div>
         </div>
         
-    `:(f("login"),""),ne=()=>{if(!i.currentUser)return f("login"),"";if(!i.currentDeviceId)return f("my-devices"),"";const t=i.devices?.find(d=>d.deviceId===i.currentDeviceId);if(!t)return f("my-devices"),"";const e=i.deviceStatus[t.deviceId]||{},o=i.telemetryData[t.deviceId]||{},r=e.status==="online",a=o.battery||0,n=2*Math.PI*20,s=n-a/100*n,c=Math.min(4,Math.max(0,Math.round((o.signal||0)/25)));return`
+    `:(f("login"),""),oe=()=>{if(!i.currentUser)return f("login"),"";if(!i.currentDeviceId)return f("my-devices"),"";const t=i.devices?.find(d=>d.deviceId===i.currentDeviceId);if(!t)return f("my-devices"),"";const e=i.deviceStatus[t.deviceId]||{},o=i.telemetryData[t.deviceId]||{},r=e.status==="online",a=o.battery||0,n=2*Math.PI*20,s=n-a/100*n,c=Math.min(4,Math.max(0,Math.round((o.signal||0)/25)));return`
         <div style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
             <div style="margin-bottom: 1rem;">
                 <button class="btn btn-outline" onclick="window.stopRemoteControl()" style="padding: 0.75rem 1.5rem;">
@@ -2280,7 +2313,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 Use WASD or Arrow Keys to control
             </p>
         </div>
-    `},se=()=>{if(!i.currentUser)return f("login"),"";const t=i.cart.filter(a=>a.selected!==!1);if(t.length===0)return p("No items selected for checkout"),f("cart"),"";const e=t.reduce((a,n)=>a+n.price*n.quantity,0),o=i.checkoutData.shippingFee,r=e+o;return`
+    `},re=()=>{if(!i.currentUser)return f("login"),"";const t=i.cart.filter(a=>a.selected!==!1);if(t.length===0)return p("No items selected for checkout"),f("cart"),"";const e=t.reduce((a,n)=>a+n.price*n.quantity,0),o=i.checkoutData.shippingFee,r=e+o;return`
         <div class="checkout-container" style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <div style="margin-bottom: 2rem;">
                 <button class="btn btn-outline" onclick="window.navigate('cart')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
@@ -2403,7 +2436,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </div>
             </div>
         </div>
-    `},de=()=>{if(!i.lastOrderId)return f("home"),"";const t=i.orders.find(n=>n.orderId===i.lastOrderId);if(!t)return f("home"),"";const e=new Date,o=new Date(e);o.setDate(e.getDate()+3);const r=new Date(e);r.setDate(e.getDate()+5);const a=`${o.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${r.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} `;return`
+    `},ae=()=>{if(!i.lastOrderId)return f("home"),"";const t=i.orders.find(n=>n.orderId===i.lastOrderId);if(!t)return f("home"),"";const e=new Date,o=new Date(e);o.setDate(e.getDate()+3);const r=new Date(e);r.setDate(e.getDate()+5);const a=`${o.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${r.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} `;return`
         <div style="max-width: 800px; margin: 4rem auto; padding: 0 2rem;">
             <div style="text-align: center; margin-bottom: 3rem;">
                 <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">✓</div>
@@ -2552,7 +2585,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </div>
             </div>
         </div>
-    `;document.body.insertAdjacentHTML("beforeend",r)};window.closeModal=()=>{const t=document.getElementById("orderModal");t&&t.remove()};const le=(t=null)=>{const e=t?i.products.find(r=>r.id===t):null,o=!!e;return`
+    `;document.body.insertAdjacentHTML("beforeend",r)};window.closeModal=()=>{const t=document.getElementById("orderModal");t&&t.remove()};const ne=(t=null)=>{const e=t?i.products.find(r=>r.id===t):null,o=!!e;return`
         <div class="modal-overlay show" id="productModal" onclick="if(event.target === this) window.closeProductModal()">
             <div class="modal-content" style="max-width: 600px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -2600,7 +2633,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </form>
             </div>
         </div>
-    `};window.navigate=f;window.toggleMobileMenu=()=>{i.mobileMenuOpen=!i.mobileMenuOpen,h()};window.showProductModal=(t=null)=>{document.body.insertAdjacentHTML("beforeend",le(t))};window.closeProductModal=()=>{document.getElementById("productModal")?.remove()};window.editProduct=t=>{window.showProductModal(t)};window.deleteProduct=async t=>{if(confirm("Delete this product?"))try{await x(`/products/${t}`,{method:"DELETE"}),await k.getProducts(),p("Product deleted")}catch{p("Delete failed")}};window.handleProductSubmit=async(t,e)=>{t.preventDefault();const o=new FormData(t.target);try{const r=e?"PUT":"POST",a=e?`/products/${e}`:"/products";if(!(await fetch(`${T}${a}`,{method:r,body:o})).ok)throw new Error("Failed");await k.getProducts(),window.closeProductModal(),p(e?"Product updated!":"Product created!")}catch{p("Operation failed")}};window.handleSort=t=>{i.sortBy=t,h()};window.viewProduct=t=>{i.currentProductId=t,f("product-detail")};window.adjustDetailQty=t=>{const e=document.getElementById("detailQty");let o=parseInt(e.value)+t;o<1&&(o=1),e.value=o};window.addToCartFromDetail=t=>{const e=parseInt(document.getElementById("detailQty").value);if(!i.currentUser){p("Please login to shop"),window.openLoginModal();return}const o=i.products.find(a=>a.id===t),r=i.cart.find(a=>a.id===t);r?r.quantity+=e:i.cart.push({...o,quantity:e,selected:!0}),C(),p(`Added ${e} item(s) to cart`)};window.addToCart=async t=>{if(!i.currentUser){window.showToast("Please login to shop"),window.openLoginModal();return}const e=i.products.find(r=>r.id===t);if(!e)return;const o=i.cart.find(r=>r.id===t);if(o?o.quantity+=1:i.cart.push({...e,quantity:1,selected:!0}),C(),h(),window.showToast(`Added ${e.name} to cart! 🛒`),i.currentUser)try{await x(`/users/${i.currentUser.id}/cart`,{method:"PUT",body:JSON.stringify({cart:i.cart.map(r=>({productId:r.id,name:r.name,price:r.price,image:r.image,quantity:r.quantity,category:r.category,selected:r.selected!==!1}))})})}catch(r){console.error("Failed to sync cart:",r)}};window.updateQuantity=(t,e)=>{if(e<1){window.removeFromCart(t);return}const o=i.cart.find(r=>r.id===t);o&&(o.quantity=e,C(),h())};window.removeFromCart=t=>{i.cart=i.cart.filter(e=>e.id!==t),C(),h()};window.checkout=async()=>{if(i.cart.length===0)return;if(!i.currentUser){p("Please login to checkout"),f("login");return}if(i.cart.filter(e=>e.selected!==!1).length===0){p("No items selected for checkout");return}f("checkout")};window.updateShippingInfo=(t,e)=>{i.checkoutData.shipping[t]=e};window.selectPaymentMethod=t=>{i.checkoutData.paymentMethod=t,h()};window.handlePhoneInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.phone=e};window.handleNameInput=t=>{const e=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=e,i.checkoutData.shipping.fullName=e};window.handleLocationInput=(t,e)=>{const o=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=o,i.checkoutData.shipping[e]=o};window.handlePostalInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.postalCode=e};window.showPaymentModal=t=>new Promise(e=>{let o="";const r=`
+    `};window.navigate=f;window.toggleMobileMenu=()=>{i.mobileMenuOpen=!i.mobileMenuOpen,h()};window.showProductModal=(t=null)=>{document.body.insertAdjacentHTML("beforeend",ne(t))};window.closeProductModal=()=>{document.getElementById("productModal")?.remove()};window.editProduct=t=>{window.showProductModal(t)};window.deleteProduct=async t=>{if(confirm("Delete this product?"))try{await x(`/products/${t}`,{method:"DELETE"}),await k.getProducts(),p("Product deleted")}catch{p("Delete failed")}};window.handleProductSubmit=async(t,e)=>{t.preventDefault();const o=new FormData(t.target);try{const r=e?"PUT":"POST",a=e?`/products/${e}`:"/products";if(!(await fetch(`${z}${a}`,{method:r,body:o})).ok)throw new Error("Failed");await k.getProducts(),window.closeProductModal(),p(e?"Product updated!":"Product created!")}catch{p("Operation failed")}};window.handleSort=t=>{i.sortBy=t,h()};window.viewProduct=t=>{i.currentProductId=t,f("product-detail")};window.adjustDetailQty=t=>{const e=document.getElementById("detailQty");let o=parseInt(e.value)+t;o<1&&(o=1),e.value=o};window.addToCartFromDetail=t=>{const e=parseInt(document.getElementById("detailQty").value);if(!i.currentUser){p("Please login to shop"),window.openLoginModal();return}const o=i.products.find(a=>a.id===t),r=i.cart.find(a=>a.id===t);r?r.quantity+=e:i.cart.push({...o,quantity:e,selected:!0}),C(),p(`Added ${e} item(s) to cart`)};window.addToCart=async t=>{if(!i.currentUser){window.showToast("Please login to shop"),window.openLoginModal();return}const e=i.products.find(r=>r.id===t);if(!e)return;const o=i.cart.find(r=>r.id===t);if(o?o.quantity+=1:i.cart.push({...e,quantity:1,selected:!0}),C(),h(),window.showToast(`Added ${e.name} to cart! 🛒`),i.currentUser)try{await x(`/users/${i.currentUser.id}/cart`,{method:"PUT",body:JSON.stringify({cart:i.cart.map(r=>({productId:r.id,name:r.name,price:r.price,image:r.image,quantity:r.quantity,category:r.category,selected:r.selected!==!1}))})})}catch(r){console.error("Failed to sync cart:",r)}};window.updateQuantity=(t,e)=>{if(e<1){window.removeFromCart(t);return}const o=i.cart.find(r=>r.id===t);o&&(o.quantity=e,C(),h())};window.removeFromCart=t=>{i.cart=i.cart.filter(e=>e.id!==t),C(),h()};window.checkout=async()=>{if(i.cart.length===0)return;if(!i.currentUser){p("Please login to checkout"),f("login");return}if(i.cart.filter(e=>e.selected!==!1).length===0){p("No items selected for checkout");return}f("checkout")};window.updateShippingInfo=(t,e)=>{i.checkoutData.shipping[t]=e};window.selectPaymentMethod=t=>{i.checkoutData.paymentMethod=t,h()};window.handlePhoneInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.phone=e};window.handleNameInput=t=>{const e=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=e,i.checkoutData.shipping.fullName=e};window.handleLocationInput=(t,e)=>{const o=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=o,i.checkoutData.shipping[e]=o};window.handlePostalInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,i.checkoutData.shipping.postalCode=e};window.showPaymentModal=t=>new Promise(e=>{let o="";const r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="payment-modal-header">
@@ -3201,7 +3234,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
             </div>
         </body>
         </html>
-    `,a=window.open("","_blank","width=300,height=600");a.document.write(r),a.document.close(),a.onload=function(){setTimeout(()=>{a.print()},250)}};window.handleSearchInput=t=>{const e=t.target.value;if(i.searchQuery=e,e.trim()){const o=new Set;i.products.forEach(r=>{const a=r.name.toLowerCase(),n=r.category.toLowerCase(),s=e.toLowerCase();a.includes(s)&&o.add(r.name),n.includes(s)&&o.add(r.category),a.split(" ").forEach(d=>{d.toLowerCase().startsWith(s)&&d.length>2&&o.add(d.charAt(0).toUpperCase()+d.slice(1))})}),i.searchSuggestions=Array.from(o).slice(0,8),i.showSuggestions=!0}else if(i.searchSuggestions=[],i.showSuggestions=!1,i.route==="home"||i.route==="products"){h();return}N()};function N(){const t=document.querySelector(".search-container");if(!t)return;const e=t.querySelector(".search-suggestions");if(e&&e.remove(),i.showSuggestions&&i.searchQuery){const o=`
+    `,a=window.open("","_blank","width=300,height=600");a.document.write(r),a.document.close(),a.onload=function(){setTimeout(()=>{a.print()},250)}};window.handleSearchInput=t=>{const e=t.target.value;if(i.searchQuery=e,e.trim()){const o=new Set;i.products.forEach(r=>{const a=r.name.toLowerCase(),n=r.category.toLowerCase(),s=e.toLowerCase();a.includes(s)&&o.add(r.name),n.includes(s)&&o.add(r.category),a.split(" ").forEach(d=>{d.toLowerCase().startsWith(s)&&d.length>2&&o.add(d.charAt(0).toUpperCase()+d.slice(1))})}),i.searchSuggestions=Array.from(o).slice(0,8),i.showSuggestions=!0}else if(i.searchSuggestions=[],i.showSuggestions=!1,i.route==="home"||i.route==="products"){h();return}U()};function U(){const t=document.querySelector(".search-container");if(!t)return;const e=t.querySelector(".search-suggestions");if(e&&e.remove(),i.showSuggestions&&i.searchQuery){const o=`
             <div class="search-suggestions" id="searchSuggestions">
                 <div class="suggestions-header">Suggestions</div>
                 ${i.searchSuggestions.slice(0,5).map(r=>`
@@ -3216,7 +3249,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                     </div>
                 `:""}
             </div>
-        `;t.insertAdjacentHTML("beforeend",o)}}window.showSearchSuggestions=()=>{i.searchQuery&&(i.showSuggestions=!0,N())};window.selectSuggestion=t=>{i.searchQuery=t,i.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=t),handleSearch()};window.handleSearch=()=>{i.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(i.searchQuery=t.value.trim()),f("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{i.searchQuery="",i.showSuggestions=!1,i.searchSuggestions=[],h()};document.addEventListener("click",t=>{if(!t.target.closest(".search-container")&&i.showSuggestions){i.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async t=>{console.log("Login attempt started"),t.preventDefault();const e=t.target.email.value,o=t.target.password.value;console.log("Credentials:",{email:e,password:o});try{await k.login(e,o),console.log("Login successful")}catch(r){console.error("Login error:",r)}};window.toggleUserMenu=()=>{const t=document.getElementById("user-menu-dropdown");t&&(t.style.display=t.style.display==="none"?"block":"none")};document.addEventListener("click",t=>{if(!t.target.closest(".user-menu-container")){const e=document.getElementById("user-menu-dropdown");e&&(e.style.display="none")}});window.handleSignup=async t=>{console.log("Signup attempt started"),t.preventDefault();const e=t.target.name.value,o=t.target.email.value,r=t.target.password.value;try{await k.register(e,o,r)}catch(a){console.error("Signup error:",a)}};window.logout=()=>{i.currentUser=null,i.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),p("Logged out successfully"),sessionStorage.removeItem("currentRoute"),f("home")};window.handleContactSubmit=t=>{t.preventDefault();const e=t.target,o={name:e.name.value,email:e.email.value,subject:e.subject.value,message:e.message.value};console.log("Contact form submitted:",o),p("Thank you for your message! We will get back to you soon."),e.reset()};window.deleteProduct=t=>{confirm("Are you sure you want to remove this product?")&&(i.products=i.products.filter(e=>e.id!==t),C(),h(),p("Product removed"))};window.viewOrderDetails=t=>{const e=i.orders.find(s=>s.orderId===t);if(!e){p("Order not found");return}const o=i.users.find(s=>s.id===e.userId),r=o?o.name:`User ID: ${e.userId}`,a=document.createElement("div");a.className="order-details-modal",a.innerHTML=`
+        `;t.insertAdjacentHTML("beforeend",o)}}window.showSearchSuggestions=()=>{i.searchQuery&&(i.showSuggestions=!0,U())};window.selectSuggestion=t=>{i.searchQuery=t,i.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=t),handleSearch()};window.handleSearch=()=>{i.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(i.searchQuery=t.value.trim()),f("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{i.searchQuery="",i.showSuggestions=!1,i.searchSuggestions=[],h()};document.addEventListener("click",t=>{if(!t.target.closest(".search-container")&&i.showSuggestions){i.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async t=>{console.log("Login attempt started"),t.preventDefault();const e=t.target.email.value,o=t.target.password.value;console.log("Credentials:",{email:e,password:o});try{await k.login(e,o),console.log("Login successful")}catch(r){console.error("Login error:",r)}};window.toggleUserMenu=()=>{const t=document.getElementById("user-menu-dropdown");t&&(t.style.display=t.style.display==="none"?"block":"none")};document.addEventListener("click",t=>{if(!t.target.closest(".user-menu-container")){const e=document.getElementById("user-menu-dropdown");e&&(e.style.display="none")}});window.handleSignup=async t=>{console.log("Signup attempt started"),t.preventDefault();const e=t.target.name.value,o=t.target.email.value,r=t.target.password.value;try{await k.register(e,o,r)}catch(a){console.error("Signup error:",a)}};window.logout=()=>{i.currentUser=null,i.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),p("Logged out successfully"),sessionStorage.removeItem("currentRoute"),f("home")};window.handleContactSubmit=t=>{t.preventDefault();const e=t.target,o={name:e.name.value,email:e.email.value,subject:e.subject.value,message:e.message.value};console.log("Contact form submitted:",o),p("Thank you for your message! We will get back to you soon."),e.reset()};window.deleteProduct=t=>{confirm("Are you sure you want to remove this product?")&&(i.products=i.products.filter(e=>e.id!==t),C(),h(),p("Product removed"))};window.viewOrderDetails=t=>{const e=i.orders.find(s=>s.orderId===t);if(!e){p("Order not found");return}const o=i.users.find(s=>s.id===e.userId),r=o?o.name:`User ID: ${e.userId}`,a=document.createElement("div");a.className="order-details-modal",a.innerHTML=`
         <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -3264,15 +3297,7 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(a);const n=s=>{s.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const h=async()=>{const t=document.getElementById("app");let e="";switch(i.route){case"home":e=A();break;case"products":e=X({Breadcrumbs:$,state:i});break;case"product-detail":e=Z({Breadcrumbs:$,state:i});break;case"signup":e=ie();break;case"cart":e=oe();break;case"checkout":e=se();break;case"order-confirmation":e=de();break;case"contact-us":e=V({Breadcrumbs:$});break;case"about-us":e=W({Breadcrumbs:$});break;case"learn":e=Y({Breadcrumbs:$,state:i});break;case"tutorial-detail":e=G({Breadcrumbs:$,state:i});break;case"deals":e=_({Breadcrumbs:$,state:i});break;case"admin":e=J(i);break;case"user":e=E({state:i});break;case"my-devices":e=re();break;case"device-pair":e=ae();break;case"remote-control":e=ne();break;default:e=A()}if(i.route==="user"){i.currentUser&&i.orders.length===0&&await k.getMyOrders(),i.currentUser&&!i.myCoupons&&await k.getMyCoupons(),t.innerHTML=z()+E({state:i});return}t.innerHTML=`
-        ${z()}
-        <main>
-            ${e}
-        </main>
-        <footer style="text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
-            &copy; 2024 Lumina Electronics. All rights reserved.
-        </footer>
-    `,i.route==="admin"&&window.initAdminCharts&&setTimeout(()=>window.initAdminCharts(),100),i.route==="deals"&&setTimeout(()=>window.startDealsTimer(),100)};window.render=h;window.handleCartSearch=t=>{i.cartSearchQuery=t.target.value,D()};window.clearCartSearch=()=>{i.cartSearchQuery="",D()};window.toggleCartItem=t=>{const e=i.cart.find(o=>o.id===t);e&&(e.selected=e.selected===!1,C(),D())};window.toggleFindSimilar=t=>{const e=i.cart.find(o=>o.id===t);e&&(i.cart.forEach(o=>{o.id!==t&&(o.showSimilar=!1)}),e.showSimilar=!e.showSimilar,C(),D())};function D(){const t=document.querySelector(".cart-items"),e=document.querySelector(".cart-summary"),o=document.querySelector(".cart-search-message");if(!t)return;let r=i.cart;if(i.cartSearchQuery&&(r=i.cart.filter(n=>n.name.toLowerCase().includes(i.cartSearchQuery.toLowerCase())||n.category.toLowerCase().includes(i.cartSearchQuery.toLowerCase()))),t.innerHTML=r.map(n=>{const s=i.products.filter(c=>c.category===n.category&&c.id!==n.id).slice(0,4);return`
+    `,document.body.appendChild(a);const n=s=>{s.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const h=async()=>{switch(document.getElementById("app"),i.route){case"home":M();break;case"products":_({Breadcrumbs:$,state:i});break;case"product-detail":X({Breadcrumbs:$,state:i});break;case"signup":break;case"cart":ee();break;case"checkout":re();break;case"order-confirmation":ae();break;case"contact-us":break;case"about-us":H({Breadcrumbs:$});break;case"learn":Q({Breadcrumbs:$,state:i});break;case"tutorial-detail":W({Breadcrumbs:$,state:i});break;case"deals":Y({Breadcrumbs:$,state:i});break;case"admin":G(i);break;case"user":V({state:i});break;case"my-devices":te();break;case"device-pair":ie();break;case"remote-control":oe();break;default:M()}};window.render=h;window.handleCartSearch=t=>{i.cartSearchQuery=t.target.value,D()};window.clearCartSearch=()=>{i.cartSearchQuery="",D()};window.toggleCartItem=t=>{const e=i.cart.find(o=>o.id===t);e&&(e.selected=e.selected===!1,C(),D())};window.toggleFindSimilar=t=>{const e=i.cart.find(o=>o.id===t);e&&(i.cart.forEach(o=>{o.id!==t&&(o.showSimilar=!1)}),e.showSimilar=!e.showSimilar,C(),D())};function D(){const t=document.querySelector(".cart-items"),e=document.querySelector(".cart-summary"),o=document.querySelector(".cart-search-message");if(!t)return;let r=i.cart;if(i.cartSearchQuery&&(r=i.cart.filter(n=>n.name.toLowerCase().includes(i.cartSearchQuery.toLowerCase())||n.category.toLowerCase().includes(i.cartSearchQuery.toLowerCase()))),t.innerHTML=r.map(n=>{const s=i.products.filter(c=>c.category===n.category&&c.id!==n.id).slice(0,4);return`
         <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
             <div class="cart-item" style="border-bottom: none;">
                 <input type="checkbox" 
@@ -3344,14 +3369,14 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-        `)}let B=null;window.startDealsTimer=()=>{const t=new Date().getTime()+864e5;B=setInterval(()=>{const e=new Date().getTime(),o=t-e,r=Math.floor(o%(1e3*60*60*24)/(1e3*60*60)),a=Math.floor(o%(1e3*60*60)/(1e3*60)),n=Math.floor(o%(1e3*60)/1e3),s=document.getElementById("deal-hours"),c=document.getElementById("deal-minutes"),d=document.getElementById("deal-seconds");s&&(s.textContent=String(r).padStart(2,"0")),c&&(c.textContent=String(a).padStart(2,"0")),d&&(d.textContent=String(n).padStart(2,"0")),o<0&&(clearInterval(B),s&&(s.textContent="00"),c&&(c.textContent="00"),d&&(d.textContent="00"))},1e3)};window.filterLearningContent=t=>{i.filterLearnCategory=t,h()};window.sortDeals=t=>{const e=document.querySelector('[style*="grid-template-columns: repeat(4, 1fr)"]');if(!e)return;const o=Array.from(e.children);o.sort((r,a)=>{const n=c=>{const d=c.querySelector('[style*="font-size: 1.5rem"]')?.textContent;return parseFloat(d?.replace(/[₱,]/g,"")||"0")},s=c=>{const d=c.querySelector('[style*="background: #6366f1"]')?.textContent;return parseInt(d?.replace(/[-%]/g,"")||"0")};switch(t){case"discount":return s(a)-s(r);case"price-low":return n(r)-n(a);case"price-high":return n(a)-n(r);default:return 0}}),o.forEach(r=>e.appendChild(r))};window.currentLearnCategory="all";window.filterTutorials=t=>{window.currentLearnCategory=t;const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".category-tab").forEach(r=>{r.classList.remove("active"),r.dataset.category===t&&r.classList.add("active")}),e.forEach(r=>{t==="all"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.filterDeals=t=>{document.querySelectorAll(".deal-category-tab").forEach(e=>{const o=e.dataset.category===t;e.style.background=o?"#6366f1":"white",e.style.color=o?"white":"#64748b",e.dataset.category==="clearance"&&(t==="clearance"?(e.style.background="#dc2626",e.style.color="white",e.style.borderColor="#dc2626"):(e.style.background="white",e.style.color="#dc2626",e.style.borderColor="#dc2626"))}),document.querySelectorAll(".deal-product-card").forEach(e=>{const o=e.dataset.category;if(t==="all")e.style.display="block";else if(t==="clearance"){const r=e.querySelector('[style*="background: #6366f1"]')?.textContent,a=parseInt(r?.replace(/[-%]/g,"")||"0");e.style.display=a>=25?"block":"none"}else e.style.display=o===t?"block":"none"})};window.claimCoupon=async t=>{try{await k.claimCoupon(t),navigator.clipboard.writeText(t)}catch(e){console.error("Claim failed:",e)}};window.openVideoModal=t=>{const e=document.createElement("div");e.className="video-modal",e.innerHTML=`
+        `)}let E=null;window.startDealsTimer=()=>{const t=new Date().getTime()+864e5;E=setInterval(()=>{const e=new Date().getTime(),o=t-e,r=Math.floor(o%(1e3*60*60*24)/(1e3*60*60)),a=Math.floor(o%(1e3*60*60)/(1e3*60)),n=Math.floor(o%(1e3*60)/1e3),s=document.getElementById("deal-hours"),c=document.getElementById("deal-minutes"),d=document.getElementById("deal-seconds");s&&(s.textContent=String(r).padStart(2,"0")),c&&(c.textContent=String(a).padStart(2,"0")),d&&(d.textContent=String(n).padStart(2,"0")),o<0&&(clearInterval(E),s&&(s.textContent="00"),c&&(c.textContent="00"),d&&(d.textContent="00"))},1e3)};window.filterLearningContent=t=>{i.filterLearnCategory=t,h()};window.sortDeals=t=>{const e=document.querySelector('[style*="grid-template-columns: repeat(4, 1fr)"]');if(!e)return;const o=Array.from(e.children);o.sort((r,a)=>{const n=c=>{const d=c.querySelector('[style*="font-size: 1.5rem"]')?.textContent;return parseFloat(d?.replace(/[₱,]/g,"")||"0")},s=c=>{const d=c.querySelector('[style*="background: #6366f1"]')?.textContent;return parseInt(d?.replace(/[-%]/g,"")||"0")};switch(t){case"discount":return s(a)-s(r);case"price-low":return n(r)-n(a);case"price-high":return n(a)-n(r);default:return 0}}),o.forEach(r=>e.appendChild(r))};window.currentLearnCategory="all";window.filterTutorials=t=>{window.currentLearnCategory=t;const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".category-tab").forEach(r=>{r.classList.remove("active"),r.dataset.category===t&&r.classList.add("active")}),e.forEach(r=>{t==="all"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.filterDeals=t=>{document.querySelectorAll(".deal-category-tab").forEach(e=>{const o=e.dataset.category===t;e.style.background=o?"#6366f1":"white",e.style.color=o?"white":"#64748b",e.dataset.category==="clearance"&&(t==="clearance"?(e.style.background="#dc2626",e.style.color="white",e.style.borderColor="#dc2626"):(e.style.background="white",e.style.color="#dc2626",e.style.borderColor="#dc2626"))}),document.querySelectorAll(".deal-product-card").forEach(e=>{const o=e.dataset.category;if(t==="all")e.style.display="block";else if(t==="clearance"){const r=e.querySelector('[style*="background: #6366f1"]')?.textContent,a=parseInt(r?.replace(/[-%]/g,"")||"0");e.style.display=a>=25?"block":"none"}else e.style.display=o===t?"block":"none"})};window.claimCoupon=async t=>{try{await k.claimCoupon(t),navigator.clipboard.writeText(t)}catch(e){console.error("Claim failed:",e)}};window.openVideoModal=t=>{const e=document.createElement("div");e.className="video-modal",e.innerHTML=`
         <div class="video-modal-content">
             <div class="video-modal-close" onclick="this.closest('.video-modal').remove()">✕</div>
             <div class="video-container">
                 <iframe src="https://www.youtube.com/embed/${t}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         </div>
-    `,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),10)};const ce=async()=>{await k.getProducts(),i.currentUser?.role==="admin"?await Promise.all([k.getOrders(),S.getMyDevices(),k.getUsers()]):i.currentUser&&await S.getMyDevices(),h()};window.showLoading=()=>{let t=document.querySelector(".loading-overlay");t||(t=document.createElement("div"),t.className="loading-overlay",t.innerHTML='<div class="spinner"></div>',document.body.appendChild(t)),t.offsetWidth,t.classList.add("active")};window.hideLoading=()=>{const t=document.querySelector(".loading-overlay");t&&(t.classList.remove("active"),setTimeout(()=>{t.parentNode&&t.parentNode.removeChild(t)},300))};window.openLoginModal=()=>{document.body.insertAdjacentHTML("beforeend",`
+    `,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),10)};const se=async()=>{await k.getProducts(),i.currentUser?.role==="admin"?await Promise.all([k.getOrders(),S.getMyDevices(),k.getUsers()]):i.currentUser&&await S.getMyDevices(),h()};window.showLoading=()=>{let t=document.querySelector(".loading-overlay");t||(t=document.createElement("div"),t.className="loading-overlay",t.innerHTML='<div class="spinner"></div>',document.body.appendChild(t)),t.offsetWidth,t.classList.add("active")};window.hideLoading=()=>{const t=document.querySelector(".loading-overlay");t&&(t.classList.remove("active"),setTimeout(()=>{t.parentNode&&t.parentNode.removeChild(t)},300))};window.openLoginModal=()=>{document.body.insertAdjacentHTML("beforeend",`
         <div class="login-modal-overlay" id="loginModal" onclick="window.closeLoginModalOnOverlay(event)">
             <div class="login-modal">
                 <div class="login-modal-header">
@@ -3383,4 +3408,4 @@ var R=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var pe=R((ve,I)=>{
                 </div>
             </div>
         </div>
-    `),setTimeout(()=>{document.getElementById("loginModal").classList.add("show")},10)};window.closeLoginModal=()=>{const t=document.getElementById("loginModal");t&&(t.classList.remove("show"),setTimeout(()=>t.remove(),300))};window.closeLoginModalOnOverlay=t=>{t.target.id==="loginModal"&&window.closeLoginModal()};window.handleModalLogin=async t=>{t.preventDefault();const e=new FormData(t.target),o=e.get("email"),r=e.get("password");try{await k.login(o,r),window.closeLoginModal()}catch(a){console.error("Login error:",a)}};const me=window.navigate;window.navigate=(t,e)=>{window.showLoading(),setTimeout(()=>{me(t,e),window.hideLoading()},300)};window.handleDevicePairing=async t=>{t.preventDefault();const e=t.target,o=e.deviceId.value.trim(),r=e.deviceToken.value.trim();try{await S.pairDevice(o,r)}catch{}};window.handleDeviceUnpairing=async t=>{try{await S.unpairDevice(t)}catch{}};window.startRemoteControl=async t=>{i.currentDeviceId=t,i.esp32Client||(i.esp32Client=new ESP32SocketClient);try{await i.esp32Client.connect(i.currentUser.id),i.esp32Client.monitorDevice(t),i.esp32Client.on("device:status",e=>{i.deviceStatus[e.deviceId]=e,O()}),i.esp32Client.on("device:telemetry",e=>{i.telemetryData[e.deviceId]=e,O()}),i.esp32Client.on("command:sent",e=>{M(`Command sent: ${e.command}`)}),i.esp32Client.on("command:response",e=>{e.success?M(`✓ ${e.message||"Command executed"}`):M(`✗ ${e.error||"Command failed"}`)}),f("remote-control")}catch(e){p("Failed to connect to device"),console.error(e)}};window.stopRemoteControl=()=>{i.esp32Client&&i.esp32Client.stopMonitoring(),i.currentDeviceId=null,f("my-devices")};window.sendCarCommand=t=>{if(!(!i.esp32Client||!i.currentDeviceId))try{t==="stop"?i.esp32Client.stop(i.currentDeviceId):i.esp32Client.move(i.currentDeviceId,t,255)}catch(e){p("Failed to send command"),console.error(e)}};window.toggleLights=()=>{if(!i.esp32Client||!i.currentDeviceId)return;const t=document.getElementById("lightsToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{i.esp32Client.sendCommand(i.currentDeviceId,"lights",{state:e?"on":"off"}),p(`Lights ${e?"ON":"OFF"}`)}catch(o){console.error("Failed to toggle lights:",o),t.classList.toggle("active")}}};window.toggleHorn=()=>{if(!i.esp32Client||!i.currentDeviceId)return;const t=document.getElementById("hornToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{i.esp32Client.sendCommand(i.currentDeviceId,"horn",{state:e?"on":"off"}),p(`Horn ${e?"ON":"OFF"}`)}catch(o){console.error("Failed to toggle horn:",o),t.classList.toggle("active")}}};function O(){i.route==="remote-control"&&h()}function M(t){const e=document.getElementById("commandLogContent");if(e){const o=document.createElement("div");for(o.className="log-entry",o.textContent=`[${new Date().toLocaleTimeString()}] ${t}`,e.insertBefore(o,e.firstChild);e.children.length>10;)e.removeChild(e.lastChild)}}window.toggleToken=t=>{i.showTokens||(i.showTokens={}),i.showTokens[t]=!i.showTokens[t],h()};window.handleCategoryFilter=t=>{i.filterCategory=t||null,h()};document.addEventListener("keydown",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase(),o={w:"forward",arrowup:"forward",s:"backward",arrowdown:"backward",a:"left",arrowleft:"left",d:"right",arrowright:"right"," ":"stop"};o[e]&&(t.preventDefault(),window.sendCarCommand(o[e]))});document.addEventListener("keydown",t=>{t.key==="Escape"&&document.getElementById("loginModal")&&window.closeLoginModal()});document.addEventListener("keyup",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase();["w","s","a","d","arrowup","arrowdown","arrowleft","arrowright"].includes(e)&&(t.preventDefault(),window.sendCarCommand("stop"))});ce()});export default pe();
+    `),setTimeout(()=>{document.getElementById("loginModal").classList.add("show")},10)};window.closeLoginModal=()=>{const t=document.getElementById("loginModal");t&&(t.classList.remove("show"),setTimeout(()=>t.remove(),300))};window.closeLoginModalOnOverlay=t=>{t.target.id==="loginModal"&&window.closeLoginModal()};window.handleModalLogin=async t=>{t.preventDefault();const e=new FormData(t.target),o=e.get("email"),r=e.get("password");try{await k.login(o,r),window.closeLoginModal()}catch(a){console.error("Login error:",a)}};const de=window.navigate;window.navigate=(t,e)=>{window.showLoading(),setTimeout(()=>{de(t,e),window.hideLoading()},300)};window.handleDevicePairing=async t=>{t.preventDefault();const e=t.target,o=e.deviceId.value.trim(),r=e.deviceToken.value.trim();try{await S.pairDevice(o,r)}catch{}};window.handleDeviceUnpairing=async t=>{try{await S.unpairDevice(t)}catch{}};window.startRemoteControl=async t=>{i.currentDeviceId=t,i.esp32Client||(i.esp32Client=new ESP32SocketClient);try{await i.esp32Client.connect(i.currentUser.id),i.esp32Client.monitorDevice(t),i.esp32Client.on("device:status",e=>{i.deviceStatus[e.deviceId]=e,O()}),i.esp32Client.on("device:telemetry",e=>{i.telemetryData[e.deviceId]=e,O()}),i.esp32Client.on("command:sent",e=>{L(`Command sent: ${e.command}`)}),i.esp32Client.on("command:response",e=>{e.success?L(`✓ ${e.message||"Command executed"}`):L(`✗ ${e.error||"Command failed"}`)}),f("remote-control")}catch(e){p("Failed to connect to device"),console.error(e)}};window.stopRemoteControl=()=>{i.esp32Client&&i.esp32Client.stopMonitoring(),i.currentDeviceId=null,f("my-devices")};window.sendCarCommand=t=>{if(!(!i.esp32Client||!i.currentDeviceId))try{t==="stop"?i.esp32Client.stop(i.currentDeviceId):i.esp32Client.move(i.currentDeviceId,t,255)}catch(e){p("Failed to send command"),console.error(e)}};window.toggleLights=()=>{if(!i.esp32Client||!i.currentDeviceId)return;const t=document.getElementById("lightsToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{i.esp32Client.sendCommand(i.currentDeviceId,"lights",{state:e?"on":"off"}),p(`Lights ${e?"ON":"OFF"}`)}catch(o){console.error("Failed to toggle lights:",o),t.classList.toggle("active")}}};window.toggleHorn=()=>{if(!i.esp32Client||!i.currentDeviceId)return;const t=document.getElementById("hornToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{i.esp32Client.sendCommand(i.currentDeviceId,"horn",{state:e?"on":"off"}),p(`Horn ${e?"ON":"OFF"}`)}catch(o){console.error("Failed to toggle horn:",o),t.classList.toggle("active")}}};function O(){i.route==="remote-control"&&h()}function L(t){const e=document.getElementById("commandLogContent");if(e){const o=document.createElement("div");for(o.className="log-entry",o.textContent=`[${new Date().toLocaleTimeString()}] ${t}`,e.insertBefore(o,e.firstChild);e.children.length>10;)e.removeChild(e.lastChild)}}window.toggleToken=t=>{i.showTokens||(i.showTokens={}),i.showTokens[t]=!i.showTokens[t],h()};window.handleCategoryFilter=t=>{i.filterCategory=t||null,h()};document.addEventListener("keydown",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase(),o={w:"forward",arrowup:"forward",s:"backward",arrowdown:"backward",a:"left",arrowleft:"left",d:"right",arrowright:"right"," ":"stop"};o[e]&&(t.preventDefault(),window.sendCarCommand(o[e]))});document.addEventListener("keydown",t=>{t.key==="Escape"&&document.getElementById("loginModal")&&window.closeLoginModal()});document.addEventListener("keyup",t=>{if(i.route!=="remote-control")return;const e=t.key.toLowerCase();["w","s","a","d","arrowup","arrowdown","arrowleft","arrowright"].includes(e)&&(t.preventDefault(),window.sendCarCommand("stop"))});se()});export default le();

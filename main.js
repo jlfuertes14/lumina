@@ -3202,38 +3202,6 @@ const render = async () => {
         default: content = HomePage();
     }
 
-
-    if (state.route === 'user') {
-        if (state.currentUser && state.orders.length === 0) {
-            await api.getMyOrders();
-        }
-        if (state.currentUser && !state.myCoupons) {
-            await api.getMyCoupons();
-        }
-        app.innerHTML = Header() + UserPage({ state });
-        return;
-    }
-    app.innerHTML = `
-        ${Header()}
-        <main>
-            ${content}
-        </main>
-        <footer style="text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
-            &copy; 2024 Lumina Electronics. All rights reserved.
-        </footer>
-    `;
-
-    // Initialize Admin Charts if on admin page
-    if (state.route === 'admin' && window.initAdminCharts) {
-        // Small timeout to ensure DOM is ready
-        setTimeout(() => window.initAdminCharts(), 100);
-    }
-
-    // Start deals timer if on deals page
-    if (state.route === 'deals') {
-        setTimeout(() => window.startDealsTimer(), 100);
-    }
-
     // Setup scroll animations
     // Note: Scroll animations handled by CSS
 };
