@@ -209,7 +209,42 @@ const api = {
             window.showToast(error.message || 'Failed to change password');
             throw error;
         }
-    }
+    },
+    // Coupons
+    claimCoupon: async (couponCode) => {
+        if (!state.currentUser) {
+            showToast('Please login to claim coupons');
+            window.openLoginModal();
+            return;
+        }
+
+        try {
+            const response = await apiCall('/coupons/claim', {
+                method: 'POST',
+                body: JSON.stringify({
+                    userId: state.currentUser.id,
+                    couponCode
+                })
+            });
+
+            showToast('Coupon claimed successfully! 🎉');
+            return response.data;
+        } catch (error) {
+            showToast(error.message || 'Failed to claim coupon');
+            throw error;
+        }
+    },
+
+    getMyCoupons: async () => {
+        if (!state.currentUser) return;
+        try {
+            const response = await apiCall(`/coupons/my-coupons?userId=${state.currentUser.id}`);
+            state.myCoupons = response.data;
+            render();
+        } catch (error) {
+            console.error('Failed to load coupons:', error);
+        }
+    },
 };
 
 // Make api globally accessible
@@ -3121,7 +3156,7 @@ window.viewOrderDetails = (orderId) => {
 };
 
 // --- Render ---
-const render = () => {
+const render = async () => {
     const app = document.getElementById('app');
     let content = '';
 
@@ -3147,16 +3182,16 @@ const render = () => {
     }
 
 
-    // Add this case:
     if (state.route === 'user') {
-        // Fetch orders if not already loaded
         if (state.currentUser && state.orders.length === 0) {
-            api.getMyOrders();
+            await api.getMyOrders();
+        }
+        if (state.currentUser && !state.myCoupons) {
+            await api.getMyCoupons();
         }
         app.innerHTML = Header() + UserPage({ state });
         return;
     }
-
     app.innerHTML = `
         ${Header()}
         <main>
@@ -3370,36 +3405,45 @@ window.startDealsTimer = () => {
     }, 1000);
 };
 
-// Learn Page: Content Filtering (Difficulty + Topic)
+// Learning Page Filter
 window.filterLearningContent = (filter) => {
-    const cards = document.querySelectorAll('.tutorial-card');
-    const buttons = document.querySelectorAll('.topic-filter');
-
-    // Update active button styling
-    buttons.forEach(btn => {
-        if (btn.dataset.filter === filter) {
-            btn.style.background = '#6366f1';
-            btn.style.color = 'white';
-            btn.style.borderColor = '#6366f1';
-        } else {
-            btn.style.background = 'white';
-            btn.style.color = '#64748b';
-            btn.style.borderColor = '#e2e8f0';
-        }
-    });
-
-    // Filter cards by category or topic
-    cards.forEach(card => {
-        const category = card.dataset.category;
-        const topic = card.dataset.topic;
-
-        if (filter === 'all' || category === filter || topic === filter) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
-    });
+    state.filterLearnCategory = filter;
+    render();
 };
+
+// Deals Page: Sort Function
+window.sortDeals = (sortBy) => {
+    const container = document.querySelector('[style*="grid-template-columns: repeat(4, 1fr)"]');
+    if (!container) return;
+
+    const cards = Array.from(container.children);
+
+    cards.sort((a, b) => {
+        const getPrice = (card) => {
+            const priceText = card.querySelector('[style*="font-size: 1.5rem"]')?.textContent;
+            return parseFloat(priceText?.replace(/[₱,]/g, '') || '0');
+        };
+
+        const getDiscount = (card) => {
+            const discountText = card.querySelector('[style*="background: #6366f1"]')?.textContent;
+            return parseInt(discountText?.replace(/[-%]/g, '') || '0');
+        };
+
+        switch (sortBy) {
+            case 'discount':
+                return getDiscount(b) - getDiscount(a);
+            case 'price-low':
+                return getPrice(a) - getPrice(b);
+            case 'price-high':
+                return getPrice(b) - getPrice(a);
+            default:
+                return 0;
+        }
+    });
+
+    cards.forEach(card => container.appendChild(card));
+};
+
 
 // Learn Page: Category Filtering (Legacy - kept for compatibility)
 window.currentLearnCategory = 'all';
@@ -3428,31 +3472,51 @@ window.filterTutorials = (category) => {
     });
 };
 
-// Category Filtering for Deals
+// Deals Page: Category Filter
 window.filterDeals = (category) => {
-    const cards = document.querySelectorAll('.deal-product-card');
-    const tabs = document.querySelectorAll('.deal-category-tab');
+    document.querySelectorAll('.deal-category-tab').forEach(tab => {
+        const isActive = tab.dataset.category === category;
+        tab.style.background = isActive ? '#6366f1' : 'white';
+        tab.style.color = isActive ? 'white' : '#64748b';
 
-    // Update active tab styling
-    tabs.forEach(tab => {
-        if (tab.dataset.category === category) {
-            tab.style.background = '#6366f1';
-            tab.style.color = 'white';
-        } else {
-            tab.style.background = 'white';
-            tab.style.color = '#64748b';
+        if (tab.dataset.category === 'clearance') {
+            if (category === 'clearance') {
+                tab.style.background = '#dc2626';
+                tab.style.color = 'white';
+                tab.style.borderColor = '#dc2626';
+            } else {
+                tab.style.background = 'white';
+                tab.style.color = '#dc2626';
+                tab.style.borderColor = '#dc2626';
+            }
         }
     });
 
-    // Filter products
-    cards.forEach(card => {
-        if (category === 'all' || category === 'clearance' || card.dataset.category === category) {
+    document.querySelectorAll('.deal-product-card').forEach(card => {
+        const cardCategory = card.dataset.category;
+
+        if (category === 'all') {
             card.style.display = 'block';
+        } else if (category === 'clearance') {
+            const discountText = card.querySelector('[style*="background: #6366f1"]')?.textContent;
+            const discount = parseInt(discountText?.replace(/[-%]/g, '') || '0');
+            card.style.display = discount >= 25 ? 'block' : 'none';
         } else {
-            card.style.display = 'none';
+            card.style.display = cardCategory === category ? 'block' : 'none';
         }
     });
 };
+
+// Claim Coupon
+window.claimCoupon = async (couponCode) => {
+    try {
+        await api.claimCoupon(couponCode);
+        navigator.clipboard.writeText(couponCode);
+    } catch (error) {
+        console.error('Claim failed:', error);
+    }
+};
+
 
 // Video Modal
 window.openVideoModal = (videoId) => {
