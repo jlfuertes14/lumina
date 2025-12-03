@@ -758,9 +758,11 @@ header {
 
 /* Admin Container */
 .admin-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem;
+    display: flex;
+    min-height: 100vh;
+    /* Changed from calc(100vh - 60px) */
+    background-color: var(--admin-bg);
+    font-family: system-ui, -apple-system, sans-serif;
 }
 
 /* Admin Header */
