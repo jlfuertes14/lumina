@@ -3326,23 +3326,73 @@ header.scrolled .nav-link {
     --stat-card-bg: #ffffff;
 }
 
-.admin-container {
+/* --- Admin Custom Header Styles --- */
+.admin-wrapper {
     display: flex;
-    min-height: calc(100vh - 60px);
-    /* Adjust based on header height */
+    flex-direction: column;
+    min-height: 100vh;
     background-color: var(--admin-bg);
-    font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* Sidebar */
-.admin-sidebar {
-    width: 260px;
-    background-color: var(--admin-sidebar-bg);
-    color: white;
-    flex-shrink: 0;
-    display: none;
-    /* Hidden on mobile by default */
+.admin-custom-header {
+    background: white;
+    padding: 0.75rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 4px solid #F97316;
+    /* The Orange Bar */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    z-index: 50;
+}
+
+.admin-logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0F172A;
+    letter-spacing: -0.5px;
+}
+
+.admin-profile-header {
+    display: flex;
     flex-direction: column;
+    align-items: center;
+}
+
+.admin-avatar-circle {
+    width: 36px;
+    height: 36px;
+    background-color: #0F172A;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.admin-role-text {
+    font-size: 0.75rem;
+    color: #64748B;
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+/* Update Admin Container to fit below header */
+.admin-container {
+    display: flex;
+    flex: 1;
+    /* Take remaining height */
+    min-height: 0;
+    /* Prevent overflow issues */
+}
+
+/* Adjust Sidebar to sit correctly below header */
+.admin-sidebar {
+    height: auto;
+    /* Let it fill the container */
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
