@@ -761,6 +761,8 @@ header {
     display: flex;
     min-height: 100vh;
     /* Changed from calc(100vh - 60px) */
+    margin-left: 0 rem;
+    padding: 0 rem;
     background-color: var(--admin-bg);
     font-family: system-ui, -apple-system, sans-serif;
 }
