@@ -457,7 +457,7 @@ export const UserPage = ({ state }) => {
                                         <div class="order-products">
                                             ${order.items.map(item => `
                                                 <div class="order-product">
-                                                    <img src="${item.image || 'assets/placeholder.png'}" alt="${item.name}">
+                                                    <img src="${item.image || 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22%3E%3Crect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%23999%22 font-family=%22Arial%22 font-size=%2212%22%3ENo Image%3C/text%3E%3C/svg%3E'}" alt="${item.name}">
                                                     <div class="product-details">
                                                         <div class="product-name">${item.name || item.productName}</div>
                                                         <div class="product-qty">x${item.quantity}</div>
