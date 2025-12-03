@@ -3340,6 +3340,18 @@ header.scrolled .nav-link {
     background-color: var(--admin-bg);
 }
 
+/* Force admin page to be truly full-screen */
+#app:has(.admin-wrapper) {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.admin-wrapper,
+.admin-custom-header,
+.admin-container {
+    box-sizing: border-box;
+}
+
 .admin-custom-header {
     background: white;
     padding: 0.75rem 2rem;
