@@ -46,6 +46,9 @@ const userRoutes = require('./routes/users');
 const orderRoutes = require('./routes/orders');
 const analyticsRoutes = require('./routes/analytics');
 const deviceRoutes = require('./routes/devices');
+const couponRoutes = require('./routes/coupons');
+
+
 
 // API Routes
 app.use('/api/products', productRoutes);
@@ -53,6 +56,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/devices', deviceRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

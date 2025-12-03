@@ -7,15 +7,10 @@ export const DealsPage = ({ Breadcrumbs, state }) => {
         ...product,
         originalPrice: product.price * 1.3,
         discount: [10, 15, 20, 25, 30][index % 5],
-        stock: [45, 67, 23, 89, 12][index % 5],
         category: ['Microcontrollers', 'Sensors', 'Tools', 'Robotics', 'Components'][index % 5]
     }));
 
-    const coupons = [
-        { code: 'MAKER100', title: 'New Maker Discount', description: '₱100 OFF', condition: 'Min. spend ₱500', color: '#6366f1' },
-        { code: 'SENSE10', title: 'Sensor Bundle', description: '10% OFF', condition: 'All Sensors', color: '#0ea5e9' },
-        { code: 'SHIPFREE', title: 'Free Shipping', description: 'FREE', condition: 'Orders over ₱1,500', color: '#10b981' }
-    ];
+    const myCoupons = state.myCoupons || [];
 
     return `
         <div style="background: #f8f9fa; min-height: 100vh; padding: 2rem 0;">
@@ -46,9 +41,9 @@ export const DealsPage = ({ Breadcrumbs, state }) => {
                                 <div style="font-size: 0.75rem; margin-bottom: 1.5rem; opacity: 0.9;">Min. spend ₱500</div>
                                 <div style="background: white; border-radius: 4px; padding: 0.625rem; display: flex; align-items: center; justify-content: space-between;">
                                     <code style="color: #1e293b; font-size: 0.875rem; font-weight: 600;">MAKER100</code>
-                                    <button onclick="navigator.clipboard.writeText('MAKER100'); alert('Code copied!')" style="background: #1e293b; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                        Copy Code
+                                    <button onclick="window.claimCoupon('MAKER100')" style="background: #1e293b; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                        Claim Coupon
                                     </button>
                                 </div>
                             </div>
@@ -65,9 +60,9 @@ export const DealsPage = ({ Breadcrumbs, state }) => {
                                 <div style="font-size: 0.75rem; margin-bottom: 1.5rem; opacity: 0.9;">All Sensors</div>
                                 <div style="background: white; border-radius: 4px; padding: 0.625rem; display: flex; align-items: center; justify-content: space-between;">
                                     <code style="color: #1e293b; font-size: 0.875rem; font-weight: 600;">SENSE10</code>
-                                    <button onclick="navigator.clipboard.writeText('SENSE10'); alert('Code copied!')" style="background: #1e293b; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                        Copy Code
+                                    <button onclick="window.claimCoupon('SENSE10')" style="background: #1e293b; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                        Claim Coupon
                                     </button>
                                 </div>
                             </div>
@@ -84,9 +79,9 @@ export const DealsPage = ({ Breadcrumbs, state }) => {
                                 <div style="font-size: 0.75rem; margin-bottom: 1.5rem; opacity: 0.9;">Orders over ₱1,500</div>
                                 <div style="background: white; border-radius: 4px; padding: 0.625rem; display: flex; align-items: center; justify-content: space-between;">
                                     <code style="color: #1e293b; font-size: 0.875rem; font-weight: 600;">SHIPFREE</code>
-                                    <button onclick="navigator.clipboard.writeText('SHIPFREE'); alert('Code copied!')" style="background: #1e293b; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                        Copy Code
+                                   <button onclick="window.claimCoupon('SHIPFREE')" style="background: #1e293b; color: white; border: none; padding: 0.375rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.25rem;">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                        Claim Coupon
                                     </button>
                                 </div>
                             </div>
@@ -97,12 +92,12 @@ export const DealsPage = ({ Breadcrumbs, state }) => {
                 <!-- CATEGORY TABS -->
                 <div style="margin-bottom: 1.5rem;">
                     <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                        <button onclick="window.filterDeals('all')" class="deal-category-tab active" data-category="all" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: #6366f1; color: white; border-radius: 4px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">All Deals</button>
-                        <button onclick="window.filterDeals('Microcontrollers')" class="deal-category-tab" data-category="Microcontrollers" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 4px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Microcontrollers</button>
-                        <button onclick="window.filterDeals('Sensors')" class="deal-category-tab" data-category="Sensors" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 4px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Sensors</button>
-                        <button onclick="window.filterDeals('Tools')" class="deal-category-tab" data-category="Tools" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 4px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Tools</button>
-                        <button onclick="window.filterDeals('Robotics')" class="deal-category-tab" data-category="Robotics" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 4px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Robotics</button>
-                        <button onclick="window.filterDeals('clearance')" class="deal-category-tab" data-category="clearance" style="padding: 0.5rem 1rem; border: 1px solid #dc2626; background: white; color: #dc2626; border-radius: 4px; font-size: 0.875rem; font-weight: 700; cursor: pointer;">🔥 Clearance Bin</button>
+                        <button onclick="window.filterDeals('all')" class="deal-category-tab active" data-category="all" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: #6366f1; color: white; border-radius: 24px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">All Deals</button>
+                        <button onclick="window.filterDeals('Microcontrollers')" class="deal-category-tab" data-category="Microcontrollers" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 24px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Microcontrollers</button>
+                        <button onclick="window.filterDeals('Sensors')" class="deal-category-tab" data-category="Sensors" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 24px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Sensors</button>
+                        <button onclick="window.filterDeals('Tools')" class="deal-category-tab" data-category="Tools" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 24px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Tools</button>
+                        <button onclick="window.filterDeals('Robotics')" class="deal-category-tab" data-category="Robotics" style="padding: 0.5rem 1rem; border: 1px solid #e2e8f0; background: white; color: #64748b; border-radius: 24px; font-size: 0.875rem; font-weight: 500; cursor: pointer;">Robotics</button>
+                        <button onclick="window.filterDeals('clearance')" class="deal-category-tab" data-category="clearance" style="padding: 0.5rem 1rem; border: 1px solid #dc2626; background: white; color: #dc2626; border-radius: 24px; font-size: 0.875rem; font-weight: 700; cursor: pointer;">🔥 Clearance Bin</button>
                     </div>
                 </div>
 

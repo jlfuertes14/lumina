@@ -14,12 +14,8 @@ export const UserPage = ({ state }) => {
     const toReceiveOrders = userOrders.filter(o => o.status === 'Shipped');
     const completedOrders = userOrders.filter(o => o.status === 'Delivered' || o.status === 'Completed');
 
-    // Coupons Data (Mock based on DealsPage)
-    const myCoupons = [
-        { code: 'MAKER100', title: 'New Maker Discount', description: '₱100 OFF', condition: 'Min. spend ₱500', color: '#6366f1' },
-        { code: 'SENSE10', title: 'Sensor Bundle', description: '10% OFF', condition: 'All Sensors', color: '#0ea5e9' },
-        { code: 'SHIPFREE', title: 'Free Shipping', description: 'FREE', condition: 'Orders over ₱1,500', color: '#10b981' }
-    ];
+    // Get user's claimed coupons from state
+    const myCoupons = state.myCoupons || [];
 
     // --- Event Handlers ---
 
