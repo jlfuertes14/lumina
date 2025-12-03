@@ -3227,7 +3227,7 @@ const render = async () => {
             ${content}
         </main>
         <footer style="text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
-            &copy; 2024 Lumina Electronics. All rights reserved.
+            &copy; 2025 Lumina Electronics. All rights reserved.
         </footer>
     `;
 

@@ -1,111 +1,192 @@
 import { formatCurrency } from '../src/utils.js';
-import { apiCall } from '../src/api-config.js'; // Ensure apiCall is imported
+import { apiCall } from '../src/api-config.js';
+
 // --- Global Admin State ---
 window.adminState = {
     activeTab: 'dashboard',
     isModalOpen: false,
     modalType: null, // 'addProduct', 'editProduct', 'addStaff'
-    editingId: null
+    editingId: null,
+    uploadedImage: null // Store base64 image
 };
+
 // --- Helper Functions ---
 window.switchAdminTab = (tab) => {
     window.adminState.activeTab = tab;
-
-    // Fetch data if needed
     if (tab === 'staff' && window.api && window.api.getUsers) {
         window.api.getUsers();
     }
-
     window.render();
-
     if (tab === 'dashboard') {
         setTimeout(() => window.initAdminCharts(), 100);
     }
 };
+
 window.toggleAdminModal = (isOpen, type = null, id = null) => {
     window.adminState.isModalOpen = isOpen;
     window.adminState.modalType = type;
     window.adminState.editingId = id;
+    window.adminState.uploadedImage = null; // Reset image
     window.render();
 };
+
 // Close modal on Escape key
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && window.adminState.isModalOpen) {
         window.toggleAdminModal(false);
     }
 });
+
 window.toggleNotifications = () => {
     const el = document.getElementById('adminNotifications');
     if (el) el.classList.toggle('show');
 };
-// --- API Actions (Integrated) ---
+
+// --- Image Upload Handlers ---
+window.handleImageSelect = (event) => {
+    const file = event.target.files[0];
+    window.processImageFile(file);
+};
+
+window.handleDragOver = (event) => {
+    event.preventDefault();
+    event.currentTarget.classList.add('dragover');
+};
+
+window.handleDragLeave = (event) => {
+    event.currentTarget.classList.remove('dragover');
+};
+
+window.handleDrop = (event) => {
+    event.preventDefault();
+    event.currentTarget.classList.remove('dragover');
+    const file = event.dataTransfer.files[0];
+    window.processImageFile(file);
+};
+
+window.processImageFile = (file) => {
+    if (!file) return;
+
+    // Validate Type
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+        window.showToast('Only JPEG and PNG images are allowed.');
+        return;
+    }
+
+    // Validate Size (3MB)
+    if (file.size > 3 * 1024 * 1024) {
+        window.showToast('File size must be less than 3MB.');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        window.adminState.uploadedImage = e.target.result;
+        // Update UI directly to avoid full re-render losing focus
+        const previewArea = document.getElementById('imagePreview');
+        const dropZone = document.getElementById('dropZone');
+        const previewImg = document.getElementById('previewImg');
+        
+        if (previewArea && dropZone && previewImg) {
+            previewImg.src = e.target.result;
+            previewArea.style.display = 'block';
+            dropZone.style.display = 'none';
+        }
+    };
+    reader.readAsDataURL(file);
+};
+
+window.removeImage = () => {
+    window.adminState.uploadedImage = null;
+    const previewArea = document.getElementById('imagePreview');
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    
+    if (previewArea && dropZone) {
+        previewArea.style.display = 'none';
+        dropZone.style.display = 'flex';
+        if (fileInput) fileInput.value = '';
+    }
+};
+
+// --- API Actions ---
 window.handleSaveProduct = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const productData = Object.fromEntries(formData.entries());
-
-    // Convert price/stock to numbers
+    
     productData.price = parseFloat(productData.price);
     productData.stock = parseInt(productData.stock);
+
+    // Use uploaded image if available, otherwise use the URL input (if we kept it, but we replaced it)
+    // Or if we want to support both, we can check. For now, let's use the uploaded image.
+    if (window.adminState.uploadedImage) {
+        productData.image = window.adminState.uploadedImage;
+    } else {
+        // Fallback or error if image is required
+        // For this demo, let's allow saving without image or use a placeholder
+        productData.image = 'https://via.placeholder.com/150'; 
+    }
+
     try {
-        // Call your backend API
         await apiCall('/products', {
             method: 'POST',
             body: JSON.stringify(productData)
         });
         window.showToast('Product added successfully!');
         window.toggleAdminModal(false);
-        if (window.api.getProducts) window.api.getProducts(); // Refresh list
+        if (window.api.getProducts) window.api.getProducts();
     } catch (error) {
         console.error(error);
         window.showToast('Failed to add product');
     }
 };
+
 window.handleAddStaff = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const staffData = Object.fromEntries(formData.entries());
+
     try {
-        // Register the user first
-        const response = await apiCall('/users/register', {
+        await apiCall('/users/register', {
             method: 'POST',
             body: JSON.stringify({
                 name: staffData.name,
                 email: staffData.email,
                 password: staffData.password,
-                role: staffData.role // Assuming backend accepts role on register
+                role: staffData.role
             })
         });
-
+        
         window.showToast('Staff member added!');
         window.toggleAdminModal(false);
-        if (window.api.getUsers) window.api.getUsers(); // Refresh list
+        if (window.api.getUsers) window.api.getUsers();
     } catch (error) {
         console.error(error);
         window.showToast('Failed to add staff');
     }
 };
+
 // --- Main Component ---
 export const AdminPage = (state) => {
-    // 1. Security Check
     if (!state.currentUser || !['admin', 'staff', 'inventory_manager'].includes(state.currentUser.role)) {
         setTimeout(() => window.navigate('home'), 0);
         return '';
     }
+
     const { activeTab } = window.adminState;
     const userRole = state.currentUser.role;
-
-    // RBAC Permissions
+    
     const canManageProducts = ['admin', 'inventory_manager'].includes(userRole);
     const canManageStaff = ['admin'].includes(userRole);
     const canDelete = ['admin'].includes(userRole);
-    // --- DATA METRICS ---
+
     const totalSales = state.orders.reduce((acc, order) => acc + (order.total || 0), 0);
     const totalOrders = state.orders.length;
     const lowStockCount = state.products.filter(p => p.stock < 10).length;
     const activeCustomersCount = state.users ? state.users.filter(u => u.role === 'customer').length : 0;
     const recentOrders = [...state.orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
-    // --- RENDERERS ---
+
     const renderSidebar = () => `
         <aside class="admin-sidebar">
             <nav class="sidebar-nav" style="padding-top: 1rem;">
@@ -131,6 +212,7 @@ export const AdminPage = (state) => {
             </nav>
         </aside>
     `;
+
     const renderDashboard = () => `
         <div class="admin-page-header">
             <div>
@@ -150,12 +232,14 @@ export const AdminPage = (state) => {
                 </div>
             </div>
         </div>
+
         <div class="quick-actions-grid">
             ${canManageProducts ? `<div class="action-card" onclick="window.toggleAdminModal(true, 'addProduct')"><div class="action-icon">➕</div><div>Add Product</div></div>` : ''}
             ${canManageStaff ? `<div class="action-card" onclick="window.toggleAdminModal(true, 'addStaff')"><div class="action-icon">👤</div><div>Add Staff</div></div>` : ''}
             <div class="action-card" onclick="window.switchAdminTab('products')"><div class="action-icon">📦</div><div>Inventory</div></div>
             <div class="action-card"><div class="action-icon">📄</div><div>Orders</div></div>
         </div>
+
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-header">
@@ -182,6 +266,7 @@ export const AdminPage = (state) => {
                 </div>
             </div>
         </div>
+
         <div class="charts-grid">
             <div class="chart-card">
                 <h3 class="font-bold text-slate-800 mb-4">Sales Overview</h3>
@@ -192,6 +277,7 @@ export const AdminPage = (state) => {
                 <div style="height: 300px; display: flex; justify-content: center;"><canvas id="demographicsChart"></canvas></div>
             </div>
         </div>
+
         <div class="table-card">
             <h3 class="font-bold text-slate-800 mb-4">Recent Orders</h3>
             <table class="admin-table">
@@ -210,6 +296,7 @@ export const AdminPage = (state) => {
             </table>
         </div>
     `;
+
     const renderProductsTable = () => `
         <div class="admin-page-header">
             <h1 class="admin-title">Product Management</h1>
@@ -244,10 +331,10 @@ export const AdminPage = (state) => {
             </table>
         </div>
     `;
-    const renderStaffTable = () => {
-        // Filter users to show only staff/admin if desired, or all users
-        const staffUsers = state.users ? state.users.filter(u => ['admin', 'staff', 'inventory_manager', 'manager'].includes(u.role)) : [];
 
+    const renderStaffTable = () => {
+        const staffUsers = state.users ? state.users.filter(u => ['admin', 'staff', 'inventory_manager', 'manager'].includes(u.role)) : [];
+        
         return `
         <div class="admin-page-header">
             <h1 class="admin-title">Staff Management</h1>
@@ -272,47 +359,71 @@ export const AdminPage = (state) => {
             </table>
         </div>
     `};
+
     const renderModal = () => {
         if (!window.adminState.isModalOpen) return '';
-
+        
         let title = '';
         let content = '';
+
         if (window.adminState.modalType === 'addProduct') {
             title = 'Add New Product';
             content = `
                 <form onsubmit="window.handleSaveProduct(event)">
-                    <div class="form-group">
-                        <label class="form-label">Product Name</label>
-                        <input type="text" name="name" class="form-input" required placeholder="e.g. Arduino Uno">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Category</label>
-                        <select name="category" class="form-input">
-                            <option>Microcontrollers</option>
-                            <option>Sensors</option>
-                            <option>Components</option>
-                            <option>Robotics</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Image URL</label>
-                        <input type="url" name="image" class="form-input" required placeholder="https://example.com/image.jpg">
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                        <div class="form-group">
-                            <label class="form-label">Price</label>
-                            <input type="number" name="price" step="0.01" class="form-input" required placeholder="0.00">
+                    <div class="modal-body-grid">
+                        <div class="modal-left-col">
+                            <div class="form-group">
+                                <label class="form-label">Product Name</label>
+                                <input type="text" name="name" class="form-input" required placeholder="e.g. Arduino Uno">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Category</label>
+                                <select name="category" class="form-input">
+                                    <option>Microcontrollers</option>
+                                    <option>Sensors</option>
+                                    <option>Components</option>
+                                    <option>Robotics</option>
+                                </select>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label class="form-label">Price</label>
+                                    <input type="number" name="price" step="0.01" class="form-input" required placeholder="0.00">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Stock</label>
+                                    <input type="number" name="stock" class="form-input" required placeholder="0">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-input" rows="4"></textarea>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Stock</label>
-                            <input type="number" name="stock" class="form-input" required placeholder="0">
+                        
+                        <div class="modal-right-col">
+                            <label class="form-label">Product Image</label>
+                            <div class="image-upload-container" id="dropZone" 
+                                ondragover="window.handleDragOver(event)" 
+                                ondragleave="window.handleDragLeave(event)" 
+                                ondrop="window.handleDrop(event)">
+                                <div class="upload-icon">☁️</div>
+                                <p style="margin-bottom: 1rem; color: #64748b;">Drag and drop image here or</p>
+                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Select files from system</button>
+                                <input type="file" id="fileInput" hidden accept="image/png, image/jpeg" onchange="window.handleImageSelect(event)">
+                                <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #94a3b8;">Max 3MB, JPEG/PNG</p>
+                            </div>
+                            <div id="imagePreview" class="image-preview-area" style="display: ${window.adminState.uploadedImage ? 'block' : 'none'};">
+                                <img id="previewImg" src="${window.adminState.uploadedImage || ''}" alt="Preview">
+                                <button type="button" class="remove-image-btn" onclick="window.removeImage()">×</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-input" rows="3"></textarea>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" onclick="window.toggleAdminModal(false)">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Product</button>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Save Product</button>
                 </form>
             `;
         } else if (window.adminState.modalType === 'addStaff') {
@@ -339,22 +450,27 @@ export const AdminPage = (state) => {
                             <option value="admin">Admin</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" onclick="window.toggleAdminModal(false)">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create Account</button>
+                    </div>
                 </form>
             `;
         }
+
         return `
             <div class="modal-overlay active" onclick="if(event.target === this) window.toggleAdminModal(false)">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h2 style="margin: 0;">${title}</h2>
-                        <button class="close-modal" onclick="window.toggleAdminModal(false)" style="font-size: 2rem; line-height: 1;">&times;</button>
+                        <button class="close-modal" onclick="window.toggleAdminModal(false)" style="font-size: 2rem; line-height: 1; cursor: pointer;">&times;</button>
                     </div>
                     ${content}
                 </div>
             </div>
         `;
     };
+
     return `
         <div class="admin-wrapper">
             <header class="admin-custom-header">
@@ -366,6 +482,7 @@ export const AdminPage = (state) => {
                     </div>
                 </div>
             </header>
+
             <div class="admin-container">
                 ${renderSidebar()}
                 <main class="admin-main">
@@ -379,7 +496,7 @@ export const AdminPage = (state) => {
         </div>
     `;
 };
-// --- CHART INITIALIZATION ---
+
 window.initAdminCharts = () => {
     const salesCtx = document.getElementById('salesChart');
     if (salesCtx) {

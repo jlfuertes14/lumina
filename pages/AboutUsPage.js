@@ -63,7 +63,7 @@ export const AboutUsPage = ({ Breadcrumbs }) => {
                 <!-- Mission Section -->
                 <div style="background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('${communityImage}'); background-size: cover; background-position: center; border-radius: 24px; padding: 4rem; margin-bottom: 6rem; text-align: center; color: white; position: relative; overflow: hidden;">
                     <div style="position: relative; z-index: 1; max-width: 800px; margin: 0 auto;">
-                        <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem; font-weight: 700;">Our Mission</h2>
+                        <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem; font-weight: 700; color: #6283a7;">Our Mission</h2>
                         <p style="font-size: 1.25rem; line-height: 1.8; color: #cbd5e1; margin-bottom: 3rem;">
                             To provide high-quality, affordable, and readily available electronic components to engineers, students, hobbyists, and makers across the Philippines.
                             We believe that innovation grows when access grows—and we are committed to helping every builder turn ideas into reality.
