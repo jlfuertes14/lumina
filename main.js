@@ -10,6 +10,8 @@ import { ProductsPage } from './pages/ProductsPage.js';
 import { ProductDetailPage } from './pages/ProductDetailPage.js';
 import { ProductCard } from './pages/ProductDetailPage.js';
 import { formatCurrency } from './src/utils.js';
+import { AdminProfilePage } from './pages/AdminProfilePage.js';
+
 
 //  --- State Management ---
 const state = {
@@ -468,9 +470,9 @@ const Header = () => {
                                     <div class="user-menu-email">${state.currentUser.email}</div>
                                 </div>
                                 
-                                <a href="#" class="user-menu-item" onclick="window.navigate('user', { tab: 'profile' }); return false;">
+                                <a href="#" class="user-menu-item" onclick="window.navigate('admin-profile'); return false;">
                                     <span class="menu-icon">👤</span>
-                                    <span>My Account</span>
+                                    <span>My Profile</span>
                                 </a>
                                 
                                 ${state.currentUser.role === 'admin' ? `
@@ -3196,6 +3198,7 @@ const render = async () => {
         case 'deals': content = DealsPage({ Breadcrumbs, state }); break;
         case 'admin': content = AdminPage(state); break;
         case 'user': content = UserPage({ state }); break;
+        case 'admin-profile': content = AdminProfilePage({ state }); break;
         case 'my-devices': content = MyDevicesPage(); break;
         case 'device-pair': content = DevicePairingPage(); break;
         case 'remote-control': content = RemoteControlPage(); break;
@@ -3211,6 +3214,12 @@ const render = async () => {
             setTimeout(() => window.initAdminCharts(), 100);
         }
         return; // STOP here, do not render standard header/footer
+    }
+
+    // SPECIAL CASE: Admin Profile Page
+    if (state.route === 'admin-profile') {
+        app.innerHTML = Header() + AdminProfilePage({ state });
+        return;
     }
     // SPECIAL CASE: User Page (Existing logic)
     if (state.route === 'user') {
