@@ -468,7 +468,7 @@ const Header = () => {
                                     <div class="user-menu-email">${state.currentUser.email}</div>
                                 </div>
                                 
-                                <a href="#" class="user-menu-item" onclick="window.navigate('profile'); return false;">
+                                <a href="#" class="user-menu-item" onclick="window.navigate('user', { tab: 'profile' }); return false;">
                                     <span class="menu-icon">👤</span>
                                     <span>My Account</span>
                                 </a>
@@ -481,7 +481,7 @@ const Header = () => {
                                     </a>
                                 ` : `
                                     <!-- Customer Only Items -->
-                                    <a href="#" class="user-menu-item" onclick="window.navigate('orders'); return false;">
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('user', { tab: 'orders' }); return false;">
                                         <span class="menu-icon">📦</span>
                                         <span>My Orders</span>
                                     </a>
@@ -489,7 +489,7 @@ const Header = () => {
                                         <span class="menu-icon">📱</span>
                                         <span>My Devices</span>
                                     </a>
-                                    <a href="#" class="user-menu-item" onclick="window.navigate('my-coupons'); return false;">
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('user', { tab: 'coupons' }); return false;">
                                         <span class="menu-icon">🎟️</span>
                                         <span>My Coupons</span>
                                     </a>
