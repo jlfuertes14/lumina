@@ -3769,6 +3769,9 @@ body:has(.admin-wrapper) #app {
     transition: all 0.3s;
     max-height: 90vh;
     overflow-y: auto;
+    position: relative;
+    z-index: 1001;
+    pointer-events: auto;
 }
 
 .modal-overlay.active .modal-content {
