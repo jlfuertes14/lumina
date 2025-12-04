@@ -3398,12 +3398,14 @@ body:has(.admin-wrapper) #app {
     min-height: calc(100vh - 64px);
     width: 100%;
     margin-left: 0;
-    padding: 0
+    padding: 0;
 }
 
 /* Sidebar */
 .admin-sidebar {
     position: sticky;
+    top: 0;
+    height: 100vh;
     width: 260px;
     background-color: #002b5b;
     /* Restored Dark Blue Background */
@@ -3411,7 +3413,7 @@ body:has(.admin-wrapper) #app {
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    min-height: 100%;
+    overflow-y: auto;
 }
 
 @media (min-width: 768px) {
@@ -3460,6 +3462,7 @@ body:has(.admin-wrapper) #app {
     flex: 1;
     padding: 2rem;
     overflow-y: auto;
+    max-height: calc(100vh - 64px);
 }
 
 .admin-page-header {
@@ -3617,19 +3620,6 @@ body:has(.admin-wrapper) #app {
     color: #15803d;
 }
 
-/* Sidebar Positioning Fix - Stick to left and align with header */
-.admin-container {
-    gap: 0 !important;
-}
-
-.admin-sidebar {
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-.sidebar-nav {
-    margin: 0;
-}
 
 /* =========================================
    ADMIN DASHBOARD UPGRADE STYLES
