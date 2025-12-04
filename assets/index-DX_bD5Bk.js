@@ -2117,19 +2117,25 @@ var Q=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var ue=Q((he,M)=>{
                                     <div class="user-menu-email">${i.currentUser.email}</div>
                                 </div>
                                 
-                                <a href="#" class="user-menu-item" onclick="window.navigate('admin-profile'); return false;">
-                                    <span class="menu-icon">👤</span>
-                                    <span>My Profile</span>
-                                </a>
+                            
                                 
                                 ${i.currentUser.role==="admin"?`
                                     <!-- Admin Only Items -->
+
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('admin-profile'); return false;">
+                                        <span class="menu-icon">👤</span>
+                                        <span>My Profile</span>
+                                    </a>
                                     <a href="#" class="user-menu-item" onclick="window.navigate('admin'); return false;">
                                         <span class="menu-icon">📊</span>
                                         <span>Admin Dashboard</span>
                                     </a>
                                 `:`
                                     <!-- Customer Only Items -->
+                                    <a href="#" class="user-menu-item" onclick="window.navigate('admin-profile'); return false;">
+                                        <span class="menu-icon">👤</span>
+                                        <span>My Profile</span>
+                                    </a>
                                     <a href="#" class="user-menu-item" onclick="window.navigate('user', { tab: 'orders' }); return false;">
                                         <span class="menu-icon">📦</span>
                                         <span>My Orders</span>
