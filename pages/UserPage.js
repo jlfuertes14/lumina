@@ -16,9 +16,14 @@ export const UserPage = ({ state }) => {
 
     // Get user's claimed coupons from state
     const myCoupons = state.myCoupons || [];
-    // Auto-switch to specified tab if navigated with tab parameter
+    
+    // Auto-switch to specified tab if navigated with tab parameter (only once per navigation)
     if (state.params && state.params.tab && window.switchUserTab) {
-        setTimeout(() => window.switchUserTab(state.params.tab), 50);
+        const shouldSwitch = !window._lastSwitchedTab || window._lastSwitchedTab !== state.params.tab;
+        if (shouldSwitch) {
+            window._lastSwitchedTab = state.params.tab;
+            setTimeout(() => window.switchUserTab(state.params.tab), 50);
+        }
     }
 
 
