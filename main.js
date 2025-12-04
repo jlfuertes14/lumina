@@ -487,7 +487,7 @@ const Header = () => {
                                     <!-- Customer Only Items -->
                                     <a href="#" class="user-menu-item" onclick="window.navigate('admin-profile'); return false;">
                                         <span class="menu-icon">👤</span>
-                                        <span>My Profile</span>
+                                        <span>My Account</span>
                                     </a>
                                     <a href="#" class="user-menu-item" onclick="window.navigate('user', { tab: 'orders' }); return false;">
                                         <span class="menu-icon">📦</span>
