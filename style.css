@@ -3395,14 +3395,15 @@ body:has(.admin-wrapper) #app {
 .admin-container {
     display: flex;
     flex: 1;
-    min-height: 0;
+    min-height: calc(100vh - 64px);
     width: 100%;
     margin-left: 0;
-    padding: 0;
+    padding: 0
 }
 
 /* Sidebar */
 .admin-sidebar {
+    position: sticky;
     width: 260px;
     background-color: #002b5b;
     /* Restored Dark Blue Background */
@@ -3870,7 +3871,8 @@ body:has(.admin-wrapper) #app {
     transition: all 0.2s;
 }
 
-.image-upload-container:hover, .image-upload-container.dragover {
+.image-upload-container:hover,
+.image-upload-container.dragover {
     border-color: #6366f1;
     background: #eef2ff;
 }
@@ -3901,7 +3903,7 @@ body:has(.admin-wrapper) #app {
     position: absolute;
     top: 10px;
     right: 10px;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     color: white;
     border: none;
     border-radius: 50%;
@@ -3936,4 +3938,3 @@ body:has(.admin-wrapper) #app {
 .btn-cancel:hover {
     background: #f8fafc;
 }
-

@@ -32,7 +32,7 @@ export const AdminProfilePage = ({ state }) => {
                 return;
             }
             try {
-                await api.updateProfile(state.currentUser.id, { name, email, phone });
+                await window.api.updateProfile(state.currentUser.id, { name, email, phone });
                 window.render();
             } catch (error) {
                 console.error('Profile update failed:', error);
@@ -56,7 +56,7 @@ export const AdminProfilePage = ({ state }) => {
                 return;
             }
             try {
-                await api.changePassword(state.currentUser.id, currentPass, newPass);
+                await window.api.changePassword(state.currentUser.id, currentPass, newPass);
                 form.reset();
             } catch (error) {
                 console.error('Password change failed:', error);
