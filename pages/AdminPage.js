@@ -438,11 +438,10 @@ export const AdminPage = (state) => {
                         <div class="modal-right-col">
                             <label class="form-label">Product Image</label>
                             ${editingProduct && editingProduct.image && !window.adminState.uploadedImage ? `
-                                <div class="image-preview-area" style="display: block;">
+                                <div class="image-preview-area" style="display: block;" id="currentImagePreview">
                                     <img src="${editingProduct.image}" alt="Current Image">
-                                    <button type="button" class="remove-image-btn" onclick="document.getElementById('dropZone').style.display='flex'; this.parentElement.style.display='none';">✏️</button>
-                                    <p style="text-align: center; font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;">Click ✏️ to change image</p>
                                 </div>
+                                <button type="button" class="btn btn-secondary" style="width: 100%; margin-top: 0.75rem;" onclick="document.getElementById('dropZone').style.display='flex'; document.getElementById('currentImagePreview').style.display='none'; this.style.display='none';">Change Image</button>
                                 <div class="image-upload-container" id="dropZone" 
                                     ondragover="window.handleDragOver(event)" 
                                     ondragleave="window.handleDragLeave(event)" 
