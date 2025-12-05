@@ -438,22 +438,35 @@ export const AdminPage = (state) => {
                         <div class="modal-right-col">
                             <label class="form-label">Product Image</label>
                             ${editingProduct && editingProduct.image && !window.adminState.uploadedImage ? `
-                                <div class="image-preview-area" style="display: block; margin-bottom: 1rem;">
+                                <div class="image-preview-area" style="display: block;">
                                     <img src="${editingProduct.image}" alt="Current Image">
-                                    <p style="text-align: center; font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;">Current image</p>
+                                    <button type="button" class="remove-image-btn" onclick="document.getElementById('dropZone').style.display='flex'; this.parentElement.style.display='none';">✏️</button>
+                                    <p style="text-align: center; font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;">Click ✏️ to change image</p>
                                 </div>
-                            ` : ''}
-                            <div class="image-upload-container" id="dropZone" 
-                                ondragover="window.handleDragOver(event)" 
-                                ondragleave="window.handleDragLeave(event)" 
-                                ondrop="window.handleDrop(event)"
-                                style="display: ${window.adminState.uploadedImage ? 'none' : 'flex'};">
-                                <div class="upload-icon">☁️</div>
-                                <p style="margin-bottom: 1rem; color: #64748b;">${editingProduct ? 'Upload new image or keep current' : 'Drag and drop image here or'}</p>
-                                <button type="button" class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Select files from system</button>
-                                <input type="file" id="fileInput" hidden accept="image/png, image/jpeg" onchange="window.handleImageSelect(event)">
-                                <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #94a3b8;">Max 3MB, JPEG/PNG</p>
-                            </div>
+                                <div class="image-upload-container" id="dropZone" 
+                                    ondragover="window.handleDragOver(event)" 
+                                    ondragleave="window.handleDragLeave(event)" 
+                                    ondrop="window.handleDrop(event)"
+                                    style="display: none;">
+                                    <div class="upload-icon">☁️</div>
+                                    <p style="margin-bottom: 1rem; color: #64748b;">Upload new image</p>
+                                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Select files from system</button>
+                                    <input type="file" id="fileInput" hidden accept="image/png, image/jpeg" onchange="window.handleImageSelect(event)">
+                                    <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #94a3b8;">Max 3MB, JPEG/PNG</p>
+                                </div>
+                            ` : `
+                                <div class="image-upload-container" id="dropZone" 
+                                    ondragover="window.handleDragOver(event)" 
+                                    ondragleave="window.handleDragLeave(event)" 
+                                    ondrop="window.handleDrop(event)"
+                                    style="display: ${window.adminState.uploadedImage ? 'none' : 'flex'};">
+                                    <div class="upload-icon">☁️</div>
+                                    <p style="margin-bottom: 1rem; color: #64748b;">Drag and drop image here or</p>
+                                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Select files from system</button>
+                                    <input type="file" id="fileInput" hidden accept="image/png, image/jpeg" onchange="window.handleImageSelect(event)">
+                                    <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #94a3b8;">Max 3MB, JPEG/PNG</p>
+                                </div>
+                            `}
                             <div id="imagePreview" class="image-preview-area" style="display: ${window.adminState.uploadedImage ? 'block' : 'none'};">
                                 <img id="previewImg" src="${window.adminState.uploadedImage || ''}" alt="Preview">
                                 <button type="button" class="remove-image-btn" onclick="window.removeImage()">×</button>
