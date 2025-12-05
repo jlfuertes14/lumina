@@ -133,26 +133,30 @@ window.handleSaveProduct = async (event) => {
     }
 
     try {
+        console.log('Saving product:', productData);
+        let response;
         if (window.adminState.editingId) {
             // UPDATE existing product
-            await apiCall(`/products/${window.adminState.editingId}`, {
+            response = await apiCall(`/products/${window.adminState.editingId}`, {
                 method: 'PUT',
                 body: JSON.stringify(productData)
             });
-            window.showToast('Product updated successfully!');
+            console.log('Update response:', response);
+            window.showToast('Product updated successfully!', 'success');
         } else {
             // CREATE new product
-            await apiCall('/products', {
+            response = await apiCall('/products', {
                 method: 'POST',
                 body: JSON.stringify(productData)
             });
-            window.showToast('Product added successfully!');
+            console.log('Create response:', response);
+            window.showToast('Product added successfully!', 'success');
         }
         window.toggleAdminModal(false);
-        if (window.api.getProducts) window.api.getProducts();
+        if (window.api && window.api.getProducts) window.api.getProducts();
     } catch (error) {
-        console.error(error);
-        window.showToast(window.adminState.editingId ? 'Failed to update product' : 'Failed to add product');
+        console.error('Save product error:', error);
+        window.showToast(window.adminState.editingId ? 'Failed to update product' : 'Failed to add product', 'error');
     }
 };
 // --- Delete Product ---
