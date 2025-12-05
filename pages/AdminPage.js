@@ -123,7 +123,7 @@ window.handleSaveProduct = async (event) => {
         productData.image = window.adminState.uploadedImage;
     } else if (window.adminState.editingId) {
         // Keep existing image when editing and no new image uploaded
-        const existingProduct = window.state.products.find(p => p.id === window.adminState.editingId);
+        const existingProduct = window.state.products.find(p => String(p.id) === String(window.adminState.editingId) || p._id === window.adminState.editingId);
         if (existingProduct) {
             productData.image = existingProduct.image;
         }
@@ -351,8 +351,8 @@ export const AdminPage = (state) => {
                             <td>${p.stock}</td>
                             <td><span class="status-badge ${p.stock > 0 ? 'status-instock' : 'status-outofstock'}">${p.stock > 0 ? 'In Stock' : 'Out of Stock'}</span></td>
                             <td>
-                                ${canManageProducts ? `<button class="btn-ghost" onclick="window.toggleAdminModal(true, 'editProduct', '${p.id}')">✏️</button>` : ''}
-                                ${canDelete ? `<button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteProduct('${p.id}')">🗑️</button>` : ''}
+                                ${canManageProducts ? `<button class="btn-ghost" onclick="window.toggleAdminModal(true, 'editProduct', '${p._id || p.id}')">✏️</button>` : ''}
+                                ${canDelete ? `<button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteProduct('${p._id || p.id}')">🗑️</button>` : ''}
                             </td>
                         </tr>
                     `).join('')}
@@ -396,9 +396,9 @@ export const AdminPage = (state) => {
         let content = '';
 
         if (window.adminState.modalType === 'addProduct' || window.adminState.modalType === 'editProduct') {
-            // Get existing product data if editing
+            // Get existing product data if editing (convert to string for comparison)
             const editingProduct = window.adminState.editingId
-                ? state.products.find(p => p.id === window.adminState.editingId)
+                ? state.products.find(p => String(p.id) === String(window.adminState.editingId) || p._id === window.adminState.editingId)
                 : null;
 
             title = editingProduct ? 'Edit Product' : 'Add New Product';
