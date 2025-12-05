@@ -586,18 +586,21 @@ export const AdminPage = (state) => {
             ${renderModal()}
             ${window.adminState.showConfirmModal ? `
                 <div class="modal-overlay active" onclick="if(event.target === this) window.hideConfirmModal()">
-                    <div class="modal-content" style="max-width: 400px; text-align: center;">
-                        <div class="modal-header" style="justify-content: center; border-bottom: none; padding-bottom: 0;">
-                            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #fee2e2, #fecaca); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
-                                <span style="font-size: 1.75rem;">🗑️</span>
-                            </div>
+                    <div class="modal-content" style="max-width: 420px; text-align: center; background: #1e293b; border: 1px solid #334155; padding: 2rem;">
+                        <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3,6 5,6 21,6"></polyline>
+                                <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2v2"></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                            </svg>
                         </div>
-                        <h2 style="margin: 0 0 0.5rem; color: var(--text-primary); font-size: 1.25rem;">${window.adminState.confirmTitle}</h2>
-                        <p style="color: var(--text-muted); margin: 0 0 0.5rem;">${window.adminState.confirmMessage}</p>
-                        <p style="color: var(--text-primary); font-weight: 600; margin: 0 0 1.5rem;">"${window.adminState.confirmItemName}"?</p>
+                        <h2 style="margin: 0 0 0.75rem; color: #f1f5f9; font-size: 1.35rem; font-weight: 600;">${window.adminState.confirmTitle}</h2>
+                        <p style="color: #94a3b8; margin: 0 0 0.5rem; font-size: 0.95rem;">${window.adminState.confirmMessage}</p>
+                        <p style="color: #F97316; font-weight: 600; margin: 0 0 1.75rem; font-size: 1rem;">"${window.adminState.confirmItemName}"?</p>
                         <div style="display: flex; gap: 1rem; justify-content: center;">
-                            <button type="button" class="btn btn-secondary" style="flex: 1; padding: 0.75rem 1.5rem;" onclick="window.hideConfirmModal()">Cancel</button>
-                            <button type="button" class="btn" style="flex: 1; padding: 0.75rem 1.5rem; background: #ef4444; color: white; border: none;" onclick="window.executeConfirmAction()">Delete</button>
+                            <button type="button" style="flex: 1; padding: 0.85rem 1.5rem; background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s;" onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#334155'" onclick="window.hideConfirmModal()">Cancel</button>
+                            <button type="button" style="flex: 1; padding: 0.85rem 1.5rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'" onclick="window.executeConfirmAction()">Delete</button>
                         </div>
                     </div>
                 </div>
