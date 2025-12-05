@@ -7,7 +7,36 @@ window.adminState = {
     isModalOpen: false,
     modalType: null, // 'addProduct', 'editProduct', 'addStaff'
     editingId: null,
-    uploadedImage: null // Store base64 image
+    uploadedImage: null, // Store base64 image
+    // Confirmation modal state
+    showConfirmModal: false,
+    confirmTitle: '',
+    confirmMessage: '',
+    confirmCallback: null,
+    confirmItemName: ''
+};
+
+// --- Confirmation Modal Functions ---
+window.showConfirmModal = (title, message, itemName, callback) => {
+    window.adminState.showConfirmModal = true;
+    window.adminState.confirmTitle = title;
+    window.adminState.confirmMessage = message;
+    window.adminState.confirmItemName = itemName;
+    window.adminState.confirmCallback = callback;
+    window.render();
+};
+
+window.hideConfirmModal = () => {
+    window.adminState.showConfirmModal = false;
+    window.adminState.confirmCallback = null;
+    window.render();
+};
+
+window.executeConfirmAction = () => {
+    if (window.adminState.confirmCallback) {
+        window.adminState.confirmCallback();
+    }
+    window.hideConfirmModal();
 };
 
 // --- Helper Functions ---
@@ -160,19 +189,24 @@ window.handleSaveProduct = async (event) => {
     }
 };
 // --- Delete Product ---
-window.handleDeleteProduct = async (productId) => {
-    if (!confirm('Are you sure you want to delete this product?')) return;
-
-    try {
-        await apiCall(`/products/${productId}`, {
-            method: 'DELETE'
-        });
-        window.showToast('Product deleted successfully!');
-        if (window.api.getProducts) window.api.getProducts();
-    } catch (error) {
-        console.error(error);
-        window.showToast('Failed to delete product');
-    }
+window.handleDeleteProduct = (productId, productName = 'this product') => {
+    window.showConfirmModal(
+        'Delete Product',
+        'Are you sure you want to delete',
+        productName,
+        async () => {
+            try {
+                await apiCall(`/products/${productId}`, {
+                    method: 'DELETE'
+                });
+                window.showToast('Product deleted successfully!', 'success');
+                if (window.api && window.api.getProducts) window.api.getProducts();
+            } catch (error) {
+                console.error(error);
+                window.showToast('Failed to delete product', 'error');
+            }
+        }
+    );
 };
 
 window.handleAddStaff = async (event) => {
@@ -356,7 +390,7 @@ export const AdminPage = (state) => {
                             <td><span class="status-badge ${p.stock > 0 ? 'status-instock' : 'status-outofstock'}">${p.stock > 0 ? 'In Stock' : 'Out of Stock'}</span></td>
                             <td>
                                 ${canManageProducts ? `<button class="btn-ghost" onclick="window.toggleAdminModal(true, 'editProduct', '${p._id || p.id}')">✏️</button>` : ''}
-                                ${canDelete ? `<button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteProduct('${p._id || p.id}')">🗑️</button>` : ''}
+                                ${canDelete ? `<button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteProduct('${p._id || p.id}', '${p.name.replace(/'/g, "\\'")}')">🗑️</button>` : ''}
                             </td>
                         </tr>
                     `).join('')}
@@ -550,6 +584,24 @@ export const AdminPage = (state) => {
                 </main>
             </div>
             ${renderModal()}
+            ${window.adminState.showConfirmModal ? `
+                <div class="modal-overlay active" onclick="if(event.target === this) window.hideConfirmModal()">
+                    <div class="modal-content" style="max-width: 400px; text-align: center;">
+                        <div class="modal-header" style="justify-content: center; border-bottom: none; padding-bottom: 0;">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #fee2e2, #fecaca); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                                <span style="font-size: 1.75rem;">🗑️</span>
+                            </div>
+                        </div>
+                        <h2 style="margin: 0 0 0.5rem; color: var(--text-primary); font-size: 1.25rem;">${window.adminState.confirmTitle}</h2>
+                        <p style="color: var(--text-muted); margin: 0 0 0.5rem;">${window.adminState.confirmMessage}</p>
+                        <p style="color: var(--text-primary); font-weight: 600; margin: 0 0 1.5rem;">"${window.adminState.confirmItemName}"?</p>
+                        <div style="display: flex; gap: 1rem; justify-content: center;">
+                            <button type="button" class="btn btn-secondary" style="flex: 1; padding: 0.75rem 1.5rem;" onclick="window.hideConfirmModal()">Cancel</button>
+                            <button type="button" class="btn" style="flex: 1; padding: 0.75rem 1.5rem; background: #ef4444; color: white; border: none;" onclick="window.executeConfirmAction()">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            ` : ''}
         </div>
     `;
 };
