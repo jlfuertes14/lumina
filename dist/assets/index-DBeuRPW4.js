@@ -1062,7 +1062,7 @@ var W=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var ge=W((fe,D)=>{
                         <p style="color: #F97316; font-weight: 600; margin: 0 0 1.75rem; font-size: 1rem;">"${window.adminState.confirmItemName}"?</p>
                         <div style="display: flex; gap: 1rem; justify-content: center;">
                             <button type="button" style="flex: 1; padding: 0.85rem 1.5rem; background: #f1f5f9; color: #0F172A; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'" onclick="window.hideConfirmModal()">Cancel</button>
-                            <button type="button" style="flex: 1; padding: 0.85rem 1.5rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'" onclick="window.executeConfirmAction()">Delete</button>
+                            <button type="button" style="flex: 1; padding: 0.85rem 1.5rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#002b5b'" onclick="window.executeConfirmAction()">Delete</button>
                         </div>
                     </div>
                 </div>
@@ -1862,7 +1862,7 @@ var W=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var ge=W((fe,D)=>{
                 </button>
             </div>
         </div>
-    `},N=({state:e})=>e.currentUser?(window.handleAdminProfileUpdate||(window.handleAdminProfileUpdate=async t=>{t.preventDefault();const o=t.target,r=o.name.value.trim(),a=o.email.value.trim(),n=o.phone.value.trim();if(!r||!a||!n){showToast("Please fill in all fields.");return}if(/\d/.test(r)){showToast("Name should not contain numbers.");return}if(!a.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(n)){showToast("Phone number must be 11 digits and start with 09.");return}try{await window.api.updateProfile(e.currentUser.id,{name:r,email:a,phone:n}),window.render()}catch(d){console.error("Profile update failed:",d)}}),window.handleAdminPasswordUpdate||(window.handleAdminPasswordUpdate=async t=>{t.preventDefault();const o=t.target,r=o.currentPassword.value,a=o.newPassword.value,n=o.confirmPassword.value;if(a.length<6){showToast("New password must be at least 6 characters.");return}if(a!==n){showToast("New passwords do not match.");return}try{await window.api.changePassword(e.currentUser.id,r,a),o.reset()}catch(d){console.error("Password change failed:",d)}}),window.switchAdminTab||(window.switchAdminTab=t=>{document.querySelectorAll(".admin-tab-content").forEach(a=>a.style.display="none");const o=document.getElementById(`admin-tab-${t}`);o&&(o.style.display="block"),document.querySelectorAll(".admin-sidebar-link").forEach(a=>a.classList.remove("active"));const r=document.querySelector(`[data-tab="${t}"]`);r&&r.classList.add("active"),window.scrollTo(0,0)}),`
+    `},N=({state:e})=>e.currentUser?(window.handleAdminProfileUpdate||(window.handleAdminProfileUpdate=async t=>{t.preventDefault();const o=t.target,r=o.name.value.trim(),a=o.email.value.trim(),n=o.phone.value.trim();if(!r||!a||!n){showToast("Please fill in all fields.");return}if(/\d/.test(r)){showToast("Name should not contain numbers.");return}if(!a.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(n)){showToast("Phone number must be 11 digits and start with 09.");return}try{await window.api.updateProfile(e.currentUser.id,{name:r,email:a,phone:n}),window.render()}catch(d){console.error("Profile update failed:",d)}}),window.handleAdminPasswordUpdate||(window.handleAdminPasswordUpdate=async t=>{t.preventDefault();const o=t.target,r=o.currentPassword.value,a=o.newPassword.value,n=o.confirmPassword.value;if(a.length<6){showToast("New password must be at least 6 characters.");return}if(a!==n){showToast("New passwords do not match.");return}try{await window.api.changePassword(e.currentUser.id,r,a),o.reset()}catch(d){console.error("Password change failed:",d)}}),window.switchAdminProfileTab||(window.switchAdminProfileTab=t=>{document.querySelectorAll(".admin-tab-content").forEach(a=>a.style.display="none");const o=document.getElementById(`admin-tab-${t}`);o&&(o.style.display="block"),document.querySelectorAll(".admin-sidebar-link").forEach(a=>a.classList.remove("active"));const r=document.querySelector(`[data-tab="${t}"]`);r&&r.classList.add("active"),window.scrollTo(0,0)}),`
         <div class="user-page-wrapper">
             <div class="container">
                 <div class="user-layout">
@@ -1875,7 +1875,7 @@ var W=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var ge=W((fe,D)=>{
                             </div>
                             <div class="user-brief-info">
                                 <div class="user-name-truncate">${e.currentUser.name}</div>
-                                <a href="#" onclick="window.switchAdminTab('profile'); return false;" class="edit-profile-link">
+                                <a href="#" onclick="window.switchAdminProfileTab('profile'); return false;" class="edit-profile-link">
                                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                     Edit Profile
                                 </a>
@@ -1888,8 +1888,8 @@ var W=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var ge=W((fe,D)=>{
                                     My Profile
                                 </div>
                                 <ul class="nav-list">
-                                    <li><a href="#" class="admin-sidebar-link active" data-tab="profile" onclick="window.switchAdminTab('profile'); return false;">Profile</a></li>
-                                    <li><a href="#" class="admin-sidebar-link" data-tab="password" onclick="window.switchAdminTab('password'); return false;">Change Password</a></li>
+                                    <li><a href="#" class="admin-sidebar-link active" data-tab="profile" onclick="window.switchAdminProfileTab('profile'); return false;">Profile</a></li>
+                                    <li><a href="#" class="admin-sidebar-link" data-tab="password" onclick="window.switchAdminProfileTab('password'); return false;">Change Password</a></li>
                                 </ul>
                             </div>
                         </nav>

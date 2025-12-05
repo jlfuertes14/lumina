@@ -63,9 +63,9 @@ export const AdminProfilePage = ({ state }) => {
             }
         };
     }
-    // 3. Tab Switching
-    if (!window.switchAdminTab) {
-        window.switchAdminTab = (tabName) => {
+    // 3. Tab Switching (renamed to avoid conflict with AdminPage.js)
+    if (!window.switchAdminProfileTab) {
+        window.switchAdminProfileTab = (tabName) => {
             document.querySelectorAll('.admin-tab-content').forEach(el => el.style.display = 'none');
             const target = document.getElementById(`admin-tab-${tabName}`);
             if (target) target.style.display = 'block';
@@ -88,7 +88,7 @@ export const AdminProfilePage = ({ state }) => {
                             </div>
                             <div class="user-brief-info">
                                 <div class="user-name-truncate">${state.currentUser.name}</div>
-                                <a href="#" onclick="window.switchAdminTab('profile'); return false;" class="edit-profile-link">
+                                <a href="#" onclick="window.switchAdminProfileTab('profile'); return false;" class="edit-profile-link">
                                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                     Edit Profile
                                 </a>
@@ -101,8 +101,8 @@ export const AdminProfilePage = ({ state }) => {
                                     My Profile
                                 </div>
                                 <ul class="nav-list">
-                                    <li><a href="#" class="admin-sidebar-link active" data-tab="profile" onclick="window.switchAdminTab('profile'); return false;">Profile</a></li>
-                                    <li><a href="#" class="admin-sidebar-link" data-tab="password" onclick="window.switchAdminTab('password'); return false;">Change Password</a></li>
+                                    <li><a href="#" class="admin-sidebar-link active" data-tab="profile" onclick="window.switchAdminProfileTab('profile'); return false;">Profile</a></li>
+                                    <li><a href="#" class="admin-sidebar-link" data-tab="password" onclick="window.switchAdminProfileTab('password'); return false;">Change Password</a></li>
                                 </ul>
                             </div>
                         </nav>
