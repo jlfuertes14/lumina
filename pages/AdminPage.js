@@ -86,7 +86,7 @@ window.processImageFile = (file) => {
         const previewArea = document.getElementById('imagePreview');
         const dropZone = document.getElementById('dropZone');
         const previewImg = document.getElementById('previewImg');
-        
+
         if (previewArea && dropZone && previewImg) {
             previewImg.src = e.target.result;
             previewArea.style.display = 'block';
@@ -101,7 +101,7 @@ window.removeImage = () => {
     const previewArea = document.getElementById('imagePreview');
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
-    
+
     if (previewArea && dropZone) {
         previewArea.style.display = 'none';
         dropZone.style.display = 'flex';
@@ -114,29 +114,60 @@ window.handleSaveProduct = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const productData = Object.fromEntries(formData.entries());
-    
+
     productData.price = parseFloat(productData.price);
     productData.stock = parseInt(productData.stock);
 
-    // Use uploaded image if available
+    // Use uploaded image if available, or keep existing image when editing
     if (window.adminState.uploadedImage) {
         productData.image = window.adminState.uploadedImage;
+    } else if (window.adminState.editingId) {
+        // Keep existing image when editing and no new image uploaded
+        const existingProduct = window.state.products.find(p => p.id === window.adminState.editingId);
+        if (existingProduct) {
+            productData.image = existingProduct.image;
+        }
     } else {
-        // Fallback placeholder
-        productData.image = 'https://via.placeholder.com/150'; 
+        // Fallback placeholder for new products
+        productData.image = 'https://via.placeholder.com/150';
     }
 
     try {
-        await apiCall('/products', {
-            method: 'POST',
-            body: JSON.stringify(productData)
-        });
-        window.showToast('Product added successfully!');
+        if (window.adminState.editingId) {
+            // UPDATE existing product
+            await apiCall(`/products/${window.adminState.editingId}`, {
+                method: 'PUT',
+                body: JSON.stringify(productData)
+            });
+            window.showToast('Product updated successfully!');
+        } else {
+            // CREATE new product
+            await apiCall('/products', {
+                method: 'POST',
+                body: JSON.stringify(productData)
+            });
+            window.showToast('Product added successfully!');
+        }
         window.toggleAdminModal(false);
         if (window.api.getProducts) window.api.getProducts();
     } catch (error) {
         console.error(error);
-        window.showToast('Failed to add product');
+        window.showToast(window.adminState.editingId ? 'Failed to update product' : 'Failed to add product');
+    }
+};
+// --- Delete Product ---
+window.handleDeleteProduct = async (productId) => {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+
+    try {
+        await apiCall(`/products/${productId}`, {
+            method: 'DELETE'
+        });
+        window.showToast('Product deleted successfully!');
+        if (window.api.getProducts) window.api.getProducts();
+    } catch (error) {
+        console.error(error);
+        window.showToast('Failed to delete product');
     }
 };
 
@@ -155,7 +186,7 @@ window.handleAddStaff = async (event) => {
                 role: staffData.role
             })
         });
-        
+
         window.showToast('Staff member added!');
         window.toggleAdminModal(false);
         if (window.api.getUsers) window.api.getUsers();
@@ -174,7 +205,7 @@ export const AdminPage = (state) => {
 
     const { activeTab } = window.adminState;
     const userRole = state.currentUser.role;
-    
+
     const canManageProducts = ['admin', 'inventory_manager'].includes(userRole);
     const canManageStaff = ['admin'].includes(userRole);
     const canDelete = ['admin'].includes(userRole);
@@ -321,7 +352,7 @@ export const AdminPage = (state) => {
                             <td><span class="status-badge ${p.stock > 0 ? 'status-instock' : 'status-outofstock'}">${p.stock > 0 ? 'In Stock' : 'Out of Stock'}</span></td>
                             <td>
                                 ${canManageProducts ? `<button class="btn-ghost" onclick="window.toggleAdminModal(true, 'editProduct', '${p.id}')">✏️</button>` : ''}
-                                ${canDelete ? `<button class="btn-ghost" style="color: var(--danger);" onclick="if(confirm('Delete?')) window.showToast('Deleted')">🗑️</button>` : ''}
+                                ${canDelete ? `<button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteProduct('${p.id}')">🗑️</button>` : ''}
                             </td>
                         </tr>
                     `).join('')}
@@ -332,7 +363,7 @@ export const AdminPage = (state) => {
 
     const renderStaffTable = () => {
         const staffUsers = state.users ? state.users.filter(u => ['admin', 'staff', 'inventory_manager', 'manager'].includes(u.role)) : [];
-        
+
         return `
         <div class="admin-page-header">
             <h1 class="admin-title">Staff Management</h1>
@@ -360,53 +391,65 @@ export const AdminPage = (state) => {
 
     const renderModal = () => {
         if (!window.adminState.isModalOpen) return '';
-        
+
         let title = '';
         let content = '';
 
-        if (window.adminState.modalType === 'addProduct') {
-            title = 'Add New Product';
+        if (window.adminState.modalType === 'addProduct' || window.adminState.modalType === 'editProduct') {
+            // Get existing product data if editing
+            const editingProduct = window.adminState.editingId
+                ? state.products.find(p => p.id === window.adminState.editingId)
+                : null;
+
+            title = editingProduct ? 'Edit Product' : 'Add New Product';
             content = `
                 <form onsubmit="window.handleSaveProduct(event)">
                     <div class="modal-body-grid">
                         <div class="modal-left-col">
                             <div class="form-group">
                                 <label class="form-label">Product Name</label>
-                                <input type="text" name="name" class="form-input" required placeholder="e.g. Arduino Uno">
+                                <input type="text" name="name" class="form-input" required placeholder="e.g. Arduino Uno" value="${editingProduct ? editingProduct.name : ''}">
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Category</label>
                                 <select name="category" class="form-input">
-                                    <option>Microcontrollers</option>
-                                    <option>Sensors</option>
-                                    <option>Components</option>
-                                    <option>Robotics</option>
+                                    <option ${editingProduct?.category === 'Microcontrollers' ? 'selected' : ''}>Microcontrollers</option>
+                                    <option ${editingProduct?.category === 'Sensors' ? 'selected' : ''}>Sensors</option>
+                                    <option ${editingProduct?.category === 'Components' ? 'selected' : ''}>Components</option>
+                                    <option ${editingProduct?.category === 'Robotics' ? 'selected' : ''}>Robotics</option>
                                 </select>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                 <div class="form-group">
                                     <label class="form-label">Price</label>
-                                    <input type="number" name="price" step="0.01" class="form-input" required placeholder="0.00">
+                                    <input type="number" name="price" step="0.01" class="form-input" required placeholder="0.00" value="${editingProduct ? editingProduct.price : ''}">
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Stock</label>
-                                    <input type="number" name="stock" class="form-input" required placeholder="0">
+                                    <input type="number" name="stock" class="form-input" required placeholder="0" value="${editingProduct ? editingProduct.stock : ''}">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Description</label>
-                                <textarea name="description" class="form-input" rows="4"></textarea>
+                                <textarea name="description" class="form-input" rows="4">${editingProduct?.description || ''}</textarea>
                             </div>
                         </div>
                         
                         <div class="modal-right-col">
                             <label class="form-label">Product Image</label>
+                            ${editingProduct && editingProduct.image && !window.adminState.uploadedImage ? `
+                                <div class="image-preview-area" style="display: block; margin-bottom: 1rem;">
+                                    <img src="${editingProduct.image}" alt="Current Image">
+                                    <p style="text-align: center; font-size: 0.8rem; color: #64748b; margin-top: 0.5rem;">Current image</p>
+                                </div>
+                            ` : ''}
                             <div class="image-upload-container" id="dropZone" 
                                 ondragover="window.handleDragOver(event)" 
                                 ondragleave="window.handleDragLeave(event)" 
-                                ondrop="window.handleDrop(event)">
+                                ondrop="window.handleDrop(event)"
+                                style="display: ${window.adminState.uploadedImage ? 'none' : 'flex'};">
                                 <div class="upload-icon">☁️</div>
-                                <p style="margin-bottom: 1rem; color: #64748b;">Drag and drop image here or</p>
+                                <p style="margin-bottom: 1rem; color: #64748b;">${editingProduct ? 'Upload new image or keep current' : 'Drag and drop image here or'}</p>
                                 <button type="button" class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">Select files from system</button>
                                 <input type="file" id="fileInput" hidden accept="image/png, image/jpeg" onchange="window.handleImageSelect(event)">
                                 <p style="margin-top: 0.5rem; font-size: 0.8rem; color: #94a3b8;">Max 3MB, JPEG/PNG</p>
@@ -420,7 +463,7 @@ export const AdminPage = (state) => {
 
                     <div class="modal-footer">
                         <button type="button" class="btn-cancel" onclick="window.toggleAdminModal(false)">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Product</button>
+                        <button type="submit" class="btn btn-primary">${editingProduct ? 'Update Product' : 'Add Product'}</button>
                     </div>
                 </form>
             `;
