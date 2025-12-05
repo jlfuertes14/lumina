@@ -1048,8 +1048,8 @@ var W=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var ge=W((fe,D)=>{
             ${k()}
             ${window.adminState.showConfirmModal?`
                 <div class="modal-overlay active" onclick="if(event.target === this) window.hideConfirmModal()">
-                    <div class="modal-content" style="max-width: 420px; text-align: center; background: #1e293b; border: 1px solid #334155; padding: 2rem;">
-                        <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(239, 68, 68, 0.15); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
+                    <div class="modal-content" style="max-width: 420px; text-align: center; background: #ffffff; border: none; padding: 2rem; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.15);">
+                        <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(239, 68, 68, 0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
                             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="3,6 5,6 21,6"></polyline>
                                 <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2v2"></path>
@@ -1057,11 +1057,11 @@ var W=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var ge=W((fe,D)=>{
                                 <line x1="14" y1="11" x2="14" y2="17"></line>
                             </svg>
                         </div>
-                        <h2 style="margin: 0 0 0.75rem; color: #f1f5f9; font-size: 1.35rem; font-weight: 600;">${window.adminState.confirmTitle}</h2>
-                        <p style="color: #94a3b8; margin: 0 0 0.5rem; font-size: 0.95rem;">${window.adminState.confirmMessage}</p>
+                        <h2 style="margin: 0 0 0.75rem; color: #0F172A; font-size: 1.35rem; font-weight: 600;">${window.adminState.confirmTitle}</h2>
+                        <p style="color: #64748b; margin: 0 0 0.5rem; font-size: 0.95rem;">${window.adminState.confirmMessage}</p>
                         <p style="color: #F97316; font-weight: 600; margin: 0 0 1.75rem; font-size: 1rem;">"${window.adminState.confirmItemName}"?</p>
                         <div style="display: flex; gap: 1rem; justify-content: center;">
-                            <button type="button" style="flex: 1; padding: 0.85rem 1.5rem; background: #334155; color: #e2e8f0; border: 1px solid #475569; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s;" onmouseover="this.style.background='#475569'" onmouseout="this.style.background='#334155'" onclick="window.hideConfirmModal()">Cancel</button>
+                            <button type="button" style="flex: 1; padding: 0.85rem 1.5rem; background: #f1f5f9; color: #0F172A; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'" onclick="window.hideConfirmModal()">Cancel</button>
                             <button type="button" style="flex: 1; padding: 0.85rem 1.5rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'" onclick="window.executeConfirmAction()">Delete</button>
                         </div>
                     </div>
