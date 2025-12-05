@@ -84,62 +84,96 @@ router.get('/', async (req, res) => {
     }
 });
 
-// POST create new product with image upload (admin only)
-router.post('/', upload.single('image'), async (req, res) => {
+// POST create new product (handles both JSON with base64 and file upload)
+router.post('/', async (req, res) => {
     try {
-        // Get the highest ID and increment
-        const lastProduct = await Product.findOne().sort({ id: -1 });
-        const newId = lastProduct ? lastProduct.id + 1 : 1;
+        // Handle multipart upload if present
+        upload.single('image')(req, res, async (uploadErr) => {
+            try {
+                // Get the highest ID and increment
+                const lastProduct = await Product.findOne().sort({ id: -1 });
+                const newId = lastProduct ? lastProduct.id + 1 : 1;
 
-        // Determine image path
-        let imagePath = req.body.image; // Default to URL if provided
-        if (req.file) {
-            // Use uploaded file path
-            imagePath = `/images/products/${req.file.filename}`;
-        }
+                // Determine image path - can be base64, URL, or uploaded file
+                let imagePath = req.body.image || 'https://via.placeholder.com/150';
+                if (req.file) {
+                    // Use uploaded file path
+                    imagePath = `/images/products/${req.file.filename}`;
+                }
 
-        const product = new Product({
-            ...req.body,
-            id: newId,
-            image: imagePath,
-            price: parseFloat(req.body.price),
-            stock: parseInt(req.body.stock)
+                const product = new Product({
+                    name: req.body.name,
+                    description: req.body.description || '',
+                    category: req.body.category,
+                    id: newId,
+                    image: imagePath,
+                    price: parseFloat(req.body.price),
+                    stock: parseInt(req.body.stock)
+                });
+
+                await product.save();
+                res.status(201).json({ success: true, data: product });
+            } catch (error) {
+                console.error('Product save error:', error);
+                res.status(400).json({ success: false, error: error.message });
+            }
         });
-
-        await product.save();
-        res.status(201).json({ success: true, data: product });
     } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
+        console.error('Product route error:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// PUT update product with optional image upload (admin only)
-router.put('/:id', upload.single('image'), async (req, res) => {
+// PUT update product (handles both JSON with base64 and file upload)
+router.put('/:id', async (req, res) => {
     try {
-        const updates = { ...req.body };
+        // Handle multipart upload if present
+        upload.single('image')(req, res, async (uploadErr) => {
+            try {
+                const updates = {
+                    name: req.body.name,
+                    description: req.body.description || '',
+                    category: req.body.category,
+                    price: parseFloat(req.body.price),
+                    stock: parseInt(req.body.stock)
+                };
 
-        // If new image uploaded, update image path
-        if (req.file) {
-            updates.image = `/images/products/${req.file.filename}`;
-        }
+                // If new image uploaded or provided, update image
+                if (req.file) {
+                    updates.image = `/images/products/${req.file.filename}`;
+                } else if (req.body.image) {
+                    updates.image = req.body.image;
+                }
 
-        // Parse numeric fields
-        if (updates.price) updates.price = parseFloat(updates.price);
-        if (updates.stock) updates.stock = parseInt(updates.stock);
+                // Try to find by _id first, then by numeric id
+                let product = await Product.findByIdAndUpdate(
+                    req.params.id,
+                    updates,
+                    { new: true, runValidators: true }
+                );
 
-        const product = await Product.findOneAndUpdate(
-            { id: parseInt(req.params.id) },
-            updates,
-            { new: true, runValidators: true }
-        );
+                // If not found by _id, try by numeric id
+                if (!product) {
+                    product = await Product.findOneAndUpdate(
+                        { id: parseInt(req.params.id) },
+                        updates,
+                        { new: true, runValidators: true }
+                    );
+                }
 
-        if (!product) {
-            return res.status(404).json({ success: false, error: 'Product not found' });
-        }
+                if (!product) {
+                    return res.status(404).json({ success: false, error: 'Product not found' });
+                }
 
-        res.json({ success: true, data: product });
+                res.json({ success: true, data: product });
+            } catch (error) {
+                console.error('Product update error:', error);
+                res.status(400).json({ success: false, error: error.message });
+            }
+        });
     } catch (error) {
-        res.status(400).json({ success: false, error: error.message });
+        console.error('Product update route error:', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
@@ -166,7 +200,12 @@ router.patch('/:id/stock', async (req, res) => {
 // DELETE product (admin only)
 router.delete('/:id', async (req, res) => {
     try {
-        const product = await Product.findOneAndDelete({ id: parseInt(req.params.id) });
+        // Try to delete by _id first, then by numeric id
+        let product = await Product.findByIdAndDelete(req.params.id);
+
+        if (!product) {
+            product = await Product.findOneAndDelete({ id: parseInt(req.params.id) });
+        }
 
         if (!product) {
             return res.status(404).json({ success: false, error: 'Product not found' });
@@ -174,6 +213,7 @@ router.delete('/:id', async (req, res) => {
 
         res.json({ success: true, message: 'Product deleted successfully' });
     } catch (error) {
+        console.error('Product delete error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
