@@ -1062,7 +1062,7 @@ var W=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var ge=W((fe,D)=>{
                         <p style="color: #F97316; font-weight: 600; margin: 0 0 1.75rem; font-size: 1rem;">"${window.adminState.confirmItemName}"?</p>
                         <div style="display: flex; gap: 1rem; justify-content: center;">
                             <button type="button" style="flex: 1; padding: 0.85rem 1.5rem; background: #f1f5f9; color: #0F172A; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'" onclick="window.hideConfirmModal()">Cancel</button>
-                            <button type="button" style="flex: 1; padding: 0.85rem 1.5rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'" onclick="window.executeConfirmAction()">Delete</button>
+                            <button type="button" style="flex: 1; padding: 0.85rem 1.5rem; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: all 0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#002b5b'" onclick="window.executeConfirmAction()">Delete</button>
                         </div>
                     </div>
                 </div>
