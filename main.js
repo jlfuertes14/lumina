@@ -417,6 +417,7 @@ const Breadcrumbs = (pageName) => {
 const Header = () => {
     const isLoggedIn = state.currentUser !== null;
     const isAdmin = state.currentUser?.role === 'admin';
+    const isStaffOrAdmin = ['admin', 'staff'].includes(state.currentUser?.role);
     const isCartPage = state.route === 'cart';
     const cartCount = state.cart.length;
     return `
@@ -444,7 +445,7 @@ const Header = () => {
                     </div>
                 ` : ''}
                 <div class="nav-actions" style="gap: 1.5rem;">
-                    ${!isAdmin ? `
+                    ${!isStaffOrAdmin ? `
                     <a href="#" class="action-icon" onclick="window.navigate('cart'); return false;">
                         <div style="position: relative;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
@@ -1674,6 +1675,10 @@ window.adjustDetailQty = (change) => {
 };
 
 window.addToCartFromDetail = (productId) => {
+    // Block cart functionality for admin/staff
+    if (state.currentUser && ['admin', 'staff'].includes(state.currentUser.role)) {
+        return; // Silently do nothing
+    }
     const qty = parseInt(document.getElementById('detailQty').value);
     if (!state.currentUser) {
         showToast('Please login to shop');
@@ -1696,6 +1701,10 @@ window.addToCartFromDetail = (productId) => {
 };
 
 window.addToCart = async (productId) => {
+    // Block cart functionality for admin/staff
+    if (state.currentUser && ['admin', 'staff'].includes(state.currentUser.role)) {
+        return; // Silently do nothing
+    }
     if (!state.currentUser) {
         window.showToast('Please login to shop');
         window.openLoginModal();
