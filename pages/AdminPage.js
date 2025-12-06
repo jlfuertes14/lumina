@@ -456,8 +456,8 @@ export const AdminPage = (state) => {
                             <td>${p.stock}</td>
                             <td><span class="status-badge ${p.stock > 0 ? 'status-instock' : 'status-outofstock'}">${p.stock > 0 ? 'In Stock' : 'Out of Stock'}</span></td>
                             <td>
-                                ${canManageProducts ? `<button class="btn-ghost" onclick="window.toggleAdminModal(true, 'editProduct', '${p._id || p.id}')">✏️</button>` : ''}
-                                ${canDelete ? `<button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteProduct('${p._id || p.id}', '${p.name.replace(/'/g, "\\'")}')">🗑️</button>` : ''}
+                                ${canManageProducts ? `<button class="btn-ghost" onclick="window.toggleAdminModal(true, 'editProduct', '${p.id}')">✏️</button>` : ''}
+                                ${canDelete ? `<button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteProduct('${p.id}', '${p.name.replace(/'/g, "\\'")}')">🗑️</button>` : ''}
                             </td>
                         </tr>
                     `).join('')}
@@ -569,8 +569,8 @@ export const AdminPage = (state) => {
                             <td>${u.email}</td>
                             <td>
                                 ${u.role !== 'admin' ? `
-                                    <button class="btn-ghost" onclick="window.handleEditStaff('${u._id || u.id}')">✏️</button>
-                                    <button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteStaff('${u._id || u.id}', '${u.name.replace(/'/g, "\\'")}')">🗑️</button>
+                                    <button class="btn-ghost" onclick="window.handleEditStaff('${u.id}')">✏️</button>
+                                    <button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteStaff('${u.id}', '${u.name.replace(/'/g, "\\'")}')">🗑️</button>
                                 ` : '<span style="color: #94a3b8; font-size: 0.875rem;">Protected</span>'}
                             </td>
                         </tr>
