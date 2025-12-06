@@ -447,7 +447,7 @@ export const AdminPage = (state) => {
                                     <img src="${p.image}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
                                     <div>
                                         <div style="font-weight: 500;">${p.name}</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted);">SKU: ${p.id}</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);">SKU: ${p._id || p.id}</div>
                                     </div>
                                 </div>
                             </td>
@@ -456,8 +456,8 @@ export const AdminPage = (state) => {
                             <td>${p.stock}</td>
                             <td><span class="status-badge ${p.stock > 0 ? 'status-instock' : 'status-outofstock'}">${p.stock > 0 ? 'In Stock' : 'Out of Stock'}</span></td>
                             <td>
-                                ${canManageProducts ? `<button class="btn-ghost" onclick="window.toggleAdminModal(true, 'editProduct', '${p.id}')">✏️</button>` : ''}
-                                ${canDelete ? `<button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteProduct('${p.id}', '${p.name.replace(/'/g, "\\'")}')">🗑️</button>` : ''}
+                                ${canManageProducts ? `<button class="btn-ghost" onclick="window.toggleAdminModal(true, 'editProduct', '${p._id || p.id}')">✏️</button>` : ''}
+                                ${canDelete ? `<button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteProduct('${p._id || p.id}', '${p.name.replace(/'/g, "\\'")}')">🗑️</button>` : ''}
                             </td>
                         </tr>
                     `).join('')}
@@ -589,7 +589,7 @@ export const AdminPage = (state) => {
         if (window.adminState.modalType === 'addProduct' || window.adminState.modalType === 'editProduct') {
             // Get existing product data if editing (convert to string for comparison)
             const editingProduct = window.adminState.editingId
-                ? state.products.find(p => String(p.id) === String(window.adminState.editingId) || p._id === window.adminState.editingId)
+                ? state.products.find(p => String(p._id || p.id) === String(window.adminState.editingId))
                 : null;
 
             title = editingProduct ? 'Edit Product' : 'Add New Product';
