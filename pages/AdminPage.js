@@ -155,10 +155,15 @@ window.handleSaveProduct = async (event) => {
     if (window.adminState.uploadedImage) {
         productData.image = window.adminState.uploadedImage;
     } else if (window.adminState.editingId) {
-        // Keep existing image when editing and no new image uploaded
-        const existingProduct = window.state.products.find(p => String(p.id) === String(window.adminState.editingId) || p._id === window.adminState.editingId);
-        if (existingProduct) {
-            productData.image = existingProduct.image;
+        // When editing without a new image, fetch current product to get existing image
+        try {
+            const existingProductResponse = await apiCall(`/products/${window.adminState.editingId}`);
+            if (existingProductResponse && existingProductResponse.data) {
+                productData.image = existingProductResponse.data.image;
+            }
+        } catch (error) {
+            console.warn('Could not fetch existing product image:', error);
+            // If we can't fetch it, don't include image in update (server will keep existing)
         }
     } else {
         // Fallback placeholder for new products
