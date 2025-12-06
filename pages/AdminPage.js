@@ -45,6 +45,10 @@ window.switchAdminTab = (tab) => {
     if (tab === 'staff' && window.api && window.api.getUsers) {
         window.api.getUsers();
     }
+    if (tab === 'orders' && window.api) {
+        if (window.api.getOrders) window.api.getOrders();
+        if (window.api.getUsers) window.api.getUsers();
+    }
     window.render();
     if (tab === 'dashboard') {
         setTimeout(() => window.initAdminCharts(), 100);
@@ -209,34 +213,88 @@ window.handleDeleteProduct = (productId, productName = 'this product') => {
     );
 };
 
-window.handleAddStaff = async (event) => {
+// --- Staff CRUD Functions ---
+window.handleSaveStaff = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const staffData = Object.fromEntries(formData.entries());
 
     try {
-        await apiCall('/users/register', {
-            method: 'POST',
-            body: JSON.stringify({
-                name: staffData.name,
-                email: staffData.email,
-                password: staffData.password,
-                role: staffData.role
-            })
-        });
-
-        window.showToast('Staff member added!');
+        if (window.adminState.editingId) {
+            // UPDATE existing staff
+            await apiCall(`/users/${window.adminState.editingId}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    name: staffData.name,
+                    email: staffData.email,
+                    role: 'staff' // Always staff, never admin
+                })
+            });
+            window.showToast('Staff member updated!', 'success');
+        } else {
+            // CREATE new staff
+            await apiCall('/users/register', {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: staffData.name,
+                    email: staffData.email,
+                    password: staffData.password,
+                    role: 'staff' // Always staff, never admin
+                })
+            });
+            window.showToast('Staff member added!', 'success');
+        }
         window.toggleAdminModal(false);
         if (window.api.getUsers) window.api.getUsers();
     } catch (error) {
         console.error(error);
-        window.showToast('Failed to add staff');
+        window.showToast(error.message || 'Failed to save staff', 'error');
+    }
+};
+
+window.handleEditStaff = (userId) => {
+    window.adminState.editingId = userId;
+    window.toggleAdminModal(true, 'editStaff', userId);
+};
+
+window.handleDeleteStaff = (userId, userName = 'this staff member') => {
+    window.showConfirmModal(
+        'Delete Staff',
+        'Are you sure you want to delete',
+        userName,
+        async () => {
+            try {
+                await apiCall(`/users/${userId}`, {
+                    method: 'DELETE'
+                });
+                window.showToast('Staff member deleted!', 'success');
+                if (window.api.getUsers) window.api.getUsers();
+            } catch (error) {
+                console.error(error);
+                window.showToast('Failed to delete staff', 'error');
+            }
+        }
+    );
+};
+
+// --- Order Status Update ---
+window.handleOrderStatusUpdate = async (orderId, newStatus) => {
+    try {
+        await apiCall(`/orders/${orderId}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status: newStatus })
+        });
+        window.showToast(`Order ${orderId} updated to ${newStatus}!`, 'success');
+        if (window.api.getOrders) window.api.getOrders();
+    } catch (error) {
+        console.error(error);
+        window.showToast('Failed to update order status', 'error');
     }
 };
 
 // --- Main Component ---
 export const AdminPage = (state) => {
-    if (!state.currentUser || !['admin', 'staff', 'inventory_manager'].includes(state.currentUser.role)) {
+    if (!state.currentUser || !['admin', 'staff'].includes(state.currentUser.role)) {
         setTimeout(() => window.navigate('home'), 0);
         return '';
     }
@@ -244,9 +302,13 @@ export const AdminPage = (state) => {
     const { activeTab } = window.adminState;
     const userRole = state.currentUser.role;
 
-    const canManageProducts = ['admin', 'inventory_manager'].includes(userRole);
-    const canManageStaff = ['admin'].includes(userRole);
-    const canDelete = ['admin'].includes(userRole);
+    // Role-based permissions
+    const isAdmin = userRole === 'admin';
+    const canManageProducts = isAdmin; // Only admin can add/delete products
+    const canEditStock = ['admin', 'staff'].includes(userRole); // Staff can update stock
+    const canManageStaff = isAdmin; // Only admin can manage staff
+    const canManageOrders = ['admin', 'staff'].includes(userRole); // Both can manage orders
+    const canDelete = isAdmin; // Only admin can delete
 
     const totalSales = state.orders.reduce((acc, order) => acc + (order.total || 0), 0);
     const totalOrders = state.orders.length;
@@ -263,13 +325,13 @@ export const AdminPage = (state) => {
                 <div class="sidebar-item ${activeTab === 'products' ? 'active' : ''}" onclick="window.switchAdminTab('products')">
                     <span>📦</span> Products
                 </div>
+                <div class="sidebar-item ${activeTab === 'orders' ? 'active' : ''}" onclick="window.switchAdminTab('orders')">
+                    <span>📋</span> Orders
+                </div>
                 ${canManageStaff ? `
                 <div class="sidebar-item ${activeTab === 'staff' ? 'active' : ''}" onclick="window.switchAdminTab('staff')">
                     <span>👥</span> Staff
                 </div>` : ''}
-                <div class="sidebar-item ${activeTab === 'settings' ? 'active' : ''}" onclick="window.switchAdminTab('settings')">
-                    <span>⚙️</span> Settings
-                </div>
                 
                 <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
                     <div class="sidebar-item" onclick="window.navigate('home')">
@@ -304,7 +366,7 @@ export const AdminPage = (state) => {
             ${canManageProducts ? `<div class="action-card" onclick="window.toggleAdminModal(true, 'addProduct')"><div class="action-icon">➕</div><div>Add Product</div></div>` : ''}
             ${canManageStaff ? `<div class="action-card" onclick="window.toggleAdminModal(true, 'addStaff')"><div class="action-icon">👤</div><div>Add Staff</div></div>` : ''}
             <div class="action-card" onclick="window.switchAdminTab('products')"><div class="action-icon">📦</div><div>Inventory</div></div>
-            <div class="action-card"><div class="action-icon">📄</div><div>Orders</div></div>
+            <div class="action-card" onclick="window.switchAdminTab('orders')"><div class="action-icon">📄</div><div>Orders</div></div>
         </div>
 
         <div class="stats-grid">
@@ -399,8 +461,87 @@ export const AdminPage = (state) => {
         </div>
     `;
 
+    const renderOrdersTab = () => {
+        const allOrders = [...state.orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        return `
+        <div class="admin-page-header">
+            <h1 class="admin-title">Order Management</h1>
+            <div style="display: flex; gap: 0.5rem;">
+                <span class="status-badge status-pending">${state.orders.filter(o => o.status === 'Pending').length} Pending</span>
+                <span class="status-badge status-processing">${state.orders.filter(o => o.status === 'Processing').length} Processing</span>
+            </div>
+        </div>
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Customer</th>
+                        <th>Items</th>
+                        <th>Delivery Address</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${allOrders.length > 0 ? allOrders.map(order => {
+            const customer = state.users.find(u => u.id === order.userId);
+            const customerName = customer ? customer.name : 'Unknown';
+            const customerAddress = customer?.address || {};
+            const deliveryAddress = order.shippingAddress ||
+                (customerAddress.street ?
+                    `${customerAddress.street}, ${customerAddress.barangay || ''}, ${customerAddress.city || ''}, ${customerAddress.province || ''} ${customerAddress.postalCode || ''}`
+                    : 'No address provided');
+
+            return `
+                        <tr>
+                            <td style="font-weight: 600; color: #3b82f6;">#${order.orderId}</td>
+                            <td>${new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <div class="admin-avatar-circle" style="width: 28px; height: 28px; font-size: 0.75rem;">${customerName.charAt(0).toUpperCase()}</div>
+                                    <span>${customerName}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="max-width: 200px;">
+                                    ${order.items.map(item => `
+                                        <div style="font-size: 0.8rem; color: #64748b;">
+                                            ${item.quantity}x ${item.productName || 'Item'}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </td>
+                            <td>
+                                <div style="max-width: 180px; font-size: 0.85rem; color: #64748b;">
+                                    ${deliveryAddress}
+                                </div>
+                            </td>
+                            <td style="font-weight: 600;">${formatCurrency(order.total)}</td>
+                            <td>
+                                <select 
+                                    class="form-input" 
+                                    style="padding: 0.4rem 0.6rem; font-size: 0.85rem; min-width: 120px;"
+                                    onchange="window.handleOrderStatusUpdate('${order.orderId}', this.value)"
+                                >
+                                    <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>📦 Pending</option>
+                                    <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>🔄 Processing</option>
+                                    <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>✅ Completed</option>
+                                    <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+                                </select>
+                            </td>
+                        </tr>
+                        `;
+        }).join('') : '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No orders found.</td></tr>'}
+                </tbody>
+            </table>
+        </div>
+    `};
+
     const renderStaffTable = () => {
-        const staffUsers = state.users ? state.users.filter(u => ['admin', 'staff', 'inventory_manager', 'manager'].includes(u.role)) : [];
+        const staffUsers = state.users ? state.users.filter(u => ['admin', 'staff'].includes(u.role)) : [];
 
         return `
         <div class="admin-page-header">
@@ -413,12 +554,19 @@ export const AdminPage = (state) => {
                 <tbody>
                     ${staffUsers.length > 0 ? staffUsers.map(u => `
                         <tr>
-                            <td><div style="font-weight: 500;">${u.name}</div></td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div class="admin-avatar-circle" style="width: 36px; height: 36px; font-size: 0.875rem;">${u.name.charAt(0).toUpperCase()}</div>
+                                    <div style="font-weight: 500;">${u.name}</div>
+                                </div>
+                            </td>
                             <td><span class="status-badge status-${u.role === 'admin' ? 'admin' : 'staff'}">${u.role.toUpperCase()}</span></td>
                             <td>${u.email}</td>
                             <td>
-                                <button class="btn-ghost">✏️</button>
-                                ${u.role !== 'admin' ? `<button class="btn-ghost" style="color: var(--danger);">🗑️</button>` : ''}
+                                ${u.role !== 'admin' ? `
+                                    <button class="btn-ghost" onclick="window.handleEditStaff('${u._id || u.id}')">✏️</button>
+                                    <button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteStaff('${u._id || u.id}', '${u.name.replace(/'/g, "\\'")}')">🗑️</button>
+                                ` : '<span style="color: #94a3b8; font-size: 0.875rem;">Protected</span>'}
                             </td>
                         </tr>
                     `).join('') : '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No staff members found.</td></tr>'}
@@ -517,33 +665,32 @@ export const AdminPage = (state) => {
                     </div>
                 </form>
             `;
-        } else if (window.adminState.modalType === 'addStaff') {
-            title = 'Add Staff Member';
+        } else if (window.adminState.modalType === 'addStaff' || window.adminState.modalType === 'editStaff') {
+            const editingStaff = window.adminState.editingId
+                ? state.users.find(u => String(u.id) === String(window.adminState.editingId) || u._id === window.adminState.editingId)
+                : null;
+
+            title = editingStaff ? 'Edit Staff Member' : 'Add Staff Member';
             content = `
-                <form onsubmit="window.handleAddStaff(event)">
+                <form onsubmit="window.handleSaveStaff(event)">
                     <div class="form-group">
                         <label class="form-label">Full Name</label>
-                        <input type="text" name="name" class="form-input" required>
+                        <input type="text" name="name" class="form-input" required value="${editingStaff ? editingStaff.name : ''}">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-input" required>
+                        <input type="email" name="email" class="form-input" required value="${editingStaff ? editingStaff.email : ''}">
                     </div>
+                    ${!editingStaff ? `
                     <div class="form-group">
                         <label class="form-label">Password</label>
                         <input type="password" name="password" class="form-input" required>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Role</label>
-                        <select name="role" class="form-input">
-                            <option value="staff">Inventory Staff</option>
-                            <option value="manager">Order Manager</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
+                    ` : ''}
+                    <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 1rem;">Role: <strong>Staff</strong></p>
                     <div class="modal-footer">
                         <button type="button" class="btn-cancel" onclick="window.toggleAdminModal(false)">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Staff</button>
+                        <button type="submit" class="btn btn-primary">${editingStaff ? 'Update Staff' : 'Add Staff'}</button>
                     </div>
                 </form>
             `;
@@ -579,8 +726,8 @@ export const AdminPage = (state) => {
                 <main class="admin-main">
                     ${activeTab === 'dashboard' ? renderDashboard() : ''}
                     ${activeTab === 'products' ? renderProductsTable() : ''}
+                    ${activeTab === 'orders' ? renderOrdersTab() : ''}
                     ${activeTab === 'staff' ? renderStaffTable() : ''}
-                    ${activeTab === 'settings' ? '<div class="admin-page-header"><h1>Settings</h1><p>System settings coming soon...</p></div>' : ''}
                 </main>
             </div>
             ${renderModal()}

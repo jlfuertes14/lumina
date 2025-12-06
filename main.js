@@ -133,7 +133,7 @@ const api = {
     },
 
     getOrders: async () => {
-        if (!state.currentUser || state.currentUser.role !== 'admin') return;
+        if (!state.currentUser || !['admin', 'staff'].includes(state.currentUser.role)) return;
         try {
             const response = await apiCall('/orders');
             state.orders = response.data;
@@ -155,7 +155,7 @@ const api = {
     },
 
     getUsers: async () => {
-        if (!state.currentUser || state.currentUser.role !== 'admin') return;
+        if (!state.currentUser || !['admin', 'staff'].includes(state.currentUser.role)) return;
         try {
             const response = await apiCall('/users');
             state.users = response.data;
@@ -472,8 +472,8 @@ const Header = () => {
                                 
                             
                                 
-                                ${state.currentUser.role === 'admin' ? `
-                                    <!-- Admin Only Items -->
+                                ${['admin', 'staff'].includes(state.currentUser.role) ? `
+                                    <!-- Admin/Staff Items -->
 
                                     <a href="#" class="user-menu-item" onclick="window.navigate('admin-profile'); return false;">
                                         <span class="menu-icon">👤</span>
@@ -481,7 +481,7 @@ const Header = () => {
                                     </a>
                                     <a href="#" class="user-menu-item" onclick="window.navigate('admin'); return false;">
                                         <span class="menu-icon">📊</span>
-                                        <span>Admin Dashboard</span>
+                                        <span>${state.currentUser.role === 'admin' ? 'Admin Dashboard' : 'Staff Dashboard'}</span>
                                     </a>
                                 ` : `
                                     <!-- Customer Only Items -->
