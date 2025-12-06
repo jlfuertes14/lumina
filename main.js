@@ -214,6 +214,10 @@ const api = {
     },
     // Coupons
     claimCoupon: async (couponCode) => {
+        // Block coupon claiming for admin/staff
+        if (state.currentUser && ['admin', 'staff'].includes(state.currentUser.role)) {
+            return; // Silently do nothing
+        }
         if (!state.currentUser) {
             showToast('Please login to claim coupons');
             window.openLoginModal();
