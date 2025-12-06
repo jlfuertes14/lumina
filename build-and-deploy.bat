@@ -1,6 +1,6 @@
 @echo off
 echo Building the site for GitHub Pages...
-call npm run build
+call npm run build:frontend
 echo.
 echo Copying built files to root for GitHub Pages...
 xcopy /E /Y /I dist\* .
