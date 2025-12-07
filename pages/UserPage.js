@@ -17,16 +17,13 @@ export const UserPage = ({ state }) => {
     // Get user's claimed coupons from state
     const myCoupons = state.myCoupons || [];
 
-    // Auto-switch to specified tab: priority is params.tab > sessionStorage > 'profile'
+    // Determine active tab: priority is params.tab > sessionStorage > 'profile'
     const savedTab = sessionStorage.getItem('userActiveTab');
-    const targetTab = (state.params && state.params.tab) ? state.params.tab : savedTab;
+    const activeTab = (state.params && state.params.tab) ? state.params.tab : (savedTab || 'profile');
 
-    if (targetTab && window.switchUserTab) {
-        const shouldSwitch = !window._lastSwitchedTab || window._lastSwitchedTab !== targetTab;
-        if (shouldSwitch) {
-            window._lastSwitchedTab = targetTab;
-            setTimeout(() => window.switchUserTab(targetTab), 50);
-        }
+    // Save the active tab to sessionStorage on initial load
+    if (activeTab && activeTab !== savedTab) {
+        sessionStorage.setItem('userActiveTab', acztiveTab);
     }
 
 
@@ -263,9 +260,9 @@ export const UserPage = ({ state }) => {
                                     My Account
                                 </div>
                                 <ul class="nav-list">
-                                    <li><a href="#" class="sidebar-link active" data-tab="profile" onclick="window.switchUserTab('profile'); return false;">Profile</a></li>
-                                    <li><a href="#" class="sidebar-link" data-tab="address" onclick="window.switchUserTab('address'); return false;">Addresses</a></li>
-                                    <li><a href="#" class="sidebar-link" data-tab="password" onclick="window.switchUserTab('password'); return false;">Change Password</a></li>
+                                    <li><a href="#" class="sidebar-link ${activeTab === 'profile' ? 'active' : ''}" data-tab="profile" onclick="window.switchUserTab('profile'); return false;">Profile</a></li>
+                                    <li><a href="#" class="sidebar-link ${activeTab === 'address' ? 'active' : ''}" data-tab="address" onclick="window.switchUserTab('address'); return false;">Addresses</a></li>
+                                    <li><a href="#" class="sidebar-link ${activeTab === 'password' ? 'active' : ''}" data-tab="password" onclick="window.switchUserTab('password'); return false;">Change Password</a></li>
                                 </ul>
                             </div>
                             <div class="nav-group">
@@ -274,7 +271,7 @@ export const UserPage = ({ state }) => {
                                     My Purchase
                                 </div>
                                 <ul class="nav-list">
-                                    <li><a href="#" class="sidebar-link" data-tab="orders" onclick="window.switchUserTab('orders'); return false;">Order History</a></li>
+                                    <li><a href="#" class="sidebar-link ${activeTab === 'orders' ? 'active' : ''}" data-tab="orders" onclick="window.switchUserTab('orders'); return false;">Order History</a></li>
                                 </ul>
                             </div>
                             <div class="nav-group">
@@ -283,7 +280,7 @@ export const UserPage = ({ state }) => {
                                     My Vouchers
                                 </div>
                                 <ul class="nav-list">
-                                    <li><a href="#" class="sidebar-link" data-tab="coupons" onclick="window.switchUserTab('coupons'); return false;">My Coupons</a></li>
+                                    <li><a href="#" class="sidebar-link ${activeTab === 'coupons' ? 'active' : ''}" data-tab="coupons" onclick="window.switchUserTab('coupons'); return false;">My Coupons</a></li>
                                 </ul>
                             </div>
                         </nav>
@@ -293,7 +290,7 @@ export const UserPage = ({ state }) => {
                     <main class="user-content">
                         
                         <!-- 1. Profile Tab -->
-                        <div id="user-tab-profile" class="user-tab-content">
+                        <div id="user-tab-profile" class="user-tab-content" style="display: ${activeTab === 'profile' ? 'block' : 'none'};">
                             <div class="content-header">
                                 <h1>My Profile</h1>
                                 <p>Manage and protect your account</p>
@@ -373,7 +370,7 @@ export const UserPage = ({ state }) => {
                         </div>
 
                         <!-- 2. Address Tab -->
-                        <div id="user-tab-address" class="user-tab-content" style="display: none;">
+                        <div id="user-tab-address" class="user-tab-content" style="display: ${activeTab === 'address' ? 'block' : 'none'};">
                             <div class="content-header">
                                 <h1>My Addresses</h1>
                                 <p>Manage your shipping addresses</p>
@@ -424,7 +421,7 @@ export const UserPage = ({ state }) => {
                         </div>
 
                         <!-- 3. Change Password Tab -->
-                        <div id="user-tab-password" class="user-tab-content" style="display: none;">
+                        <div id="user-tab-password" class="user-tab-content" style="display: ${activeTab === 'password' ? 'block' : 'none'};">
                             <div class="content-header">
                                 <h1>Change Password</h1>
                                 <p>For your account's security, do not share your password with anyone else</p>
@@ -447,7 +444,7 @@ export const UserPage = ({ state }) => {
                         </div>
 
                         <!-- 4. Orders Tab -->
-                        <div id="user-tab-orders" class="user-tab-content" style="display: none;">
+                        <div id="user-tab-orders" class="user-tab-content" style="display: ${activeTab === 'orders' ? 'block' : 'none'};">
                             <div class="content-header">
                                 <h1>My Orders</h1>
                             </div>
@@ -497,7 +494,7 @@ export const UserPage = ({ state }) => {
                         </div>
 
                         <!-- 5. My Coupons Tab -->
-                        <div id="user-tab-coupons" class="user-tab-content" style="display: none;">
+                        <div id="user-tab-coupons" class="user-tab-content" style="display: ${activeTab === 'coupons' ? 'block' : 'none'};">
                             <div class="content-header">
                                 <h1>My Vouchers</h1>
                                 <div style="display: flex; gap: 1rem; font-size: 0.875rem;">
