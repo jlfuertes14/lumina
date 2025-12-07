@@ -21,6 +21,7 @@ const state = {
     currentUser: JSON.parse(localStorage.getItem('currentUser')) || null,
     cart: JSON.parse(localStorage.getItem('cart_v2')) || [],
     route: sessionStorage.getItem('currentRoute') || 'home', // Restore last route or default to home
+    params: {}, // Store navigation params like { tab: 'coupons' }
     mobileMenuOpen: false, // For hamburger navigation
     searchQuery: '',
     showSuggestions: false,
@@ -3772,6 +3773,9 @@ window.navigate = (route, params) => {
             window.history.replaceState({}, '', url);
         }
     }
+
+    // Reset tab tracker so UserPage can switch to requested tab
+    window._lastSwitchedTab = null;
 
     window.showLoading();
     setTimeout(() => {
