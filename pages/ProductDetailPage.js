@@ -46,7 +46,7 @@ export const ProductDetailPage = ({ Breadcrumbs, state }) => {
                         <span class="detail-label">Quantity</span>
                         <div class="quantity-selector">
                             <button class="qty-btn" onclick="window.adjustDetailQty(-1)">-</button>
-                            <input type="number" id="detailQty" class="qty-input" value="1" min="1" max="${product.stock}" readonly>
+                            <input type="number" id="detailQty" class="qty-input" value="1" min="1" max="${product.stock}" oninput="window.handleDetailQtyInput(this)">
                             <button class="qty-btn" onclick="window.adjustDetailQty(1)">+</button>
                         </div>
                     </div>

@@ -1667,6 +1667,10 @@ window.handleSort = (sortValue) => {
 
 window.viewProduct = (productId) => {
     state.currentProductId = productId;
+    sessionStorage.setItem('currentProductId', productId);
+    const url = new URL(window.location);
+    url.searchParams.set('product_id', productId);
+    window.history.pushState({}, '', url);
     navigate('product-detail');
 };
 
@@ -1676,6 +1680,12 @@ window.adjustDetailQty = (change) => {
     if (newQty < 1) newQty = 1;
     // Check max stock if needed, though simple logic is fine
     qtyInput.value = newQty;
+};
+
+window.handleDetailQtyInput = (input) => {
+    let val = parseInt(input.value);
+    if (isNaN(val) || val < 1) val = 1;
+    input.value = val;
 };
 
 window.addToCartFromDetail = (productId) => {
@@ -1755,16 +1765,21 @@ window.addToCart = async (productId) => {
 };
 
 window.updateQuantity = (productId, newQuantity) => {
-    if (newQuantity < 1) {
-        window.removeFromCart(productId);
-        return;
-    }
+    let qty = parseInt(newQuantity);
+    if (isNaN(qty) || qty < 1) qty = 1;
+
     const item = state.cart.find(item => item.id === productId);
     if (item) {
-        item.quantity = newQuantity;
+        item.quantity = qty;
         saveState();
         render();
     }
+};
+
+window.handleCartQtyInput = (productId, input) => {
+    let newQty = parseInt(input.value);
+    if (isNaN(newQty) || newQty < 1) return; // Wait for valid input
+    window.updateQuantity(productId, newQty);
 };
 
 window.removeFromCart = (productId) => {
@@ -3350,7 +3365,11 @@ function updateCartItems() {
                 </div>
                 <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
                     <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
-                    <span>${item.quantity}</span>
+                    <input type="number" 
+                           value="${item.quantity}" 
+                           min="1" 
+                           style="width: 50px; text-align: center; border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem;"
+                           oninput="window.handleCartQtyInput(${item.id}, this)">
                     <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
                 </div>
                 
@@ -3599,6 +3618,23 @@ window.openVideoModal = (videoId) => {
 
 // --- App Initialization ---
 const initApp = async () => {
+    // Check for product_id in URL or persist from session
+    const urlParams = new URLSearchParams(window.location.search);
+    const productIdParam = urlParams.get('product_id');
+    const storedProductId = sessionStorage.getItem('currentProductId');
+
+    if (productIdParam) {
+        state.currentProductId = parseInt(productIdParam);
+        sessionStorage.setItem('currentProductId', state.currentProductId);
+        state.route = 'product-detail';
+    } else if (storedProductId) {
+        state.currentProductId = parseInt(storedProductId);
+        // We only set route if restoring session warrants it, or if we want to be sticky.
+        // For now, let's keep it simple: if session has ID, just restore ID.
+        // But if you prefer sticky on reload:
+        // state.route = 'product-detail'; 
+    }
+
     await api.getProducts();
     if (state.currentUser?.role === 'admin') {
         await Promise.all([
