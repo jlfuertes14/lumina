@@ -1683,6 +1683,12 @@ window.adjustDetailQty = (change) => {
 };
 
 window.handleDetailQtyInput = (input) => {
+    // Allow empty input while typing - don't force validation on every keystroke
+    // Validation will happen on blur or when adding to cart
+};
+
+window.handleDetailQtyBlur = (input) => {
+    // Validate when user leaves the field
     let val = parseInt(input.value);
     if (isNaN(val) || val < 1) val = 1;
     input.value = val;
@@ -1777,8 +1783,15 @@ window.updateQuantity = (productId, newQuantity) => {
 };
 
 window.handleCartQtyInput = (productId, input) => {
+    // Allow empty input while typing - validation on blur
+};
+
+window.handleCartQtyBlur = (productId, input) => {
     let newQty = parseInt(input.value);
-    if (isNaN(newQty) || newQty < 1) return; // Wait for valid input
+    if (isNaN(newQty) || newQty < 1) {
+        newQty = 1;
+        input.value = 1;
+    }
     window.updateQuantity(productId, newQty);
 };
 
@@ -3369,7 +3382,8 @@ function updateCartItems() {
                            value="${item.quantity}" 
                            min="1" 
                            style="width: 50px; text-align: center; border: 1px solid var(--border); border-radius: 4px; padding: 0.25rem;"
-                           oninput="window.handleCartQtyInput(${item.id}, this)">
+                           oninput="window.handleCartQtyInput(${item.id}, this)"
+                           onblur="window.handleCartQtyBlur(${item.id}, this)">
                     <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
                 </div>
                 
