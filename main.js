@@ -3762,6 +3762,17 @@ window.handleModalLogin = async (event) => {
 // Example usage in navigate:
 const originalNavigate = window.navigate;
 window.navigate = (route, params) => {
+    // Clear product session when navigating away from product-detail
+    if (route !== 'product-detail') {
+        sessionStorage.removeItem('currentProductId');
+        // Also clear URL param
+        const url = new URL(window.location);
+        if (url.searchParams.has('product_id')) {
+            url.searchParams.delete('product_id');
+            window.history.replaceState({}, '', url);
+        }
+    }
+
     window.showLoading();
     setTimeout(() => {
         originalNavigate(route, params);
