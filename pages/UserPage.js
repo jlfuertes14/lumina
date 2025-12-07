@@ -23,7 +23,7 @@ export const UserPage = ({ state }) => {
 
     // Save the active tab to sessionStorage on initial load
     if (activeTab && activeTab !== savedTab) {
-        sessionStorage.setItem('userActiveTab', acztiveTab);
+        sessionStorage.setItem('userActiveTab', activeTab);
     }
 
 
