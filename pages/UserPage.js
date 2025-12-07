@@ -16,13 +16,16 @@ export const UserPage = ({ state }) => {
 
     // Get user's claimed coupons from state
     const myCoupons = state.myCoupons || [];
-    
-    // Auto-switch to specified tab if navigated with tab parameter (only once per navigation)
-    if (state.params && state.params.tab && window.switchUserTab) {
-        const shouldSwitch = !window._lastSwitchedTab || window._lastSwitchedTab !== state.params.tab;
+
+    // Auto-switch to specified tab: priority is params.tab > sessionStorage > 'profile'
+    const savedTab = sessionStorage.getItem('userActiveTab');
+    const targetTab = (state.params && state.params.tab) ? state.params.tab : savedTab;
+
+    if (targetTab && window.switchUserTab) {
+        const shouldSwitch = !window._lastSwitchedTab || window._lastSwitchedTab !== targetTab;
         if (shouldSwitch) {
-            window._lastSwitchedTab = state.params.tab;
-            setTimeout(() => window.switchUserTab(state.params.tab), 50);
+            window._lastSwitchedTab = targetTab;
+            setTimeout(() => window.switchUserTab(targetTab), 50);
         }
     }
 
@@ -175,6 +178,9 @@ export const UserPage = ({ state }) => {
     // 5. Tab Switching
     if (!window.switchUserTab) {
         window.switchUserTab = (tabName) => {
+            // Save tab to sessionStorage for persistence on refresh
+            sessionStorage.setItem('userActiveTab', tabName);
+
             // Hide all tabs
             document.querySelectorAll('.user-tab-content').forEach(el => el.style.display = 'none');
             // Show selected tab
