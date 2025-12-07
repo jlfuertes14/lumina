@@ -447,7 +447,7 @@ export const AdminPage = (state) => {
                                     <img src="${p.image}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
                                     <div>
                                         <div style="font-weight: 500;">${p.name}</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted);">SKU: ${p.id || p._id}</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);">SKU: ${p._id || p.id}</div>
                                     </div>
                                 </div>
                             </td>
