@@ -871,7 +871,7 @@ var J=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var we=J((ke,z)=>{
                                     <img src="${g.image}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
                                     <div>
                                         <div style="font-weight: 500;">${g.name}</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted);">SKU: ${g._id||g.id}</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);">SKU: ${g.id||g._id}</div>
                                     </div>
                                 </div>
                             </td>
