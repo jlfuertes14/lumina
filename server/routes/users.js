@@ -287,8 +287,8 @@ router.delete('/:id', async (req, res) => {
             savedCart: user.savedCart,
             originalId: user._id.toString(),
             deletedAt: new Date(),
-            deletedBy: req.body.deletedBy || {},
-            deleteReason: req.body.deleteReason || '',
+            deletedBy: req.body?.deletedBy || {},
+            deleteReason: req.body?.deleteReason || '',
             originalCreatedAt: user.createdAt,
             originalUpdatedAt: user.updatedAt
         });

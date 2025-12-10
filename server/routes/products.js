@@ -225,8 +225,8 @@ router.delete('/:id', async (req, res) => {
             specifications: product.specifications,
             originalId: product._id.toString(),
             deletedAt: new Date(),
-            deletedBy: req.body.deletedBy || {},
-            deleteReason: req.body.deleteReason || '',
+            deletedBy: req.body?.deletedBy || {},
+            deleteReason: req.body?.deleteReason || '',
             originalCreatedAt: product.createdAt,
             originalUpdatedAt: product.updatedAt
         });
