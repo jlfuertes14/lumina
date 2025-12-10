@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const DeletedUser = require('../models/DeletedUser');
 
 // GET all users (admin only - consider adding auth middleware)
 router.get('/', async (req, res) => {
@@ -263,16 +264,84 @@ router.put('/:id/password', async (req, res) => {
     }
 });
 
-// DELETE user (admin only)
+// DELETE user (admin only) - Archives to DeletedUser collection
 router.delete('/:id', async (req, res) => {
     try {
-        const user = await User.findOneAndDelete({ id: parseInt(req.params.id) });
+        const user = await User.findOne({ id: parseInt(req.params.id) });
 
         if (!user) {
             return res.status(404).json({ success: false, error: 'User not found' });
         }
 
-        res.json({ success: true, message: 'User deleted successfully' });
+        // Archive the user before deletion
+        const archivedUser = new DeletedUser({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            role: user.role,
+            phone: user.phone,
+            address: user.address,
+            gender: user.gender,
+            birthDate: user.birthDate,
+            savedCart: user.savedCart,
+            originalId: user._id.toString(),
+            deletedAt: new Date(),
+            deletedBy: req.body.deletedBy || {},
+            deleteReason: req.body.deleteReason || '',
+            originalCreatedAt: user.createdAt,
+            originalUpdatedAt: user.updatedAt
+        });
+
+        await archivedUser.save();
+
+        // Now delete from active users
+        await User.findByIdAndDelete(user._id);
+
+        res.json({
+            success: true,
+            message: 'User archived and deleted successfully',
+            archivedId: archivedUser._id
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// GET archived/deleted users (admin only)
+router.get('/archive', async (req, res) => {
+    try {
+        const { role } = req.query;
+        let query = {};
+
+        // Filter by role if specified (e.g., only staff)
+        if (role) {
+            query.role = role;
+        }
+
+        const deletedUsers = await DeletedUser.find(query)
+            .select('-password')
+            .sort({ deletedAt: -1 });
+        res.json({ success: true, data: deletedUsers, count: deletedUsers.length });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// GET single archived user by ID
+router.get('/archive/:id', async (req, res) => {
+    try {
+        let deletedUser = await DeletedUser.findById(req.params.id).select('-password');
+
+        if (!deletedUser) {
+            deletedUser = await DeletedUser.findOne({ originalId: req.params.id }).select('-password');
+        }
+
+        if (!deletedUser) {
+            return res.status(404).json({ success: false, error: 'Archived user not found' });
+        }
+
+        res.json({ success: true, data: deletedUser });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }

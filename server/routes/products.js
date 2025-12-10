@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const Product = require('../models/Product');
+const DeletedProduct = require('../models/DeletedProduct');
 
 // Configure multer for image uploads
 const storage = multer.diskStorage({
@@ -197,23 +198,80 @@ router.patch('/:id/stock', async (req, res) => {
     }
 });
 
-// DELETE product (admin only)
+// DELETE product (admin only) - Archives to DeletedProduct collection
 router.delete('/:id', async (req, res) => {
     try {
-        // Try to delete by _id first, then by numeric id
-        let product = await Product.findByIdAndDelete(req.params.id);
+        // Try to find by _id first, then by numeric id
+        let product = await Product.findById(req.params.id);
 
         if (!product) {
-            product = await Product.findOneAndDelete({ id: parseInt(req.params.id) });
+            product = await Product.findOne({ id: parseInt(req.params.id) });
         }
 
         if (!product) {
             return res.status(404).json({ success: false, error: 'Product not found' });
         }
 
-        res.json({ success: true, message: 'Product deleted successfully' });
+        // Archive the product before deletion
+        const archivedProduct = new DeletedProduct({
+            id: product.id,
+            name: product.name,
+            category: product.category,
+            price: product.price,
+            image: product.image,
+            stock: product.stock,
+            description: product.description,
+            requiresDeviceRegistration: product.requiresDeviceRegistration,
+            specifications: product.specifications,
+            originalId: product._id.toString(),
+            deletedAt: new Date(),
+            deletedBy: req.body.deletedBy || {},
+            deleteReason: req.body.deleteReason || '',
+            originalCreatedAt: product.createdAt,
+            originalUpdatedAt: product.updatedAt
+        });
+
+        await archivedProduct.save();
+
+        // Now delete from active products
+        await Product.findByIdAndDelete(product._id);
+
+        res.json({
+            success: true,
+            message: 'Product archived and deleted successfully',
+            archivedId: archivedProduct._id
+        });
     } catch (error) {
         console.error('Product delete error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// GET archived/deleted products (admin only)
+router.get('/archive', async (req, res) => {
+    try {
+        const deletedProducts = await DeletedProduct.find().sort({ deletedAt: -1 });
+        res.json({ success: true, data: deletedProducts, count: deletedProducts.length });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// GET single archived product by ID
+router.get('/archive/:id', async (req, res) => {
+    try {
+        let deletedProduct = await DeletedProduct.findById(req.params.id);
+
+        if (!deletedProduct) {
+            deletedProduct = await DeletedProduct.findOne({ originalId: req.params.id });
+        }
+
+        if (!deletedProduct) {
+            return res.status(404).json({ success: false, error: 'Archived product not found' });
+        }
+
+        res.json({ success: true, data: deletedProduct });
+    } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
 });
