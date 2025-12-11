@@ -25,7 +25,7 @@ var J=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var we=J((ke,A)=>{
                 </div>
 
                 <!-- Origin Story Section -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-bottom: 6rem;">
+                <div class="about-origin-grid" style="margin-bottom: 6rem;">
                     <div>
                         <div style="text-transform: uppercase; color: #6366f1; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 1rem; font-size: 0.875rem;">Our Origin Story</div>
                         <h2 style="font-size: 2.5rem; color: #1e293b; margin-bottom: 1.5rem; font-weight: 700; line-height: 1.2;">From a 12-sqm Shop to a National Supplier</h2>
@@ -56,7 +56,7 @@ var J=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var we=J((ke,A)=>{
                             We believe that innovation grows when access grows—and we are committed to helping every builder turn ideas into reality.
                         </p>
                         
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; text-align: left;">
+                        <div class="about-mission-grid">
                             <div style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 12px; backdrop-filter: blur(10px);">
                                 <div style="font-size: 2rem; margin-bottom: 1rem;">⭐</div>
                                 <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #fff;">Quality First</h3>
@@ -134,7 +134,7 @@ var J=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var we=J((ke,A)=>{
                         <h2 style="font-size: 2.5rem; color: #1e293b; font-weight: 700;">Meet Our Team</h2>
                         <p style="color: #64748b; font-size: 1.1rem;">The people behind Lumina Electronics</p>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;">
+                    <div class="about-team-grid">
                         ${t.map(n=>`
                             <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                                 <div style="width: 100px; height: 100px; margin: 0 auto 1.5rem; border-radius: 50%; overflow: hidden; border: 4px solid #f1f5f9;">
@@ -150,7 +150,7 @@ var J=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var we=J((ke,A)=>{
                 <!-- Why Choose Us -->
                 <div style="background: #f8fafc; border-radius: 24px; padding: 4rem; text-align: center;">
                     <h2 style="font-size: 2.5rem; margin-bottom: 3rem; color: #1e293b; font-weight: 700;">Why Choose Us</h2>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+                    <div class="about-features-grid">
                         <div style="padding: 2rem;">
                             <div style="width: 64px; height: 64px; background: #dcfce7; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #16a34a;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
@@ -300,7 +300,7 @@ var J=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var we=J((ke,A)=>{
                     <!-- Additional Learning Resources -->
                     <div style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; padding: 2.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                         <h2 style="font-size: 1.5rem; margin-bottom: 2rem; color: #1e293b; font-weight: 600;">Additional Learning Resources</h2>
-                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;">
+                        <div class="resources-grid">
                             <div style="text-align: center;">
                                 <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
@@ -430,7 +430,7 @@ var J=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var we=J((ke,A)=>{
                 <p style="font-size: 1.125rem; color: var(--text-muted); max-width: 600px; margin: 0 auto;">Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 4rem;">
+            <div class="contact-grid" style="margin-bottom: 4rem;">
                 <!-- Contact Form -->
                 <div class="admin-section" style="padding: 2rem;">
                     <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Send Us a Message</h2>
@@ -556,7 +556,7 @@ var J=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var we=J((ke,A)=>{
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
                         <h2 style="font-size: 1.125rem; color: #1e293b; font-weight: 700;">Active Coupon Codes</h2>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div class="coupon-grid">
                         <!-- Coupon 1: Gold Gradient -->
                         <div style="background: linear-gradient(135deg, #b8860b, #daa520); border-radius: 8px; padding: 1.5rem; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                             <div style="position: absolute; top: 1rem; right: 1rem; width: 40px; height: 40px; background: rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
@@ -640,7 +640,7 @@ var J=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var we=J((ke,A)=>{
                         </select>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem;">
+                    <div class="deals-product-grid">
                         ${o.map(r=>`
                             <div class="deal-product-card" data-category="${r.category}" style="background: white; border-radius: 4px; border: 1px solid #e2e8f0; overflow: hidden; position: relative; cursor: pointer; transition: border-color 0.15s;" 
                                  onclick="window.viewProduct(${r.id})"
@@ -694,7 +694,7 @@ var J=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var we=J((ke,A)=>{
                     </div>
                     <p style="font-size: 0.875rem; color: #1e3a8a; margin-bottom: 1.5rem;">Perfect for workshops, classrooms, or large projects</p>
                     
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+                    <div class="bulk-buy-grid">
                         <!-- Arduino Pack -->
                         <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
                             <div style="aspect-ratio: 1; background: #f8f9fa; display: flex; align-items: center; justify-content: center; padding: 1rem;">
