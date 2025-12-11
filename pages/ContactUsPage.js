@@ -10,7 +10,7 @@ export const ContactUsPage = ({ Breadcrumbs, state }) => {
                 <p style="font-size: 1.125rem; color: var(--text-muted); max-width: 600px; margin: 0 auto;">Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 4rem;">
+            <div class="contact-grid" style="margin-bottom: 4rem;">
                 <!-- Contact Form -->
                 <div class="admin-section" style="padding: 2rem;">
                     <h2 style="margin-bottom: 1.5rem; color: var(--primary);">Send Us a Message</h2>

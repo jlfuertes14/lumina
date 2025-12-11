@@ -38,7 +38,7 @@ export const AboutUsPage = ({ Breadcrumbs }) => {
                 </div>
 
                 <!-- Origin Story Section -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; margin-bottom: 6rem;">
+                <div class="about-origin-grid" style="margin-bottom: 6rem;">
                     <div>
                         <div style="text-transform: uppercase; color: #6366f1; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 1rem; font-size: 0.875rem;">Our Origin Story</div>
                         <h2 style="font-size: 2.5rem; color: #1e293b; margin-bottom: 1.5rem; font-weight: 700; line-height: 1.2;">From a 12-sqm Shop to a National Supplier</h2>
@@ -69,7 +69,7 @@ export const AboutUsPage = ({ Breadcrumbs }) => {
                             We believe that innovation grows when access grows—and we are committed to helping every builder turn ideas into reality.
                         </p>
                         
-                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; text-align: left;">
+                        <div class="about-mission-grid">
                             <div style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 12px; backdrop-filter: blur(10px);">
                                 <div style="font-size: 2rem; margin-bottom: 1rem;">⭐</div>
                                 <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #fff;">Quality First</h3>
@@ -147,7 +147,7 @@ export const AboutUsPage = ({ Breadcrumbs }) => {
                         <h2 style="font-size: 2.5rem; color: #1e293b; font-weight: 700;">Meet Our Team</h2>
                         <p style="color: #64748b; font-size: 1.1rem;">The people behind Lumina Electronics</p>
                     </div>
-                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem;">
+                    <div class="about-team-grid">
                         ${teamMembers.map(member => `
                             <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                                 <div style="width: 100px; height: 100px; margin: 0 auto 1.5rem; border-radius: 50%; overflow: hidden; border: 4px solid #f1f5f9;">
@@ -163,7 +163,7 @@ export const AboutUsPage = ({ Breadcrumbs }) => {
                 <!-- Why Choose Us -->
                 <div style="background: #f8fafc; border-radius: 24px; padding: 4rem; text-align: center;">
                     <h2 style="font-size: 2.5rem; margin-bottom: 3rem; color: #1e293b; font-weight: 700;">Why Choose Us</h2>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+                    <div class="about-features-grid">
                         <div style="padding: 2rem;">
                             <div style="width: 64px; height: 64px; background: #dcfce7; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: #16a34a;">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
