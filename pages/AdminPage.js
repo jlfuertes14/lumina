@@ -685,11 +685,18 @@ export const AdminPage = (state) => {
                     ${allOrders.length > 0 ? allOrders.map(order => {
             const customer = state.users.find(u => u.id === order.userId);
             const customerName = customer ? customer.name : 'Unknown';
-            const customerAddress = customer?.address || {};
-            const deliveryAddress = order.shippingAddress ||
-                (customerAddress.street ?
-                    `${customerAddress.street}, ${customerAddress.barangay || ''}, ${customerAddress.city || ''}, ${customerAddress.province || ''} ${customerAddress.postalCode || ''}`
-                    : 'No address provided');
+
+            // Prioritize order's shippingInfo, then shippingAddress string, then user's profile address
+            let deliveryAddress = 'No address provided';
+            if (order.shippingInfo && order.shippingInfo.address) {
+                const si = order.shippingInfo;
+                deliveryAddress = `${si.fullName || ''}<br>${si.address}, ${si.city || ''}, ${si.province || ''} ${si.postalCode || ''}<br>📞 ${si.phone || ''}`;
+            } else if (order.shippingAddress) {
+                deliveryAddress = order.shippingAddress;
+            } else if (customer?.address?.street) {
+                const ca = customer.address;
+                deliveryAddress = `${ca.street}, ${ca.barangay || ''}, ${ca.city || ''}, ${ca.province || ''} ${ca.postalCode || ''}`;
+            }
 
             return `
                         <tr>

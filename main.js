@@ -1192,6 +1192,24 @@ const CheckoutPage = () => {
         return '';
     }
 
+    // Auto-fill shipping from user's saved address (if not already filled)
+    const userAddr = state.currentUser.address;
+    const hasUserAddress = userAddr && typeof userAddr === 'object' && userAddr.street;
+    const shippingEmpty = !state.checkoutData.shipping.address && !state.checkoutData.shipping.city;
+
+    if (hasUserAddress && shippingEmpty) {
+        // Map user profile address to checkout shipping format
+        state.checkoutData.shipping = {
+            fullName: userAddr.fullName || state.currentUser.name || '',
+            phone: userAddr.phone || state.currentUser.phone || '',
+            address: [userAddr.street, userAddr.barangay].filter(Boolean).join(', '),
+            city: userAddr.city || '',
+            province: userAddr.province || '',
+            postalCode: userAddr.postalCode || '',
+            instructions: userAddr.details || ''
+        };
+    }
+
     const subtotal = selectedItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
     const shippingFee = state.checkoutData.shippingFee;
     const total = subtotal + shippingFee;
@@ -1207,6 +1225,15 @@ const CheckoutPage = () => {
 
             <div style="display: grid; grid-template-columns: 1fr 380px; gap: 3rem;">
                 <div class="checkout-form">
+                    ${!hasUserAddress ? `
+                    <div style="background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <span style="font-size: 1.25rem;">📍</span>
+                        <div>
+                            <strong>No saved address found.</strong>
+                            <span>Save your address in <a href="#" onclick="window.navigate('user', { tab: 'address' }); return false;" style="color: #d97706; font-weight: 600;">My Account</a> for faster checkout next time.</span>
+                        </div>
+                    </div>
+                    ` : ''}
                     <div class="admin-section" style="margin-bottom: 2rem;">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">📍 Shipping Information</h2>
                         <form onsubmit="event.preventDefault();" style="display: grid; gap: 1.5rem;">

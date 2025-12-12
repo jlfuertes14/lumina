@@ -40,8 +40,14 @@ const orderSchema = new mongoose.Schema({
         type: String,
         default: 'Cash on Delivery'
     },
-    shippingAddress: {
-        type: String
+    shippingInfo: {
+        fullName: String,
+        phone: String,
+        address: String,
+        city: String,
+        province: String,
+        postalCode: String,
+        instructions: String
     }
 }, {
     timestamps: true

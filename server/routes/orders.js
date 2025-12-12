@@ -147,8 +147,10 @@ router.post('/', async (req, res) => {
             orderId,
             userId,
             items: orderItems,
-            total,
-            status: req.body.status || 'Pending'
+            total: req.body.total || total,
+            status: req.body.status || 'Pending',
+            paymentMethod: req.body.paymentMethod || 'Cash on Delivery',
+            shippingInfo: req.body.shippingInfo || null
         });
 
         await order.save();
