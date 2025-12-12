@@ -143,9 +143,21 @@
         font-size: 0.875rem;
     }
 
-    /* Cart */
+    /* Cart - Mobile Responsive */
     .cart-container {
         padding: 0 1rem;
+    }
+
+    /* Cart header - stack title and search on mobile */
+    .cart-container>div:first-child {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    .cart-container .search-container {
+        max-width: 100% !important;
+        width: 100% !important;
     }
 
     .cart-item {
@@ -153,6 +165,98 @@
         align-items: flex-start;
         gap: 1rem;
         padding: 1rem;
+    }
+
+    /* Cart item layout for mobile */
+    .cart-item>input[type="checkbox"] {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+    }
+
+    .cart-item {
+        position: relative;
+        padding-left: 3rem !important;
+    }
+
+    .cart-item img {
+        width: 70px !important;
+        height: 70px !important;
+    }
+
+    /* Quantity controls */
+    .cart-item>div:nth-child(4) {
+        margin-right: 0 !important;
+    }
+
+    /* Cart item actions (Find Similar, Delete) */
+    .cart-item-actions {
+        width: 100%;
+        justify-content: space-between !important;
+        margin-top: 0.5rem;
+    }
+
+    /* Cart summary sticky on mobile */
+    .cart-summary {
+        position: sticky;
+        bottom: 0;
+        background: white;
+        padding: 1rem;
+        border-top: 1px solid var(--border);
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+        margin: 0 -1rem;
+        width: calc(100% + 2rem);
+    }
+
+    /* Checkout Page - Mobile Responsive */
+    .checkout-container {
+        padding: 0 1rem !important;
+        margin: 1rem auto !important;
+    }
+
+    .checkout-container h1 {
+        font-size: 1.75rem !important;
+    }
+
+    /* Main checkout grid - stack on mobile */
+    .checkout-container>div:nth-child(2) {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+
+    /* City/Province row - stack on mobile */
+    .checkout-form form>div:nth-child(4) {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Payment methods grid - 3-column on tablet, 2-column on mobile */
+    .checkout-form .admin-section:nth-child(2)>div {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.5rem !important;
+    }
+
+    /* Payment method buttons */
+    .payment-option {
+        padding: 0.75rem 0.5rem !important;
+    }
+
+    .payment-option img {
+        max-height: 24px !important;
+    }
+
+    .payment-option span {
+        font-size: 0.7rem !important;
+    }
+
+    /* Order summary section */
+    .checkout-summary {
+        background: var(--surface);
+        border-radius: 8px;
+        padding: 1rem !important;
+    }
+
+    .checkout-summary h2 {
+        font-size: 1.1rem !important;
     }
 
     /* Auth Forms */
