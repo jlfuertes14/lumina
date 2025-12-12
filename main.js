@@ -54,6 +54,9 @@ const state = {
     lastOrderId: null
 };
 
+// Expose state globally for AdminPage charts
+window.state = state;
+
 // --- API Actions ---
 const api = {
     // Products

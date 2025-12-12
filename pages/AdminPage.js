@@ -401,14 +401,22 @@ export const AdminPage = (state) => {
             </div>
         </div>
 
-        <div class="charts-grid">
+        <div class="charts-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem;">
             <div class="chart-card">
-                <h3 class="font-bold text-slate-800 mb-4">Sales Overview</h3>
-                <div style="height: 300px;"><canvas id="salesChart"></canvas></div>
+                <h3 class="font-bold text-slate-800 mb-4">Revenue vs Target</h3>
+                <div style="height: 280px;"><canvas id="revenueChart"></canvas></div>
             </div>
             <div class="chart-card">
-                <h3 class="font-bold text-slate-800 mb-4">Customers</h3>
-                <div style="height: 300px; display: flex; justify-content: center;"><canvas id="demographicsChart"></canvas></div>
+                <h3 class="font-bold text-slate-800 mb-4">Sales by Category</h3>
+                <div style="height: 280px; display: flex; justify-content: center;"><canvas id="categoryChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3 class="font-bold text-slate-800 mb-4">Top 5 Products</h3>
+                <div style="height: 280px;"><canvas id="topProductsChart"></canvas></div>
+            </div>
+            <div class="chart-card">
+                <h3 class="font-bold text-slate-800 mb-4">Customer Insights</h3>
+                <div style="height: 280px;"><canvas id="customersChart"></canvas></div>
             </div>
         </div>
 
@@ -762,47 +770,257 @@ export const AdminPage = (state) => {
 };
 
 window.initAdminCharts = () => {
-    const salesCtx = document.getElementById('salesChart');
-    if (salesCtx) {
-        if (window.salesChartInstance) window.salesChartInstance.destroy();
-        window.salesChartInstance = new Chart(salesCtx, {
-            type: 'line',
+    // Get state data (available globally via window)
+    const orders = window.state?.orders || [];
+    const products = window.state?.products || [];
+    const users = window.state?.users || [];
+
+    // --- Helper: Get month name from date ---
+    const getMonthName = (date) => {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return months[new Date(date).getMonth()];
+    };
+
+    // --- 1. Revenue vs Target (Combo Chart) ---
+    const revenueCtx = document.getElementById('revenueChart');
+    if (revenueCtx) {
+        if (window.revenueChartInstance) window.revenueChartInstance.destroy();
+
+        // Aggregate revenue by month from orders
+        const monthlyRevenue = {};
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        months.forEach(m => monthlyRevenue[m] = 0);
+
+        orders.forEach(order => {
+            if (order.createdAt && order.total) {
+                const month = getMonthName(order.createdAt);
+                monthlyRevenue[month] += order.total;
+            }
+        });
+
+        const revenueData = months.map(m => monthlyRevenue[m]);
+        const avgRevenue = revenueData.reduce((a, b) => a + b, 0) / revenueData.filter(r => r > 0).length || 1000;
+        const targetData = months.map(() => avgRevenue * 1.2); // Target is 20% above average
+
+        window.revenueChartInstance = new Chart(revenueCtx, {
+            type: 'bar',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-                datasets: [{
-                    label: 'Sales',
-                    data: [4000, 3000, 5000, 2780, 6890, 2390, 3490],
-                    borderColor: '#3b82f6',
-                    tension: 0.4,
-                    fill: true,
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)'
-                }]
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Revenue',
+                        data: revenueData,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderRadius: 4,
+                        order: 2
+                    },
+                    {
+                        label: 'Target',
+                        data: targetData,
+                        type: 'line',
+                        borderColor: '#F97316',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0,
+                        pointRadius: 0,
+                        order: 1
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, grid: { borderDash: [2, 4] } }, x: { grid: { display: false } } }
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true } } },
+                scales: {
+                    y: { beginAtZero: true, grid: { borderDash: [2, 4] } },
+                    x: { grid: { display: false } }
+                }
             }
         });
     }
-    const demoCtx = document.getElementById('demographicsChart');
-    if (demoCtx) {
-        if (window.demoChartInstance) window.demoChartInstance.destroy();
-        window.demoChartInstance = new Chart(demoCtx, {
+
+    // --- 2. Sales by Category (Donut Chart) ---
+    const categoryCtx = document.getElementById('categoryChart');
+    if (categoryCtx) {
+        if (window.categoryChartInstance) window.categoryChartInstance.destroy();
+
+        // Aggregate revenue by product category
+        const categoryRevenue = {};
+        orders.forEach(order => {
+            if (order.items) {
+                order.items.forEach(item => {
+                    // Find product to get category
+                    const product = products.find(p => p.id === item.productId || p._id === item.productId);
+                    const category = product?.category || item.category || 'Other';
+                    const revenue = (item.price || 0) * (item.quantity || 1);
+                    categoryRevenue[category] = (categoryRevenue[category] || 0) + revenue;
+                });
+            }
+        });
+
+        const categories = Object.keys(categoryRevenue);
+        const categoryData = Object.values(categoryRevenue);
+        const categoryColors = ['#0F172A', '#3b82f6', '#F97316', '#10b981', '#8b5cf6', '#ec4899'];
+
+        // If no data, show placeholder
+        if (categories.length === 0) {
+            categories.push('Microcontrollers', 'Sensors', 'Components', 'Robotics');
+            categoryData.push(4500, 3200, 2100, 1800);
+        }
+
+        window.categoryChartInstance = new Chart(categoryCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Male', 'Female', 'Other'],
+                labels: categories,
                 datasets: [{
-                    data: [400, 300, 100],
-                    backgroundColor: ['#0F172A', '#F97316', '#CBD5E1'],
-                    borderWidth: 0
+                    data: categoryData,
+                    backgroundColor: categoryColors.slice(0, categories.length),
+                    borderWidth: 0,
+                    hoverOffset: 4
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom' } }
+                plugins: { legend: { position: 'right', labels: { usePointStyle: true, padding: 15 } } },
+                cutout: '60%'
+            }
+        });
+    }
+
+    // --- 3. Top 5 Products by Revenue (Horizontal Bar) ---
+    const topProductsCtx = document.getElementById('topProductsChart');
+    if (topProductsCtx) {
+        if (window.topProductsChartInstance) window.topProductsChartInstance.destroy();
+
+        // Calculate revenue per product
+        const productRevenue = {};
+        orders.forEach(order => {
+            if (order.items) {
+                order.items.forEach(item => {
+                    const productName = item.productName || item.name || 'Unknown';
+                    const revenue = (item.price || 0) * (item.quantity || 1);
+                    productRevenue[productName] = (productRevenue[productName] || 0) + revenue;
+                });
+            }
+        });
+
+        // Sort and get top 5
+        let topProducts = Object.entries(productRevenue)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+
+        // If no data, show placeholder
+        if (topProducts.length === 0) {
+            topProducts = [
+                ['ESP32 DevKit', 5400],
+                ['Arduino Uno', 3800],
+                ['Ultrasonic Sensor', 2900],
+                ['Servo Motor', 2400],
+                ['Jumper Wires', 1800]
+            ];
+        }
+
+        window.topProductsChartInstance = new Chart(topProductsCtx, {
+            type: 'bar',
+            data: {
+                labels: topProducts.map(p => p[0]),
+                datasets: [{
+                    label: 'Revenue',
+                    data: topProducts.map(p => p[1]),
+                    backgroundColor: ['#3b82f6', '#0F172A', '#F97316', '#10b981', '#8b5cf6'],
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, grid: { borderDash: [2, 4] } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    // --- 4. Customer Insights: New vs Returning (Stacked Bar) ---
+    const customersCtx = document.getElementById('customersChart');
+    if (customersCtx) {
+        if (window.customersChartInstance) window.customersChartInstance.destroy();
+
+        // Count orders per user to determine new vs returning
+        const userOrderCount = {};
+        orders.forEach(order => {
+            if (order.userId) {
+                userOrderCount[order.userId] = (userOrderCount[order.userId] || 0) + 1;
+            }
+        });
+
+        // Group by month for trend
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const newCustomersPerMonth = {};
+        const returningCustomersPerMonth = {};
+        const seenUsers = new Set();
+
+        months.forEach(m => {
+            newCustomersPerMonth[m] = 0;
+            returningCustomersPerMonth[m] = 0;
+        });
+
+        // Sort orders by date and track new vs returning
+        const sortedOrders = [...orders].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        sortedOrders.forEach(order => {
+            if (order.createdAt && order.userId) {
+                const month = getMonthName(order.createdAt);
+                if (seenUsers.has(order.userId)) {
+                    returningCustomersPerMonth[month]++;
+                } else {
+                    newCustomersPerMonth[month]++;
+                    seenUsers.add(order.userId);
+                }
+            }
+        });
+
+        const newData = months.map(m => newCustomersPerMonth[m]);
+        const returningData = months.map(m => returningCustomersPerMonth[m]);
+
+        // If no data, show placeholder
+        const hasData = newData.some(v => v > 0) || returningData.some(v => v > 0);
+        if (!hasData) {
+            newData.splice(0, newData.length, 15, 12, 18, 10, 22, 14, 8, 16, 20, 12, 18, 25);
+            returningData.splice(0, returningData.length, 5, 8, 12, 15, 18, 20, 22, 24, 26, 28, 30, 32);
+        }
+
+        window.customersChartInstance = new Chart(customersCtx, {
+            type: 'bar',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'New Customers',
+                        data: newData,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Returning Customers',
+                        data: returningData,
+                        backgroundColor: '#10b981',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { usePointStyle: true } } },
+                scales: {
+                    x: { stacked: true, grid: { display: false } },
+                    y: { stacked: true, beginAtZero: true, grid: { borderDash: [2, 4] } }
+                }
             }
         });
     }
