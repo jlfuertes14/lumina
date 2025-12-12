@@ -23,7 +23,8 @@ const orderSchema = new mongoose.Schema({
             type: Number,
             required: true,
             min: 1
-        }
+        },
+        image: String  // Product image URL
     }],
     total: {
         type: Number,
