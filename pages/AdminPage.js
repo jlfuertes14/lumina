@@ -948,6 +948,11 @@ export const AdminPage = (state) => {
                     </div>
                 </div>
             ` : ''}
+            
+            <!-- Floating Home Button for Mobile -->
+            <button class="admin-floating-home-btn" onclick="window.navigate('home')" title="Back to Home">
+                🏠
+            </button>
         </div>
     `;
 };
