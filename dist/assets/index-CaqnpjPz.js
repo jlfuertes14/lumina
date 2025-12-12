@@ -1477,10 +1477,10 @@ var re=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var Ie=re((Te,N)=
                             </div>
 
                             <!-- Add Voucher Section -->
-                            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 4px; display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
-                                <span style="font-weight: 500; color: #333;">Add Voucher</span>
-                                <input type="text" placeholder="Please enter voucher code" style="flex: 1; padding: 0.625rem; border: 1px solid #e0e0e0; border-radius: 2px; outline: none;">
-                                <button style="background: #e0e0e0; color: #999; border: none; padding: 0.625rem 1.5rem; border-radius: 2px; cursor: not-allowed;">Redeem</button>
+                            <div class="add-voucher-section" style="background: #f8f9fa; padding: 1rem; border-radius: 4px; display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+                                <span style="font-weight: 500; color: #333; white-space: nowrap;">Add Voucher</span>
+                                <input type="text" placeholder="Please enter voucher code" style="flex: 1; min-width: 150px; padding: 0.625rem; border: 1px solid #e0e0e0; border-radius: 2px; outline: none;">
+                                <button class="btn-redeem" style="background: #e0e0e0; color: #999; border: none; padding: 0.625rem 1rem; border-radius: 2px; cursor: not-allowed; white-space: nowrap;">Redeem</button>
                             </div>
 
                             <!-- Voucher Tabs -->
@@ -1491,7 +1491,7 @@ var re=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var Ie=re((Te,N)=
                             </div>
 
                             <!-- Vouchers List -->
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="vouchers-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
                                 ${o.map(m=>`
                                     <div style="display: flex; background: white; border: 1px solid #e0e0e0; border-radius: 4px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
                                         <!-- Left Side (Image/Icon) -->
@@ -1889,6 +1889,82 @@ var re=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var Ie=re((Te,N)=
                 }
                 .form-actions {
                     margin-left: 0;
+                }
+                
+                /* Fix radio-group wrapping */
+                .radio-group {
+                    flex-wrap: wrap;
+                    gap: 12px 20px;
+                }
+                .radio-label {
+                    min-width: 80px;
+                }
+                
+                /* Fix date-selects wrapping */
+                .date-selects {
+                    flex-wrap: wrap;
+                }
+                .form-select {
+                    min-width: 80px;
+                }
+                
+                /* Fix order footer - stack Buy Again button below total */
+                .order-footer {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 12px;
+                    padding: 12px 16px;
+                }
+                .order-total {
+                    width: 100%;
+                }
+                .order-actions {
+                    width: 100%;
+                    display: flex;
+                    justify-content: flex-end;
+                }
+                
+                /* Fix orders tabs horizontal scroll */
+                .orders-tabs {
+                    overflow-x: auto;
+                    white-space: nowrap;
+                    -webkit-overflow-scrolling: touch;
+                    scrollbar-width: none;
+                }
+                .orders-tabs::-webkit-scrollbar {
+                    display: none;
+                }
+                
+                /* Fix order product layout */
+                .order-product {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                .order-product img {
+                    width: 60px;
+                    height: 60px;
+                }
+                .product-price {
+                    margin-top: 8px;
+                }
+                
+                /* Fix user-content overflow */
+                .user-content {
+                    overflow-x: hidden;
+                    max-width: 100vw;
+                    box-sizing: border-box;
+                }
+            }
+            
+            /* Extra small mobile fixes */
+            @media (max-width: 480px) {
+                .order-product img {
+                    width: 50px;
+                    height: 50px;
+                }
+                .btn-buy-again {
+                    width: 100%;
+                    padding: 10px;
                 }
             }
         </style>
