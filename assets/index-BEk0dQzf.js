@@ -2574,51 +2574,49 @@ var re=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var Ie=re((Te,N)=
                 
             <div class="cart-items">
                 ${e.map(t=>{const o=i.products.filter(r=>r.category===t.category&&r.id!==t.id).slice(0,4);return`
-                    <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
-                        <div class="cart-item" style="border-bottom: none; display: flex; align-items: flex-start; gap: 1rem; padding: 1.25rem;">
-                            <!-- Product Image -->
-                            <img src="${t.image}" alt="${t.name}" style="width: 100px; height: 100px; object-fit: contain; background: #f8fafc; border-radius: 12px; flex-shrink: 0;">
+                    <div style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; overflow: hidden;">
+                        <div class="cart-item" style="border-bottom: none; display: flex; flex-direction: column; padding: 1.25rem;">
+                            <!-- Product Image (centered) -->
+                            <div style="display: flex; justify-content: center; padding: 1rem; background: #f8fafc; border-radius: 8px; margin-bottom: 1rem;">
+                                <img src="${t.image}" alt="${t.name}" style="width: 120px; height: 120px; object-fit: contain;">
+                            </div>
                             
-                            <!-- Product Details Column -->
-                            <div style="flex: 1; display: flex; flex-direction: column; gap: 0.75rem;">
-                                <!-- Product Name & Price -->
-                                <div>
-                                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--text);">${t.name}</h3>
-                                    <p style="font-size: 1.1rem; font-weight: 700; color: var(--primary);">${y(t.price)}</p>
-                                </div>
+                            <!-- Product Name & Price -->
+                            <div style="text-align: left; margin-bottom: 1rem;">
+                                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--text);">${t.name}</h3>
+                                <p style="font-size: 1rem; color: var(--text-muted);">${y(t.price)}</p>
+                            </div>
+                            
+                            <!-- Bottom Row: Checkbox (left) + Quantity (right) -->
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid var(--border);">
+                                <!-- Checkbox (square with rounded corners, filled when checked) -->
+                                <label style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" 
+                                        style="display: none;"
+                                        ${t.selected!==!1?"checked":""}
+                                        onchange="window.toggleCartItem(${t.id})">
+                                    <div style="width: 28px; height: 28px; border: 2px solid ${t.selected!==!1?"var(--primary)":"#d1d5db"}; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: ${t.selected!==!1?"var(--primary)":"white"}; transition: all 0.2s;">
+                                        ${t.selected!==!1?'<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>':""}
+                                    </div>
+                                </label>
                                 
-                                <!-- Controls Row: Checkbox + Quantity + Actions -->
-                                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem;">
-                                    <!-- Left: Checkbox + Quantity -->
-                                    <div style="display: flex; align-items: center; gap: 1rem;">
-                                        <!-- Circular Checkbox -->
-                                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                            <input type="checkbox" 
-                                                style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); border-radius: 50%;"
-                                                ${t.selected!==!1?"checked":""}
-                                                onchange="window.toggleCartItem(${t.id})">
-                                            <span style="font-size: 0.8rem; color: var(--text-muted);">Select</span>
-                                        </label>
-                                        
-                                        <!-- Quantity Controls -->
-                                        <div style="display: flex; align-items: center; gap: 0.5rem; background: #f1f5f9; border-radius: 8px; padding: 0.25rem;">
-                                            <button class="qty-btn" style="width: 28px; height: 28px; border: none; background: white; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--text);" onclick="window.updateQuantity(${t.id}, ${t.quantity-1})">−</button>
-                                            <span style="min-width: 24px; text-align: center; font-weight: 600;">${t.quantity}</span>
-                                            <button class="qty-btn" style="width: 28px; height: 28px; border: none; background: white; border-radius: 6px; cursor: pointer; font-weight: 600; color: var(--text);" onclick="window.updateQuantity(${t.id}, ${t.quantity+1})">+</button>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Right: Find Similar + Delete -->
-                                    <div class="cart-item-actions" style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <button class="btn-find-similar" onclick="window.toggleFindSimilar(${t.id})" style="display: flex; align-items: center; gap: 0.25rem; padding: 0.4rem 0.75rem; font-size: 0.8rem; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; color: var(--text);">
-                                            Find Similar 
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${t.showSimilar?"rotate(180deg)":"rotate(0deg)"}; transition: transform 0.2s;">
-                                                <polyline points="6 9 12 15 18 9"></polyline>
-                                            </svg>
-                                        </button>
-                                        <button class="btn-delete" onclick="window.removeFromCart(${t.id})" style="padding: 0.4rem 0.75rem; font-size: 0.8rem; background: #fef2f2; color: var(--danger); border: none; border-radius: 6px; cursor: pointer;">Delete</button>
-                                    </div>
+                                <!-- Quantity Controls (circular buttons) -->
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <button style="width: 36px; height: 36px; border: 2px solid var(--primary); background: var(--primary); color: white; border-radius: 50%; cursor: pointer; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; justify-content: center; line-height: 1;" onclick="window.updateQuantity(${t.id}, ${t.quantity-1})">−</button>
+                                    <span style="min-width: 32px; text-align: center; font-weight: 600; font-size: 1.1rem;">${t.quantity}</span>
+                                    <button style="width: 36px; height: 36px; border: 2px solid var(--border); background: white; color: var(--text); border-radius: 50%; cursor: pointer; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; justify-content: center; line-height: 1;" onclick="window.updateQuantity(${t.id}, ${t.quantity+1})">+</button>
                                 </div>
+                            </div>
+                            
+                            <!-- Actions Row: Find Similar + Delete -->
+                            <div class="cart-item-actions" style="display: flex; align-items: center; justify-content: flex-start; gap: 0.5rem; margin-top: 0.75rem;">
+                                <button class="btn-find-similar" onclick="window.toggleFindSimilar(${t.id})" style="display: flex; align-items: center; gap: 0.25rem; padding: 0.5rem 1rem; font-size: 0.85rem; background: #f1f5f9; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text);">
+                                    Find Similar 
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform: ${t.showSimilar?"rotate(180deg)":"rotate(0deg)"}; transition: transform 0.2s;">
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                </button>
+                                <button class="btn-delete" onclick="window.removeFromCart(${t.id})" style="padding: 0.5rem 1rem; font-size: 0.85rem; background: white; color: var(--danger); border: 1px solid var(--danger); border-radius: 6px; cursor: pointer;">Delete</button>
                             </div>
                         </div>
                         <div class="similar-products-dropdown ${t.showSimilar?"show":""}">
