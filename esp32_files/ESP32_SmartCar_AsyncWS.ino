@@ -82,8 +82,8 @@ unsigned long lastStatusUpdate = 0;
 const unsigned long STATUS_INTERVAL = 5000; // 5 seconds
 
 // Obstacle avoidance thresholds
-const int OBSTACLE_DISTANCE = 25;  // cm
-const int SIDE_DISTANCE = 15;      // cm
+const int OBSTACLE_DISTANCE = 15;  // cm
+const int SIDE_DISTANCE = 10;      // cm
 
 // ========== Setup ==========
 void setup() {
