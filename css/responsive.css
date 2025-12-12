@@ -61,6 +61,18 @@
         order: 3;
         width: 100%;
         max-width: 100%;
+        flex-basis: 100%;
+    }
+
+    /* Ensure search input is visible on mobile */
+    .search-bar .search-container {
+        width: 100%;
+        flex: 1;
+    }
+
+    .search-bar .search-input {
+        width: 100% !important;
+        min-width: 0;
     }
 
     .header-nav {
