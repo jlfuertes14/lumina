@@ -25,16 +25,14 @@
 #include <esp_task_wdt.h>
 
 // ========== Motor Pins ==========
-const int in1 = 32;
-const int in2 = 33;
-const int in3 = 26;
-const int in4 = 25;
+const int in1 = 23;
+const int in2 = 22;
+const int in3 = 21;
+const int in4 = 19;
 
-// ========== Motor PWM Channels ==========
-const int pwmChannel_A = 0;  // Left motor
-const int pwmChannel_B = 1;  // Right motor
-const int pwmFreq = 5000;    // 5 kHz
-const int pwmResolution = 8; // 8-bit (0-255)
+// ========== Motor Enable Pins (PWM for speed) ==========
+const int enaA = 25;  // Enable A - Left motor speed
+const int enaB = 26;  // Enable B - Right motor speed
 
 // ========== Headlight & Horn Pins ==========
 const int headlightPin = 14;  // COB LED for headlights
@@ -99,12 +97,8 @@ void setup() {
   pinMode(in2, OUTPUT);
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT);
-  
-  // Initialize PWM for motor speed control
-  ledcAttach(in2, pwmFreq, pwmResolution);  // Left motor PWM
-  ledcAttach(in4, pwmFreq, pwmResolution);  // Right motor PWM
-  
-
+  pinMode(enaA, OUTPUT);
+  pinMode(enaB, OUTPUT);
   
   // Initialize headlight & horn pins
   pinMode(headlightPin, OUTPUT);
@@ -318,40 +312,50 @@ void handleMovement(String direction) {
   sendCommandAck("move", success, result);
 }
 
-// ========== Motor Control (with PWM speed) ==========
+// ========== Motor Control (with analogWrite speed) ==========
 void moveForward() {
   digitalWrite(in1, LOW);
-  ledcWrite(in2, motorSpeed);  // PWM speed
+  digitalWrite(in2, HIGH);
   digitalWrite(in3, LOW);
-  ledcWrite(in4, motorSpeed);  // PWM speed
+  digitalWrite(in4, HIGH);
+  analogWrite(enaA, motorSpeed);  // Left motor speed
+  analogWrite(enaB, motorSpeed);  // Right motor speed
 }
 
 void moveBackward() {
-  ledcWrite(in2, 0);
   digitalWrite(in1, HIGH);
-  ledcWrite(in4, 0);
+  digitalWrite(in2, LOW);
   digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+  analogWrite(enaA, motorSpeed);
+  analogWrite(enaB, motorSpeed);
 }
 
 void turnLeft() {
   digitalWrite(in1, LOW);
-  ledcWrite(in2, motorSpeed);  // Left motor forward
-  ledcWrite(in4, 0);
-  digitalWrite(in3, HIGH);     // Right motor backward
+  digitalWrite(in2, HIGH);  // Left motor forward
+  digitalWrite(in3, HIGH);  // Right motor backward
+  digitalWrite(in4, LOW);
+  analogWrite(enaA, motorSpeed);
+  analogWrite(enaB, motorSpeed);
 }
 
 void turnRight() {
-  ledcWrite(in2, 0);
-  digitalWrite(in1, HIGH);     // Left motor backward
+  digitalWrite(in1, HIGH);  // Left motor backward
+  digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
-  ledcWrite(in4, motorSpeed);  // Right motor forward
+  digitalWrite(in4, HIGH);  // Right motor forward
+  analogWrite(enaA, motorSpeed);
+  analogWrite(enaB, motorSpeed);
 }
 
 void stopMotors() {
   digitalWrite(in1, LOW);
-  ledcWrite(in2, 0);
+  digitalWrite(in2, LOW);
   digitalWrite(in3, LOW);
-  ledcWrite(in4, 0);
+  digitalWrite(in4, LOW);
+  analogWrite(enaA, 0);
+  analogWrite(enaB, 0);
 }
 
 // ========== Headlight Control ==========
