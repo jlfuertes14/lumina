@@ -734,6 +734,12 @@ export const UserPage = ({ state }) => {
                 font-size: 14px;
                 cursor: pointer;
             }
+            .radio-label input[type="radio"] {
+                width: 18px;
+                height: 18px;
+                margin: 0;
+                accent-color: var(--primary);
+            }
             .date-selects {
                 display: flex;
                 gap: 10px;
