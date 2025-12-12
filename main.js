@@ -323,8 +323,23 @@ function initializeDeviceStatusMonitoring() {
     }
     // Connect to Socket.IO if not already connected
     if (!state.esp32Client.isConnected() && state.currentUser) {
-        state.esp32Client.connect(state.currentUser.id).catch(err => {
-            console.error('Failed to connect to WebSocket:', err);
+        state.esp32Client.connect(state.currentUser.id)
+            .then(() => {
+                // Once connected, monitor all user's devices for status updates
+                if (state.devices && state.devices.length > 0) {
+                    state.devices.forEach(device => {
+                        state.esp32Client.monitorDevice(device.deviceId);
+                        console.log(`👁️ Auto-monitoring device: ${device.deviceId}`);
+                    });
+                }
+            })
+            .catch(err => {
+                console.error('Failed to connect to WebSocket:', err);
+            });
+    } else if (state.esp32Client.isConnected() && state.devices) {
+        // Already connected, just monitor new devices
+        state.devices.forEach(device => {
+            state.esp32Client.monitorDevice(device.deviceId);
         });
     }
     // Listen for device status updates
