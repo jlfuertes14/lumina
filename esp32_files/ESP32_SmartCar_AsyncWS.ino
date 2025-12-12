@@ -314,37 +314,37 @@ void handleMovement(String direction) {
 
 // ========== Motor Control (with analogWrite speed) ==========
 void moveForward() {
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
   analogWrite(enaA, motorSpeed);  // Left motor speed
   analogWrite(enaB, motorSpeed);  // Right motor speed
 }
 
 void moveBackward() {
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);
   analogWrite(enaA, motorSpeed);
   analogWrite(enaB, motorSpeed);
 }
 
 void turnLeft() {
-  digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);  // Left motor forward
-  digitalWrite(in3, HIGH);  // Right motor backward
-  digitalWrite(in4, LOW);
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);  // Left motor forward
+  digitalWrite(in3, LOW);  // Right motor backward
+  digitalWrite(in4, HIGH);
   analogWrite(enaA, motorSpeed);
   analogWrite(enaB, motorSpeed);
 }
 
 void turnRight() {
-  digitalWrite(in1, HIGH);  // Left motor backward
-  digitalWrite(in2, LOW);
-  digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);  // Right motor forward
+  digitalWrite(in1, LOW);  // Left motor backward
+  digitalWrite(in2, HIGH);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);  // Right motor forward
   analogWrite(enaA, motorSpeed);
   analogWrite(enaB, motorSpeed);
 }
@@ -645,7 +645,7 @@ void handleConfigPage() {
     </form>
   </div>
 </body>
-</html>
+</html>s
   )rawliteral";
   
   configServer.send(200, "text/html", html);

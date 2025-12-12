@@ -316,6 +316,8 @@ const deviceAPI = {
     }
 };
 // Real-time device status monitoring
+let deviceStatusListenerAdded = false;  // Prevent duplicate listeners
+
 function initializeDeviceStatusMonitoring() {
     // Initialize WebSocket client if not exists
     if (!state.esp32Client) {
@@ -342,24 +344,34 @@ function initializeDeviceStatusMonitoring() {
             state.esp32Client.monitorDevice(device.deviceId);
         });
     }
-    // Listen for device status updates
-    state.esp32Client.on('device:status', (data) => {
-        console.log('📊 Device status update:', data);
-        // Update the device in the devices array
-        if (state.devices) {
-            const deviceIndex = state.devices.findIndex(d => d.deviceId === data.deviceId);
-            if (deviceIndex !== -1) {
-                state.devices[deviceIndex].status = data.status === 'online' ? 'active' : 'offline';
-                state.devices[deviceIndex].lastOnline = data.timestamp;
-                // Store in deviceStatus for real-time tracking
-                state.deviceStatus[data.deviceId] = data;
-                // Re-render if we're on the devices page
-                if (state.route === 'my-devices') {
-                    render();
+
+    // Only add listener once to prevent duplicates
+    if (!deviceStatusListenerAdded) {
+        deviceStatusListenerAdded = true;
+
+        // Listen for device status updates
+        state.esp32Client.on('device:status', (data) => {
+            console.log('📊 Device status update received:', data);
+
+            // Always store in deviceStatus for real-time tracking
+            state.deviceStatus[data.deviceId] = data;
+
+            // Update the device in the devices array
+            if (state.devices && state.devices.length > 0) {
+                const deviceIndex = state.devices.findIndex(d => d.deviceId === data.deviceId);
+                if (deviceIndex !== -1) {
+                    state.devices[deviceIndex].status = data.status === 'online' ? 'active' : 'offline';
+                    state.devices[deviceIndex].lastOnline = data.timestamp;
+                    console.log(`✅ Updated device ${data.deviceId} status to: ${data.status}`);
                 }
             }
-        }
-    });
+
+            // Re-render if we're on the devices page
+            if (state.route === 'my-devices') {
+                render();
+            }
+        });
+    }
 }
 
 // --- Utilities ---
