@@ -521,6 +521,24 @@ export const AdminPage = (state) => {
             return productSortBy === column ? 'color: #3b82f6; font-weight: 600;' : '';
         };
 
+        // Generate readable SKU: LUM-CAT-XXXX
+        const generateSKU = (product) => {
+            const categoryMap = {
+                'Microcontrollers': 'MIC',
+                'Sensors': 'SEN',
+                'Components': 'COM',
+                'Robotics': 'ROB',
+                'Cables & Wires': 'CAB',
+                '3D Printing': '3DP',
+                'Power': 'PWR',
+                'Displays': 'DIS',
+                'Modules': 'MOD'
+            };
+            const catCode = categoryMap[product.category] || product.category?.substring(0, 3).toUpperCase() || 'GEN';
+            const idSuffix = (product._id || product.id || '').toString().slice(-4).toUpperCase();
+            return `LUM-${catCode}-${idSuffix}`;
+        };
+
         return `
         <div class="admin-page-header">
             <h1 class="admin-title">Product Management</h1>
@@ -595,7 +613,7 @@ export const AdminPage = (state) => {
                                     <img src="${p.image}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
                                     <div>
                                         <div style="font-weight: 500;">${p.name}</div>
-                                        <div style="font-size: 0.75rem; color: var(--text-muted);">SKU: ${p._id || p.id}</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);">SKU: ${generateSKU(p)}</div>
                                     </div>
                                 </div>
                             </td>
