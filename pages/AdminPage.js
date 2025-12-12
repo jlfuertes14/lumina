@@ -13,7 +13,12 @@ window.adminState = {
     confirmTitle: '',
     confirmMessage: '',
     confirmCallback: null,
-    confirmItemName: ''
+    confirmItemName: '',
+    // Product filter/sort state
+    productSearch: '',
+    productCategoryFilter: 'all',
+    productSortBy: null, // 'price', 'stock', 'status'
+    productSortOrder: 'asc' // 'asc' or 'desc'
 };
 
 // --- Confirmation Modal Functions ---
@@ -73,6 +78,38 @@ document.addEventListener('keydown', (e) => {
 window.toggleNotifications = () => {
     const el = document.getElementById('adminNotifications');
     if (el) el.classList.toggle('show');
+};
+
+// --- Product Filter/Sort Handlers ---
+window.handleProductSearch = (event) => {
+    window.adminState.productSearch = event.target.value;
+    window.render();
+};
+
+window.handleProductCategoryFilter = (event) => {
+    window.adminState.productCategoryFilter = event.target.value;
+    window.render();
+};
+
+window.handleProductSort = (column) => {
+    const { productSortBy, productSortOrder } = window.adminState;
+    if (productSortBy === column) {
+        // Toggle order if same column
+        window.adminState.productSortOrder = productSortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+        // New column, default to ascending
+        window.adminState.productSortBy = column;
+        window.adminState.productSortOrder = 'asc';
+    }
+    window.render();
+};
+
+window.clearProductFilters = () => {
+    window.adminState.productSearch = '';
+    window.adminState.productCategoryFilter = 'all';
+    window.adminState.productSortBy = null;
+    window.adminState.productSortOrder = 'asc';
+    window.render();
 };
 
 // --- Image Upload Handlers ---
@@ -439,16 +476,119 @@ export const AdminPage = (state) => {
         </div>
     `;
 
-    const renderProductsTable = () => `
+    const renderProductsTable = () => {
+        const { productSearch, productCategoryFilter, productSortBy, productSortOrder } = window.adminState;
+
+        // Get unique categories from products
+        const categories = [...new Set(state.products.map(p => p.category))].sort();
+
+        // Filter products
+        let filteredProducts = state.products.filter(p => {
+            const matchesSearch = productSearch === '' ||
+                p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+                (p._id || p.id).toString().toLowerCase().includes(productSearch.toLowerCase());
+            const matchesCategory = productCategoryFilter === 'all' || p.category === productCategoryFilter;
+            return matchesSearch && matchesCategory;
+        });
+
+        // Sort products
+        if (productSortBy) {
+            filteredProducts = [...filteredProducts].sort((a, b) => {
+                let comparison = 0;
+                switch (productSortBy) {
+                    case 'price':
+                        comparison = a.price - b.price;
+                        break;
+                    case 'stock':
+                        comparison = a.stock - b.stock;
+                        break;
+                    case 'status':
+                        // In Stock (>0) comes first in 'asc', Out of Stock first in 'desc'
+                        comparison = (b.stock > 0 ? 1 : 0) - (a.stock > 0 ? 1 : 0);
+                        break;
+                }
+                return productSortOrder === 'asc' ? comparison : -comparison;
+            });
+        }
+
+        // Sort arrow helper
+        const getSortArrow = (column) => {
+            if (productSortBy !== column) return '⇅';
+            return productSortOrder === 'asc' ? '↑' : '↓';
+        };
+
+        const getSortHeaderStyle = (column) => {
+            return productSortBy === column ? 'color: #3b82f6; font-weight: 600;' : '';
+        };
+
+        return `
         <div class="admin-page-header">
             <h1 class="admin-title">Product Management</h1>
             ${canManageProducts ? `<button class="btn btn-primary" onclick="window.toggleAdminModal(true, 'addProduct')">+ Add Product</button>` : ''}
         </div>
+        
+        <!-- Search and Filter Bar -->
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
+            <div style="flex: 1; min-width: 250px; position: relative;">
+                <input 
+                    type="text" 
+                    class="form-input" 
+                    placeholder="Search products by name or SKU..." 
+                    value="${productSearch}"
+                    oninput="window.handleProductSearch(event)"
+                    style="padding-left: 2.5rem; width: 100%;"
+                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%);">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            <div style="min-width: 180px;">
+                <select 
+                    class="form-input" 
+                    onchange="window.handleProductCategoryFilter(event)"
+                    style="width: 100%; cursor: pointer;"
+                >
+                    <option value="all" ${productCategoryFilter === 'all' ? 'selected' : ''}>All Categories</option>
+                    ${categories.map(cat => `
+                        <option value="${cat}" ${productCategoryFilter === cat ? 'selected' : ''}>${cat}</option>
+                    `).join('')}
+                </select>
+            </div>
+            ${(productSearch || productCategoryFilter !== 'all' || productSortBy) ? `
+                <button class="btn btn-outline" onclick="window.clearProductFilters()" style="white-space: nowrap;">
+                    ✕ Clear Filters
+                </button>
+            ` : ''}
+        </div>
+        
+        <!-- Results count -->
+        <div style="margin-bottom: 0.75rem; color: #64748b; font-size: 0.875rem;">
+            Showing ${filteredProducts.length} of ${state.products.length} products
+            ${productSearch ? ` matching "${productSearch}"` : ''}
+            ${productCategoryFilter !== 'all' ? ` in ${productCategoryFilter}` : ''}
+        </div>
+        
         <div class="admin-table-container">
             <table class="admin-table">
-                <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Category</th>
+                        <th onclick="window.handleProductSort('price')" style="cursor: pointer; user-select: none; ${getSortHeaderStyle('price')}">
+                            Price <span style="font-size: 0.75rem; opacity: 0.7;">${getSortArrow('price')}</span>
+                        </th>
+                        <th onclick="window.handleProductSort('stock')" style="cursor: pointer; user-select: none; ${getSortHeaderStyle('stock')}">
+                            Stock <span style="font-size: 0.75rem; opacity: 0.7;">${getSortArrow('stock')}</span>
+                        </th>
+                        <th onclick="window.handleProductSort('status')" style="cursor: pointer; user-select: none; ${getSortHeaderStyle('status')}">
+                            Status <span style="font-size: 0.75rem; opacity: 0.7;">${getSortArrow('status')}</span>
+                        </th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
                 <tbody>
-                    ${state.products.map(p => `
+                    ${filteredProducts.length > 0 ? filteredProducts.map(p => `
                         <tr>
                             <td>
                                 <div style="display: flex; align-items: center; gap: 1rem;">
@@ -468,11 +608,18 @@ export const AdminPage = (state) => {
                                 ${canDelete ? `<button class="btn-ghost" style="color: var(--danger);" onclick="window.handleDeleteProduct('${p._id || p.id}', '${p.name.replace(/'/g, "\\'")}')">🗑️</button>` : ''}
                             </td>
                         </tr>
-                    `).join('')}
+                    `).join('') : `
+                        <tr>
+                            <td colspan="6" style="text-align: center; padding: 3rem; color: #64748b;">
+                                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</div>
+                                No products found${productSearch ? ` matching "${productSearch}"` : ''}${productCategoryFilter !== 'all' ? ` in ${productCategoryFilter}` : ''}
+                            </td>
+                        </tr>
+                    `}
                 </tbody>
             </table>
         </div>
-    `;
+    `};
 
     const renderOrdersTab = () => {
         const allOrders = [...state.orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
