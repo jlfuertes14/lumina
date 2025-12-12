@@ -400,8 +400,8 @@ void handleHorn(bool activate) {
   hornActive = activate;
   
   if (activate) {
-    // Play tone on passive buzzer (frequency: 800Hz)
-    tone(hornPin, 800);
+    // Play tone on passive buzzer (frequency: 1000Hz)
+    tone(hornPin, 1000);
     Serial.println("📢 Horn ON");
   } else {
     noTone(hornPin);
