@@ -765,49 +765,32 @@ const CartPage = () => {
             .filter(p => p.category === item.category && p.id !== item.id)
             .slice(0, 4); // Show up to 4 similar items
         return `
-                    <div style="display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; overflow: hidden;">
-                        <div class="cart-item" style="border-bottom: none; display: flex; flex-direction: column; padding: 1.25rem;">
-                            <!-- Product Image (centered) -->
-                            <div style="display: flex; justify-content: center; padding: 1rem; background: #f8fafc; border-radius: 8px; margin-bottom: 1rem;">
-                                <img src="${item.image}" alt="${item.name}" style="width: 120px; height: 120px; object-fit: contain;">
+                    <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
+                        <div class="cart-item" style="border-bottom: none;">
+                            <input type="checkbox" 
+                                style="width: 20px; height: 20px; margin-right: 1rem; cursor: pointer; accent-color: var(--primary);"
+                                ${item.selected !== false ? 'checked' : ''}
+                                onchange="window.toggleCartItem(${item.id})"
+                            >
+                            <img src="${item.image}" alt="${item.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
+                            <div style="flex: 1;">
+                                <h3 style="font-size: 1rem;">${item.name}</h3>
+                                <p class="text-muted">${formatCurrency(item.price)}</p>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
+                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                                <span>${item.quantity}</span>
+                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
                             </div>
                             
-                            <!-- Product Name & Price -->
-                            <div style="text-align: left; margin-bottom: 1rem;">
-                                <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; color: var(--text);">${item.name}</h3>
-                                <p style="font-size: 1rem; color: var(--text-muted);">${formatCurrency(item.price)}</p>
-                            </div>
-                            
-                            <!-- Bottom Row: Checkbox (left) + Quantity (right) -->
-                            <div style="display: flex; align-items: center; justify-content: space-between; padding-top: 0.75rem; border-top: 1px solid var(--border);">
-                                <!-- Checkbox (square with rounded corners, filled when checked) -->
-                                <label style="display: flex; align-items: center; cursor: pointer;">
-                                    <input type="checkbox" 
-                                        style="display: none;"
-                                        ${item.selected !== false ? 'checked' : ''}
-                                        onchange="window.toggleCartItem(${item.id})">
-                                    <div style="width: 28px; height: 28px; border: 2px solid ${item.selected !== false ? 'var(--primary)' : '#d1d5db'}; border-radius: 6px; display: flex; align-items: center; justify-content: center; background: ${item.selected !== false ? 'var(--primary)' : 'white'}; transition: all 0.2s;">
-                                        ${item.selected !== false ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>' : ''}
-                                    </div>
-                                </label>
-                                
-                                <!-- Quantity Controls (circular buttons) -->
-                                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <button style="width: 36px; height: 36px; border: 2px solid var(--primary); background: var(--primary); color: white; border-radius: 50%; cursor: pointer; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; justify-content: center; line-height: 1;" onclick="window.updateQuantity(${item.id}, ${item.quantity - 1})">−</button>
-                                    <span style="min-width: 32px; text-align: center; font-weight: 600; font-size: 1.1rem;">${item.quantity}</span>
-                                    <button style="width: 36px; height: 36px; border: 2px solid var(--border); background: white; color: var(--text); border-radius: 50%; cursor: pointer; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; justify-content: center; line-height: 1;" onclick="window.updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
-                                </div>
-                            </div>
-                            
-                            <!-- Actions Row: Find Similar + Delete -->
-                            <div class="cart-item-actions" style="display: flex; align-items: center; justify-content: flex-start; gap: 0.5rem; margin-top: 0.75rem;">
-                                <button class="btn-find-similar" onclick="window.toggleFindSimilar(${item.id})" style="display: flex; align-items: center; gap: 0.25rem; padding: 0.5rem 1rem; font-size: 0.85rem; background: #f1f5f9; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--text);">
+                            <div class="cart-item-actions" style="display: flex; align-items: center; gap: 0.5rem;">
+                                <button class="btn-find-similar" onclick="window.toggleFindSimilar(${item.id})" style="display: flex; align-items: center; gap: 0.25rem;">
                                     Find Similar 
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transform: ${item.showSimilar ? 'rotate(180deg)' : 'rotate(0deg)'}; transition: transform 0.2s;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${item.showSimilar ? 'rotate(180deg)' : 'rotate(0deg)'}; transition: transform 0.2s;">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </button>
-                                <button class="btn-delete" onclick="window.removeFromCart(${item.id})" style="padding: 0.5rem 1rem; font-size: 0.85rem; background: white; color: var(--danger); border: 1px solid var(--danger); border-radius: 6px; cursor: pointer;">Delete</button>
+                                <button class="btn-delete" onclick="window.removeFromCart(${item.id})" style="color: var(--danger); border-color: var(--danger);">Delete</button>
                             </div>
                         </div>
                         <div class="similar-products-dropdown ${item.showSimilar ? 'show' : ''}">
@@ -1289,7 +1272,7 @@ const CheckoutPage = () => {
                     </div>
                     <div class="admin-section">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">💳 Payment Method <span style="color: red;">*</span></h2>
-                        <div class="payment-methods-grid" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem;">
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem;">
                             ${[
             { id: 'cod', label: 'Cash on Delivery', image: '/lumina/images/payment/cod.png' },
             { id: 'gcash', label: 'GCash', image: '/lumina/images/payment/gcash.png' },
@@ -1297,18 +1280,18 @@ const CheckoutPage = () => {
             { id: 'card', label: 'Credit/Debit Card', image: '/lumina/images/payment/card.png' },
             { id: 'bank', label: 'Bank Transfer', image: '/lumina/images/payment/bank.png' }
         ].map(method => `
-                                <div class="payment-method-card" onclick="window.selectPaymentMethod('${method.id}')" style="padding: 1rem 0.5rem; border: 2px solid ${state.checkoutData.paymentMethod === method.id ? 'var(--primary)' : 'var(--border)'}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${state.checkoutData.paymentMethod === method.id ? 'rgba(0, 43, 91, 0.05)' : 'var(--surface)'}; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100px;">
-                                    <div style="width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
-                                        <img src="${method.image}" alt="${method.label}" style="max-width: 48px; max-height: 48px; object-fit: contain;">
+                                <div class="payment-method-card" onclick="window.selectPaymentMethod('${method.id}')" style="padding: 0.75rem; border: 2px solid ${state.checkoutData.paymentMethod === method.id ? 'var(--primary)' : 'var(--border)'}; border-radius: var(--radius-md); cursor: pointer; text-align: center; transition: all 0.2s; background: ${state.checkoutData.paymentMethod === method.id ? 'rgba(0, 43, 91, 0.05)' : 'var(--surface)'};">
+                                    <div style="height: 48px; display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+                                        <img src="${method.image}" alt="${method.label}" style="max-width: 100%; max-height: 48px; object-fit: contain;">
                                     </div>
-                                    <div style="font-size: 0.7rem; font-weight: 600; line-height: 1.2; color: var(--text);">${method.label}</div>
+                                    <div style="font-size: 0.75rem; font-weight: 600; line-height: 1.2;">${method.label}</div>
                                 </div>
                             `).join('')}
                         </div>
                     </div>
                 </div>
                 <div>
-                    <div class="cart-summary checkout-summary" style="position: sticky; top: 2rem;">
+                    <div class="cart-summary" style="position: sticky; top: 2rem;">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Order Summary</h2>
                         <div style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
                             ${selectedItems.map(item => `

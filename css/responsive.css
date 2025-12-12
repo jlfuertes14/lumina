@@ -229,25 +229,23 @@
         grid-template-columns: 1fr !important;
     }
 
-    /* Payment methods grid - 3-column on tablet */
-    .payment-methods-grid {
+    /* Payment methods grid - 3-column on tablet, 2-column on mobile */
+    .checkout-form .admin-section:nth-child(2)>div {
         grid-template-columns: repeat(3, 1fr) !important;
         gap: 0.5rem !important;
     }
 
-    /* Payment method cards - uniform size */
-    .payment-method-card {
-        min-height: 80px !important;
+    /* Payment method buttons */
+    .payment-option {
         padding: 0.75rem 0.5rem !important;
     }
 
-    .payment-method-card img {
-        max-width: 36px !important;
-        max-height: 36px !important;
+    .payment-option img {
+        max-height: 24px !important;
     }
 
-    .payment-method-card>div:last-child {
-        font-size: 0.65rem !important;
+    .payment-option span {
+        font-size: 0.7rem !important;
     }
 
     /* Order summary section */
