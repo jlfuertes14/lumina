@@ -32,6 +32,16 @@ const int in2 = 33;
 const int in3 = 26;
 const int in4 = 25;
 
+// ========== Motor PWM Channels ==========
+const int pwmChannel_A = 0;  // Left motor
+const int pwmChannel_B = 1;  // Right motor
+const int pwmFreq = 5000;    // 5 kHz
+const int pwmResolution = 8; // 8-bit (0-255)
+
+// ========== Headlight & Horn Pins ==========
+const int headlightPin = 14;  // COB LED for headlights
+const int hornPin = 27;        // Passive buzzer
+
 // ========== IR Sensor Pins ==========
 const int irFront = 34;
 const int irLeft  = 35;
@@ -63,6 +73,11 @@ bool isConnected = false;
 bool isAuthenticated = false;
 bool isConfigMode = false;
 
+// ========== Feature States ==========
+int motorSpeed = 255;      // Motor speed (0-255), default full speed
+bool headlightsOn = false; // Headlights state
+bool hornActive = false;   // Horn state
+
 unsigned long lastStatusUpdate = 0;
 const unsigned long STATUS_INTERVAL = 5000; // 5 seconds
 
@@ -84,14 +99,26 @@ void setup() {
   Serial.println("ESP32 Smart Car - AsyncWebSocket");
   Serial.println("========================================\n");
 
-  // Initialize pins
+  // Initialize motor pins
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
   pinMode(in3, OUTPUT);
   pinMode(in4, OUTPUT);
+  
+  // Initialize PWM for motor speed control
+  ledcAttach(in2, pwmFreq, pwmResolution);  // Left motor PWM
+  ledcAttach(in4, pwmFreq, pwmResolution);  // Right motor PWM
+  
+  // Initialize sensor pins
   pinMode(irFront, INPUT);
   pinMode(irLeft, INPUT);
   pinMode(irRight, INPUT);
+  
+  // Initialize headlight & horn pins
+  pinMode(headlightPin, OUTPUT);
+  pinMode(hornPin, OUTPUT);
+  digitalWrite(headlightPin, LOW);
+  digitalWrite(hornPin, LOW);
   
   stopMotors();
   
@@ -247,6 +274,18 @@ void handleWebSocketMessage(uint8_t * payload, size_t length) {
       stopMotors();
       sendCommandAck("stop", true, "Stopped");
     }
+    else if (command == "lights") {
+      String lightState = cmdPayload["state"];
+      handleLights(lightState == "on");
+    }
+    else if (command == "horn") {
+      String hornState = cmdPayload["state"];
+      handleHorn(hornState == "on");
+    }
+    else if (command == "speed") {
+      int newSpeed = cmdPayload["value"];
+      handleSpeedChange(newSpeed);
+    }
     else {
       sendCommandAck(command, false, "Unknown command");
     }
@@ -305,40 +344,74 @@ void handleMovement(String direction) {
   sendCommandAck("move", success, result);
 }
 
-// ========== Motor Control ==========
+// ========== Motor Control (with PWM speed) ==========
 void moveForward() {
   digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
+  ledcWrite(in2, motorSpeed);  // PWM speed
   digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+  ledcWrite(in4, motorSpeed);  // PWM speed
 }
 
 void moveBackward() {
+  ledcWrite(in2, 0);
   digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
+  ledcWrite(in4, 0);
   digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
 }
 
 void turnLeft() {
   digitalWrite(in1, LOW);
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);
+  ledcWrite(in2, motorSpeed);  // Left motor forward
+  ledcWrite(in4, 0);
+  digitalWrite(in3, HIGH);     // Right motor backward
 }
 
 void turnRight() {
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);
+  ledcWrite(in2, 0);
+  digitalWrite(in1, HIGH);     // Left motor backward
   digitalWrite(in3, LOW);
-  digitalWrite(in4, HIGH);
+  ledcWrite(in4, motorSpeed);  // Right motor forward
 }
 
 void stopMotors() {
   digitalWrite(in1, LOW);
-  digitalWrite(in2, LOW);
+  ledcWrite(in2, 0);
   digitalWrite(in3, LOW);
-  digitalWrite(in4, LOW);
+  ledcWrite(in4, 0);
+}
+
+// ========== Headlight Control ==========
+void handleLights(bool turnOn) {
+  headlightsOn = turnOn;
+  digitalWrite(headlightPin, turnOn ? HIGH : LOW);
+  
+  Serial.println(turnOn ? "💡 Headlights ON" : "💡 Headlights OFF");
+  sendCommandAck("lights", true, turnOn ? "Lights ON" : "Lights OFF");
+}
+
+// ========== Horn Control ==========
+void handleHorn(bool activate) {
+  hornActive = activate;
+  
+  if (activate) {
+    // Play tone on passive buzzer (frequency: 800Hz)
+    tone(hornPin, 800);
+    Serial.println("📢 Horn ON");
+  } else {
+    noTone(hornPin);
+    Serial.println("📢 Horn OFF");
+  }
+  
+  sendCommandAck("horn", true, activate ? "Horn ON" : "Horn OFF");
+}
+
+// ========== Speed Control ==========
+void handleSpeedChange(int newSpeed) {
+  // Clamp speed to valid range
+  motorSpeed = constrain(newSpeed, 0, 255);
+  
+  Serial.printf("⚡ Speed set to: %d\n", motorSpeed);
+  sendCommandAck("speed", true, "Speed: " + String(motorSpeed));
 }
 
 // ========== IR Sensors ==========
@@ -384,7 +457,10 @@ void sendStatusUpdate() {
   payload["leftSensor"] = leftBlocked();
   payload["rightSensor"] = rightBlocked();
   payload["isMoving"] = isCarMoving();
-  payload["firmwareVersion"] = "2.0.0-AsyncWS";
+  payload["headlights"] = headlightsOn;
+  payload["horn"] = hornActive;
+  payload["speed"] = motorSpeed;
+  payload["firmwareVersion"] = "2.1.0-AsyncWS";
   payload["uptime"] = millis() / 1000;
   
   String output;

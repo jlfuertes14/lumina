@@ -1120,7 +1120,8 @@ const RemoteControlPage = () => {
                             <span id="speedValue">50%</span>
                         </div>
                         <input type="range" min="0" max="100" value="50" class="cyber-slider" id="speedSlider"
-                            oninput="document.getElementById('speedValue').textContent = this.value + '%'">
+                            oninput="document.getElementById('speedValue').textContent = this.value + '%'"
+                            onchange="window.setSpeed(this.value)">
                     </div>
                     <!-- Auxiliary Controls -->
                     <div class="aux-controls">
@@ -3866,11 +3867,28 @@ window.sendCarCommand = (direction) => {
         if (direction === 'stop') {
             state.esp32Client.stop(state.currentDeviceId);
         } else {
-            state.esp32Client.move(state.currentDeviceId, direction, 255);
+            // Get current speed from slider (convert 0-100% to 0-255)
+            const speedSlider = document.getElementById('speedSlider');
+            const speedPercent = speedSlider ? parseInt(speedSlider.value) : 100;
+            const speed = Math.round((speedPercent / 100) * 255);
+            state.esp32Client.move(state.currentDeviceId, direction, speed);
         }
     } catch (error) {
         showToast('Failed to send command');
         console.error(error);
+    }
+};
+
+// Set motor speed
+window.setSpeed = (speedPercent) => {
+    if (!state.esp32Client || !state.currentDeviceId) return;
+
+    try {
+        // Convert percentage (0-100) to PWM value (0-255)
+        const speed = Math.round((speedPercent / 100) * 255);
+        state.esp32Client.sendCommand(state.currentDeviceId, 'speed', { value: speed });
+    } catch (error) {
+        console.error('Failed to set speed:', error);
     }
 };
 
