@@ -11,13 +11,11 @@
  * - Direct WebSocket connection (no Socket.IO complexity)
  * - SSL/TLS support for Railway
  * - Device authentication with token
- * - Obstacle detection (IR sensors)
  * - Real-time status updates
  * - Configuration portal (SoftAP fallback)
  */
 
-#include <AsyncTCP.h>
-#include <ESPAsyncWebServer.h>
+
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <WebSocketsClient.h>
@@ -42,10 +40,7 @@ const int pwmResolution = 8; // 8-bit (0-255)
 const int headlightPin = 14;  // COB LED for headlights
 const int hornPin = 27;        // Passive buzzer
 
-// ========== IR Sensor Pins ==========
-const int irFront = 34;
-const int irLeft  = 35;
-const int irRight = 39;
+
 
 // ========== EEPROM Memory Layout ==========
 #define EEPROM_SIZE 512
@@ -109,10 +104,7 @@ void setup() {
   ledcAttach(in2, pwmFreq, pwmResolution);  // Left motor PWM
   ledcAttach(in4, pwmFreq, pwmResolution);  // Right motor PWM
   
-  // Initialize sensor pins
-  pinMode(irFront, INPUT);
-  pinMode(irLeft, INPUT);
-  pinMode(irRight, INPUT);
+
   
   // Initialize headlight & horn pins
   pinMode(headlightPin, OUTPUT);
@@ -306,38 +298,20 @@ void handleMovement(String direction) {
   bool success = true;
   
   if (direction == "forward") {
-    if (frontBlocked()) {
-      stopMotors();
-      result = "Blocked: Front obstacle!";
-      success = false;
-    } else {
-      moveForward();
-      result = "Moving forward";
-    }
+    moveForward();
+    result = "Moving forward";
   }
   else if (direction == "backward") {
     moveBackward();
     result = "Moving backward";
   }
   else if (direction == "left") {
-    if (leftBlocked()) {
-      stopMotors();
-      result = "Blocked: Left obstacle!";
-      success = false;
-    } else {
-      turnLeft();
-      result = "Turning left";
-    }
+    turnLeft();
+    result = "Turning left";
   }
   else if (direction == "right") {
-    if (rightBlocked()) {
-      stopMotors();
-      result = "Blocked: Right obstacle!";
-      success = false;
-    } else {
-      turnRight();
-      result = "Turning right";
-    }
+    turnRight();
+    result = "Turning right";
   }
   
   Serial.println("🚗 " + result);
@@ -414,18 +388,7 @@ void handleSpeedChange(int newSpeed) {
   sendCommandAck("speed", true, "Speed: " + String(motorSpeed));
 }
 
-// ========== IR Sensors ==========
-bool frontBlocked() {
-  return digitalRead(irFront) == LOW;
-}
 
-bool leftBlocked() {
-  return digitalRead(irLeft) == LOW;
-}
-
-bool rightBlocked() {
-  return digitalRead(irRight) == LOW;
-}
 
 bool isCarMoving() {
   return digitalRead(in2) || digitalRead(in4);
@@ -453,14 +416,11 @@ void sendStatusUpdate() {
   doc["type"] = "status";
   JsonObject payload = doc.createNestedObject("payload");
   payload["battery"] = 85; // TODO: Implement actual battery reading
-  payload["frontSensor"] = frontBlocked();
-  payload["leftSensor"] = leftBlocked();
-  payload["rightSensor"] = rightBlocked();
   payload["isMoving"] = isCarMoving();
   payload["headlights"] = headlightsOn;
   payload["horn"] = hornActive;
   payload["speed"] = motorSpeed;
-  payload["firmwareVersion"] = "2.1.0-AsyncWS";
+  payload["firmwareVersion"] = "2.2.0-AsyncWS";
   payload["uptime"] = millis() / 1000;
   
   String output;
