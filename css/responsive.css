@@ -160,52 +160,36 @@
         width: 100% !important;
     }
 
+    /* Cart item - keep row layout but allow wrapping */
     .cart-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
+        flex-wrap: wrap;
+        gap: 0.75rem;
         padding: 1rem;
     }
 
-    /* Cart item layout for mobile */
+    /* Checkbox size fix */
     .cart-item>input[type="checkbox"] {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
+        width: 20px !important;
+        height: 20px !important;
+        flex-shrink: 0;
     }
 
-    .cart-item {
-        position: relative;
-        padding-left: 3rem !important;
-    }
-
+    /* Product image */
     .cart-item img {
-        width: 70px !important;
-        height: 70px !important;
+        width: 60px !important;
+        height: 60px !important;
     }
 
-    /* Quantity controls */
-    .cart-item>div:nth-child(4) {
-        margin-right: 0 !important;
-    }
-
-    /* Cart item actions (Find Similar, Delete) */
+    /* Cart item actions - keep inline */
     .cart-item-actions {
-        width: 100%;
-        justify-content: space-between !important;
-        margin-top: 0.5rem;
+        flex-wrap: wrap;
+        gap: 0.5rem;
     }
 
-    /* Cart summary sticky on mobile */
+    /* Cart summary */
     .cart-summary {
-        position: sticky;
-        bottom: 0;
-        background: white;
         padding: 1rem;
-        border-top: 1px solid var(--border);
-        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
-        margin: 0 -1rem;
-        width: calc(100% + 2rem);
+        border-radius: 8px;
     }
 
     /* Checkout Page - Mobile Responsive */
