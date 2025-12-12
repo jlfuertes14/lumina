@@ -255,6 +255,8 @@ const RemoteControlPage = () => {
     const statusData = state.deviceStatus[device.deviceId] || {};
     const telemetry = state.telemetryData[device.deviceId] || {};
     const isConnected = statusData.status === 'online';
+    const currentSpeed = telemetry.speed || 255;
+    const oaMode = telemetry.obstacleAvoidance || false;
 
     return `
         <div style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
@@ -277,32 +279,67 @@ const RemoteControlPage = () => {
                     </div>
                 </div>
 
-                <!-- Telemetry Dashboard -->
+                <!-- Telemetry Dashboard - Ultrasonic Sensors -->
                 <div class="telemetry-grid">
                     <div class="telemetry-card">
-                        <div class="telemetry-icon">🔋</div>
-                        <div class="telemetry-value">${telemetry.battery || 0}%</div>
-                        <div class="telemetry-label">Battery</div>
+                        <div class="telemetry-icon">⬅️</div>
+                        <div class="telemetry-value">${telemetry.leftDistance || '--'} cm</div>
+                        <div class="telemetry-label">Left</div>
                     </div>
                     <div class="telemetry-card">
-                        <div class="telemetry-icon">📡</div>
-                        <div class="telemetry-value">${telemetry.signal || 'N/A'}</div>
-                        <div class="telemetry-label">Signal</div>
+                        <div class="telemetry-icon">⬆️</div>
+                        <div class="telemetry-value">${telemetry.frontDistance || '--'} cm</div>
+                        <div class="telemetry-label">Front</div>
+                    </div>
+                    <div class="telemetry-card">
+                        <div class="telemetry-icon">➡️</div>
+                        <div class="telemetry-value">${telemetry.rightDistance || '--'} cm</div>
+                        <div class="telemetry-label">Right</div>
                     </div>
                     <div class="telemetry-card">
                         <div class="telemetry-icon">⚡</div>
                         <div class="telemetry-value">${telemetry.isMoving ? 'Yes' : 'No'}</div>
                         <div class="telemetry-label">Moving</div>
                     </div>
-                    <div class="telemetry-card">
-                        <div class="telemetry-icon">🚧</div>
-                        <div class="telemetry-value">${telemetry.frontSensor ? 'Detected' : 'Clear'}</div>
-                        <div class="telemetry-label">Obstacle</div>
+                </div>
+
+                <!-- Speed Control Slider -->
+                <div style="background: var(--surface); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
+                    <h3 style="margin: 0 0 1rem 0; font-size: 1rem;">⚡ Speed Control</h3>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <span style="font-size: 0.875rem; color: var(--text-muted);">Slow</span>
+                        <input type="range" id="speedSlider" min="50" max="255" value="${currentSpeed}" 
+                            style="flex: 1; height: 8px; cursor: pointer;"
+                            oninput="window.updateSpeedDisplay(this.value)"
+                            onchange="window.setCarSpeed(this.value)"
+                            ${!isConnected ? 'disabled' : ''}>
+                        <span style="font-size: 0.875rem; color: var(--text-muted);">Fast</span>
+                    </div>
+                    <div style="text-align: center; margin-top: 0.5rem;">
+                        <span id="speedDisplay" style="font-weight: 600; color: var(--primary);">${Math.round(currentSpeed / 255 * 100)}%</span>
+                    </div>
+                </div>
+
+                <!-- Obstacle Avoidance Mode -->
+                <div style="background: ${oaMode ? 'linear-gradient(135deg, #10b981, #059669)' : 'var(--surface)'}; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; transition: all 0.3s;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 style="margin: 0 0 0.25rem 0; font-size: 1rem; color: ${oaMode ? '#fff' : 'inherit'};">🚧 Obstacle Avoidance Mode</h3>
+                            <p style="margin: 0; font-size: 0.875rem; color: ${oaMode ? 'rgba(255,255,255,0.8)' : 'var(--text-muted)'};">
+                                ${oaMode ? 'Car is navigating autonomously' : 'Enable for autonomous navigation'}
+                            </p>
+                        </div>
+                        <button id="oaToggle" class="btn ${oaMode ? 'btn-outline' : 'btn-primary'}" 
+                            onclick="window.toggleObstacleAvoidance()"
+                            style="${oaMode ? 'background: rgba(255,255,255,0.2); border-color: #fff; color: #fff;' : ''}"
+                            ${!isConnected ? 'disabled' : ''}>
+                            ${oaMode ? 'Stop' : 'Start'}
+                        </button>
                     </div>
                 </div>
 
                 <!-- Control Panel -->
-                <div class="control-panel">
+                <div class="control-panel" style="${oaMode ? 'opacity: 0.5; pointer-events: none;' : ''}">
                     <div class="control-section">
                         <h3 style="margin-bottom: 1rem; text-align: center;">Directional Controls</h3>
                         <div class="control-grid">
@@ -312,7 +349,7 @@ const RemoteControlPage = () => {
                                     onmouseup="window.sendCarCommand('stop')"
                                     ontouchstart="window.sendCarCommand('forward')"
                                     ontouchend="window.sendCarCommand('stop')"
-                                    ${!isConnected ? 'disabled' : ''}>
+                                    ${!isConnected || oaMode ? 'disabled' : ''}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="12" y1="19" x2="12" y2="5"></line>
                                         <polyline points="5 12 12 5 19 12"></polyline>
@@ -326,7 +363,7 @@ const RemoteControlPage = () => {
                                     onmouseup="window.sendCarCommand('stop')"
                                     ontouchstart="window.sendCarCommand('left')"
                                     ontouchend="window.sendCarCommand('stop')"
-                                    ${!isConnected ? 'disabled' : ''}>
+                                    ${!isConnected || oaMode ? 'disabled' : ''}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="19" y1="12" x2="5" y2="12"></line>
                                         <polyline points="12 19 5 12 12 5"></polyline>
@@ -337,7 +374,7 @@ const RemoteControlPage = () => {
                             <div style="grid-column: 2; text-align: center;">
                                 <button class="control-btn stop-btn"
                                     onclick="window.sendCarCommand('stop')"
-                                    ${!isConnected ? 'disabled' : ''}>
+                                    ${!isConnected || oaMode ? 'disabled' : ''}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
                                         <rect x="6" y="6" width="12" height="12"></rect>
                                     </svg>
@@ -350,7 +387,7 @@ const RemoteControlPage = () => {
                                     onmouseup="window.sendCarCommand('stop')"
                                     ontouchstart="window.sendCarCommand('right')"
                                     ontouchend="window.sendCarCommand('stop')"
-                                    ${!isConnected ? 'disabled' : ''}>
+                                    ${!isConnected || oaMode ? 'disabled' : ''}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="5" y1="12" x2="19" y2="12"></line>
                                         <polyline points="12 5 19 12 12 19"></polyline>
@@ -364,7 +401,7 @@ const RemoteControlPage = () => {
                                     onmouseup="window.sendCarCommand('stop')"
                                     ontouchstart="window.sendCarCommand('backward')"
                                     ontouchend="window.sendCarCommand('stop')"
-                                    ${!isConnected ? 'disabled' : ''}>
+                                    ${!isConnected || oaMode ? 'disabled' : ''}>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <line x1="12" y1="5" x2="12" y2="19"></line>
                                         <polyline points="19 12 12 19 5 12"></polyline>

@@ -3988,7 +3988,6 @@ window.toggleLights = () => {
     }
 };
 
-// Toggle horn
 window.toggleHorn = () => {
     if (!state.esp32Client || !state.currentDeviceId) return;
 
@@ -4004,6 +4003,44 @@ window.toggleHorn = () => {
             console.error('Failed to toggle horn:', error);
             hornBtn.classList.toggle('active'); // Revert on error
         }
+    }
+};
+
+// Update speed display in UI (without sending command)
+window.updateSpeedDisplay = (value) => {
+    const display = document.getElementById('speedDisplay');
+    if (display) {
+        display.textContent = `${Math.round(value / 255 * 100)}%`;
+    }
+};
+
+// Set motor speed (sends command to ESP32)
+window.setCarSpeed = (value) => {
+    if (!state.esp32Client || !state.currentDeviceId) return;
+
+    try {
+        const speed = parseInt(value);
+        state.esp32Client.sendCommand(state.currentDeviceId, 'speed', { value: speed });
+        showToast(`Speed set to ${Math.round(speed / 255 * 100)}%`);
+    } catch (error) {
+        console.error('Failed to set speed:', error);
+    }
+};
+
+// Toggle obstacle avoidance mode
+window.toggleObstacleAvoidance = () => {
+    if (!state.esp32Client || !state.currentDeviceId) return;
+
+    // Get current state from telemetry
+    const telemetry = state.telemetryData[state.currentDeviceId] || {};
+    const currentState = telemetry.obstacleAvoidance || false;
+    const newState = !currentState;
+
+    try {
+        state.esp32Client.sendCommand(state.currentDeviceId, 'obstacle_avoidance', { state: newState ? 'on' : 'off' });
+        showToast(`Obstacle Avoidance ${newState ? 'ON' : 'OFF'}`);
+    } catch (error) {
+        console.error('Failed to toggle obstacle avoidance:', error);
     }
 };
 

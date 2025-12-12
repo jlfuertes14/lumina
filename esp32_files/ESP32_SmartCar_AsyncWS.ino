@@ -35,10 +35,16 @@ const int enaA = 25;  // Enable A - Left motor speed
 const int enaB = 26;  // Enable B - Right motor speed
 
 // ========== Headlight & Horn Pins ==========
-const int headlightPin = 14;  // COB LED for headlights
+const int headlightPin = 12;  //  LED for headlights
 const int hornPin = 27;        // Passive buzzer
 
-
+// ========== Ultrasonic Sensor Pins ==========
+#define RIGHT_TRIG 16
+#define RIGHT_ECHO 34
+#define LEFT_TRIG 18
+#define LEFT_ECHO 13
+#define FRONT_TRIG 14
+#define FRONT_ECHO 35
 
 // ========== EEPROM Memory Layout ==========
 #define EEPROM_SIZE 512
@@ -70,9 +76,14 @@ bool isConfigMode = false;
 int motorSpeed = 255;      // Motor speed (0-255), default full speed
 bool headlightsOn = false; // Headlights state
 bool hornActive = false;   // Horn state
+bool obstacleAvoidanceMode = false;  // Obstacle avoidance mode
 
 unsigned long lastStatusUpdate = 0;
 const unsigned long STATUS_INTERVAL = 5000; // 5 seconds
+
+// Obstacle avoidance thresholds
+const int OBSTACLE_DISTANCE = 25;  // cm
+const int SIDE_DISTANCE = 15;      // cm
 
 // ========== Setup ==========
 void setup() {
@@ -105,6 +116,14 @@ void setup() {
   pinMode(hornPin, OUTPUT);
   digitalWrite(headlightPin, LOW);
   digitalWrite(hornPin, LOW);
+  
+  // Initialize ultrasonic sensor pins
+  pinMode(FRONT_TRIG, OUTPUT);
+  pinMode(FRONT_ECHO, INPUT);
+  pinMode(LEFT_TRIG, OUTPUT);
+  pinMode(LEFT_ECHO, INPUT);
+  pinMode(RIGHT_TRIG, OUTPUT);
+  pinMode(RIGHT_ECHO, INPUT);
   
   stopMotors();
   
@@ -157,6 +176,11 @@ void loop() {
     if (isConnected && isAuthenticated && millis() - lastStatusUpdate > STATUS_INTERVAL) {
       sendStatusUpdate();
       lastStatusUpdate = millis();
+    }
+    
+    // Run obstacle avoidance if enabled
+    if (obstacleAvoidanceMode && isAuthenticated) {
+      runObstacleAvoidance();
     }
   }
   
@@ -272,6 +296,10 @@ void handleWebSocketMessage(uint8_t * payload, size_t length) {
       int newSpeed = cmdPayload["value"];
       handleSpeedChange(newSpeed);
     }
+    else if (command == "obstacle_avoidance") {
+      String oaState = cmdPayload["state"];
+      handleObstacleAvoidance(oaState == "on");
+    }
     else {
       sendCommandAck(command, false, "Unknown command");
     }
@@ -332,19 +360,19 @@ void moveBackward() {
 }
 
 void turnLeft() {
-  digitalWrite(in1, HIGH);
-  digitalWrite(in2, LOW);  // Left motor forward
-  digitalWrite(in3, LOW);  // Right motor backward
-  digitalWrite(in4, HIGH);
+  digitalWrite(in1, LOW);
+  digitalWrite(in2, HIGH);  // Left motor forward
+  digitalWrite(in3, HIGH);  // Right motor backward
+  digitalWrite(in4, LOW);
   analogWrite(enaA, motorSpeed);
   analogWrite(enaB, motorSpeed);
 }
 
 void turnRight() {
-  digitalWrite(in1, LOW);  // Left motor backward
-  digitalWrite(in2, HIGH);
-  digitalWrite(in3, HIGH);
-  digitalWrite(in4, LOW);  // Right motor forward
+  digitalWrite(in1, HIGH);  // Left motor backward
+  digitalWrite(in2, LOW);
+  digitalWrite(in3, LOW);
+  digitalWrite(in4, HIGH);  // Right motor forward
   analogWrite(enaA, motorSpeed);
   analogWrite(enaB, motorSpeed);
 }
@@ -392,10 +420,71 @@ void handleSpeedChange(int newSpeed) {
   sendCommandAck("speed", true, "Speed: " + String(motorSpeed));
 }
 
+// ========== Ultrasonic Sensors ==========
+long getDistance(int trigPin, int echoPin) {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  long duration = pulseIn(echoPin, HIGH, 30000);  // 30ms timeout
+  if (duration == 0) return 999;  // No echo = far away
+  return duration * 0.034 / 2;  // Convert to cm
+}
+
+long getFrontDistance() { return getDistance(FRONT_TRIG, FRONT_ECHO); }
+long getLeftDistance() { return getDistance(LEFT_TRIG, LEFT_ECHO); }
+long getRightDistance() { return getDistance(RIGHT_TRIG, RIGHT_ECHO); }
+
+// ========== Obstacle Avoidance ==========
+void handleObstacleAvoidance(bool enable) {
+  obstacleAvoidanceMode = enable;
+  if (!enable) {
+    stopMotors();  // Stop when disabling
+  }
+  Serial.println(enable ? "🚧 Obstacle Avoidance ON" : "🚧 Obstacle Avoidance OFF");
+  sendCommandAck("obstacle_avoidance", true, enable ? "Obstacle Avoidance ON" : "Obstacle Avoidance OFF");
+}
+
+void runObstacleAvoidance() {
+  long frontDist = getFrontDistance();
+  long leftDist = getLeftDistance();
+  long rightDist = getRightDistance();
+  
+  // Check front obstacle
+  if (frontDist < OBSTACLE_DISTANCE) {
+    stopMotors();
+    delay(100);
+    
+    // Decide which way to turn
+    if (rightDist > leftDist && rightDist > SIDE_DISTANCE) {
+      // Turn right
+      turnRight();
+      delay(400);
+    } else if (leftDist > SIDE_DISTANCE) {
+      // Turn left
+      turnLeft();
+      delay(400);
+    } else {
+      // Back up and try again
+      moveBackward();
+      delay(500);
+      turnRight();
+      delay(600);
+    }
+    stopMotors();
+  } else {
+    // Path is clear, move forward
+    moveForward();
+  }
+  
+  delay(50);  // Small delay between sensor reads
+}
 
 
 bool isCarMoving() {
-  return digitalRead(in2) || digitalRead(in4);
+  return digitalRead(in1) || digitalRead(in3);
 }
 
 // ========== WebSocket Communication ==========
@@ -419,12 +508,15 @@ void sendStatusUpdate() {
   
   doc["type"] = "status";
   JsonObject payload = doc.createNestedObject("payload");
-  payload["battery"] = 85; // TODO: Implement actual battery reading
   payload["isMoving"] = isCarMoving();
   payload["headlights"] = headlightsOn;
   payload["horn"] = hornActive;
   payload["speed"] = motorSpeed;
-  payload["firmwareVersion"] = "2.2.0-AsyncWS";
+  payload["obstacleAvoidance"] = obstacleAvoidanceMode;
+  payload["frontDistance"] = getFrontDistance();
+  payload["leftDistance"] = getLeftDistance();
+  payload["rightDistance"] = getRightDistance();
+  payload["firmwareVersion"] = "2.3.0-AsyncWS";
   payload["uptime"] = millis() / 1000;
   
   String output;
@@ -645,7 +737,7 @@ void handleConfigPage() {
     </form>
   </div>
 </body>
-</html>s
+</html>
   )rawliteral";
   
   configServer.send(200, "text/html", html);
