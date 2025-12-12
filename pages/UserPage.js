@@ -79,7 +79,7 @@ export const UserPage = ({ state }) => {
 
     // 2. Image Upload
     if (!window.handleImageUpload) {
-        window.handleImageUpload = (event) => {
+        window.handleImageUpload = async (event) => {
             const file = event.target.files[0];
             if (!file) return;
 
@@ -96,15 +96,14 @@ export const UserPage = ({ state }) => {
             }
 
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const updatedUser = {
-                    ...state.currentUser,
-                    avatar: e.target.result
-                };
-                state.currentUser = updatedUser;
-                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-                showToast('Profile image updated!');
-                render();
+            reader.onload = async (e) => {
+                try {
+                    // Save to database via API
+                    await api.updateAvatar(state.currentUser.id, e.target.result);
+                    render();
+                } catch (error) {
+                    console.error('Avatar upload failed:', error);
+                }
             };
             reader.readAsDataURL(file);
         };

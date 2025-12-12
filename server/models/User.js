@@ -50,6 +50,9 @@ const userSchema = new mongoose.Schema({
     birthDate: {
         type: Date
     },
+    avatar: {
+        type: String  // Base64 encoded image (customers only)
+    },
     savedCart: [{
         productId: { type: Number, required: true },
         name: String,

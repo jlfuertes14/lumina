@@ -216,6 +216,24 @@ const api = {
             throw error;
         }
     },
+
+    // Update avatar (customers only)
+    updateAvatar: async (userId, avatar) => {
+        try {
+            const response = await apiCall(`/users/${userId}/avatar`, {
+                method: 'PUT',
+                body: JSON.stringify({ avatar })
+            });
+            state.currentUser = response.data;
+            localStorage.setItem('currentUser', JSON.stringify(response.data));
+            window.showToast('Profile image saved!');
+            return response.data;
+        } catch (error) {
+            window.showToast(error.message || 'Failed to save profile image');
+            throw error;
+        }
+    },
+
     // Coupons
     claimCoupon: async (couponCode) => {
         // Block coupon claiming for admin/staff
@@ -466,8 +484,10 @@ const Header = () => {
                     ${isLoggedIn ? `
                         <div class="user-dropdown">
                             <div class="action-icon" style="cursor: pointer;">
-                                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">
-                                    ${state.currentUser.name.charAt(0).toUpperCase()}
+                                <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; overflow: hidden;">
+                                    ${state.currentUser.avatar && state.currentUser.role === 'customer'
+                ? `<img src="${state.currentUser.avatar}" style="width: 100%; height: 100%; object-fit: cover;">`
+                : state.currentUser.name.charAt(0).toUpperCase()}
                                 </div>
                                 <span>${state.currentUser.name.split(' ')[0]}</span>
                             </div>

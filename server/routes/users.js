@@ -216,6 +216,34 @@ router.put('/:id/profile', async (req, res) => {
     }
 });
 
+// PUT update user avatar (customers only)
+router.put('/:id/avatar', async (req, res) => {
+    try {
+        const { avatar } = req.body;
+
+        // Find user first to check role
+        const existingUser = await User.findOne({ id: parseInt(req.params.id) });
+        if (!existingUser) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+
+        // Only allow customers to update avatars
+        if (existingUser.role !== 'customer') {
+            return res.status(403).json({ success: false, error: 'Avatar is only available for customers' });
+        }
+
+        const user = await User.findOneAndUpdate(
+            { id: parseInt(req.params.id) },
+            { avatar },
+            { new: true }
+        ).select('-password');
+
+        res.json({ success: true, data: user });
+    } catch (error) {
+        res.status(400).json({ success: false, error: error.message });
+    }
+});
+
 // PUT update user address
 router.put('/:id/address', async (req, res) => {
     try {
