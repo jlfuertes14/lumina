@@ -1028,12 +1028,8 @@ const RemoteControlPage = () => {
     const statusData = state.deviceStatus[device.deviceId] || {};
     const telemetry = state.telemetryData[device.deviceId] || {};
     const isConnected = statusData.status === 'online';
-    // Calculate battery ring progress
-    const battery = telemetry.battery || 0;
-    const batteryCircumference = 2 * Math.PI * 20; // radius = 20
-    const batteryOffset = batteryCircumference - (battery / 100) * batteryCircumference;
-    // Calculate signal strength (convert to 0-4 scale)
-    const signalStrength = Math.min(4, Math.max(0, Math.round((telemetry.signal || 0) / 25)));
+    const oaMode = telemetry.obstacleAvoidance || false;
+    const currentSpeed = telemetry.speed || 128;
     return `
         <div style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
             <div style="margin-bottom: 1rem;">
@@ -1042,69 +1038,67 @@ const RemoteControlPage = () => {
                 </button>
             </div>
             <div class="cyber-container">
-                <!-- HUD Strip -->
-                <div class="cyber-hud">
-                    <!-- Battery Gauge -->
-                    <div class="hud-group">
-                        <div class="cyber-gauge">
-                            <svg width="48" height="48" viewBox="0 0 48 48">
-                                <circle class="gauge-bg" cx="24" cy="24" r="20" stroke-dasharray="${batteryCircumference}" stroke-dashoffset="0"></circle>
-                                <circle class="gauge-fill" cx="24" cy="24" r="20" stroke-dasharray="${batteryCircumference}" stroke-dashoffset="${batteryOffset}"></circle>
-                            </svg>
-                            <div class="gauge-text">${battery}%</div>
-                        </div>
+                <!-- Ultrasonic Sensor HUD -->
+                <div class="cyber-hud" style="display: flex; justify-content: space-around; gap: 1rem;">
+                    <!-- Left Sensor -->
+                    <div class="hud-group" style="text-align: center;">
+                        <div class="icon-box" style="font-size: 1.5rem;">⬅️</div>
                         <div class="info">
-                            <div class="label">Battery</div>
-                            <div class="value">${battery >= 70 ? 'Good' : battery >= 30 ? 'Low' : 'Critical'}</div>
+                            <div class="value" style="font-size: 1.25rem; font-weight: bold;">${telemetry.leftDistance || '--'} cm</div>
+                            <div class="label">Left</div>
                         </div>
                     </div>
-                    <!-- Signal Strength -->
-                    <div class="hud-group">
-                        <div class="icon-box">
-                            <div class="signal-bars">
-                                <div class="bar ${signalStrength >= 1 ? 'active' : ''}"></div>
-                                <div class="bar ${signalStrength >= 2 ? 'active' : ''}"></div>
-                                <div class="bar ${signalStrength >= 3 ? 'active' : ''}"></div>
-                                <div class="bar ${signalStrength >= 4 ? 'active' : ''}"></div>
-                            </div>
-                        </div>
+                    <!-- Front Sensor -->
+                    <div class="hud-group" style="text-align: center;">
+                        <div class="icon-box" style="font-size: 1.5rem;">⬆️</div>
                         <div class="info">
-                            <div class="label">Signal</div>
-                            <div class="value">${telemetry.signal || 0}%</div>
+                            <div class="value" style="font-size: 1.25rem; font-weight: bold; ${telemetry.frontDistance < 25 ? 'color: #ef4444;' : ''}">${telemetry.frontDistance || '--'} cm</div>
+                            <div class="label">Front</div>
                         </div>
                     </div>
-                    <!-- Movement Status -->
-                    <div class="hud-group">
-                        <div class="icon-box">⚡</div>
+                    <!-- Right Sensor -->
+                    <div class="hud-group" style="text-align: center;">
+                        <div class="icon-box" style="font-size: 1.5rem;">➡️</div>
                         <div class="info">
-                            <div class="label">Status</div>
-                            <div class="value">${telemetry.isMoving ? 'Moving' : 'Idle'}</div>
+                            <div class="value" style="font-size: 1.25rem; font-weight: bold;">${telemetry.rightDistance || '--'} cm</div>
+                            <div class="label">Right</div>
                         </div>
                     </div>
                     <!-- Connection Status -->
-                    <div class="hud-group">
+                    <div class="hud-group" style="text-align: center;">
                         <div class="icon-box">${isConnected ? '🟢' : '🔴'}</div>
                         <div class="info">
-                            <div class="label">Connection</div>
                             <div class="value">${isConnected ? 'Online' : 'Offline'}</div>
+                            <div class="label">Status</div>
                         </div>
                     </div>
                 </div>
-                <!-- Obstacle Alert (only show if detected) -->
-                ${telemetry.frontSensor ? `
-                    <div class="obstacle-alert">
-                        ⚠️ OBSTACLE DETECTED AHEAD
+                <!-- Obstacle Avoidance Mode Toggle -->
+                <div style="background: ${oaMode ? 'linear-gradient(135deg, #10b981, #059669)' : 'var(--cyber-bg-secondary, #1e293b)'}; padding: 1rem; border-radius: 12px; margin: 1rem 0; transition: all 0.3s;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3 style="margin: 0 0 0.25rem 0; font-size: 1rem; color: ${oaMode ? '#fff' : 'inherit'};">🚧 Obstacle Avoidance Mode</h3>
+                            <p style="margin: 0; font-size: 0.75rem; color: ${oaMode ? 'rgba(255,255,255,0.8)' : 'var(--cyber-text-muted, #94a3b8)'};">
+                                ${oaMode ? 'Car is navigating autonomously' : 'Enable for autonomous navigation'}
+                            </p>
+                        </div>
+                        <button class="btn ${oaMode ? '' : 'btn-primary'}" 
+                            onclick="window.toggleObstacleAvoidance()"
+                            style="${oaMode ? 'background: rgba(255,255,255,0.2); border: 1px solid #fff; color: #fff;' : ''}"
+                            ${!isConnected ? 'disabled' : ''}>
+                            ${oaMode ? 'Stop' : 'Start'}
+                        </button>
                     </div>
-                ` : ''}
-                <!-- Control Deck (D-Pad) -->
-                <div class="control-deck">
+                </div>
+                <!-- Control Deck (D-Pad) - disabled when OA mode is on -->
+                <div class="control-deck" style="${oaMode ? 'opacity: 0.5; pointer-events: none;' : ''}">
                     <div class="d-pad-grid">
                         <button class="d-pad-btn" data-dir="forward"
                             onmousedown="window.sendCarCommand('forward'); this.classList.add('active')"
                             onmouseup="window.sendCarCommand('stop'); this.classList.remove('active')"
                             ontouchstart="window.sendCarCommand('forward'); this.classList.add('active')"
                             ontouchend="window.sendCarCommand('stop'); this.classList.remove('active')"
-                            ${!isConnected ? 'disabled' : ''}>
+                            ${!isConnected || oaMode ? 'disabled' : ''}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="12" y1="19" x2="12" y2="5"></line>
                                 <polyline points="5 12 12 5 19 12"></polyline>
@@ -1117,7 +1111,7 @@ const RemoteControlPage = () => {
                             onmouseup="window.sendCarCommand('stop'); this.classList.remove('active')"
                             ontouchstart="window.sendCarCommand('left'); this.classList.add('active')"
                             ontouchend="window.sendCarCommand('stop'); this.classList.remove('active')"
-                            ${!isConnected ? 'disabled' : ''}>
+                            ${!isConnected || oaMode ? 'disabled' : ''}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="19" y1="12" x2="5" y2="12"></line>
                                 <polyline points="12 19 5 12 12 5"></polyline>
@@ -1127,7 +1121,7 @@ const RemoteControlPage = () => {
                         
                         <button class="d-pad-btn stop" data-dir="stop"
                             onclick="window.sendCarCommand('stop')"
-                            ${!isConnected ? 'disabled' : ''}>
+                            ${!isConnected || oaMode ? 'disabled' : ''}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                 <rect x="6" y="6" width="12" height="12"></rect>
                             </svg>
@@ -1139,7 +1133,7 @@ const RemoteControlPage = () => {
                             onmouseup="window.sendCarCommand('stop'); this.classList.remove('active')"
                             ontouchstart="window.sendCarCommand('right'); this.classList.add('active')"
                             ontouchend="window.sendCarCommand('stop'); this.classList.remove('active')"
-                            ${!isConnected ? 'disabled' : ''}>
+                            ${!isConnected || oaMode ? 'disabled' : ''}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                                 <polyline points="12 5 19 12 12 19"></polyline>
@@ -1152,7 +1146,7 @@ const RemoteControlPage = () => {
                             onmouseup="window.sendCarCommand('stop'); this.classList.remove('active')"
                             ontouchstart="window.sendCarCommand('backward'); this.classList.add('active')"
                             ontouchend="window.sendCarCommand('stop'); this.classList.remove('active')"
-                            ${!isConnected ? 'disabled' : ''}>
+                            ${!isConnected || oaMode ? 'disabled' : ''}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <polyline points="19 12 12 19 5 12"></polyline>
