@@ -1,7 +1,7 @@
-var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=>{(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))r(a);new MutationObserver(a=>{for(const n of a)if(n.type==="childList")for(const l of n.addedNodes)l.tagName==="LINK"&&l.rel==="modulepreload"&&r(l)}).observe(document,{childList:!0,subtree:!0});function i(a){const n={};return a.integrity&&(n.integrity=a.integrity),a.referrerPolicy&&(n.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?n.credentials="include":a.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function r(a){if(a.ep)return;a.ep=!0;const n=i(a);fetch(a.href,n)}})();let te=class{constructor(t="https://lumina-production-a4bb.up.railway.app"){this.serverUrl=t,this.socket=null,this.connected=!1,this.currentDeviceId=null,this.eventHandlers=new Map}async connect(t,i=""){if(this.socket&&this.connected){console.warn("Already connected to WebSocket");return}return new Promise((r,a)=>{if(typeof io>"u"){const n=document.createElement("script");n.src="https://cdn.socket.io/4.5.4/socket.io.min.js",n.onload=()=>this._initializeSocket(t,i,r,a),n.onerror=()=>a(new Error("Failed to load Socket.IO")),document.head.appendChild(n)}else this._initializeSocket(t,i,r,a)})}_initializeSocket(t,i,r,a){try{this.socket=io(`${this.serverUrl}/control`,{auth:{userId:t,sessionToken:i},transports:["websocket","polling"]}),this.socket.on("connect",()=>{console.log("✅ Connected to ESP32 WebSocket server"),this.connected=!0,this._triggerEvent("connected"),r()}),this.socket.on("connect_error",n=>{console.error("❌ Connection error:",n.message),this.connected=!1,this._triggerEvent("error",n),a(n)}),this.socket.on("disconnect",()=>{console.log("❌ Disconnected from WebSocket server"),this.connected=!1,this._triggerEvent("disconnected")}),this.socket.on("device:status",n=>{console.log("📊 Device status:",n),this._triggerEvent("device:status",n)}),this.socket.on("device:telemetry",n=>{this._triggerEvent("device:telemetry",n)}),this.socket.on("command:response",n=>{this._triggerEvent("command:response",n)}),this.socket.on("command:sent",n=>{this._triggerEvent("command:sent",n)}),this.socket.on("device:error",n=>{console.error("Device error:",n),this._triggerEvent("device:error",n)}),this.socket.on("devices:list",n=>{this._triggerEvent("devices:list",n)}),this.socket.on("error",n=>{console.error("System error:",n),this._triggerEvent("error",n)})}catch(n){a(n)}}monitorDevice(t){if(!this.connected)throw new Error("Not connected to WebSocket server");this.currentDeviceId=t,this.socket.emit("monitor:device",t),console.log(`👁️ Monitoring device: ${t}`)}stopMonitoring(){this.currentDeviceId&&this.connected&&(this.socket.emit("monitor:stop",this.currentDeviceId),this.currentDeviceId=null)}sendCommand(t,i,r={}){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("control:command",{deviceId:t,command:i,payload:r}),console.log(`📤 Sent command to ${t}:`,i,r)}move(t,i,r=255){this.sendCommand(t,"move",{direction:i,speed:r})}stop(t){this.sendCommand(t,"stop")}turnLeft(t,i=200){this.sendCommand(t,"move",{direction:"left",speed:i})}turnRight(t,i=200){this.sendCommand(t,"move",{direction:"right",speed:i})}forward(t,i=255){this.sendCommand(t,"move",{direction:"forward",speed:i})}backward(t,i=255){this.sendCommand(t,"move",{direction:"backward",speed:i})}requestDeviceList(){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("devices:list")}on(t,i){this.eventHandlers.has(t)||this.eventHandlers.set(t,[]),this.eventHandlers.get(t).push(i)}off(t,i){if(!this.eventHandlers.has(t))return;const r=this.eventHandlers.get(t),a=r.indexOf(i);a>-1&&r.splice(a,1)}_triggerEvent(t,i=null){if(!this.eventHandlers.has(t))return;this.eventHandlers.get(t).forEach(a=>{try{a(i)}catch(n){console.error(`Error in event handler for ${t}:`,n)}})}disconnect(){this.socket&&(this.stopMonitoring(),this.socket.disconnect(),this.socket=null,this.connected=!1,console.log("👋 Disconnected from WebSocket"))}isConnected(){return this.connected}getCurrentDevice(){return this.currentDeviceId}};typeof N<"u"&&N.exports&&(N.exports=te);typeof window<"u"&&(window.ESP32SocketClient=te);const ne="https://lumina-production-a4bb.up.railway.app",se="http://localhost:3000",oe=window.location.hostname==="jlfuertes14.github.io",G=oe?`${ne}/api`:`${se}/api`;async function $(e,t={}){const i=`${G}${e}`;try{const r=await fetch(i,{...t,headers:{"Content-Type":"application/json",...t.headers}}),a=await r.json();if(!r.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${oe?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${G}`);const de=({Breadcrumbs:e})=>{const t=[{name:"Marco Dela Cruz",role:"Founder & CEO",image:"https://ui-avatars.com/api/?name=Marco+Dela+Cruz&background=6366f1&color=fff&size=120"},{name:"Rina Gonzales",role:"Operations Manager",image:"https://ui-avatars.com/api/?name=Rina+Gonzales&background=6366f1&color=fff&size=120"},{name:"Luis Navarro",role:"Technical Support Engineer",image:"https://ui-avatars.com/api/?name=Luis+Navarro&background=6366f1&color=fff&size=120"},{name:"Ella Ramirez",role:"Customer Service Lead",image:"https://ui-avatars.com/api/?name=Ella+Ramirez&background=6366f1&color=fff&size=120"}];return`
+var ae=(t,e)=>()=>(e||t((e={exports:{}}).exports,e),e.exports);var De=ae((Ae,N)=>{(function(){const e=document.createElement("link").relList;if(e&&e.supports&&e.supports("modulepreload"))return;for(const a of document.querySelectorAll('link[rel="modulepreload"]'))r(a);new MutationObserver(a=>{for(const n of a)if(n.type==="childList")for(const l of n.addedNodes)l.tagName==="LINK"&&l.rel==="modulepreload"&&r(l)}).observe(document,{childList:!0,subtree:!0});function i(a){const n={};return a.integrity&&(n.integrity=a.integrity),a.referrerPolicy&&(n.referrerPolicy=a.referrerPolicy),a.crossOrigin==="use-credentials"?n.credentials="include":a.crossOrigin==="anonymous"?n.credentials="omit":n.credentials="same-origin",n}function r(a){if(a.ep)return;a.ep=!0;const n=i(a);fetch(a.href,n)}})();let te=class{constructor(e="https://lumina-production-a4bb.up.railway.app"){this.serverUrl=e,this.socket=null,this.connected=!1,this.currentDeviceId=null,this.eventHandlers=new Map}async connect(e,i=""){if(this.socket&&this.connected){console.warn("Already connected to WebSocket");return}return new Promise((r,a)=>{if(typeof io>"u"){const n=document.createElement("script");n.src="https://cdn.socket.io/4.5.4/socket.io.min.js",n.onload=()=>this._initializeSocket(e,i,r,a),n.onerror=()=>a(new Error("Failed to load Socket.IO")),document.head.appendChild(n)}else this._initializeSocket(e,i,r,a)})}_initializeSocket(e,i,r,a){try{this.socket=io(`${this.serverUrl}/control`,{auth:{userId:e,sessionToken:i},transports:["websocket","polling"]}),this.socket.on("connect",()=>{console.log("✅ Connected to ESP32 WebSocket server"),this.connected=!0,this._triggerEvent("connected"),r()}),this.socket.on("connect_error",n=>{console.error("❌ Connection error:",n.message),this.connected=!1,this._triggerEvent("error",n),a(n)}),this.socket.on("disconnect",()=>{console.log("❌ Disconnected from WebSocket server"),this.connected=!1,this._triggerEvent("disconnected")}),this.socket.on("device:status",n=>{console.log("📊 Device status:",n),this._triggerEvent("device:status",n)}),this.socket.on("device:telemetry",n=>{this._triggerEvent("device:telemetry",n)}),this.socket.on("command:response",n=>{this._triggerEvent("command:response",n)}),this.socket.on("command:sent",n=>{this._triggerEvent("command:sent",n)}),this.socket.on("device:error",n=>{console.error("Device error:",n),this._triggerEvent("device:error",n)}),this.socket.on("devices:list",n=>{this._triggerEvent("devices:list",n)}),this.socket.on("error",n=>{console.error("System error:",n),this._triggerEvent("error",n)})}catch(n){a(n)}}monitorDevice(e){if(!this.connected)throw new Error("Not connected to WebSocket server");this.currentDeviceId=e,this.socket.emit("monitor:device",e),console.log(`👁️ Monitoring device: ${e}`)}stopMonitoring(){this.currentDeviceId&&this.connected&&(this.socket.emit("monitor:stop",this.currentDeviceId),this.currentDeviceId=null)}sendCommand(e,i,r={}){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("control:command",{deviceId:e,command:i,payload:r}),console.log(`📤 Sent command to ${e}:`,i,r)}move(e,i,r=255){this.sendCommand(e,"move",{direction:i,speed:r})}stop(e){this.sendCommand(e,"stop")}turnLeft(e,i=200){this.sendCommand(e,"move",{direction:"left",speed:i})}turnRight(e,i=200){this.sendCommand(e,"move",{direction:"right",speed:i})}forward(e,i=255){this.sendCommand(e,"move",{direction:"forward",speed:i})}backward(e,i=255){this.sendCommand(e,"move",{direction:"backward",speed:i})}requestDeviceList(){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("devices:list")}requestStatusRefresh(){if(!this.connected)throw new Error("Not connected to WebSocket server");this.socket.emit("devices:status:refresh"),console.log("📡 Requested status refresh for all devices")}on(e,i){this.eventHandlers.has(e)||this.eventHandlers.set(e,[]),this.eventHandlers.get(e).push(i)}off(e,i){if(!this.eventHandlers.has(e))return;const r=this.eventHandlers.get(e),a=r.indexOf(i);a>-1&&r.splice(a,1)}_triggerEvent(e,i=null){if(!this.eventHandlers.has(e))return;this.eventHandlers.get(e).forEach(a=>{try{a(i)}catch(n){console.error(`Error in event handler for ${e}:`,n)}})}disconnect(){this.socket&&(this.stopMonitoring(),this.socket.disconnect(),this.socket=null,this.connected=!1,console.log("👋 Disconnected from WebSocket"))}isConnected(){return this.connected}getCurrentDevice(){return this.currentDeviceId}};typeof N<"u"&&N.exports&&(N.exports=te);typeof window<"u"&&(window.ESP32SocketClient=te);const ne="https://lumina-production-a4bb.up.railway.app",se="http://localhost:3000",oe=window.location.hostname==="jlfuertes14.github.io",G=oe?`${ne}/api`:`${se}/api`;async function S(t,e={}){const i=`${G}${t}`;try{const r=await fetch(i,{...e,headers:{"Content-Type":"application/json",...e.headers}}),a=await r.json();if(!r.ok)throw new Error(a.error||a.message||"API request failed");return a}catch(r){throw console.error("API Error:",r),r}}console.log(`🌍 Environment: ${oe?"PRODUCTION":"DEVELOPMENT"}`);console.log(`🔗 API URL: ${G}`);const de=({Breadcrumbs:t})=>{const e=[{name:"Marco Dela Cruz",role:"Founder & CEO",image:"https://ui-avatars.com/api/?name=Marco+Dela+Cruz&background=6366f1&color=fff&size=120"},{name:"Rina Gonzales",role:"Operations Manager",image:"https://ui-avatars.com/api/?name=Rina+Gonzales&background=6366f1&color=fff&size=120"},{name:"Luis Navarro",role:"Technical Support Engineer",image:"https://ui-avatars.com/api/?name=Luis+Navarro&background=6366f1&color=fff&size=120"},{name:"Ella Ramirez",role:"Customer Service Lead",image:"https://ui-avatars.com/api/?name=Ella+Ramirez&background=6366f1&color=fff&size=120"}];return`
         <div class="about-us-page">
             <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-                ${e("about-us")}
+                ${t("about-us")}
                 
                 <!-- Hero Section -->
                 <div class="about-hero" style="
@@ -135,7 +135,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                         <p style="color: #64748b; font-size: 1.1rem;">The people behind Lumina Electronics</p>
                     </div>
                     <div class="about-team-grid">
-                        ${t.map(n=>`
+                        ${e.map(n=>`
                             <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
                                 <div style="width: 100px; height: 100px; margin: 0 auto 1.5rem; border-radius: 50%; overflow: hidden; border: 4px solid #f1f5f9;">
                                     <img src="${n.image}" alt="${n.name}" style="width: 100%; height: 100%; object-fit: cover;">
@@ -178,7 +178,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </div>
             </div>
         </div>
-    `},le=({Breadcrumbs:e,state:t})=>{const i=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",featured:!0},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",featured:!0},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",recent:!0},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",recent:!0},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",featured:!0},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",recent:!0},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",featured:!0},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",recent:!0}],r=i.filter(d=>d.featured),a=i.filter(d=>d.recent),n=d=>d==="Beginner"?{bg:"#dcfce7",text:"#16a34a"}:d==="Intermediate"?{bg:"#dbeafe",text:"#2563eb"}:{bg:"#f3e8ff",text:"#9333ea"},l=t.filterLearnCategory&&t.filterLearnCategory!=="all",s=l?i.filter(d=>d.category===t.filterLearnCategory):i;return`
+    `},le=({Breadcrumbs:t,state:e})=>{const i=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",featured:!0},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",featured:!0},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",recent:!0},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",recent:!0},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",featured:!0},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",recent:!0},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",featured:!0},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",recent:!0}],r=i.filter(d=>d.featured),a=i.filter(d=>d.recent),n=d=>d==="Beginner"?{bg:"#dcfce7",text:"#16a34a"}:d==="Intermediate"?{bg:"#dbeafe",text:"#2563eb"}:{bg:"#f3e8ff",text:"#9333ea"},l=e.filterLearnCategory&&e.filterLearnCategory!=="all",s=l?i.filter(d=>d.category===e.filterLearnCategory):i;return`
         <div style="background: #f8f9fa; min-height: 100vh; padding-bottom: 3rem;">
             <!-- Hero Banner -->
             <div style="width: 100%; margin-top: 2rem; margin-bottom: 2rem; overflow: hidden;">
@@ -187,17 +187,17 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </div>
             </div>
             <div style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
-                ${e("learn")}
+                ${t("learn")}
                 
                 <!-- Filter Chips -->
                 <div style="display: flex; gap: 0.75rem; margin-bottom: 2rem; flex-wrap: wrap; overflow-x: auto; padding-bottom: 0.5rem;">
                     ${["all","Beginner","Intermediate","Advanced"].map(d=>`
-                        <button class="topic-filter ${t.filterLearnCategory===d?"active":""}" 
+                        <button class="topic-filter ${e.filterLearnCategory===d?"active":""}" 
                             onclick="window.filterLearningContent('${d}')" 
                             style="display: flex; align-items: center; gap: 0.5rem; padding: 0.625rem 1.25rem; 
-                                   background: ${t.filterLearnCategory===d?"#6366f1":"white"}; 
-                                   color: ${t.filterLearnCategory===d?"white":"#64748b"}; 
-                                   border: 2px solid ${t.filterLearnCategory===d?"#6366f1":"#e2e8f0"}; 
+                                   background: ${e.filterLearnCategory===d?"#6366f1":"white"}; 
+                                   color: ${e.filterLearnCategory===d?"white":"#64748b"}; 
+                                   border: 2px solid ${e.filterLearnCategory===d?"#6366f1":"#e2e8f0"}; 
                                    border-radius: 24px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;">
                             ${d.charAt(0).toUpperCase()+d.slice(1)}
                         </button>
@@ -334,7 +334,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 `}
             </div>
         </div>
-    `},ce=({Breadcrumbs:e,state:t})=>{const i=t.params?.id,a=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",description:"Dive into the world of Arduino microcontrollers with this comprehensive beginner's guide. You'll learn the fundamental concepts of Arduino programming, understand the hardware components, and create your first working projects. This tutorial covers everything from setting up your development environment to uploading your first sketch onto the Arduino board. Perfect for absolute beginners with no prior programming or electronics experience.",learningPoints:["Setting up the Arduino IDE and connecting your board","Understanding Arduino pin configurations and digital I/O","Writing and uploading your first Arduino sketch","Working with basic sensors and LED circuits"]},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",description:"Get your Raspberry Pi up and running with this detailed setup tutorial. Learn how to install the operating system, configure essential settings, and prepare your Pi for your first projects. This guide covers both the hardware setup process and the software configuration you'll need to start building amazing IoT projects. Whether you're using Raspberry Pi 3, 4, or 5, this tutorial will help you get started quickly and correctly.",learningPoints:["Installing Raspberry Pi OS using the official imager","Configuring network settings and enabling SSH","Installing essential packages and development tools","Understanding the GPIO pinout and basic Python programming"]},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",description:"Explore the fascinating world of electronic sensors and learn how to integrate them into your projects. This tutorial provides an in-depth look at various sensor types including temperature sensors (DHT11, DS18B20), motion sensors (PIR), ultrasonic distance sensors (HC-SR04), and light sensors (LDR, BH1750). You'll understand how sensors work, how to read their data, and how to calibrate them for accurate measurements in real-world applications.",learningPoints:["Understanding analog vs digital sensors and their applications","Reading data from temperature and humidity sensors","Working with motion detection and ultrasonic distance measurement","Implementing sensor calibration and data filtering techniques"]},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",description:"Build an intelligent autonomous car that can navigate around obstacles using ultrasonic sensors and Arduino. This hands-on project combines motor control, sensor integration, and basic robotics programming. You'll learn how to read ultrasonic sensor data, implement decision-making logic, and control DC motors using an L298N motor driver. This is a perfect project for understanding the basics of autonomous navigation and robotics.",learningPoints:["Wiring and controlling DC motors with an L298N driver","Reading and processing ultrasonic sensor data for obstacle detection","Implementing autonomous navigation logic and decision trees","Troubleshooting common issues in robotic car projects"]},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",description:"Master the art of printed circuit board (PCB) design from scratch. This comprehensive tutorial takes you through the entire PCB design workflow using professional tools like KiCad or EasyEDA. Learn how to create schematics, design PCB layouts, route traces efficiently, and prepare your designs for manufacturing. You'll understand design rules, layer stackups, component placement strategies, and how to export Gerber files for fabrication. Essential knowledge for anyone serious about electronics development.",learningPoints:["Creating professional schematics with proper component symbols","PCB layout best practices: trace width, clearances, and ground planes","Routing strategies for signal integrity and EMI reduction","Preparing and exporting Gerber files for PCB manufacturing"]},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",description:"Unlock the power of the ESP32 microcontroller for advanced IoT applications. This tutorial covers WiFi connectivity, web server creation, MQTT protocol implementation, and cloud integration. You'll build real IoT projects including a web-based temperature monitor, remote-controlled devices, and data logging systems. Learn how to use the ESP32's dual-core processor, Bluetooth capabilities, and low-power modes to create professional-grade IoT solutions.",learningPoints:["Setting up ESP32 development environment and WiFi connectivity","Creating web servers and REST APIs on the ESP32","Implementing MQTT for real-time IoT communication","Integrating with cloud platforms (Firebase, AWS IoT, ThingSpeak)"]},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",description:"Discover the perfect fusion of 3D printing and electronics in this inspiring project showcase. See how makers are combining custom 3D-printed enclosures with Arduino and Raspberry Pi to create amazing devices. From smart home sensors to robotic mechanisms, this video demonstrates practical applications and design techniques. Learn how to design functional enclosures, integrate electronics seamlessly, and bring your maker ideas to life with the power of additive manufacturing.",learningPoints:["Designing functional 3D-printed enclosures for electronics","Integrating sensors and displays into custom housings","Creating cable management and mounting solutions","Prototyping techniques for iterative design improvements"]},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",description:"Create a complete IoT weather station that measures temperature, humidity, atmospheric pressure, and more. This advanced project teaches you how to interface with BME280/BMP280 sensors, implement accurate data logging, visualize weather data on web dashboards, and even integrate with weather services like Weather Underground. You'll learn about sensor calibration, data averaging techniques, power management for outdoor deployment, and how to create professional data visualizations using Chart.js or similar libraries.",learningPoints:["Interfacing with BME280/BMP280 environmental sensors via I2C","Implementing data logging with timestamps and SD card storage","Creating real-time data visualizations and web dashboards","Power management and weatherproofing for outdoor installations"]}].find(s=>s.id===parseInt(i));if(!a)return`
+    `},ce=({Breadcrumbs:t,state:e})=>{const i=e.params?.id,a=[{id:1,title:"Getting Started with Arduino",category:"Beginner",topic:"Microcontrollers",duration:"15 min",videoId:"nL34zDTPkcs",description:"Dive into the world of Arduino microcontrollers with this comprehensive beginner's guide. You'll learn the fundamental concepts of Arduino programming, understand the hardware components, and create your first working projects. This tutorial covers everything from setting up your development environment to uploading your first sketch onto the Arduino board. Perfect for absolute beginners with no prior programming or electronics experience.",learningPoints:["Setting up the Arduino IDE and connecting your board","Understanding Arduino pin configurations and digital I/O","Writing and uploading your first Arduino sketch","Working with basic sensors and LED circuits"]},{id:2,title:"Raspberry Pi Setup Guide",category:"Beginner",topic:"Microcontrollers",duration:"20 min",videoId:"BpJCAafw2qE",description:"Get your Raspberry Pi up and running with this detailed setup tutorial. Learn how to install the operating system, configure essential settings, and prepare your Pi for your first projects. This guide covers both the hardware setup process and the software configuration you'll need to start building amazing IoT projects. Whether you're using Raspberry Pi 3, 4, or 5, this tutorial will help you get started quickly and correctly.",learningPoints:["Installing Raspberry Pi OS using the official imager","Configuring network settings and enabling SSH","Installing essential packages and development tools","Understanding the GPIO pinout and basic Python programming"]},{id:3,title:"Understanding Sensors",category:"Intermediate",topic:"IoT",duration:"18 min",videoId:"DlG6LY84MUU",description:"Explore the fascinating world of electronic sensors and learn how to integrate them into your projects. This tutorial provides an in-depth look at various sensor types including temperature sensors (DHT11, DS18B20), motion sensors (PIR), ultrasonic distance sensors (HC-SR04), and light sensors (LDR, BH1750). You'll understand how sensors work, how to read their data, and how to calibrate them for accurate measurements in real-world applications.",learningPoints:["Understanding analog vs digital sensors and their applications","Reading data from temperature and humidity sensors","Working with motion detection and ultrasonic distance measurement","Implementing sensor calibration and data filtering techniques"]},{id:4,title:"DIY Obstacle Avoidance Car",category:"Intermediate",topic:"IoT",duration:"6 min",videoId:"1n_KjpMfVT0",description:"Build an intelligent autonomous car that can navigate around obstacles using ultrasonic sensors and Arduino. This hands-on project combines motor control, sensor integration, and basic robotics programming. You'll learn how to read ultrasonic sensor data, implement decision-making logic, and control DC motors using an L298N motor driver. This is a perfect project for understanding the basics of autonomous navigation and robotics.",learningPoints:["Wiring and controlling DC motors with an L298N driver","Reading and processing ultrasonic sensor data for obstacle detection","Implementing autonomous navigation logic and decision trees","Troubleshooting common issues in robotic car projects"]},{id:5,title:"PCB Design Basics",category:"Advanced",topic:"PCB Design",duration:"60 min",videoId:"vaCVh2SAZY4",description:"Master the art of printed circuit board (PCB) design from scratch. This comprehensive tutorial takes you through the entire PCB design workflow using professional tools like KiCad or EasyEDA. Learn how to create schematics, design PCB layouts, route traces efficiently, and prepare your designs for manufacturing. You'll understand design rules, layer stackups, component placement strategies, and how to export Gerber files for fabrication. Essential knowledge for anyone serious about electronics development.",learningPoints:["Creating professional schematics with proper component symbols","PCB layout best practices: trace width, clearances, and ground planes","Routing strategies for signal integrity and EMI reduction","Preparing and exporting Gerber files for PCB manufacturing"]},{id:6,title:"IoT Projects with ESP32",category:"Advanced",topic:"IoT",duration:"50 min",videoId:"xPlN_Tk3VLQ",description:"Unlock the power of the ESP32 microcontroller for advanced IoT applications. This tutorial covers WiFi connectivity, web server creation, MQTT protocol implementation, and cloud integration. You'll build real IoT projects including a web-based temperature monitor, remote-controlled devices, and data logging systems. Learn how to use the ESP32's dual-core processor, Bluetooth capabilities, and low-power modes to create professional-grade IoT solutions.",learningPoints:["Setting up ESP32 development environment and WiFi connectivity","Creating web servers and REST APIs on the ESP32","Implementing MQTT for real-time IoT communication","Integrating with cloud platforms (Firebase, AWS IoT, ThingSpeak)"]},{id:7,title:"8 Brilliant Projects with 3D Printing and Electronics!",category:"Intermediate",topic:"Microcontrollers",duration:"8 min",videoId:"UkWoPMa6V-M",description:"Discover the perfect fusion of 3D printing and electronics in this inspiring project showcase. See how makers are combining custom 3D-printed enclosures with Arduino and Raspberry Pi to create amazing devices. From smart home sensors to robotic mechanisms, this video demonstrates practical applications and design techniques. Learn how to design functional enclosures, integrate electronics seamlessly, and bring your maker ideas to life with the power of additive manufacturing.",learningPoints:["Designing functional 3D-printed enclosures for electronics","Integrating sensors and displays into custom housings","Creating cable management and mounting solutions","Prototyping techniques for iterative design improvements"]},{id:8,title:"Building a Weather Station",category:"Advanced",topic:"IoT",duration:"42 min",videoId:"U0kPgFcALac",description:"Create a complete IoT weather station that measures temperature, humidity, atmospheric pressure, and more. This advanced project teaches you how to interface with BME280/BMP280 sensors, implement accurate data logging, visualize weather data on web dashboards, and even integrate with weather services like Weather Underground. You'll learn about sensor calibration, data averaging techniques, power management for outdoor deployment, and how to create professional data visualizations using Chart.js or similar libraries.",learningPoints:["Interfacing with BME280/BMP280 environmental sensors via I2C","Implementing data logging with timestamps and SD card storage","Creating real-time data visualizations and web dashboards","Power management and weatherproofing for outdoor installations"]}].find(s=>s.id===parseInt(i));if(!a)return`
             <div style="max-width: 1200px; margin: 4rem auto; padding: 2rem; text-align: center;">
                 <h1>Tutorial Not Found</h1>
                 <p style="color: #64748b; margin: 1rem 0;">The tutorial you're looking for doesn't exist.</p>
@@ -343,7 +343,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
         `;const l=(s=>s==="Beginner"?{bg:"#dcfce7",text:"#16a34a"}:s==="Intermediate"?{bg:"#dbeafe",text:"#2563eb"}:{bg:"#f3e8ff",text:"#9333ea"})(a.category);return`
         <div style="background: #f8f9fa; min-height: 100vh; padding: 2rem 0;">
             <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-                ${e("learn")}
+                ${t("learn")}
                 
                 <!-- Back Button -->
                 <button class="btn btn-outline" onclick="window.navigate('learn')" style="margin-bottom: 1.5rem;">
@@ -420,9 +420,9 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </div>
             </div>
         </div>
-    `},me=({Breadcrumbs:e,state:t})=>`
+    `},me=({Breadcrumbs:t,state:e})=>`
         <div style="max-width: 1200px; margin: 0 auto; padding: 3rem 2rem;">
-            ${e("contact-us")}
+            ${t("contact-us")}
             
             <!-- Hero Section -->
             <div style="text-align: center; margin-bottom: 4rem;">
@@ -539,11 +539,11 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </iframe>
             </div>
         </div>
-    `,y=e=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(e),pe=({Breadcrumbs:e,state:t})=>{const i=t.products.slice(0,8).map((r,a)=>({...r,originalPrice:r.price*1.3,discount:[10,15,20,25,30][a%5],category:["Microcontrollers","Sensors","Tools","Robotics","Components"][a%5]}));return t.myCoupons,`
+    `,y=t=>new Intl.NumberFormat("en-PH",{style:"currency",currency:"PHP"}).format(t),pe=({Breadcrumbs:t,state:e})=>{const i=e.products.slice(0,8).map((r,a)=>({...r,originalPrice:r.price*1.3,discount:[10,15,20,25,30][a%5],category:["Microcontrollers","Sensors","Tools","Robotics","Components"][a%5]}));return e.myCoupons,`
         <div style="background: #f8f9fa; min-height: 100vh; padding: 2rem 0;">
             <!-- Content Container -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0 2rem;">
-                ${e("deals")}
+                ${t("deals")}
                 
                 <!-- Hero Banner -->
                 <div style="width: 100%; background: #e5e7eb; margin-bottom: 2rem; border-radius: 8px; overflow: hidden;">
@@ -749,20 +749,20 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </div>
             </div>
         </div>
-    `};window.adminState={activeTab:"dashboard",isModalOpen:!1,modalType:null,editingId:null,uploadedImage:null,showConfirmModal:!1,confirmTitle:"",confirmMessage:"",confirmCallback:null,confirmItemName:"",productSearch:"",productCategoryFilter:"all",productSortBy:null,productSortOrder:"asc"};window.showConfirmModal=(e,t,i,r)=>{window.adminState.showConfirmModal=!0,window.adminState.confirmTitle=e,window.adminState.confirmMessage=t,window.adminState.confirmItemName=i,window.adminState.confirmCallback=r,window.render()};window.hideConfirmModal=()=>{window.adminState.showConfirmModal=!1,window.adminState.confirmCallback=null,window.render()};window.executeConfirmAction=()=>{window.adminState.confirmCallback&&window.adminState.confirmCallback(),window.hideConfirmModal()};window.switchAdminTab=e=>{window.adminState.activeTab=e,e==="staff"&&window.api&&window.api.getUsers&&window.api.getUsers(),e==="orders"&&window.api&&(window.api.getOrders&&window.api.getOrders(),window.api.getUsers&&window.api.getUsers()),window.render(),e==="dashboard"&&setTimeout(()=>window.initAdminCharts(),100)};window.toggleAdminModal=(e,t=null,i=null)=>{window.adminState.isModalOpen=e,window.adminState.modalType=t,window.adminState.editingId=i,window.adminState.uploadedImage=null,window.render()};document.addEventListener("keydown",e=>{e.key==="Escape"&&window.adminState.isModalOpen&&window.toggleAdminModal(!1)});window.toggleNotifications=()=>{const e=document.getElementById("adminNotifications");e&&e.classList.toggle("show")};let J=null;window.handleProductSearch=e=>{const t=e.target.value;window.adminState.productSearch=t,clearTimeout(J),J=setTimeout(()=>{window.render(),setTimeout(()=>{const i=document.querySelector('input[placeholder*="Search products"]');i&&(i.focus(),i.setSelectionRange(i.value.length,i.value.length))},10)},300)};window.handleProductCategoryFilter=e=>{window.adminState.productCategoryFilter=e.target.value,window.render()};window.handleProductSort=e=>{const{productSortBy:t,productSortOrder:i}=window.adminState;t===e?window.adminState.productSortOrder=i==="asc"?"desc":"asc":(window.adminState.productSortBy=e,window.adminState.productSortOrder="asc"),window.render()};window.clearProductFilters=()=>{window.adminState.productSearch="",window.adminState.productCategoryFilter="all",window.adminState.productSortBy=null,window.adminState.productSortOrder="asc",window.render()};window.handleImageSelect=e=>{const t=e.target.files[0];window.processImageFile(t)};window.handleDragOver=e=>{e.preventDefault(),e.currentTarget.classList.add("dragover")};window.handleDragLeave=e=>{e.currentTarget.classList.remove("dragover")};window.handleDrop=e=>{e.preventDefault(),e.currentTarget.classList.remove("dragover");const t=e.dataTransfer.files[0];window.processImageFile(t)};window.processImageFile=e=>{if(!e)return;if(!["image/jpeg","image/png"].includes(e.type)){window.showToast("Only JPEG and PNG images are allowed.");return}if(e.size>3*1024*1024){window.showToast("File size must be less than 3MB.");return}const t=new FileReader;t.onload=i=>{window.adminState.uploadedImage=i.target.result;const r=document.getElementById("imagePreview"),a=document.getElementById("dropZone"),n=document.getElementById("previewImg");r&&a&&n&&(n.src=i.target.result,r.style.display="block",a.style.display="none")},t.readAsDataURL(e)};window.removeImage=()=>{window.adminState.uploadedImage=null;const e=document.getElementById("imagePreview"),t=document.getElementById("dropZone"),i=document.getElementById("fileInput");e&&t&&(e.style.display="none",t.style.display="flex",i&&(i.value=""))};window.handleSaveProduct=async e=>{e.preventDefault();const t=new FormData(e.target),i=Object.fromEntries(t.entries());if(i.price=parseFloat(i.price),i.stock=parseInt(i.stock),window.adminState.uploadedImage)i.image=window.adminState.uploadedImage;else if(window.adminState.editingId)try{const r=await $(`/products/${window.adminState.editingId}`);r&&r.data&&(i.image=r.data.image)}catch(r){console.warn("Could not fetch existing product image:",r)}else i.image="https://via.placeholder.com/150";try{console.log("Saving product:",i);let r;window.adminState.editingId?(r=await $(`/products/${window.adminState.editingId}`,{method:"PUT",body:JSON.stringify(i)}),console.log("Update response:",r),window.showToast("Product updated successfully!","success")):(r=await $("/products",{method:"POST",body:JSON.stringify(i)}),console.log("Create response:",r),window.showToast("Product added successfully!","success")),window.toggleAdminModal(!1),window.api&&window.api.getProducts&&window.api.getProducts()}catch(r){console.error("Save product error:",r),window.showToast(window.adminState.editingId?"Failed to update product":"Failed to add product","error")}};window.handleDeleteProduct=(e,t="this product")=>{window.showConfirmModal("Delete Product","Are you sure you want to delete",t,async()=>{try{await $(`/products/${e}`,{method:"DELETE"}),window.showToast("Product deleted successfully!","success"),window.api&&window.api.getProducts&&window.api.getProducts()}catch(i){console.error(i),window.showToast("Failed to delete product","error")}})};window.handleSaveStaff=async e=>{e.preventDefault();const t=new FormData(e.target),i=Object.fromEntries(t.entries());try{window.adminState.editingId?(await $(`/users/${window.adminState.editingId}`,{method:"PUT",body:JSON.stringify({name:i.name,email:i.email,role:"staff"})}),window.showToast("Staff member updated!","success")):(await $("/users/register",{method:"POST",body:JSON.stringify({name:i.name,email:i.email,password:i.password,role:"staff"})}),window.showToast("Staff member added!","success")),window.toggleAdminModal(!1),window.api.getUsers&&window.api.getUsers()}catch(r){console.error(r),window.showToast(r.message||"Failed to save staff","error")}};window.handleEditStaff=e=>{window.adminState.editingId=e,window.toggleAdminModal(!0,"editStaff",e)};window.handleDeleteStaff=(e,t="this staff member")=>{window.showConfirmModal("Delete Staff","Are you sure you want to delete",t,async()=>{try{await $(`/users/${e}`,{method:"DELETE"}),window.showToast("Staff member deleted!","success"),window.api.getUsers&&window.api.getUsers()}catch(i){console.error(i),window.showToast("Failed to delete staff","error")}})};window.handleOrderStatusUpdate=async(e,t)=>{try{await $(`/orders/${e}/status`,{method:"PUT",body:JSON.stringify({status:t})}),window.showToast(`Order ${e} updated to ${t}!`,"success"),window.api.getOrders&&window.api.getOrders()}catch(i){console.error(i),window.showToast("Failed to update order status","error")}};const _=e=>{if(!e.currentUser||!["admin","staff"].includes(e.currentUser.role))return setTimeout(()=>window.navigate("home"),0),"";const{activeTab:t}=window.adminState,r=e.currentUser.role==="admin",a=r,n=r,l=r,s=e.orders.reduce((x,p)=>x+(p.total||0),0),d=e.orders.length,g=e.products.filter(x=>x.stock<10).length,b=e.users?e.users.filter(x=>x.role==="customer").length:0,h=[...e.orders].sort((x,p)=>new Date(p.createdAt)-new Date(x.createdAt)).slice(0,5),f=()=>`
+    `};window.adminState={activeTab:"dashboard",isModalOpen:!1,modalType:null,editingId:null,uploadedImage:null,showConfirmModal:!1,confirmTitle:"",confirmMessage:"",confirmCallback:null,confirmItemName:"",productSearch:"",productCategoryFilter:"all",productSortBy:null,productSortOrder:"asc"};window.showConfirmModal=(t,e,i,r)=>{window.adminState.showConfirmModal=!0,window.adminState.confirmTitle=t,window.adminState.confirmMessage=e,window.adminState.confirmItemName=i,window.adminState.confirmCallback=r,window.render()};window.hideConfirmModal=()=>{window.adminState.showConfirmModal=!1,window.adminState.confirmCallback=null,window.render()};window.executeConfirmAction=()=>{window.adminState.confirmCallback&&window.adminState.confirmCallback(),window.hideConfirmModal()};window.switchAdminTab=t=>{window.adminState.activeTab=t,t==="staff"&&window.api&&window.api.getUsers&&window.api.getUsers(),t==="orders"&&window.api&&(window.api.getOrders&&window.api.getOrders(),window.api.getUsers&&window.api.getUsers()),window.render(),t==="dashboard"&&setTimeout(()=>window.initAdminCharts(),100)};window.toggleAdminModal=(t,e=null,i=null)=>{window.adminState.isModalOpen=t,window.adminState.modalType=e,window.adminState.editingId=i,window.adminState.uploadedImage=null,window.render()};document.addEventListener("keydown",t=>{t.key==="Escape"&&window.adminState.isModalOpen&&window.toggleAdminModal(!1)});window.toggleNotifications=()=>{const t=document.getElementById("adminNotifications");t&&t.classList.toggle("show")};let J=null;window.handleProductSearch=t=>{const e=t.target.value;window.adminState.productSearch=e,clearTimeout(J),J=setTimeout(()=>{window.render(),setTimeout(()=>{const i=document.querySelector('input[placeholder*="Search products"]');i&&(i.focus(),i.setSelectionRange(i.value.length,i.value.length))},10)},300)};window.handleProductCategoryFilter=t=>{window.adminState.productCategoryFilter=t.target.value,window.render()};window.handleProductSort=t=>{const{productSortBy:e,productSortOrder:i}=window.adminState;e===t?window.adminState.productSortOrder=i==="asc"?"desc":"asc":(window.adminState.productSortBy=t,window.adminState.productSortOrder="asc"),window.render()};window.clearProductFilters=()=>{window.adminState.productSearch="",window.adminState.productCategoryFilter="all",window.adminState.productSortBy=null,window.adminState.productSortOrder="asc",window.render()};window.handleImageSelect=t=>{const e=t.target.files[0];window.processImageFile(e)};window.handleDragOver=t=>{t.preventDefault(),t.currentTarget.classList.add("dragover")};window.handleDragLeave=t=>{t.currentTarget.classList.remove("dragover")};window.handleDrop=t=>{t.preventDefault(),t.currentTarget.classList.remove("dragover");const e=t.dataTransfer.files[0];window.processImageFile(e)};window.processImageFile=t=>{if(!t)return;if(!["image/jpeg","image/png"].includes(t.type)){window.showToast("Only JPEG and PNG images are allowed.");return}if(t.size>3*1024*1024){window.showToast("File size must be less than 3MB.");return}const e=new FileReader;e.onload=i=>{window.adminState.uploadedImage=i.target.result;const r=document.getElementById("imagePreview"),a=document.getElementById("dropZone"),n=document.getElementById("previewImg");r&&a&&n&&(n.src=i.target.result,r.style.display="block",a.style.display="none")},e.readAsDataURL(t)};window.removeImage=()=>{window.adminState.uploadedImage=null;const t=document.getElementById("imagePreview"),e=document.getElementById("dropZone"),i=document.getElementById("fileInput");t&&e&&(t.style.display="none",e.style.display="flex",i&&(i.value=""))};window.handleSaveProduct=async t=>{t.preventDefault();const e=new FormData(t.target),i=Object.fromEntries(e.entries());if(i.price=parseFloat(i.price),i.stock=parseInt(i.stock),window.adminState.uploadedImage)i.image=window.adminState.uploadedImage;else if(window.adminState.editingId)try{const r=await S(`/products/${window.adminState.editingId}`);r&&r.data&&(i.image=r.data.image)}catch(r){console.warn("Could not fetch existing product image:",r)}else i.image="https://via.placeholder.com/150";try{console.log("Saving product:",i);let r;window.adminState.editingId?(r=await S(`/products/${window.adminState.editingId}`,{method:"PUT",body:JSON.stringify(i)}),console.log("Update response:",r),window.showToast("Product updated successfully!","success")):(r=await S("/products",{method:"POST",body:JSON.stringify(i)}),console.log("Create response:",r),window.showToast("Product added successfully!","success")),window.toggleAdminModal(!1),window.api&&window.api.getProducts&&window.api.getProducts()}catch(r){console.error("Save product error:",r),window.showToast(window.adminState.editingId?"Failed to update product":"Failed to add product","error")}};window.handleDeleteProduct=(t,e="this product")=>{window.showConfirmModal("Delete Product","Are you sure you want to delete",e,async()=>{try{await S(`/products/${t}`,{method:"DELETE"}),window.showToast("Product deleted successfully!","success"),window.api&&window.api.getProducts&&window.api.getProducts()}catch(i){console.error(i),window.showToast("Failed to delete product","error")}})};window.handleSaveStaff=async t=>{t.preventDefault();const e=new FormData(t.target),i=Object.fromEntries(e.entries());try{window.adminState.editingId?(await S(`/users/${window.adminState.editingId}`,{method:"PUT",body:JSON.stringify({name:i.name,email:i.email,role:"staff"})}),window.showToast("Staff member updated!","success")):(await S("/users/register",{method:"POST",body:JSON.stringify({name:i.name,email:i.email,password:i.password,role:"staff"})}),window.showToast("Staff member added!","success")),window.toggleAdminModal(!1),window.api.getUsers&&window.api.getUsers()}catch(r){console.error(r),window.showToast(r.message||"Failed to save staff","error")}};window.handleEditStaff=t=>{window.adminState.editingId=t,window.toggleAdminModal(!0,"editStaff",t)};window.handleDeleteStaff=(t,e="this staff member")=>{window.showConfirmModal("Delete Staff","Are you sure you want to delete",e,async()=>{try{await S(`/users/${t}`,{method:"DELETE"}),window.showToast("Staff member deleted!","success"),window.api.getUsers&&window.api.getUsers()}catch(i){console.error(i),window.showToast("Failed to delete staff","error")}})};window.handleOrderStatusUpdate=async(t,e)=>{try{await S(`/orders/${t}/status`,{method:"PUT",body:JSON.stringify({status:e})}),window.showToast(`Order ${t} updated to ${e}!`,"success"),window.api.getOrders&&window.api.getOrders()}catch(i){console.error(i),window.showToast("Failed to update order status","error")}};const _=t=>{if(!t.currentUser||!["admin","staff"].includes(t.currentUser.role))return setTimeout(()=>window.navigate("home"),0),"";const{activeTab:e}=window.adminState,r=t.currentUser.role==="admin",a=r,n=r,l=r,s=t.orders.reduce((x,p)=>x+(p.total||0),0),d=t.orders.length,g=t.products.filter(x=>x.stock<10).length,b=t.users?t.users.filter(x=>x.role==="customer").length:0,h=[...t.orders].sort((x,p)=>new Date(p.createdAt)-new Date(x.createdAt)).slice(0,5),f=()=>`
         <aside class="admin-sidebar">
             <nav class="sidebar-nav" style="padding-top: 1rem;">
-                <div class="sidebar-item ${t==="dashboard"?"active":""}" onclick="window.switchAdminTab('dashboard')">
+                <div class="sidebar-item ${e==="dashboard"?"active":""}" onclick="window.switchAdminTab('dashboard')">
                     <span>📊</span> Dashboard
                 </div>
-                <div class="sidebar-item ${t==="products"?"active":""}" onclick="window.switchAdminTab('products')">
+                <div class="sidebar-item ${e==="products"?"active":""}" onclick="window.switchAdminTab('products')">
                     <span>📦</span> Products
                 </div>
-                <div class="sidebar-item ${t==="orders"?"active":""}" onclick="window.switchAdminTab('orders')">
+                <div class="sidebar-item ${e==="orders"?"active":""}" onclick="window.switchAdminTab('orders')">
                     <span>📋</span> Orders
                 </div>
                 ${n?`
-                <div class="sidebar-item ${t==="staff"?"active":""}" onclick="window.switchAdminTab('staff')">
+                <div class="sidebar-item ${e==="staff"?"active":""}" onclick="window.switchAdminTab('staff')">
                     <span>👥</span> Staff
                 </div>`:""}
                 
@@ -777,7 +777,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
         <div class="admin-page-header">
             <div>
                 <h1 class="admin-title">Overview</h1>
-                <p class="text-muted">Welcome back, ${e.currentUser.name}</p>
+                <p class="text-muted">Welcome back, ${t.currentUser.name}</p>
             </div>
             <div style="display: flex; gap: 1rem; align-items: center;">
                 <div class="notifications-wrapper">
@@ -855,7 +855,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                         <tr>
                             <td>#${x.orderId}</td>
                             <td>${new Date(x.createdAt).toLocaleDateString()}</td>
-                            <td>${e.users.find(p=>p.id===x.userId)?.name||"Unknown"}</td>
+                            <td>${t.users.find(p=>p.id===x.userId)?.name||"Unknown"}</td>
                             <td>${y(x.total)}</td>
                             <td><span class="status-badge status-${x.status?.toLowerCase()||"pending"}">${x.status||"Pending"}</span></td>
                         </tr>
@@ -863,7 +863,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </tbody>
             </table>
         </div>
-    `,c=()=>{const{productSearch:x,productCategoryFilter:p,productSortBy:w,productSortOrder:A}=window.adminState,O=[...new Set(e.products.map(k=>k.category))].sort(),D=k=>{const L={Microcontrollers:"MIC",Sensors:"SEN",Components:"COM",Robotics:"ROB","Cables & Wires":"CAB","3D Printing":"3DP",Power:"PWR",Displays:"DIS",Modules:"MOD"}[k.category]||k.category?.substring(0,3).toUpperCase()||"GEN",R=(k._id||k.id||"").toString().slice(-4).toUpperCase();return`LUM-${L}-${R}`};let B=e.products.filter(k=>{const z=x.toLowerCase(),L=D(k).toLowerCase(),R=x===""||k.name.toLowerCase().includes(z)||(k._id||k.id).toString().toLowerCase().includes(z)||L.includes(z),re=p==="all"||k.category===p;return R&&re});w&&(B=[...B].sort((k,z)=>{let L=0;switch(w){case"price":L=k.price-z.price;break;case"stock":L=k.stock-z.stock;break;case"status":L=(z.stock>0?1:0)-(k.stock>0?1:0);break}return A==="asc"?L:-L}));const F=k=>w!==k?"⇅":A==="asc"?"↑":"↓",q=k=>w===k?"color: #3b82f6; font-weight: 600;":"";return`
+    `,c=()=>{const{productSearch:x,productCategoryFilter:p,productSortBy:w,productSortOrder:A}=window.adminState,O=[...new Set(t.products.map(k=>k.category))].sort(),D=k=>{const L={Microcontrollers:"MIC",Sensors:"SEN",Components:"COM",Robotics:"ROB","Cables & Wires":"CAB","3D Printing":"3DP",Power:"PWR",Displays:"DIS",Modules:"MOD"}[k.category]||k.category?.substring(0,3).toUpperCase()||"GEN",R=(k._id||k.id||"").toString().slice(-4).toUpperCase();return`LUM-${L}-${R}`};let B=t.products.filter(k=>{const z=x.toLowerCase(),L=D(k).toLowerCase(),R=x===""||k.name.toLowerCase().includes(z)||(k._id||k.id).toString().toLowerCase().includes(z)||L.includes(z),re=p==="all"||k.category===p;return R&&re});w&&(B=[...B].sort((k,z)=>{let L=0;switch(w){case"price":L=k.price-z.price;break;case"stock":L=k.stock-z.stock;break;case"status":L=(z.stock>0?1:0)-(k.stock>0?1:0);break}return A==="asc"?L:-L}));const F=k=>w!==k?"⇅":A==="asc"?"↑":"↓",q=k=>w===k?"color: #3b82f6; font-weight: 600;":"";return`
         <div class="admin-page-header">
             <h1 class="admin-title">Product Management</h1>
             ${a?`<button class="btn btn-primary" onclick="window.toggleAdminModal(true, 'addProduct')">+ Add Product</button>`:""}
@@ -906,7 +906,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
         
         <!-- Results count -->
         <div style="margin-bottom: 0.75rem; color: #64748b; font-size: 0.875rem;">
-            Showing ${B.length} of ${e.products.length} products
+            Showing ${B.length} of ${t.products.length} products
             ${x?` matching "${x}"`:""}
             ${p!=="all"?` in ${p}`:""}
         </div>
@@ -961,12 +961,12 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </tbody>
             </table>
         </div>
-    `},S=()=>{const x=[...e.orders].sort((p,w)=>new Date(w.createdAt)-new Date(p.createdAt));return`
+    `},$=()=>{const x=[...t.orders].sort((p,w)=>new Date(w.createdAt)-new Date(p.createdAt));return`
         <div class="admin-page-header">
             <h1 class="admin-title">Order Management</h1>
             <div style="display: flex; gap: 0.5rem;">
-                <span class="status-badge status-pending">${e.orders.filter(p=>p.status==="Pending").length} Pending</span>
-                <span class="status-badge status-processing">${e.orders.filter(p=>p.status==="Processing").length} Processing</span>
+                <span class="status-badge status-pending">${t.orders.filter(p=>p.status==="Pending").length} Pending</span>
+                <span class="status-badge status-processing">${t.orders.filter(p=>p.status==="Processing").length} Processing</span>
             </div>
         </div>
         <div class="admin-table-container">
@@ -983,7 +983,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </tr>
                 </thead>
                 <tbody>
-                    ${x.length>0?x.map(p=>{const w=e.users.find(D=>D.id===p.userId),A=w?w.name:"Unknown";let O="No address provided";if(p.shippingInfo&&p.shippingInfo.address){const D=p.shippingInfo;O=`${D.fullName||""}<br>${D.address}, ${D.city||""}, ${D.province||""} ${D.postalCode||""}<br>📞 ${D.phone||""}`}else if(p.shippingAddress)O=p.shippingAddress;else if(w?.address?.street){const D=w.address;O=`${D.street}, ${D.barangay||""}, ${D.city||""}, ${D.province||""} ${D.postalCode||""}`}return`
+                    ${x.length>0?x.map(p=>{const w=t.users.find(D=>D.id===p.userId),A=w?w.name:"Unknown";let O="No address provided";if(p.shippingInfo&&p.shippingInfo.address){const D=p.shippingInfo;O=`${D.fullName||""}<br>${D.address}, ${D.city||""}, ${D.province||""} ${D.postalCode||""}<br>📞 ${D.phone||""}`}else if(p.shippingAddress)O=p.shippingAddress;else if(w?.address?.street){const D=w.address;O=`${D.street}, ${D.barangay||""}, ${D.city||""}, ${D.province||""} ${D.postalCode||""}`}return`
                         <tr>
                             <td style="font-weight: 600; color: #3b82f6;">#${p.orderId}</td>
                             <td>${new Date(p.createdAt).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}</td>
@@ -1025,7 +1025,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </tbody>
             </table>
         </div>
-    `},v=()=>{const x=e.users?e.users.filter(p=>["admin","staff"].includes(p.role)):[];return`
+    `},v=()=>{const x=t.users?t.users.filter(p=>["admin","staff"].includes(p.role)):[];return`
         <div class="admin-page-header">
             <h1 class="admin-title">Staff Management</h1>
             <button class="btn btn-primary" onclick="window.toggleAdminModal(true, 'addStaff')">+ Add Staff</button>
@@ -1055,7 +1055,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </tbody>
             </table>
         </div>
-    `},I=()=>{if(!window.adminState.isModalOpen)return"";let x="",p="";if(window.adminState.modalType==="addProduct"||window.adminState.modalType==="editProduct"){const w=window.adminState.editingId?e.products.find(A=>String(A._id||A.id)===String(window.adminState.editingId)):null;x=w?"Edit Product":"Add New Product",p=`
+    `},I=()=>{if(!window.adminState.isModalOpen)return"";let x="",p="";if(window.adminState.modalType==="addProduct"||window.adminState.modalType==="editProduct"){const w=window.adminState.editingId?t.products.find(A=>String(A._id||A.id)===String(window.adminState.editingId)):null;x=w?"Edit Product":"Add New Product",p=`
                 <form onsubmit="window.handleSaveProduct(event)">
                     <div class="modal-body-grid">
                         <div class="modal-left-col">
@@ -1131,7 +1131,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                         <button type="submit" class="btn btn-primary">${w?"Update Product":"Add Product"}</button>
                     </div>
                 </form>
-            `}else if(window.adminState.modalType==="addStaff"||window.adminState.modalType==="editStaff"){const w=window.adminState.editingId?e.users.find(A=>String(A.id)===String(window.adminState.editingId)||A._id===window.adminState.editingId):null;x=w?"Edit Staff Member":"Add Staff Member",p=`
+            `}else if(window.adminState.modalType==="addStaff"||window.adminState.modalType==="editStaff"){const w=window.adminState.editingId?t.users.find(A=>String(A.id)===String(window.adminState.editingId)||A._id===window.adminState.editingId):null;x=w?"Edit Staff Member":"Add Staff Member",p=`
                 <form onsubmit="window.handleSaveStaff(event)">
                     <div class="form-group">
                         <label class="form-label">Full Name</label>
@@ -1169,8 +1169,8 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 2rem;">
                     <div class="admin-logo">Lumina <span style="color: #F97316;">Electronics</span></div>
                     <div class="admin-profile-header">
-                        <div class="admin-avatar-circle">${e.currentUser.name.charAt(0).toUpperCase()}</div>
-                        <span class="admin-role-text">${e.currentUser.role.toUpperCase()}</span>
+                        <div class="admin-avatar-circle">${t.currentUser.name.charAt(0).toUpperCase()}</div>
+                        <span class="admin-role-text">${t.currentUser.role.toUpperCase()}</span>
                     </div>
                 </div>
             </header>
@@ -1178,10 +1178,10 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
             <div class="admin-container">
                 ${f()}
                 <main class="admin-main">
-                    ${t==="dashboard"?m():""}
-                    ${t==="products"?c():""}
-                    ${t==="orders"?S():""}
-                    ${t==="staff"?v():""}
+                    ${e==="dashboard"?m():""}
+                    ${e==="products"?c():""}
+                    ${e==="orders"?$():""}
+                    ${e==="staff"?v():""}
                 </main>
             </div>
             ${I()}
@@ -1212,7 +1212,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 🏠
             </button>
         </div>
-    `};window.initAdminCharts=()=>{const e=window.state?.orders||[],t=window.state?.products||[];window.state?.users;const i=s=>["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][new Date(s).getMonth()],r=document.getElementById("revenueChart");if(r){window.revenueChartInstance&&window.revenueChartInstance.destroy();const s={},d=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];d.forEach(f=>s[f]=0),e.forEach(f=>{if(f.createdAt&&f.total){const m=i(f.createdAt);s[m]+=f.total}});const g=d.map(f=>s[f]),b=g.reduce((f,m)=>f+m,0)/g.filter(f=>f>0).length||1e3,h=d.map(()=>b*1.2);window.revenueChartInstance=new Chart(r,{type:"bar",data:{labels:d,datasets:[{label:"Revenue",data:g,backgroundColor:"rgba(59, 130, 246, 0.8)",borderRadius:4,order:2},{label:"Target",data:h,type:"line",borderColor:"#F97316",borderWidth:2,borderDash:[5,5],fill:!1,tension:0,pointRadius:0,order:1}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:"top",labels:{usePointStyle:!0}}},scales:{y:{beginAtZero:!0,grid:{borderDash:[2,4]}},x:{grid:{display:!1}}}}})}const a=document.getElementById("categoryChart");if(a){window.categoryChartInstance&&window.categoryChartInstance.destroy();const s={};e.forEach(h=>{h.items&&h.items.forEach(f=>{const c=t.find(v=>v.id===f.productId||v._id===f.productId)?.category||f.category||"Other",S=(f.price||0)*(f.quantity||1);s[c]=(s[c]||0)+S})});const d=Object.keys(s),g=Object.values(s),b=["#0F172A","#3b82f6","#F97316","#10b981","#8b5cf6","#ec4899"];d.length===0&&(d.push("Microcontrollers","Sensors","Components","Robotics"),g.push(4500,3200,2100,1800)),window.categoryChartInstance=new Chart(a,{type:"doughnut",data:{labels:d,datasets:[{data:g,backgroundColor:b.slice(0,d.length),borderWidth:0,hoverOffset:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:"right",labels:{usePointStyle:!0,padding:15}}},cutout:"60%"}})}const n=document.getElementById("topProductsChart");if(n){window.topProductsChartInstance&&window.topProductsChartInstance.destroy();const s={};e.forEach(g=>{g.items&&g.items.forEach(b=>{const h=b.productName||b.name||"Unknown",f=(b.price||0)*(b.quantity||1);s[h]=(s[h]||0)+f})});let d=Object.entries(s).sort((g,b)=>b[1]-g[1]).slice(0,5);d.length===0&&(d=[["ESP32 DevKit",5400],["Arduino Uno",3800],["Ultrasonic Sensor",2900],["Servo Motor",2400],["Jumper Wires",1800]]),window.topProductsChartInstance=new Chart(n,{type:"bar",data:{labels:d.map(g=>g[0]),datasets:[{label:"Revenue",data:d.map(g=>g[1]),backgroundColor:["#3b82f6","#0F172A","#F97316","#10b981","#8b5cf6"],borderRadius:4}]},options:{indexAxis:"y",responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{x:{beginAtZero:!0,grid:{borderDash:[2,4]}},y:{grid:{display:!1}}}}})}const l=document.getElementById("customersChart");if(l){window.customersChartInstance&&window.customersChartInstance.destroy();const s={};e.forEach(v=>{v.userId&&(s[v.userId]=(s[v.userId]||0)+1)});const d=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],g={},b={},h=new Set;d.forEach(v=>{g[v]=0,b[v]=0}),[...e].sort((v,I)=>new Date(v.createdAt)-new Date(I.createdAt)).forEach(v=>{if(v.createdAt&&v.userId){const I=i(v.createdAt);h.has(v.userId)?b[I]++:(g[I]++,h.add(v.userId))}});const m=d.map(v=>g[v]),c=d.map(v=>b[v]);m.some(v=>v>0)||c.some(v=>v>0)||(m.splice(0,m.length,15,12,18,10,22,14,8,16,20,12,18,25),c.splice(0,c.length,5,8,12,15,18,20,22,24,26,28,30,32)),window.customersChartInstance=new Chart(l,{type:"bar",data:{labels:d,datasets:[{label:"New Customers",data:m,backgroundColor:"#3b82f6",borderRadius:4},{label:"Returning Customers",data:c,backgroundColor:"#10b981",borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:"top",labels:{usePointStyle:!0}}},scales:{x:{stacked:!0,grid:{display:!1}},y:{stacked:!0,beginAtZero:!0,grid:{borderDash:[2,4]}}}}})}};const V=({state:e})=>{if(!e.currentUser)return navigate("login"),"";const t=e.orders.filter(m=>m.userId===e.currentUser.id);t.filter(m=>m.status==="Pending"||m.status==="Processing"),t.filter(m=>m.status==="Shipped"),t.filter(m=>m.status==="Delivered"||m.status==="Completed");const i=e.myCoupons||[],r=sessionStorage.getItem("userActiveTab"),a=e.params&&e.params.tab?e.params.tab:r||"profile";a&&a!==r&&sessionStorage.setItem("userActiveTab",a),window.handleProfileUpdate||(window.handleProfileUpdate=async m=>{m.preventDefault();const c=m.target,S=c.name.value.trim(),v=c.email.value.trim(),I=c.phone.value.trim(),x=c.gender.value,p=`${c.birthYear.value}-${c.birthMonth.value}-${c.birthDay.value}`;if(!S||!v||!I||!x||!c.birthYear.value||!c.birthMonth.value||!c.birthDay.value){showToast("Please fill in all fields.");return}if(/\d/.test(S)){showToast("Name should not contain numbers.");return}if(!v.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(I)){showToast("Phone number must be 11 digits and start with 09.");return}try{await api.updateProfile(e.currentUser.id,{name:S,email:v,phone:I,gender:x,birthDate:p}),window.render()}catch(w){console.error("Profile update failed:",w)}}),window.handleImageUpload||(window.handleImageUpload=async m=>{const c=m.target.files[0];if(!c)return;if(c.size>3*1024*1024){showToast("File size exceeds 3MB limit.");return}if(!["image/jpeg","image/png"].includes(c.type)){showToast("Only .JPEG and .PNG files are allowed.");return}const S=new FileReader;S.onload=async v=>{try{await api.updateAvatar(e.currentUser.id,v.target.result),render()}catch(I){console.error("Avatar upload failed:",I)}},S.readAsDataURL(c)}),window.handleAddressUpdate||(window.handleAddressUpdate=async m=>{m.preventDefault();const c=m.target,S={fullName:c.fullName.value,phone:c.phone.value,region:c.region.value,province:c.province.value,city:c.city.value,barangay:c.barangay.value,postalCode:c.postalCode.value,street:c.street.value,details:c.details.value};if(Object.values(S).some(v=>!v)){showToast("Please fill in all address fields.");return}try{await api.updateAddress(e.currentUser.id,S),render()}catch(v){console.error("Address update failed:",v)}}),window.handlePasswordUpdate||(window.handlePasswordUpdate=async m=>{m.preventDefault();const c=m.target,S=c.currentPassword.value,v=c.newPassword.value,I=c.confirmPassword.value;if(v.length<6){showToast("New password must be at least 6 characters.");return}if(v!==I){showToast("New passwords do not match.");return}try{await api.changePassword(e.currentUser.id,S,v),c.reset()}catch(x){console.error("Password change failed:",x)}}),window.switchUserTab||(window.switchUserTab=m=>{sessionStorage.setItem("userActiveTab",m),document.querySelectorAll(".user-tab-content").forEach(v=>v.style.display="none");const c=document.getElementById(`user-tab-${m}`);c&&(c.style.display="block"),document.querySelectorAll(".sidebar-link").forEach(v=>v.classList.remove("active"));const S=document.querySelector(`[data-tab="${m}"]`);S&&S.classList.add("active"),window.scrollTo(0,0)}),window.switchOrderTab||(window.switchOrderTab=m=>{document.querySelectorAll(".order-status-tab").forEach(c=>c.classList.remove("active")),document.querySelector(`.order-status-tab[data-status="${m}"]`).classList.add("active"),document.querySelectorAll(".order-item").forEach(c=>{m==="All"||c.dataset.status===m?c.style.display="block":c.style.display="none"})});const n=(m,c,S)=>{let v="";for(let I=m;I<=c;I++)v+=`<option value="${I}" ${parseInt(S)===I?"selected":""}>${I}</option>`;return v},l=["January","February","March","April","May","June","July","August","September","October","November","December"],s=e.currentUser.birthDate?new Date(e.currentUser.birthDate):null,d=s?s.getDate():"",g=s?s.getMonth()+1:"",b=s?s.getFullYear():"",h=e.currentUser.address||{},f=typeof h=="object"&&h!==null;return`
+    `};window.initAdminCharts=()=>{const t=window.state?.orders||[],e=window.state?.products||[];window.state?.users;const i=s=>["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][new Date(s).getMonth()],r=document.getElementById("revenueChart");if(r){window.revenueChartInstance&&window.revenueChartInstance.destroy();const s={},d=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];d.forEach(f=>s[f]=0),t.forEach(f=>{if(f.createdAt&&f.total){const m=i(f.createdAt);s[m]+=f.total}});const g=d.map(f=>s[f]),b=g.reduce((f,m)=>f+m,0)/g.filter(f=>f>0).length||1e3,h=d.map(()=>b*1.2);window.revenueChartInstance=new Chart(r,{type:"bar",data:{labels:d,datasets:[{label:"Revenue",data:g,backgroundColor:"rgba(59, 130, 246, 0.8)",borderRadius:4,order:2},{label:"Target",data:h,type:"line",borderColor:"#F97316",borderWidth:2,borderDash:[5,5],fill:!1,tension:0,pointRadius:0,order:1}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:"top",labels:{usePointStyle:!0}}},scales:{y:{beginAtZero:!0,grid:{borderDash:[2,4]}},x:{grid:{display:!1}}}}})}const a=document.getElementById("categoryChart");if(a){window.categoryChartInstance&&window.categoryChartInstance.destroy();const s={};t.forEach(h=>{h.items&&h.items.forEach(f=>{const c=e.find(v=>v.id===f.productId||v._id===f.productId)?.category||f.category||"Other",$=(f.price||0)*(f.quantity||1);s[c]=(s[c]||0)+$})});const d=Object.keys(s),g=Object.values(s),b=["#0F172A","#3b82f6","#F97316","#10b981","#8b5cf6","#ec4899"];d.length===0&&(d.push("Microcontrollers","Sensors","Components","Robotics"),g.push(4500,3200,2100,1800)),window.categoryChartInstance=new Chart(a,{type:"doughnut",data:{labels:d,datasets:[{data:g,backgroundColor:b.slice(0,d.length),borderWidth:0,hoverOffset:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:"right",labels:{usePointStyle:!0,padding:15}}},cutout:"60%"}})}const n=document.getElementById("topProductsChart");if(n){window.topProductsChartInstance&&window.topProductsChartInstance.destroy();const s={};t.forEach(g=>{g.items&&g.items.forEach(b=>{const h=b.productName||b.name||"Unknown",f=(b.price||0)*(b.quantity||1);s[h]=(s[h]||0)+f})});let d=Object.entries(s).sort((g,b)=>b[1]-g[1]).slice(0,5);d.length===0&&(d=[["ESP32 DevKit",5400],["Arduino Uno",3800],["Ultrasonic Sensor",2900],["Servo Motor",2400],["Jumper Wires",1800]]),window.topProductsChartInstance=new Chart(n,{type:"bar",data:{labels:d.map(g=>g[0]),datasets:[{label:"Revenue",data:d.map(g=>g[1]),backgroundColor:["#3b82f6","#0F172A","#F97316","#10b981","#8b5cf6"],borderRadius:4}]},options:{indexAxis:"y",responsive:!0,maintainAspectRatio:!1,plugins:{legend:{display:!1}},scales:{x:{beginAtZero:!0,grid:{borderDash:[2,4]}},y:{grid:{display:!1}}}}})}const l=document.getElementById("customersChart");if(l){window.customersChartInstance&&window.customersChartInstance.destroy();const s={};t.forEach(v=>{v.userId&&(s[v.userId]=(s[v.userId]||0)+1)});const d=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],g={},b={},h=new Set;d.forEach(v=>{g[v]=0,b[v]=0}),[...t].sort((v,I)=>new Date(v.createdAt)-new Date(I.createdAt)).forEach(v=>{if(v.createdAt&&v.userId){const I=i(v.createdAt);h.has(v.userId)?b[I]++:(g[I]++,h.add(v.userId))}});const m=d.map(v=>g[v]),c=d.map(v=>b[v]);m.some(v=>v>0)||c.some(v=>v>0)||(m.splice(0,m.length,15,12,18,10,22,14,8,16,20,12,18,25),c.splice(0,c.length,5,8,12,15,18,20,22,24,26,28,30,32)),window.customersChartInstance=new Chart(l,{type:"bar",data:{labels:d,datasets:[{label:"New Customers",data:m,backgroundColor:"#3b82f6",borderRadius:4},{label:"Returning Customers",data:c,backgroundColor:"#10b981",borderRadius:4}]},options:{responsive:!0,maintainAspectRatio:!1,plugins:{legend:{position:"top",labels:{usePointStyle:!0}}},scales:{x:{stacked:!0,grid:{display:!1}},y:{stacked:!0,beginAtZero:!0,grid:{borderDash:[2,4]}}}}})}};const V=({state:t})=>{if(!t.currentUser)return navigate("login"),"";const e=t.orders.filter(m=>m.userId===t.currentUser.id);e.filter(m=>m.status==="Pending"||m.status==="Processing"),e.filter(m=>m.status==="Shipped"),e.filter(m=>m.status==="Delivered"||m.status==="Completed");const i=t.myCoupons||[],r=sessionStorage.getItem("userActiveTab"),a=t.params&&t.params.tab?t.params.tab:r||"profile";a&&a!==r&&sessionStorage.setItem("userActiveTab",a),window.handleProfileUpdate||(window.handleProfileUpdate=async m=>{m.preventDefault();const c=m.target,$=c.name.value.trim(),v=c.email.value.trim(),I=c.phone.value.trim(),x=c.gender.value,p=`${c.birthYear.value}-${c.birthMonth.value}-${c.birthDay.value}`;if(!$||!v||!I||!x||!c.birthYear.value||!c.birthMonth.value||!c.birthDay.value){showToast("Please fill in all fields.");return}if(/\d/.test($)){showToast("Name should not contain numbers.");return}if(!v.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(I)){showToast("Phone number must be 11 digits and start with 09.");return}try{await api.updateProfile(t.currentUser.id,{name:$,email:v,phone:I,gender:x,birthDate:p}),window.render()}catch(w){console.error("Profile update failed:",w)}}),window.handleImageUpload||(window.handleImageUpload=async m=>{const c=m.target.files[0];if(!c)return;if(c.size>3*1024*1024){showToast("File size exceeds 3MB limit.");return}if(!["image/jpeg","image/png"].includes(c.type)){showToast("Only .JPEG and .PNG files are allowed.");return}const $=new FileReader;$.onload=async v=>{try{await api.updateAvatar(t.currentUser.id,v.target.result),render()}catch(I){console.error("Avatar upload failed:",I)}},$.readAsDataURL(c)}),window.handleAddressUpdate||(window.handleAddressUpdate=async m=>{m.preventDefault();const c=m.target,$={fullName:c.fullName.value,phone:c.phone.value,region:c.region.value,province:c.province.value,city:c.city.value,barangay:c.barangay.value,postalCode:c.postalCode.value,street:c.street.value,details:c.details.value};if(Object.values($).some(v=>!v)){showToast("Please fill in all address fields.");return}try{await api.updateAddress(t.currentUser.id,$),render()}catch(v){console.error("Address update failed:",v)}}),window.handlePasswordUpdate||(window.handlePasswordUpdate=async m=>{m.preventDefault();const c=m.target,$=c.currentPassword.value,v=c.newPassword.value,I=c.confirmPassword.value;if(v.length<6){showToast("New password must be at least 6 characters.");return}if(v!==I){showToast("New passwords do not match.");return}try{await api.changePassword(t.currentUser.id,$,v),c.reset()}catch(x){console.error("Password change failed:",x)}}),window.switchUserTab||(window.switchUserTab=m=>{sessionStorage.setItem("userActiveTab",m),document.querySelectorAll(".user-tab-content").forEach(v=>v.style.display="none");const c=document.getElementById(`user-tab-${m}`);c&&(c.style.display="block"),document.querySelectorAll(".sidebar-link").forEach(v=>v.classList.remove("active"));const $=document.querySelector(`[data-tab="${m}"]`);$&&$.classList.add("active"),window.scrollTo(0,0)}),window.switchOrderTab||(window.switchOrderTab=m=>{document.querySelectorAll(".order-status-tab").forEach(c=>c.classList.remove("active")),document.querySelector(`.order-status-tab[data-status="${m}"]`).classList.add("active"),document.querySelectorAll(".order-item").forEach(c=>{m==="All"||c.dataset.status===m?c.style.display="block":c.style.display="none"})});const n=(m,c,$)=>{let v="";for(let I=m;I<=c;I++)v+=`<option value="${I}" ${parseInt($)===I?"selected":""}>${I}</option>`;return v},l=["January","February","March","April","May","June","July","August","September","October","November","December"],s=t.currentUser.birthDate?new Date(t.currentUser.birthDate):null,d=s?s.getDate():"",g=s?s.getMonth()+1:"",b=s?s.getFullYear():"",h=t.currentUser.address||{},f=typeof h=="object"&&h!==null;return`
         <div class="user-page-wrapper">
             <div class="container">
                 <div class="user-layout">
@@ -1221,10 +1221,10 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     <aside class="user-sidebar">
                         <div class="user-brief">
                             <div class="user-avatar-small">
-                                ${e.currentUser.avatar?`<img src="${e.currentUser.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`:e.currentUser.name.charAt(0).toUpperCase()}
+                                ${t.currentUser.avatar?`<img src="${t.currentUser.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`:t.currentUser.name.charAt(0).toUpperCase()}
                             </div>
                             <div class="user-brief-info">
-                                <div class="user-name-truncate">${e.currentUser.name}</div>
+                                <div class="user-name-truncate">${t.currentUser.name}</div>
                                 <a href="#" onclick="window.switchUserTab('profile'); return false;" class="edit-profile-link">
                                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                     Edit Profile
@@ -1280,31 +1280,31 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                                     <form onsubmit="window.handleProfileUpdate(event)">
                                         <div class="form-row">
                                             <label>Username</label>
-                                            <div class="form-value">${e.currentUser.email.split("@")[0]}</div>
+                                            <div class="form-value">${t.currentUser.email.split("@")[0]}</div>
                                         </div>
                                         <div class="form-row">
                                             <label>Name</label>
-                                            <input type="text" name="name" value="${e.currentUser.name}" class="form-input" required>
+                                            <input type="text" name="name" value="${t.currentUser.name}" class="form-input" required>
                                         </div>
                                         <div class="form-row">
                                             <label>Email</label>
-                                            <input type="email" name="email" value="${e.currentUser.email}" class="form-input" required>
+                                            <input type="email" name="email" value="${t.currentUser.email}" class="form-input" required>
                                         </div>
                                         <div class="form-row">
                                             <label>Phone Number</label>
-                                            <input type="text" name="phone" value="${e.currentUser.phone||""}" class="form-input" placeholder="09XXXXXXXXX" required>
+                                            <input type="text" name="phone" value="${t.currentUser.phone||""}" class="form-input" placeholder="09XXXXXXXXX" required>
                                         </div>
                                         <div class="form-row">
                                             <label>Gender</label>
                                             <div class="radio-group">
                                                 <label class="radio-label">
-                                                    <input type="radio" name="gender" value="Male" ${e.currentUser.gender==="Male"?"checked":""} required> Male
+                                                    <input type="radio" name="gender" value="Male" ${t.currentUser.gender==="Male"?"checked":""} required> Male
                                                 </label>
                                                 <label class="radio-label">
-                                                    <input type="radio" name="gender" value="Female" ${e.currentUser.gender==="Female"?"checked":""}> Female
+                                                    <input type="radio" name="gender" value="Female" ${t.currentUser.gender==="Female"?"checked":""}> Female
                                                 </label>
                                                 <label class="radio-label">
-                                                    <input type="radio" name="gender" value="Other" ${e.currentUser.gender==="Other"?"checked":""}> Other
+                                                    <input type="radio" name="gender" value="Other" ${t.currentUser.gender==="Other"?"checked":""}> Other
                                                 </label>
                                             </div>
                                         </div>
@@ -1334,7 +1334,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
 
                                 <div class="profile-avatar-section">
                                     <div class="avatar-preview">
-                                        ${e.currentUser.avatar?`<img src="${e.currentUser.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`:e.currentUser.name.charAt(0).toUpperCase()}
+                                        ${t.currentUser.avatar?`<img src="${t.currentUser.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`:t.currentUser.name.charAt(0).toUpperCase()}
                                     </div>
                                     <input type="file" id="avatarInput" accept=".jpeg, .png, .jpg" style="display: none;" onchange="window.handleImageUpload(event)">
                                     <button class="btn-select-image" onclick="document.getElementById('avatarInput').click()">Select Image</button>
@@ -1434,7 +1434,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                             </div>
 
                             <div class="orders-list">
-                                ${t.length>0?t.map(m=>`
+                                ${e.length>0?e.map(m=>`
                                     <div class="order-item" data-status="${m.status==="Pending"||m.status==="Processing"?"Pending":m.status==="Shipped"?"Shipped":m.status==="Delivered"?"Completed":m.status}">
                                         <div class="order-header">
                                             <span>Order ID: ${m.id||m.orderId}</span>
@@ -1979,7 +1979,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 }
             }
         </style>
-    `},ue=({Breadcrumbs:e,state:t})=>{let i=[...t.products];switch(t.searchQuery&&(i=i.filter(r=>r.name.toLowerCase().includes(t.searchQuery.toLowerCase())||r.category.toLowerCase().includes(t.searchQuery.toLowerCase())||r.description.toLowerCase().includes(t.searchQuery.toLowerCase()))),t.filterCategory&&(i=i.filter(r=>r.category===t.filterCategory)),t.sortBy){case"price-asc":i.sort((r,a)=>r.price-a.price);break;case"price-desc":i.sort((r,a)=>a.price-r.price);break;case"name-asc":i.sort((r,a)=>r.name.localeCompare(a.name));break;case"name-desc":i.sort((r,a)=>a.name.localeCompare(r.name));break;case"featured":default:i.sort((r,a)=>r.id-a.id);break}return`
+    `},ue=({Breadcrumbs:t,state:e})=>{let i=[...e.products];switch(e.searchQuery&&(i=i.filter(r=>r.name.toLowerCase().includes(e.searchQuery.toLowerCase())||r.category.toLowerCase().includes(e.searchQuery.toLowerCase())||r.description.toLowerCase().includes(e.searchQuery.toLowerCase()))),e.filterCategory&&(i=i.filter(r=>r.category===e.filterCategory)),e.sortBy){case"price-asc":i.sort((r,a)=>r.price-a.price);break;case"price-desc":i.sort((r,a)=>a.price-r.price);break;case"name-asc":i.sort((r,a)=>r.name.localeCompare(a.name));break;case"name-desc":i.sort((r,a)=>a.name.localeCompare(r.name));break;case"featured":default:i.sort((r,a)=>r.id-a.id);break}return`
         <div style="padding: 2rem 0; max-width: 1200px; margin: 0 auto;">
             <!-- ... Breadcrumbs ... -->
             
@@ -1989,17 +1989,17 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     <span style="font-weight: 600;">Filter By:</span>
                     <select class="filter-select" onchange="window.handleCategoryFilter(this.value)">
                         <option value="">All Categories</option>
-                        <option value="Components" ${t.filterCategory==="Components"?"selected":""}>Components</option>
-                        <option value="Sensors" ${t.filterCategory==="Sensors"?"selected":""}>Sensors</option>
-                        <option value="Boards" ${t.filterCategory==="Boards"?"selected":""}>Boards</option>
+                        <option value="Components" ${e.filterCategory==="Components"?"selected":""}>Components</option>
+                        <option value="Sensors" ${e.filterCategory==="Sensors"?"selected":""}>Sensors</option>
+                        <option value="Boards" ${e.filterCategory==="Boards"?"selected":""}>Boards</option>
                     </select>
                 </div>
                 <div class="sort-container">
                     <span class="sort-label">Sort by:</span>
                     <select class="sort-select" onchange="window.handleSort(this.value)">
-                        <option value="featured" ${t.sortBy==="featured"?"selected":""}>Featured</option>
-                        <option value="price-asc" ${t.sortBy==="price-asc"?"selected":""}>Price: Low to High</option>
-                        <option value="price-desc" ${t.sortBy==="price-desc"?"selected":""}>Price: High to Low</option>
+                        <option value="featured" ${e.sortBy==="featured"?"selected":""}>Featured</option>
+                        <option value="price-asc" ${e.sortBy==="price-asc"?"selected":""}>Price: Low to High</option>
+                        <option value="price-desc" ${e.sortBy==="price-desc"?"selected":""}>Price: High to Low</option>
                     </select>
                 </div>
             </div>
@@ -2008,22 +2008,22 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 ${i.map(ge).join("")}
             </div>
         </div>
-    `},ge=e=>{const t=e.stock<10,i=t?"low-stock":"",r=t?"Low Stock":"In Stock";return`
-        <div class="product-card" onclick="window.viewProduct(${e.id})" style="cursor: pointer;">
+    `},ge=t=>{const e=t.stock<10,i=e?"low-stock":"",r=e?"Low Stock":"In Stock";return`
+        <div class="product-card" onclick="window.viewProduct(${t.id})" style="cursor: pointer;">
             <div class="product-badge ${i}">${r}</div>
             <div class="product-image">
-                <img src="${e.image}" alt="${e.name}" />
+                <img src="${t.image}" alt="${t.name}" />
             </div>
             <div class="product-info">
-                <div class="product-category">${e.category}</div>
-                <h3 class="product-title">${e.name}</h3>
-                <div class="product-price">${y(e.price)}</div>
-                <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${e.id})">
+                <div class="product-category">${t.category}</div>
+                <h3 class="product-title">${t.name}</h3>
+                <div class="product-price">${y(t.price)}</div>
+                <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${t.id})">
                     Add to Cart
                 </button>
             </div>
         </div>
-    `},ve=({Breadcrumbs:e,state:t})=>{const i=t.products.find(l=>l.id===t.currentProductId);if(!i)return navigate("home"),"";i.stock<10;const r=i.stock>0?"In Stock":"Out of Stock",a=i.stock>0?"var(--success)":"var(--danger)",n=t.products.filter(l=>l.id!==i.id).sort(()=>.5-Math.random()).slice(0,4);return`
+    `},ve=({Breadcrumbs:t,state:e})=>{const i=e.products.find(l=>l.id===e.currentProductId);if(!i)return navigate("home"),"";i.stock<10;const r=i.stock>0?"In Stock":"Out of Stock",a=i.stock>0?"var(--success)":"var(--danger)",n=e.products.filter(l=>l.id!==i.id).sort(()=>.5-Math.random()).slice(0,4);return`
         <div class="product-detail-container">
             <div class="breadcrumbs">
                 <a href="#" onclick="window.navigate('home'); return false;">Home</a> &gt; 
@@ -2073,22 +2073,22 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </div>
             </div>
         </div>
-    `},W=e=>{const t=e.stock<10,i=t?"low-stock":"",r=t?"Low Stock":"In Stock";return`
-        <div class="product-card" onclick="window.viewProduct(${e.id})" style="cursor: pointer;">
+    `},W=t=>{const e=t.stock<10,i=e?"low-stock":"",r=e?"Low Stock":"In Stock";return`
+        <div class="product-card" onclick="window.viewProduct(${t.id})" style="cursor: pointer;">
             <div class="product-badge ${i}">${r}</div>
             <div class="product-image">
-                <img src="${e.image}" alt="${e.name}" />
+                <img src="${t.image}" alt="${t.name}" />
             </div>
             <div class="product-info">
-                <div class="product-category">${e.category}</div>
-                <h3 class="product-title">${e.name}</h3>
-                <div class="product-price">${y(e.price)}</div>
-                <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${e.id})">
+                <div class="product-category">${t.category}</div>
+                <h3 class="product-title">${t.name}</h3>
+                <div class="product-price">${y(t.price)}</div>
+                <button class="add-btn" onclick="event.stopPropagation(); window.addToCart(${t.id})">
                     Add to Cart
                 </button>
             </div>
         </div>
-    `},Y=({state:e})=>e.currentUser?(window.handleAdminProfileUpdate||(window.handleAdminProfileUpdate=async t=>{t.preventDefault();const i=t.target,r=i.name.value.trim(),a=i.email.value.trim(),n=i.phone.value.trim();if(!r||!a||!n){showToast("Please fill in all fields.");return}if(/\d/.test(r)){showToast("Name should not contain numbers.");return}if(!a.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(n)){showToast("Phone number must be 11 digits and start with 09.");return}try{await window.api.updateProfile(e.currentUser.id,{name:r,email:a,phone:n}),window.render()}catch(l){console.error("Profile update failed:",l)}}),window.handleAdminPasswordUpdate||(window.handleAdminPasswordUpdate=async t=>{t.preventDefault();const i=t.target,r=i.currentPassword.value,a=i.newPassword.value,n=i.confirmPassword.value;if(a.length<6){showToast("New password must be at least 6 characters.");return}if(a!==n){showToast("New passwords do not match.");return}try{await window.api.changePassword(e.currentUser.id,r,a),i.reset()}catch(l){console.error("Password change failed:",l)}}),window.switchAdminProfileTab||(window.switchAdminProfileTab=t=>{document.querySelectorAll(".admin-tab-content").forEach(a=>a.style.display="none");const i=document.getElementById(`admin-tab-${t}`);i&&(i.style.display="block"),document.querySelectorAll(".admin-sidebar-link").forEach(a=>a.classList.remove("active"));const r=document.querySelector(`[data-tab="${t}"]`);r&&r.classList.add("active"),window.scrollTo(0,0)}),`
+    `},Y=({state:t})=>t.currentUser?(window.handleAdminProfileUpdate||(window.handleAdminProfileUpdate=async e=>{e.preventDefault();const i=e.target,r=i.name.value.trim(),a=i.email.value.trim(),n=i.phone.value.trim();if(!r||!a||!n){showToast("Please fill in all fields.");return}if(/\d/.test(r)){showToast("Name should not contain numbers.");return}if(!a.includes("@")){showToast("Please enter a valid email address.");return}if(!/^09\d{9}$/.test(n)){showToast("Phone number must be 11 digits and start with 09.");return}try{await window.api.updateProfile(t.currentUser.id,{name:r,email:a,phone:n}),window.render()}catch(l){console.error("Profile update failed:",l)}}),window.handleAdminPasswordUpdate||(window.handleAdminPasswordUpdate=async e=>{e.preventDefault();const i=e.target,r=i.currentPassword.value,a=i.newPassword.value,n=i.confirmPassword.value;if(a.length<6){showToast("New password must be at least 6 characters.");return}if(a!==n){showToast("New passwords do not match.");return}try{await window.api.changePassword(t.currentUser.id,r,a),i.reset()}catch(l){console.error("Password change failed:",l)}}),window.switchAdminProfileTab||(window.switchAdminProfileTab=e=>{document.querySelectorAll(".admin-tab-content").forEach(a=>a.style.display="none");const i=document.getElementById(`admin-tab-${e}`);i&&(i.style.display="block"),document.querySelectorAll(".admin-sidebar-link").forEach(a=>a.classList.remove("active"));const r=document.querySelector(`[data-tab="${e}"]`);r&&r.classList.add("active"),window.scrollTo(0,0)}),`
         <div class="user-page-wrapper">
             <div class="container">
                 <div class="user-layout">
@@ -2097,10 +2097,10 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     <aside class="user-sidebar">
                         <div class="user-brief">
                             <div class="user-avatar-small">
-                                ${e.currentUser.name.charAt(0).toUpperCase()}
+                                ${t.currentUser.name.charAt(0).toUpperCase()}
                             </div>
                             <div class="user-brief-info">
-                                <div class="user-name-truncate">${e.currentUser.name}</div>
+                                <div class="user-name-truncate">${t.currentUser.name}</div>
                                 <a href="#" onclick="window.switchAdminProfileTab('profile'); return false;" class="edit-profile-link">
                                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.5 1.5L10.5 3.5L3.5 10.5H1.5V8.5L8.5 1.5Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                     Edit Profile
@@ -2132,15 +2132,15 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                             <form onsubmit="window.handleAdminProfileUpdate(event)" style="max-width: 600px;">
                                 <div class="form-group" style="margin-bottom: 1.5rem;">
                                     <label class="form-label">Name</label>
-                                    <input type="text" name="name" value="${e.currentUser.name}" class="form-input" required>
+                                    <input type="text" name="name" value="${t.currentUser.name}" class="form-input" required>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 1.5rem;">
                                     <label class="form-label">Email</label>
-                                    <input type="email" name="email" value="${e.currentUser.email}" class="form-input" required>
+                                    <input type="email" name="email" value="${t.currentUser.email}" class="form-input" required>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 2rem;">
                                     <label class="form-label">Phone Number</label>
-                                    <input type="text" name="phone" value="${e.currentUser.phone||""}" class="form-input" placeholder="09XXXXXXXXX" required>
+                                    <input type="text" name="phone" value="${t.currentUser.phone||""}" class="form-input" placeholder="09XXXXXXXXX" required>
                                 </div>
                                 <button type="submit" class="btn-save">Save Changes</button>
                             </form>
@@ -2326,13 +2326,13 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 opacity: 0.9;
             }
         </style>
-    `):(navigate("login"),""),o={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:sessionStorage.getItem("currentRoute")||"home",params:{},mobileMenuOpen:!1,searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,devices:[],currentDeviceId:null,esp32Client:null,deviceStatus:{},telemetryData:{},sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,cartSynced:!1,myCoupons:null,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null};window.state=o;const M={getProducts:async()=>{try{const e=await $("/products");o.products=e.data,C()}catch(e){console.error("Failed to load products:",e),u("Failed to load products")}},login:async(e,t)=>{console.log("Calling API login...");try{const i=await $("/users/login",{method:"POST",body:JSON.stringify({email:e,password:t})});o.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(o.currentUser)),await U.getMyDevices(),await fe(),await M.getMyOrders(),u(`Welcome back, ${o.currentUser.name}!`),P("home")}catch(i){throw u(i.message||"Login failed"),i}},register:async(e,t,i)=>{try{const r=await $("/users/register",{method:"POST",body:JSON.stringify({name:e,email:t,password:i})});o.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(o.currentUser)),u("Account created successfully!"),P("home")}catch(r){throw u(r.message||"Registration failed"),r}},createOrder:async e=>{try{const t=await $("/orders",{method:"POST",body:JSON.stringify(e)});return o.cart=[],T(),u("Order placed successfully!"),o.currentUser.role==="admin"&&M.getOrders(),t.data}catch(t){throw u(t.message||"Failed to place order"),t}},getOrders:async()=>{if(!(!o.currentUser||!["admin","staff"].includes(o.currentUser.role)))try{const e=await $("/orders");o.orders=e.data,C()}catch(e){console.error("Failed to load orders:",e)}},getMyOrders:async()=>{if(o.currentUser)try{const e=await $(`/orders/my-orders?userId=${o.currentUser.id}`);o.orders=e.data,C()}catch(e){console.error("Failed to load orders:",e)}},getUsers:async()=>{if(!(!o.currentUser||!["admin","staff"].includes(o.currentUser.role)))try{const e=await $("/users");o.users=e.data,C()}catch(e){console.error("Failed to load users:",e)}},updateProfile:async(e,t)=>{try{const i=await $(`/users/${e}/profile`,{method:"PUT",body:JSON.stringify(t)});return o.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(i.data)),window.showToast("Profile updated successfully!"),i.data}catch(i){throw window.showToast(i.message||"Failed to update profile"),i}},updateAddress:async(e,t)=>{try{const i=await $(`/users/${e}/address`,{method:"PUT",body:JSON.stringify(t)});return o.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(i.data)),window.showToast("Address saved successfully!"),i.data}catch(i){throw window.showToast(i.message||"Failed to save address"),i}},changePassword:async(e,t,i)=>{try{await $(`/users/${e}/password`,{method:"PUT",body:JSON.stringify({currentPassword:t,newPassword:i})}),window.showToast("Password changed successfully!")}catch(r){throw window.showToast(r.message||"Failed to change password"),r}},updateAvatar:async(e,t)=>{try{const i=await $(`/users/${e}/avatar`,{method:"PUT",body:JSON.stringify({avatar:t})});return o.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(i.data)),window.showToast("Profile image saved!"),i.data}catch(i){throw window.showToast(i.message||"Failed to save profile image"),i}},claimCoupon:async e=>{if(!(o.currentUser&&["admin","staff"].includes(o.currentUser.role))){if(!o.currentUser){u("Please login to claim coupons"),window.openLoginModal();return}try{const t=await $("/coupons/claim",{method:"POST",body:JSON.stringify({userId:o.currentUser.id,couponCode:e})});return u("Coupon claimed successfully! 🎉"),t.data}catch(t){throw u(t.message||"Failed to claim coupon"),t}}},getMyCoupons:async()=>{if(o.currentUser)try{const e=await $(`/coupons/my-coupons?userId=${o.currentUser.id}`);o.myCoupons=e.data,C()}catch(e){console.error("Failed to load coupons:",e)}}};window.api=M;const U={getMyDevices:async()=>{if(o.currentUser)try{const e=await $(`/devices/my-devices?userId=${o.currentUser.id}`);o.devices=e.data,he(),C()}catch(e){console.error("Failed to load devices:",e),u("Failed to load devices")}},pairDevice:async(e,t)=>{try{const i=await $("/devices/pair",{method:"POST",body:JSON.stringify({deviceId:e,deviceToken:t,userId:o.currentUser.id})});u("Device paired successfully!"),await U.getMyDevices(),P("my-devices")}catch(i){throw u(i.message||"Device pairing failed"),i}}};let X=!1;function he(){o.esp32Client||(o.esp32Client=new ESP32SocketClient),!o.esp32Client.isConnected()&&o.currentUser?o.esp32Client.connect(o.currentUser.id).then(()=>{o.devices&&o.devices.length>0&&o.devices.forEach(e=>{o.esp32Client.monitorDevice(e.deviceId),console.log(`👁️ Auto-monitoring device: ${e.deviceId}`)})}).catch(e=>{console.error("Failed to connect to WebSocket:",e)}):o.esp32Client.isConnected()&&o.devices&&o.devices.forEach(e=>{o.esp32Client.monitorDevice(e.deviceId)}),X||(X=!0,o.esp32Client.on("device:status",e=>{if(console.log("📊 Device status update received:",e),o.deviceStatus[e.deviceId]=e,o.devices&&o.devices.length>0){const t=o.devices.findIndex(i=>i.deviceId===e.deviceId);t!==-1&&(o.devices[t].status=e.status==="online"?"active":"offline",o.devices[t].lastOnline=e.timestamp,console.log(`✅ Updated device ${e.deviceId} status to: ${e.status}`))}o.route==="my-devices"&&C()}))}const T=()=>{localStorage.setItem("currentUser",JSON.stringify(o.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(o.cart))},fe=async()=>{if(!(!o.currentUser||o.cartSynced))try{const e=await $(`/users/${o.currentUser.id}/cart/sync`,{method:"POST",body:JSON.stringify({localCart:o.cart})});o.cart=e.data.map(t=>({id:t.productId,name:t.name,price:t.price,image:t.image,quantity:t.quantity,category:t.category,selected:t.selected})),o.cartSynced=!0,T(),C(),u("Cart synced!")}catch(e){console.error("Cart sync failed:",e)}},P=(e,t={})=>{o.route=e,o.params=t,o.mobileMenuOpen=!1,sessionStorage.setItem("currentRoute",e),C(),window.scrollTo(0,0)};window.navigate=P;const u=e=>{const t=document.createElement("div");t.className="toast",t.textContent=e,document.body.appendChild(t),setTimeout(()=>t.classList.add("show"),100),setTimeout(()=>{t.classList.remove("show"),setTimeout(()=>t.remove(),300)},3e3)};window.showToast=u;const E=e=>`
+    `):(navigate("login"),""),o={products:[],users:[],orders:[],currentUser:JSON.parse(localStorage.getItem("currentUser"))||null,cart:JSON.parse(localStorage.getItem("cart_v2"))||[],route:sessionStorage.getItem("currentRoute")||"home",params:{},mobileMenuOpen:!1,searchQuery:"",showSuggestions:!1,searchSuggestions:[],currentProductId:null,devices:[],currentDeviceId:null,esp32Client:null,deviceStatus:{},telemetryData:{},sortBy:"featured",filterCategory:null,cartSearchQuery:"",isLoading:!1,cartSynced:!1,myCoupons:null,checkoutData:{shipping:{fullName:"",address:"",city:"",province:"",postalCode:"",phone:"",instructions:""},paymentMethod:"cod",shippingFee:50},lastOrderId:null};window.state=o;const M={getProducts:async()=>{try{const t=await S("/products");o.products=t.data,C()}catch(t){console.error("Failed to load products:",t),u("Failed to load products")}},login:async(t,e)=>{console.log("Calling API login...");try{const i=await S("/users/login",{method:"POST",body:JSON.stringify({email:t,password:e})});o.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(o.currentUser)),await U.getMyDevices(),await fe(),await M.getMyOrders(),u(`Welcome back, ${o.currentUser.name}!`),P("home")}catch(i){throw u(i.message||"Login failed"),i}},register:async(t,e,i)=>{try{const r=await S("/users/register",{method:"POST",body:JSON.stringify({name:t,email:e,password:i})});o.currentUser=r.data,localStorage.setItem("currentUser",JSON.stringify(o.currentUser)),u("Account created successfully!"),P("home")}catch(r){throw u(r.message||"Registration failed"),r}},createOrder:async t=>{try{const e=await S("/orders",{method:"POST",body:JSON.stringify(t)});return o.cart=[],T(),u("Order placed successfully!"),o.currentUser.role==="admin"&&M.getOrders(),e.data}catch(e){throw u(e.message||"Failed to place order"),e}},getOrders:async()=>{if(!(!o.currentUser||!["admin","staff"].includes(o.currentUser.role)))try{const t=await S("/orders");o.orders=t.data,C()}catch(t){console.error("Failed to load orders:",t)}},getMyOrders:async()=>{if(o.currentUser)try{const t=await S(`/orders/my-orders?userId=${o.currentUser.id}`);o.orders=t.data,C()}catch(t){console.error("Failed to load orders:",t)}},getUsers:async()=>{if(!(!o.currentUser||!["admin","staff"].includes(o.currentUser.role)))try{const t=await S("/users");o.users=t.data,C()}catch(t){console.error("Failed to load users:",t)}},updateProfile:async(t,e)=>{try{const i=await S(`/users/${t}/profile`,{method:"PUT",body:JSON.stringify(e)});return o.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(i.data)),window.showToast("Profile updated successfully!"),i.data}catch(i){throw window.showToast(i.message||"Failed to update profile"),i}},updateAddress:async(t,e)=>{try{const i=await S(`/users/${t}/address`,{method:"PUT",body:JSON.stringify(e)});return o.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(i.data)),window.showToast("Address saved successfully!"),i.data}catch(i){throw window.showToast(i.message||"Failed to save address"),i}},changePassword:async(t,e,i)=>{try{await S(`/users/${t}/password`,{method:"PUT",body:JSON.stringify({currentPassword:e,newPassword:i})}),window.showToast("Password changed successfully!")}catch(r){throw window.showToast(r.message||"Failed to change password"),r}},updateAvatar:async(t,e)=>{try{const i=await S(`/users/${t}/avatar`,{method:"PUT",body:JSON.stringify({avatar:e})});return o.currentUser=i.data,localStorage.setItem("currentUser",JSON.stringify(i.data)),window.showToast("Profile image saved!"),i.data}catch(i){throw window.showToast(i.message||"Failed to save profile image"),i}},claimCoupon:async t=>{if(!(o.currentUser&&["admin","staff"].includes(o.currentUser.role))){if(!o.currentUser){u("Please login to claim coupons"),window.openLoginModal();return}try{const e=await S("/coupons/claim",{method:"POST",body:JSON.stringify({userId:o.currentUser.id,couponCode:t})});return u("Coupon claimed successfully! 🎉"),e.data}catch(e){throw u(e.message||"Failed to claim coupon"),e}}},getMyCoupons:async()=>{if(o.currentUser)try{const t=await S(`/coupons/my-coupons?userId=${o.currentUser.id}`);o.myCoupons=t.data,C()}catch(t){console.error("Failed to load coupons:",t)}}};window.api=M;const U={getMyDevices:async()=>{if(o.currentUser)try{const t=await S(`/devices/my-devices?userId=${o.currentUser.id}`);o.devices=t.data,he(),C()}catch(t){console.error("Failed to load devices:",t),u("Failed to load devices")}},pairDevice:async(t,e)=>{try{const i=await S("/devices/pair",{method:"POST",body:JSON.stringify({deviceId:t,deviceToken:e,userId:o.currentUser.id})});u("Device paired successfully!"),await U.getMyDevices(),P("my-devices")}catch(i){throw u(i.message||"Device pairing failed"),i}}};let X=!1;function he(){o.esp32Client||(o.esp32Client=new ESP32SocketClient),X||(X=!0,o.esp32Client.on("device:status",t=>{if(console.log("📊 Device status update received:",t),o.deviceStatus[t.deviceId]=t,o.devices&&o.devices.length>0){const e=o.devices.findIndex(i=>i.deviceId===t.deviceId);e!==-1&&(o.devices[e].status=t.status==="online"?"active":"offline",o.devices[e].lastOnline=t.timestamp,console.log(`✅ Updated device ${t.deviceId} status to: ${t.status}`))}(o.route==="my-devices"||o.route==="remote-control")&&C()})),!o.esp32Client.isConnected()&&o.currentUser&&o.esp32Client.connect(o.currentUser.id).then(()=>{console.log("📡 Connected to WebSocket - server will auto-send device status")}).catch(t=>{console.error("Failed to connect to WebSocket:",t)})}const T=()=>{localStorage.setItem("currentUser",JSON.stringify(o.currentUser)),localStorage.setItem("cart_v2",JSON.stringify(o.cart))},fe=async()=>{if(!(!o.currentUser||o.cartSynced))try{const t=await S(`/users/${o.currentUser.id}/cart/sync`,{method:"POST",body:JSON.stringify({localCart:o.cart})});o.cart=t.data.map(e=>({id:e.productId,name:e.name,price:e.price,image:e.image,quantity:e.quantity,category:e.category,selected:e.selected})),o.cartSynced=!0,T(),C(),u("Cart synced!")}catch(t){console.error("Cart sync failed:",t)}},P=(t,e={})=>{o.route=t,o.params=e,o.mobileMenuOpen=!1,sessionStorage.setItem("currentRoute",t),C(),window.scrollTo(0,0)};window.navigate=P;const u=t=>{const e=document.createElement("div");e.className="toast",e.textContent=t,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),100),setTimeout(()=>{e.classList.remove("show"),setTimeout(()=>e.remove(),300)},3e3)};window.showToast=u;const E=t=>`
         <div class="breadcrumbs">
             <a href="#" onclick="window.navigate('home'); return false;">Home</a>
             <span class="breadcrumb-separator">›</span>
-            <span>${{deals:"Deals",learn:"Learn","my-devices":"My Devices","device-pair":"Pair Device","remote-control":"Remote Control","about-us":"About Us","contact-us":"Contact Us",products:"Products",cart:"Cart",checkout:"Checkout"}[e]||e}</span>
+            <span>${{deals:"Deals",learn:"Learn","my-devices":"My Devices","device-pair":"Pair Device","remote-control":"Remote Control","about-us":"About Us","contact-us":"Contact Us",products:"Products",cart:"Cart",checkout:"Checkout"}[t]||t}</span>
         </div>
-    `,H=()=>{const e=o.currentUser!==null;o.currentUser?.role;const t=["admin","staff"].includes(o.currentUser?.role),i=o.route==="cart",r=o.cart.length;return`
+    `,H=()=>{const t=o.currentUser!==null;o.currentUser?.role;const e=["admin","staff"].includes(o.currentUser?.role),i=o.route==="cart",r=o.cart.length;return`
         <header>
             <div class="header-top">
                 <button class="hamburger-btn" onclick="window.toggleMobileMenu()" aria-label="Toggle menu">
@@ -2357,7 +2357,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </div>
                 `}
                 <div class="nav-actions" style="gap: 1.5rem;">
-                    ${t?"":`
+                    ${e?"":`
                     <a href="#" class="action-icon" onclick="window.navigate('cart'); return false;">
                         <div style="position: relative;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
@@ -2367,7 +2367,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </a>
                     `}
                     
-                    ${e?`
+                    ${t?`
                         <div class="user-dropdown">
                             <div class="action-icon" style="cursor: pointer;">
                                 <div style="width: 32px; height: 32px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; overflow: hidden;">
@@ -2474,7 +2474,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </div>
                 `}
             </div>
-        `}const e=[1,6,2,12,4];return`
+        `}const t=[1,6,2,12,4];return`
         <div class="hero">
             <div class="hero-content">
                 <span class="hero-badge">Quality Components</span>
@@ -2496,7 +2496,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 <a href="#" onclick="window.navigate('products'); return false;" style="font-size: 0.9rem; color: var(--primary); font-weight: 600;">View All Products &rarr;</a>
             </div>
             <div class="product-grid">
-                ${o.products.filter(i=>e.includes(i.id)).sort((i,r)=>e.indexOf(i.id)-e.indexOf(r.id)).map(W).join("")}
+                ${o.products.filter(i=>t.includes(i.id)).sort((i,r)=>t.indexOf(i.id)-t.indexOf(r.id)).map(W).join("")}
             </div>
         </div>
     `},ye=()=>`
@@ -2531,7 +2531,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 <p class="text-muted mb-4">Looks like you haven't added anything yet.</p>
                 <button class="btn btn-primary" onclick="window.navigate('products')">Start Shopping</button>
             </div>
-        `;let e=o.cart;return o.cartSearchQuery&&(e=o.cart.filter(t=>t.name.toLowerCase().includes(o.cartSearchQuery.toLowerCase())||t.category.toLowerCase().includes(o.cartSearchQuery.toLowerCase()))),o.cart.reduce((t,i)=>t+i.price*i.quantity,0),`
+        `;let t=o.cart;return o.cartSearchQuery&&(t=o.cart.filter(e=>e.name.toLowerCase().includes(o.cartSearchQuery.toLowerCase())||e.category.toLowerCase().includes(o.cartSearchQuery.toLowerCase()))),o.cart.reduce((e,i)=>e+i.price*i.quantity,0),`
         <div style="margin: 2rem auto; padding: 0 2rem;">
             <button class="btn btn-outline" onclick="window.navigate('products')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
                 ← Continue Shopping
@@ -2569,8 +2569,8 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     `:""}
                 </div>
                 
-                <div class="cart-search-message" style="${o.cartSearchQuery&&e.length===0?"":"display: none;"}">
-                    ${o.cartSearchQuery&&e.length===0?`
+                <div class="cart-search-message" style="${o.cartSearchQuery&&t.length===0?"":"display: none;"}">
+                    ${o.cartSearchQuery&&t.length===0?`
                         <p style="color: var(--text-muted); margin-bottom: 1rem; text-align: center;">
                             No items found for "${o.cartSearchQuery}"
                         </p>
@@ -2578,39 +2578,39 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </div>
                 
             <div class="cart-items">
-                ${e.map(t=>{const i=o.products.filter(r=>r.category===t.category&&r.id!==t.id).slice(0,4);return`
+                ${t.map(e=>{const i=o.products.filter(r=>r.category===e.category&&r.id!==e.id).slice(0,4);return`
                     <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
                         <div class="cart-item" style="border-bottom: none;">
                             <input type="checkbox" 
                                 style="width: 20px; height: 20px; margin-right: 1rem; cursor: pointer; accent-color: var(--primary);"
-                                ${t.selected!==!1?"checked":""}
-                                onchange="window.toggleCartItem(${t.id})"
+                                ${e.selected!==!1?"checked":""}
+                                onchange="window.toggleCartItem(${e.id})"
                             >
-                            <img src="${t.image}" alt="${t.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
+                            <img src="${e.image}" alt="${e.name}" style="width: 80px; height: 80px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                             <div style="flex: 1;">
-                                <h3 style="font-size: 1rem;">${t.name}</h3>
-                                <p class="text-muted">${y(t.price)}</p>
+                                <h3 style="font-size: 1rem;">${e.name}</h3>
+                                <p class="text-muted">${y(e.price)}</p>
                             </div>
                             <div style="display: flex; align-items: center; gap: 1rem; margin-right: 2rem;">
-                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${t.id}, ${t.quantity-1})">-</button>
-                                <span>${t.quantity}</span>
-                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${t.id}, ${t.quantity+1})">+</button>
+                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${e.id}, ${e.quantity-1})">-</button>
+                                <span>${e.quantity}</span>
+                                <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="window.updateQuantity(${e.id}, ${e.quantity+1})">+</button>
                             </div>
                             
                             <div class="cart-item-actions" style="display: flex; align-items: center; gap: 0.5rem;">
-                                <button class="btn-find-similar" onclick="window.toggleFindSimilar(${t.id})" style="display: flex; align-items: center; gap: 0.25rem;">
+                                <button class="btn-find-similar" onclick="window.toggleFindSimilar(${e.id})" style="display: flex; align-items: center; gap: 0.25rem;">
                                     Find Similar 
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${t.showSimilar?"rotate(180deg)":"rotate(0deg)"}; transition: transform 0.2s;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: ${e.showSimilar?"rotate(180deg)":"rotate(0deg)"}; transition: transform 0.2s;">
                                         <polyline points="6 9 12 15 18 9"></polyline>
                                     </svg>
                                 </button>
-                                <button class="btn-delete" onclick="window.removeFromCart(${t.id})" style="color: var(--danger); border-color: var(--danger);">Delete</button>
+                                <button class="btn-delete" onclick="window.removeFromCart(${e.id})" style="color: var(--danger); border-color: var(--danger);">Delete</button>
                             </div>
                         </div>
-                        <div class="similar-products-dropdown ${t.showSimilar?"show":""}">
+                        <div class="similar-products-dropdown ${e.showSimilar?"show":""}">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <h4 style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Similar Products</h4>
-                                <button onclick="window.toggleFindSimilar(${t.id})" style="background: none; border: none; cursor: pointer;">
+                                <button onclick="window.toggleFindSimilar(${e.id})" style="background: none; border: none; cursor: pointer;">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                                 </button>
                             </div>
@@ -2632,15 +2632,15 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
             <div class="cart-summary">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                     <span>Total</span>
-                    <span>${y(o.cart.reduce((t,i)=>t+(i.selected!==!1?i.price*i.quantity:0),0))}</span>
+                    <span>${y(o.cart.reduce((e,i)=>e+(i.selected!==!1?i.price*i.quantity:0),0))}</span>
                 </div>
                 <button class="btn btn-primary" style="width: 100%; padding: 1rem;" onclick="window.checkout()">
-                    Proceed to Checkout (${o.cart.filter(t=>t.selected!==!1).length})
+                    Proceed to Checkout (${o.cart.filter(e=>e.selected!==!1).length})
                 </button>
             </div>
         </div>
         </div>
-    `},be=()=>{if(!o.currentUser)return P("login"),"";const e=o.devices||[];return`
+    `},be=()=>{if(!o.currentUser)return P("login"),"";const t=o.devices||[];return`
         <div style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             ${E("my-devices")}
             
@@ -2650,7 +2650,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     + Pair New Device
                 </button>
             </div>
-            ${e.length===0?`
+            ${t.length===0?`
                 <div style="text-align: center; padding: 4rem 2rem; background: var(--surface); border-radius: 12px;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin: 0 auto 1rem; opacity: 0.3;">
                         <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
@@ -2664,26 +2664,26 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </div>
             `:`
                 <div class="device-grid">
-                    ${e.map(t=>{const i=!o.showTokens?.[t.deviceId];return`
+                    ${t.map(e=>{const i=!o.showTokens?.[e.deviceId];return`
                         <div class="device-card">
-                            <div class="device-status-badge ${t.status==="active"||o.deviceStatus[t.deviceId]?.status==="online"?"online":"offline"}">
+                            <div class="device-status-badge ${e.status==="active"||o.deviceStatus[e.deviceId]?.status==="online"?"online":"offline"}">
                                 <span class="status-dot"></span>
-                                ${t.status==="active"||o.deviceStatus[t.deviceId]?.status==="online"?"Online":t.status==="pending"?"Not Configured":"Offline"}
+                                ${e.status==="active"||o.deviceStatus[e.deviceId]?.status==="online"?"Online":e.status==="pending"?"Not Configured":"Offline"}
                             </div>
                             
                             <div class="device-icon">
                                 🚗
                             </div>
                             
-                            <h3 class="device-name">${t.deviceName}</h3>
-                            <p class="device-id">ID: ${t.deviceId}</p>
+                            <h3 class="device-name">${e.deviceName}</h3>
+                            <p class="device-id">ID: ${e.deviceId}</p>
                             <div class="info-row" style="margin-top: 0.5rem;">
                                 <span class="label" style="color: var(--text-muted); font-size: 0.85rem;">Token:</span>
                                 <div class="token-display" style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.05); padding: 0.25rem 0.5rem; border-radius: 4px;">
                                     <span class="token-value ${i?"masked":""}" style="font-family: monospace; font-size: 0.85rem;">
-                                        ${i?"••••••••":t.deviceToken}
+                                        ${i?"••••••••":e.deviceToken}
                                     </span>
-                                    <button onclick="window.toggleToken('${t.deviceId}')" style="background:none; border:none; cursor: pointer; padding: 0; display: flex; align-items: center; color: var(--text-muted);">
+                                    <button onclick="window.toggleToken('${e.deviceId}')" style="background:none; border:none; cursor: pointer; padding: 0; display: flex; align-items: center; color: var(--text-muted);">
                                         ${i?"👁️":"🔒"}
                                     </button>
                                 </div>
@@ -2695,22 +2695,22 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                                         <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 13A6 6 0 1 1 8 2a6 6 0 0 1 0 12z"/>
                                         <path d="M8 3.5a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4a.5.5 0 0 1 .5-.5z"/>
                                     </svg>
-                                    ${t.lastOnline?new Date(t.lastOnline).toLocaleDateString():"Never"}
+                                    ${e.lastOnline?new Date(e.lastOnline).toLocaleDateString():"Never"}
                                 </div>
                                 <div class="info-item">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                                         <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.5-12.5v5.793l2.646 2.647a.5.5 0 0 1-.707.707l-3-3A.5.5 0 0 1 7 8V3.5a.5.5 0 0 1 1 0z"/>
                                     </svg>
-                                    v${t.firmwareVersion||"1.0.0"}
+                                    v${e.firmwareVersion||"1.0.0"}
                                 </div>
                             </div>
                             
                             <div class="device-actions">
-                                ${t.status==="active"||o.deviceStatus[t.deviceId]?.status==="online"?`
-                                    <button class="btn btn-primary" onclick="window.startRemoteControl('${t.deviceId}')" style="width: 100%;">
+                                ${e.status==="active"||o.deviceStatus[e.deviceId]?.status==="online"?`
+                                    <button class="btn btn-primary" onclick="window.startRemoteControl('${e.deviceId}')" style="width: 100%;">
                                         🎮 Control
                                     </button>
-                                `:t.status==="pending"?`
+                                `:e.status==="pending"?`
                                     <button class="btn btn-outline" style="width: 100%;" onclick="window.navigate('device-pair')">
                                         🔧 Awaiting Setup
                                     </button>
@@ -2771,7 +2771,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
             </div>
         </div>
         
-    `:(P("login"),""),ke=()=>{if(!o.currentUser)return P("login"),"";if(!o.currentDeviceId)return P("my-devices"),"";const e=o.devices?.find(n=>n.deviceId===o.currentDeviceId);if(!e)return P("my-devices"),"";const t=o.deviceStatus[e.deviceId]||{},i=o.telemetryData[e.deviceId]||{},r=t.status==="online",a=i.obstacleAvoidance||!1;return i.speed,`
+    `:(P("login"),""),ke=()=>{if(!o.currentUser)return P("login"),"";if(!o.currentDeviceId)return P("my-devices"),"";const t=o.devices?.find(n=>n.deviceId===o.currentDeviceId);if(!t)return P("my-devices"),"";const e=o.deviceStatus[t.deviceId]||{},i=o.telemetryData[t.deviceId]||{},r=e.status==="online",a=i.obstacleAvoidance||!1;return i.speed,`
         <div style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
             <div style="margin-bottom: 1rem;">
                 <button class="btn btn-outline" onclick="window.stopRemoteControl()" style="padding: 0.75rem 1.5rem;">
@@ -2939,7 +2939,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 Use WASD or Arrow Keys to control
             </p>
         </div>
-    `},Ce=()=>{if(!o.currentUser)return P("login"),"";const e=o.cart.filter(s=>s.selected!==!1);if(e.length===0)return u("No items selected for checkout"),P("cart"),"";const t=o.currentUser.address,i=t&&typeof t=="object"&&t.street,r=!o.checkoutData.shipping.address&&!o.checkoutData.shipping.city;i&&r&&(o.checkoutData.shipping={fullName:t.fullName||o.currentUser.name||"",phone:t.phone||o.currentUser.phone||"",address:[t.street,t.barangay].filter(Boolean).join(", "),city:t.city||"",province:t.province||"",postalCode:t.postalCode||"",instructions:t.details||""});const a=e.reduce((s,d)=>s+d.price*d.quantity,0),n=o.checkoutData.shippingFee,l=a+n;return`
+    `},Ce=()=>{if(!o.currentUser)return P("login"),"";const t=o.cart.filter(s=>s.selected!==!1);if(t.length===0)return u("No items selected for checkout"),P("cart"),"";const e=o.currentUser.address,i=e&&typeof e=="object"&&e.street,r=!o.checkoutData.shipping.address&&!o.checkoutData.shipping.city;i&&r&&(o.checkoutData.shipping={fullName:e.fullName||o.currentUser.name||"",phone:e.phone||o.currentUser.phone||"",address:[e.street,e.barangay].filter(Boolean).join(", "),city:e.city||"",province:e.province||"",postalCode:e.postalCode||"",instructions:e.details||""});const a=t.reduce((s,d)=>s+d.price*d.quantity,0),n=o.checkoutData.shippingFee,l=a+n;return`
         <div class="checkout-container" style="max-width: 1200px; margin: 2rem auto; padding: 0 2rem;">
             <div style="margin-bottom: 2rem;">
                 <button class="btn btn-outline" onclick="window.navigate('cart')" style="padding: 0.75rem 1.5rem; margin-bottom: 1.5rem;">
@@ -3040,7 +3040,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     <div class="cart-summary" style="position: sticky; top: 2rem;">
                         <h2 style="margin-bottom: 1.5rem; font-size: 1.25rem;">Order Summary</h2>
                         <div style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
-                            ${e.map(s=>`
+                            ${t.map(s=>`
                                 <div style="display: flex; gap: 1rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
                                     <img src="${s.image}" alt="${s.name}" style="width: 60px; height: 60px; object-fit: contain; background: #f1f5f9; border-radius: 8px;">
                                     <div style="flex: 1;">
@@ -3071,7 +3071,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </div>
             </div>
         </div>
-    `},$e=()=>{if(!o.lastOrderId)return P("home"),"";const e=o.orders.find(n=>n.orderId===o.lastOrderId);if(!e)return P("home"),"";const t=new Date,i=new Date(t);i.setDate(t.getDate()+3);const r=new Date(t);r.setDate(t.getDate()+5);const a=`${i.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${r.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} `;return`
+    `},Se=()=>{if(!o.lastOrderId)return P("home"),"";const t=o.orders.find(n=>n.orderId===o.lastOrderId);if(!t)return P("home"),"";const e=new Date,i=new Date(e);i.setDate(e.getDate()+3);const r=new Date(e);r.setDate(e.getDate()+5);const a=`${i.toLocaleDateString("en-US",{month:"short",day:"numeric"})} - ${r.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} `;return`
         <div style="max-width: 800px; margin: 4rem auto; padding: 0 2rem;">
             <div style="text-align: center; margin-bottom: 3rem;">
                 <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #10B981, #059669); border-radius: 50%; margin: 0 auto 1.5rem; display: flex; align-items: center; justify-content: center; font-size: 3rem;">✓</div>
@@ -3084,11 +3084,11 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                         <div>
                             <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Order Number</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">#${e.orderId}</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">#${t.orderId}</div>
                         </div>
                         <div>
                             <div style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem;">Order Date</div>
-                            <div style="font-weight: 600;">${new Date(e.createdAt).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</div>
+                            <div style="font-weight: 600;">${new Date(t.createdAt).toLocaleDateString("en-US",{month:"long",day:"numeric",year:"numeric"})}</div>
                         </div>
                     </div>
                 </div>
@@ -3127,7 +3127,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </div>
             </div>
 
-            ${e.devices&&e.devices.length>0?`
+            ${t.devices&&t.devices.length>0?`
                 <div style="background: #f0f9ff; border: 1px solid #bae6fd; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
                     <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
                         <div style="font-size: 2rem;">🚗</div>
@@ -3137,8 +3137,8 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                         </div>
                     </div>
 
-                    ${e.devices.map((n,l)=>`
-                        <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e0f2fe; margin-bottom: ${l<e.devices.length-1?"1rem":"0"};">
+                    ${t.devices.map((n,l)=>`
+                        <div style="background: white; padding: 1rem; border-radius: 8px; border: 1px solid #e0f2fe; margin-bottom: ${l<t.devices.length-1?"1rem":"0"};">
                             <h4 style="margin: 0 0 0.5rem 0; color: #0284c7;">${n.productName}</h4>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                 <div>
@@ -3160,7 +3160,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
 
             <div class="admin-section" style="margin-bottom: 2rem;">
                 <h3 style="margin-bottom: 1rem;">Order Items</h3>
-                ${e.items.map(n=>`
+                ${t.items.map(n=>`
                     <div style="display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border);">
                         <div style="flex: 1;">
                             <div style="font-weight: 600; margin-bottom: 0.25rem;">${n.productName||n.name}</div>
@@ -3171,7 +3171,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 `).join("")}
                 <div style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid var(--border);">
                     <span>Total Amount</span>
-                    <span style="color: var(--primary);">${y(e.total)}</span>
+                    <span style="color: var(--primary);">${y(t.total)}</span>
                 </div>
             </div>
 
@@ -3185,17 +3185,17 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 <p style="font-size: 0.875rem; color: var(--text-muted);">Questions? Contact us at support@luminaelectronics.com</p>
             </div>
         </div>
-    `};window.navigateToTutorial=e=>{P("tutorial-detail",{id:e})};window.filterLearningContent=e=>{o.filterLearnCategory=e,C()};window.navigateToTutorial=e=>{P("tutorial-detail",{id:e})};window.updateOrderStatus=(e,t)=>{const i=o.orders.find(r=>r.id===e);i&&(i.status=t,T(),u(`Order #${e} updated to ${t}`),C())};window.toggleSelectAll=e=>{document.querySelectorAll(".product-checkbox").forEach(i=>i.checked=e.checked)};window.bulkAction=e=>{const t=document.querySelectorAll(".product-checkbox:checked"),i=Array.from(t).map(r=>parseInt(r.value));if(i.length===0){u("No products selected");return}e==="delete"?confirm(`Delete ${i.length} products?`)&&(o.products=o.products.filter(r=>!i.includes(r.id)),T(),C(),u("Products deleted")):e==="restock"&&(o.products.forEach(r=>{i.includes(r.id)&&(r.stock+=10)}),T(),C(),u("Products restocked"))};window.viewOrderDetails=e=>{const t=o.orders.find(a=>a.id===e);if(!t)return;const i=o.users.find(a=>a.id===t.userId),r=`
+    `};window.navigateToTutorial=t=>{P("tutorial-detail",{id:t})};window.filterLearningContent=t=>{o.filterLearnCategory=t,C()};window.navigateToTutorial=t=>{P("tutorial-detail",{id:t})};window.updateOrderStatus=(t,e)=>{const i=o.orders.find(r=>r.id===t);i&&(i.status=e,T(),u(`Order #${t} updated to ${e}`),C())};window.toggleSelectAll=t=>{document.querySelectorAll(".product-checkbox").forEach(i=>i.checked=t.checked)};window.bulkAction=t=>{const e=document.querySelectorAll(".product-checkbox:checked"),i=Array.from(e).map(r=>parseInt(r.value));if(i.length===0){u("No products selected");return}t==="delete"?confirm(`Delete ${i.length} products?`)&&(o.products=o.products.filter(r=>!i.includes(r.id)),T(),C(),u("Products deleted")):t==="restock"&&(o.products.forEach(r=>{i.includes(r.id)&&(r.stock+=10)}),T(),C(),u("Products restocked"))};window.viewOrderDetails=t=>{const e=o.orders.find(a=>a.id===t);if(!e)return;const i=o.users.find(a=>a.id===e.userId),r=`
         <div class="modal-overlay show" id="orderModal" onclick="if(event.target === this) window.closeModal()">
             <div class="modal-content">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h3>Order #${t.id}</h3>
+                    <h3>Order #${e.id}</h3>
                     <button class="btn-icon" onclick="window.closeModal()">✕</button>
                 </div>
                 <div style="margin-bottom: 1.5rem;">
                     <p><strong>Customer:</strong> ${i?i.name:"Unknown"}</p>
-                    <p><strong>Date:</strong> ${t.date}</p>
-                    <p><strong>Status:</strong> <span class="badge badge-${t.status==="Delivered"?"success":"warning"}">${t.status}</span></p>
+                    <p><strong>Date:</strong> ${e.date}</p>
+                    <p><strong>Status:</strong> <span class="badge badge-${e.status==="Delivered"?"success":"warning"}">${e.status}</span></p>
                 </div>
                 <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem;">
                     <thead>
@@ -3206,7 +3206,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                         </tr>
                     </thead>
                     <tbody>
-                        ${t.items.map(a=>`
+                        ${e.items.map(a=>`
                             <tr style="border-bottom: 1px solid var(--border);">
                                 <td style="padding: 0.5rem;">${a.name}</td>
                                 <td style="padding: 0.5rem;">${a.quantity}</td>
@@ -3216,11 +3216,11 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </tbody>
                 </table>
                 <div style="text-align: right; font-size: 1.25rem; font-weight: bold;">
-                    Total: ${y(t.total)}
+                    Total: ${y(e.total)}
                 </div>
             </div>
         </div>
-    `;document.body.insertAdjacentHTML("beforeend",r)};window.closeModal=()=>{const e=document.getElementById("orderModal");e&&e.remove()};const Se=(e=null)=>{const t=e?o.products.find(r=>r.id===e):null,i=!!t;return`
+    `;document.body.insertAdjacentHTML("beforeend",r)};window.closeModal=()=>{const t=document.getElementById("orderModal");t&&t.remove()};const $e=(t=null)=>{const e=t?o.products.find(r=>r.id===t):null,i=!!e;return`
         <div class="modal-overlay show" id="productModal" onclick="if(event.target === this) window.closeProductModal()">
             <div class="modal-content" style="max-width: 600px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
@@ -3228,37 +3228,37 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     <button class="btn-icon" onclick="window.closeProductModal()">✕</button>
                 </div>
                 
-                <form id="productForm" onsubmit="window.handleProductSubmit(event, ${e||"null"})" enctype="multipart/form-data">
+                <form id="productForm" onsubmit="window.handleProductSubmit(event, ${t||"null"})" enctype="multipart/form-data">
                     <div class="form-group">
                         <label class="form-label">Product Name *</label>
-                        <input type="text" name="name" class="form-input" value="${t?.name||""}" required>
+                        <input type="text" name="name" class="form-input" value="${e?.name||""}" required>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Category *</label>
-                        <input type="text" name="category" class="form-input" value="${t?.category||""}" required>
+                        <input type="text" name="category" class="form-input" value="${e?.category||""}" required>
                     </div>
                     
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
                             <label class="form-label">Price (₱) *</label>
-                            <input type="number" name="price" class="form-input" value="${t?.price||""}" step="0.01" required>
+                            <input type="number" name="price" class="form-input" value="${e?.price||""}" step="0.01" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Stock *</label>
-                            <input type="number" name="stock" class="form-input" value="${t?.stock||""}" required>
+                            <input type="number" name="stock" class="form-input" value="${e?.stock||""}" required>
                         </div>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Description *</label>
-                        <textarea name="description" class="form-input" rows="3" required>${t?.description||""}</textarea>
+                        <textarea name="description" class="form-input" rows="3" required>${e?.description||""}</textarea>
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label">Image</label>
                         <input type="file" name="image" class="form-input" accept="image/*">
-                        ${t?.image?`<div style="margin-top: 0.5rem;">Current: <img src="${t.image}" style="max-width: 100px;"></div>`:""}
+                        ${e?.image?`<div style="margin-top: 0.5rem;">Current: <img src="${e.image}" style="max-width: 100px;"></div>`:""}
                     </div>
                     
                     <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
@@ -3268,7 +3268,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </form>
             </div>
         </div>
-    `};window.navigate=P;window.toggleMobileMenu=()=>{o.mobileMenuOpen=!o.mobileMenuOpen,C()};window.showProductModal=(e=null)=>{document.body.insertAdjacentHTML("beforeend",Se(e))};window.closeProductModal=()=>{document.getElementById("productModal")?.remove()};window.editProduct=e=>{window.showProductModal(e)};window.deleteProduct=async e=>{if(confirm("Delete this product?"))try{await $(`/products/${e}`,{method:"DELETE"}),await M.getProducts(),u("Product deleted")}catch{u("Delete failed")}};window.handleProductSubmit=async(e,t)=>{e.preventDefault();const i=new FormData(e.target);try{const r=t?"PUT":"POST",a=t?`/products/${t}`:"/products";if(!(await fetch(`${G}${a}`,{method:r,body:i})).ok)throw new Error("Failed");await M.getProducts(),window.closeProductModal(),u(t?"Product updated!":"Product created!")}catch{u("Operation failed")}};window.handleSort=e=>{o.sortBy=e,C()};window.viewProduct=e=>{o.currentProductId=e,sessionStorage.setItem("currentProductId",e);const t=new URL(window.location);t.searchParams.set("product_id",e),window.history.pushState({},"",t),P("product-detail")};window.adjustDetailQty=e=>{const t=document.getElementById("detailQty");let i=parseInt(t.value)+e;i<1&&(i=1),t.value=i};window.handleDetailQtyInput=e=>{};window.handleDetailQtyBlur=e=>{let t=parseInt(e.value);(isNaN(t)||t<1)&&(t=1),e.value=t};window.addToCartFromDetail=e=>{if(o.currentUser&&["admin","staff"].includes(o.currentUser.role))return;const t=parseInt(document.getElementById("detailQty").value);if(!o.currentUser){u("Please login to shop"),window.openLoginModal();return}const i=o.products.find(a=>a.id===e),r=o.cart.find(a=>a.id===e);r?r.quantity+=t:o.cart.push({...i,quantity:t,selected:!0}),T(),u(`Added ${t} item(s) to cart`)};window.addToCart=async e=>{if(o.currentUser&&["admin","staff"].includes(o.currentUser.role))return;if(!o.currentUser){window.showToast("Please login to shop"),window.openLoginModal();return}const t=o.products.find(r=>r.id===e);if(!t)return;const i=o.cart.find(r=>r.id===e);if(i?i.quantity+=1:o.cart.push({...t,quantity:1,selected:!0}),T(),C(),window.showToast(`Added ${t.name} to cart! 🛒`),o.currentUser)try{await $(`/users/${o.currentUser.id}/cart`,{method:"PUT",body:JSON.stringify({cart:o.cart.map(r=>({productId:r.id,name:r.name,price:r.price,image:r.image,quantity:r.quantity,category:r.category,selected:r.selected!==!1}))})})}catch(r){console.error("Failed to sync cart:",r)}};window.updateQuantity=(e,t)=>{let i=parseInt(t);(isNaN(i)||i<1)&&(i=1);const r=o.cart.find(a=>a.id===e);r&&(r.quantity=i,T(),C())};window.handleCartQtyInput=(e,t)=>{};window.handleCartQtyBlur=(e,t)=>{let i=parseInt(t.value);(isNaN(i)||i<1)&&(i=1,t.value=1),window.updateQuantity(e,i)};window.removeFromCart=e=>{o.cart=o.cart.filter(t=>t.id!==e),T(),C()};window.checkout=async()=>{if(o.cart.length===0)return;if(!o.currentUser){u("Please login to checkout"),P("login");return}if(o.cart.filter(t=>t.selected!==!1).length===0){u("No items selected for checkout");return}P("checkout")};window.updateShippingInfo=(e,t)=>{o.checkoutData.shipping[e]=t};window.selectPaymentMethod=e=>{o.checkoutData.paymentMethod=e,C()};window.handlePhoneInput=e=>{const t=e.value.replace(/[^0-9]/g,"");e.value=t,o.checkoutData.shipping.phone=t};window.handleNameInput=e=>{const t=e.value.replace(/[^a-zA-Z\s]/g,"");e.value=t,o.checkoutData.shipping.fullName=t};window.handleLocationInput=(e,t)=>{const i=e.value.replace(/[^a-zA-Z\s]/g,"");e.value=i,o.checkoutData.shipping[t]=i};window.handlePostalInput=e=>{const t=e.value.replace(/[^0-9]/g,"");e.value=t,o.checkoutData.shipping.postalCode=t};window.showPaymentModal=e=>new Promise(t=>{let i="";const r=`
+    `};window.navigate=P;window.toggleMobileMenu=()=>{o.mobileMenuOpen=!o.mobileMenuOpen,C()};window.showProductModal=(t=null)=>{document.body.insertAdjacentHTML("beforeend",$e(t))};window.closeProductModal=()=>{document.getElementById("productModal")?.remove()};window.editProduct=t=>{window.showProductModal(t)};window.deleteProduct=async t=>{if(confirm("Delete this product?"))try{await S(`/products/${t}`,{method:"DELETE"}),await M.getProducts(),u("Product deleted")}catch{u("Delete failed")}};window.handleProductSubmit=async(t,e)=>{t.preventDefault();const i=new FormData(t.target);try{const r=e?"PUT":"POST",a=e?`/products/${e}`:"/products";if(!(await fetch(`${G}${a}`,{method:r,body:i})).ok)throw new Error("Failed");await M.getProducts(),window.closeProductModal(),u(e?"Product updated!":"Product created!")}catch{u("Operation failed")}};window.handleSort=t=>{o.sortBy=t,C()};window.viewProduct=t=>{o.currentProductId=t,sessionStorage.setItem("currentProductId",t);const e=new URL(window.location);e.searchParams.set("product_id",t),window.history.pushState({},"",e),P("product-detail")};window.adjustDetailQty=t=>{const e=document.getElementById("detailQty");let i=parseInt(e.value)+t;i<1&&(i=1),e.value=i};window.handleDetailQtyInput=t=>{};window.handleDetailQtyBlur=t=>{let e=parseInt(t.value);(isNaN(e)||e<1)&&(e=1),t.value=e};window.addToCartFromDetail=t=>{if(o.currentUser&&["admin","staff"].includes(o.currentUser.role))return;const e=parseInt(document.getElementById("detailQty").value);if(!o.currentUser){u("Please login to shop"),window.openLoginModal();return}const i=o.products.find(a=>a.id===t),r=o.cart.find(a=>a.id===t);r?r.quantity+=e:o.cart.push({...i,quantity:e,selected:!0}),T(),u(`Added ${e} item(s) to cart`)};window.addToCart=async t=>{if(o.currentUser&&["admin","staff"].includes(o.currentUser.role))return;if(!o.currentUser){window.showToast("Please login to shop"),window.openLoginModal();return}const e=o.products.find(r=>r.id===t);if(!e)return;const i=o.cart.find(r=>r.id===t);if(i?i.quantity+=1:o.cart.push({...e,quantity:1,selected:!0}),T(),C(),window.showToast(`Added ${e.name} to cart! 🛒`),o.currentUser)try{await S(`/users/${o.currentUser.id}/cart`,{method:"PUT",body:JSON.stringify({cart:o.cart.map(r=>({productId:r.id,name:r.name,price:r.price,image:r.image,quantity:r.quantity,category:r.category,selected:r.selected!==!1}))})})}catch(r){console.error("Failed to sync cart:",r)}};window.updateQuantity=(t,e)=>{let i=parseInt(e);(isNaN(i)||i<1)&&(i=1);const r=o.cart.find(a=>a.id===t);r&&(r.quantity=i,T(),C())};window.handleCartQtyInput=(t,e)=>{};window.handleCartQtyBlur=(t,e)=>{let i=parseInt(e.value);(isNaN(i)||i<1)&&(i=1,e.value=1),window.updateQuantity(t,i)};window.removeFromCart=t=>{o.cart=o.cart.filter(e=>e.id!==t),T(),C()};window.checkout=async()=>{if(o.cart.length===0)return;if(!o.currentUser){u("Please login to checkout"),P("login");return}if(o.cart.filter(e=>e.selected!==!1).length===0){u("No items selected for checkout");return}P("checkout")};window.updateShippingInfo=(t,e)=>{o.checkoutData.shipping[t]=e};window.selectPaymentMethod=t=>{o.checkoutData.paymentMethod=t,C()};window.handlePhoneInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,o.checkoutData.shipping.phone=e};window.handleNameInput=t=>{const e=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=e,o.checkoutData.shipping.fullName=e};window.handleLocationInput=(t,e)=>{const i=t.value.replace(/[^a-zA-Z\s]/g,"");t.value=i,o.checkoutData.shipping[e]=i};window.handlePostalInput=t=>{const e=t.value.replace(/[^0-9]/g,"");t.value=e,o.checkoutData.shipping.postalCode=e};window.showPaymentModal=t=>new Promise(e=>{let i="";const r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="payment-modal-header">
@@ -3280,11 +3280,11 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                         <div class="payment-summary">
                             <div class="payment-summary-row">
                                 <span>Total Amount:</span>
-                                <span style="font-weight: 700;">${y(e)}</span>
+                                <span style="font-weight: 700;">${y(t)}</span>
                             </div>
                             <div class="payment-summary-row total">
                                 <span>To Pay:</span>
-                                <span>${y(e)}</span>
+                                <span>${y(t)}</span>
                             </div>
                         </div>
                         
@@ -3301,12 +3301,12 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                         </div>
                         
                         <div class="quick-amount-buttons">
-                            <button class="quick-amount-btn" data-amount="${e}">Exact</button>
-                            <button class="quick-amount-btn" data-amount="${e+50}">+₱50</button>
-                            <button class="quick-amount-btn" data-amount="${e+100}">+₱100</button>
-                            <button class="quick-amount-btn" data-amount="${Math.ceil(e/100)*100}">Round</button>
-                            <button class="quick-amount-btn" data-amount="${e+500}">+₱500</button>
-                            <button class="quick-amount-btn" data-amount="${e+1e3}">+₱1000</button>
+                            <button class="quick-amount-btn" data-amount="${t}">Exact</button>
+                            <button class="quick-amount-btn" data-amount="${t+50}">+₱50</button>
+                            <button class="quick-amount-btn" data-amount="${t+100}">+₱100</button>
+                            <button class="quick-amount-btn" data-amount="${Math.ceil(t/100)*100}">Round</button>
+                            <button class="quick-amount-btn" data-amount="${t+500}">+₱500</button>
+                            <button class="quick-amount-btn" data-amount="${t+1e3}">+₱1000</button>
                         </div>
                         
                         <div class="payment-change-display" id="paymentChangeDisplay">
@@ -3321,7 +3321,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentAmountInput"),l=document.getElementById("paymentError"),s=document.getElementById("paymentChangeDisplay"),d=document.getElementById("changeAmount"),g=document.getElementById("paymentConfirmBtn"),b=document.getElementById("paymentCancelBtn");setTimeout(()=>n.focus(),100),n.addEventListener("input",h=>{let f=h.target.value.replace(/[^0-9.]/g,"");const m=f.split(".");m.length>2&&(f=m[0]+"."+m.slice(1).join("")),h.target.value=f,i=f;const c=parseFloat(f);if(!f||isNaN(c)||c<0){l.textContent="",l.classList.remove("show"),n.classList.remove("error"),g.disabled=!0,s.classList.remove("show");return}if(c<e){const S=e-c;l.textContent=`Insufficient! Need ${y(S)} more`,l.classList.add("show"),n.classList.add("error"),g.disabled=!0,s.classList.remove("show")}else{const S=c-e;l.classList.remove("show"),n.classList.remove("error"),g.disabled=!1,s.classList.add("show"),d.textContent=y(S)}}),document.querySelectorAll(".quick-amount-btn").forEach(h=>{h.addEventListener("click",()=>{const f=h.getAttribute("data-amount");n.value=f,n.dispatchEvent(new Event("input"))})}),b.addEventListener("click",()=>{a.remove(),t(null)}),a.addEventListener("click",h=>{h.target===a&&(a.remove(),t(null))}),g.addEventListener("click",()=>{const h=parseFloat(i);h>=e&&(a.remove(),t({amountPaid:h,change:h-e}))}),n.addEventListener("keypress",h=>{h.key==="Enter"&&!g.disabled&&g.click()}),document.addEventListener("keydown",function h(f){f.key==="Escape"&&(a.remove(),t(null),document.removeEventListener("keydown",h))})});window.showGCashModal=e=>new Promise(t=>{const i="GCASH-"+Date.now().toString().slice(-8),r=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentAmountInput"),l=document.getElementById("paymentError"),s=document.getElementById("paymentChangeDisplay"),d=document.getElementById("changeAmount"),g=document.getElementById("paymentConfirmBtn"),b=document.getElementById("paymentCancelBtn");setTimeout(()=>n.focus(),100),n.addEventListener("input",h=>{let f=h.target.value.replace(/[^0-9.]/g,"");const m=f.split(".");m.length>2&&(f=m[0]+"."+m.slice(1).join("")),h.target.value=f,i=f;const c=parseFloat(f);if(!f||isNaN(c)||c<0){l.textContent="",l.classList.remove("show"),n.classList.remove("error"),g.disabled=!0,s.classList.remove("show");return}if(c<t){const $=t-c;l.textContent=`Insufficient! Need ${y($)} more`,l.classList.add("show"),n.classList.add("error"),g.disabled=!0,s.classList.remove("show")}else{const $=c-t;l.classList.remove("show"),n.classList.remove("error"),g.disabled=!1,s.classList.add("show"),d.textContent=y($)}}),document.querySelectorAll(".quick-amount-btn").forEach(h=>{h.addEventListener("click",()=>{const f=h.getAttribute("data-amount");n.value=f,n.dispatchEvent(new Event("input"))})}),b.addEventListener("click",()=>{a.remove(),e(null)}),a.addEventListener("click",h=>{h.target===a&&(a.remove(),e(null))}),g.addEventListener("click",()=>{const h=parseFloat(i);h>=t&&(a.remove(),e({amountPaid:h,change:h-t}))}),n.addEventListener("keypress",h=>{h.key==="Enter"&&!g.disabled&&g.click()}),document.addEventListener("keydown",function h(f){f.key==="Escape"&&(a.remove(),e(null),document.removeEventListener("keydown",h))})});window.showGCashModal=t=>new Promise(e=>{const i="GCASH-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -3334,7 +3334,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Pay:</span>
-                                <span>${y(e)}</span>
+                                <span>${y(t)}</span>
                             </div>
                         </div>
                         
@@ -3389,7 +3389,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),s=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),t(null)}),n.addEventListener("click",()=>{s.classList.add("show"),setTimeout(()=>{s.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),t({method:"gcash",reference:i})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),t(null))})});window.showMayaModal=e=>new Promise(t=>{const i="MAYA-"+Date.now().toString().slice(-8),r=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),s=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),e(null)}),n.addEventListener("click",()=>{s.classList.add("show"),setTimeout(()=>{s.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"gcash",reference:i})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),e(null))})});window.showMayaModal=t=>new Promise(e=>{const i="MAYA-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -3402,7 +3402,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Pay:</span>
-                                <span>${y(e)}</span>
+                                <span>${y(t)}</span>
                             </div>
                         </div>
                         
@@ -3457,7 +3457,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),s=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),t(null)}),n.addEventListener("click",()=>{s.classList.add("show"),setTimeout(()=>{s.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),t({method:"maya",reference:i})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),t(null))})});window.showCardModal=e=>new Promise(t=>{const l=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),s=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),e(null)}),n.addEventListener("click",()=>{s.classList.add("show"),setTimeout(()=>{s.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"maya",reference:i})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),e(null))})});window.showCardModal=t=>new Promise(e=>{const l=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -3470,7 +3470,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Charge:</span>
-                                <span>${y(e)}</span>
+                                <span>${y(t)}</span>
                             </div>
                         </div>
                         
@@ -3541,7 +3541,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",l);const s=document.getElementById("paymentModalOverlay"),d=document.getElementById("paymentConfirmBtn"),g=document.getElementById("paymentCancelBtn"),b=document.getElementById("processingOverlay"),h=document.getElementById("successOverlay");g.addEventListener("click",()=>{s.remove(),t(null)}),d.addEventListener("click",()=>{b.classList.add("show"),setTimeout(()=>{b.classList.remove("show"),h.classList.add("show"),setTimeout(()=>{s.remove(),t({method:"card",last4:"1111"})},1e3)},2e3)}),s.addEventListener("click",f=>{f.target===s&&(s.remove(),t(null))})});window.showBankModal=e=>new Promise(t=>{const i="BDO-"+Date.now().toString().slice(-8),r=`
+        `;document.body.insertAdjacentHTML("beforeend",l);const s=document.getElementById("paymentModalOverlay"),d=document.getElementById("paymentConfirmBtn"),g=document.getElementById("paymentCancelBtn"),b=document.getElementById("processingOverlay"),h=document.getElementById("successOverlay");g.addEventListener("click",()=>{s.remove(),e(null)}),d.addEventListener("click",()=>{b.classList.add("show"),setTimeout(()=>{b.classList.remove("show"),h.classList.add("show"),setTimeout(()=>{s.remove(),e({method:"card",last4:"1111"})},1e3)},2e3)}),s.addEventListener("click",f=>{f.target===s&&(s.remove(),e(null))})});window.showBankModal=t=>new Promise(e=>{const i="BDO-"+Date.now().toString().slice(-8),r=`
             <div class="payment-modal-overlay" id="paymentModalOverlay">
                 <div class="payment-modal">
                     <div class="demo-badge">DEMO MODE</div>
@@ -3554,7 +3554,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                         <div class="payment-summary">
                             <div class="payment-summary-row total">
                                 <span>Amount to Transfer:</span>
-                                <span>${y(e)}</span>
+                                <span>${y(t)}</span>
                             </div>
                         </div>
                         
@@ -3612,12 +3612,12 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </div>
                 </div>
             </div>
-        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),s=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),t(null)}),n.addEventListener("click",()=>{s.classList.add("show"),setTimeout(()=>{s.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),t({method:"bank",reference:i})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),t(null))})});window.placeOrder=async()=>{const e=o.checkoutData.shipping;if(!e.fullName||!e.fullName.trim()){u("Please enter your full name");return}if(!e.address||!e.address.trim()){u("Please enter your address");return}if(!e.city||!e.city.trim()){u("Please enter your city");return}if(!e.province||!e.province.trim()){u("Please enter your province");return}if(!e.phone||!e.phone.trim()){u("Please enter your phone number");return}if(!/^09\d{9}$/.test(e.phone)){u('Phone number must start with "09" and contain exactly 11 digits');return}const i=/^[a-zA-Z\s]+$/;if(!i.test(e.fullName)){u("Full Name must contain letters and spaces only");return}if(!i.test(e.city)){u("City must contain letters and spaces only");return}if(!i.test(e.province)){u("Province must contain letters and spaces only");return}if(e.postalCode&&!/^\d+$/.test(e.postalCode)){u("Postal Code must contain numbers only");return}if(!o.checkoutData.paymentMethod){u("Please select a payment method");return}const r=o.cart.filter(b=>b.selected!==!1),n=r.reduce((b,h)=>b+h.price*h.quantity,0)+o.checkoutData.shippingFee;let l=null;switch(o.checkoutData.paymentMethod){case"cod":l=await showPaymentModal(n);break;case"gcash":l=await showGCashModal(n);break;case"maya":l=await showMayaModal(n);break;case"card":l=await showCardModal(n);break;case"bank":l=await showBankModal(n);break;default:u("Please select a payment method");return}if(!l)return;let s=l.amountPaid||n,d=l.change||0;const g={userId:o.currentUser.id,items:r.map(b=>({productId:b.id,quantity:b.quantity,price:b.price,name:b.name})),total:n,shippingInfo:o.checkoutData.shipping,paymentMethod:o.checkoutData.paymentMethod,shippingFee:o.checkoutData.shippingFee,amountPaid:s,change:d};try{const b=await M.createOrder(g);o.lastOrderId=b.orderId,o.lastOrderPayment={amountPaid:s,change:d},o.orders.push({orderId:b.orderId,...b,items:r,total:n,createdAt:new Date().toISOString(),userId:o.currentUser.id,devices:b.devices||[]}),o.cart=o.cart.filter(h=>h.selected===!1),T(),P("order-confirmation")}catch{}};window.printReceipt=()=>{if(!o.lastOrderId){u("No order found to print");return}const e=o.orders.find(n=>n.orderId===o.lastOrderId);if(!e){u("Order not found");return}const t=o.lastOrderPayment||{},i=new Date,r=`
+        `;document.body.insertAdjacentHTML("beforeend",r);const a=document.getElementById("paymentModalOverlay"),n=document.getElementById("paymentConfirmBtn"),l=document.getElementById("paymentCancelBtn"),s=document.getElementById("processingOverlay"),d=document.getElementById("successOverlay");l.addEventListener("click",()=>{a.remove(),e(null)}),n.addEventListener("click",()=>{s.classList.add("show"),setTimeout(()=>{s.classList.remove("show"),d.classList.add("show"),setTimeout(()=>{a.remove(),e({method:"bank",reference:i})},1e3)},1500)}),a.addEventListener("click",g=>{g.target===a&&(a.remove(),e(null))})});window.placeOrder=async()=>{const t=o.checkoutData.shipping;if(!t.fullName||!t.fullName.trim()){u("Please enter your full name");return}if(!t.address||!t.address.trim()){u("Please enter your address");return}if(!t.city||!t.city.trim()){u("Please enter your city");return}if(!t.province||!t.province.trim()){u("Please enter your province");return}if(!t.phone||!t.phone.trim()){u("Please enter your phone number");return}if(!/^09\d{9}$/.test(t.phone)){u('Phone number must start with "09" and contain exactly 11 digits');return}const i=/^[a-zA-Z\s]+$/;if(!i.test(t.fullName)){u("Full Name must contain letters and spaces only");return}if(!i.test(t.city)){u("City must contain letters and spaces only");return}if(!i.test(t.province)){u("Province must contain letters and spaces only");return}if(t.postalCode&&!/^\d+$/.test(t.postalCode)){u("Postal Code must contain numbers only");return}if(!o.checkoutData.paymentMethod){u("Please select a payment method");return}const r=o.cart.filter(b=>b.selected!==!1),n=r.reduce((b,h)=>b+h.price*h.quantity,0)+o.checkoutData.shippingFee;let l=null;switch(o.checkoutData.paymentMethod){case"cod":l=await showPaymentModal(n);break;case"gcash":l=await showGCashModal(n);break;case"maya":l=await showMayaModal(n);break;case"card":l=await showCardModal(n);break;case"bank":l=await showBankModal(n);break;default:u("Please select a payment method");return}if(!l)return;let s=l.amountPaid||n,d=l.change||0;const g={userId:o.currentUser.id,items:r.map(b=>({productId:b.id,quantity:b.quantity,price:b.price,name:b.name})),total:n,shippingInfo:o.checkoutData.shipping,paymentMethod:o.checkoutData.paymentMethod,shippingFee:o.checkoutData.shippingFee,amountPaid:s,change:d};try{const b=await M.createOrder(g);o.lastOrderId=b.orderId,o.lastOrderPayment={amountPaid:s,change:d},o.orders.push({orderId:b.orderId,...b,items:r,total:n,createdAt:new Date().toISOString(),userId:o.currentUser.id,devices:b.devices||[]}),o.cart=o.cart.filter(h=>h.selected===!1),T(),P("order-confirmation")}catch{}};window.printReceipt=()=>{if(!o.lastOrderId){u("No order found to print");return}const t=o.orders.find(n=>n.orderId===o.lastOrderId);if(!t){u("Order not found");return}const e=o.lastOrderPayment||{},i=new Date,r=`
         <!DOCTYPE html>
         <html>
         <head>
             <meta charset="UTF-8">
-            <title>Receipt #${e.orderId}</title>
+            <title>Receipt #${t.orderId}</title>
             <style>
                 @media print {
                     @page {
@@ -3785,7 +3785,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
             <div class="receipt-info">
                 <div class="info-row">
                     <span>Receipt #:</span>
-                    <span><strong>${e.orderId}</strong></span>
+                    <span><strong>${t.orderId}</strong></span>
                 </div>
                 <div class="info-row">
                     <span>Date:</span>
@@ -3812,7 +3812,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     <div class="text-right">AMOUNT</div>
                 </div>
                 
-                ${e.items.map(n=>`
+                ${t.items.map(n=>`
                     <div class="item-row">
                         <div class="item-name">${n.productName||n.name}</div>
                         <div class="item-details">
@@ -3827,7 +3827,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
             <div class="totals-section">
                 <div class="total-row">
                     <span>Subtotal:</span>
-                    <span>${y(e.total-o.checkoutData.shippingFee)}</span>
+                    <span>${y(t.total-o.checkoutData.shippingFee)}</span>
                 </div>
                 <div class="total-row">
                     <span>Shipping Fee:</span>
@@ -3835,19 +3835,19 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </div>
                 <div class="total-row grand-total">
                     <span>TOTAL:</span>
-                    <span>${y(e.total)}</span>
+                    <span>${y(t.total)}</span>
                 </div>
             </div>
             
-            ${t.amountPaid?`
+            ${e.amountPaid?`
                 <div class="payment-section">
                     <div class="payment-row">
                         <span>Amount Paid:</span>
-                        <span>${y(t.amountPaid)}</span>
+                        <span>${y(e.amountPaid)}</span>
                     </div>
                     <div class="payment-row change-row">
                         <span>Change:</span>
-                        <span>${y(t.change)}</span>
+                        <span>${y(e.change)}</span>
                     </div>
                 </div>
             `:""}
@@ -3869,7 +3869,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
             </div>
         </body>
         </html>
-    `,a=window.open("","_blank","width=300,height=600");a.document.write(r),a.document.close(),a.onload=function(){setTimeout(()=>{a.print()},250)}};window.handleSearchInput=e=>{const t=e.target.value;if(o.searchQuery=t,t.trim()){const i=new Set;o.products.forEach(r=>{const a=r.name.toLowerCase(),n=r.category.toLowerCase(),l=t.toLowerCase();a.includes(l)&&i.add(r.name),n.includes(l)&&i.add(r.category),a.split(" ").forEach(d=>{d.toLowerCase().startsWith(l)&&d.length>2&&i.add(d.charAt(0).toUpperCase()+d.slice(1))})}),o.searchSuggestions=Array.from(i).slice(0,8),o.showSuggestions=!0}else if(o.searchSuggestions=[],o.showSuggestions=!1,o.route==="home"||o.route==="products"){C();return}ie()};function ie(){const e=document.querySelector(".search-container");if(!e)return;const t=e.querySelector(".search-suggestions");if(t&&t.remove(),o.showSuggestions&&o.searchQuery){const i=`
+    `,a=window.open("","_blank","width=300,height=600");a.document.write(r),a.document.close(),a.onload=function(){setTimeout(()=>{a.print()},250)}};window.handleSearchInput=t=>{const e=t.target.value;if(o.searchQuery=e,e.trim()){const i=new Set;o.products.forEach(r=>{const a=r.name.toLowerCase(),n=r.category.toLowerCase(),l=e.toLowerCase();a.includes(l)&&i.add(r.name),n.includes(l)&&i.add(r.category),a.split(" ").forEach(d=>{d.toLowerCase().startsWith(l)&&d.length>2&&i.add(d.charAt(0).toUpperCase()+d.slice(1))})}),o.searchSuggestions=Array.from(i).slice(0,8),o.showSuggestions=!0}else if(o.searchSuggestions=[],o.showSuggestions=!1,o.route==="home"||o.route==="products"){C();return}ie()};function ie(){const t=document.querySelector(".search-container");if(!t)return;const e=t.querySelector(".search-suggestions");if(e&&e.remove(),o.showSuggestions&&o.searchQuery){const i=`
             <div class="search-suggestions" id="searchSuggestions">
                 <div class="suggestions-header">Suggestions</div>
                 ${o.searchSuggestions.slice(0,5).map(r=>`
@@ -3884,7 +3884,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </div>
                 `:""}
             </div>
-        `;e.insertAdjacentHTML("beforeend",i)}}window.showSearchSuggestions=()=>{o.searchQuery&&(o.showSuggestions=!0,ie())};window.selectSuggestion=e=>{o.searchQuery=e,o.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(t.value=e),handleSearch()};window.handleSearch=()=>{o.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(o.searchQuery=e.value.trim()),P("products"),setTimeout(()=>{const t=document.querySelector(".product-grid");t&&t.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{o.searchQuery="",o.showSuggestions=!1,o.searchSuggestions=[],C()};document.addEventListener("click",e=>{if(!e.target.closest(".search-container")&&o.showSuggestions){o.showSuggestions=!1;const t=document.querySelector(".search-suggestions");t&&t.remove()}});window.handleLogin=async e=>{console.log("Login attempt started"),e.preventDefault();const t=e.target.email.value,i=e.target.password.value;console.log("Credentials:",{email:t,password:i});try{await M.login(t,i),console.log("Login successful")}catch(r){console.error("Login error:",r)}};window.toggleUserMenu=()=>{const e=document.getElementById("user-menu-dropdown");e&&(e.style.display=e.style.display==="none"?"block":"none")};document.addEventListener("click",e=>{if(!e.target.closest(".user-menu-container")){const t=document.getElementById("user-menu-dropdown");t&&(t.style.display="none")}});window.handleSignup=async e=>{console.log("Signup attempt started"),e.preventDefault();const t=e.target.name.value,i=e.target.email.value,r=e.target.password.value;try{await M.register(t,i,r)}catch(a){console.error("Signup error:",a)}};window.logout=()=>{o.currentUser=null,o.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),u("Logged out successfully"),sessionStorage.removeItem("currentRoute"),P("home")};window.handleContactSubmit=e=>{e.preventDefault();const t=e.target,i={name:t.name.value,email:t.email.value,subject:t.subject.value,message:t.message.value};console.log("Contact form submitted:",i),u("Thank you for your message! We will get back to you soon."),t.reset()};window.deleteProduct=e=>{confirm("Are you sure you want to remove this product?")&&(o.products=o.products.filter(t=>t.id!==e),T(),C(),u("Product removed"))};window.viewOrderDetails=e=>{const t=o.orders.find(l=>l.orderId===e);if(!t){u("Order not found");return}const i=o.users.find(l=>l.id===t.userId),r=i?i.name:`User ID: ${t.userId}`,a=document.createElement("div");a.className="order-details-modal",a.innerHTML=`
+        `;t.insertAdjacentHTML("beforeend",i)}}window.showSearchSuggestions=()=>{o.searchQuery&&(o.showSuggestions=!0,ie())};window.selectSuggestion=t=>{o.searchQuery=t,o.showSuggestions=!1;const e=document.getElementById("searchInput");e&&(e.value=t),handleSearch()};window.handleSearch=()=>{o.showSuggestions=!1;const t=document.getElementById("searchInput");t&&(o.searchQuery=t.value.trim()),P("products"),setTimeout(()=>{const e=document.querySelector(".product-grid");e&&e.scrollIntoView({behavior:"smooth",block:"start"})},100)};window.clearSearch=()=>{o.searchQuery="",o.showSuggestions=!1,o.searchSuggestions=[],C()};document.addEventListener("click",t=>{if(!t.target.closest(".search-container")&&o.showSuggestions){o.showSuggestions=!1;const e=document.querySelector(".search-suggestions");e&&e.remove()}});window.handleLogin=async t=>{console.log("Login attempt started"),t.preventDefault();const e=t.target.email.value,i=t.target.password.value;console.log("Credentials:",{email:e,password:i});try{await M.login(e,i),console.log("Login successful")}catch(r){console.error("Login error:",r)}};window.toggleUserMenu=()=>{const t=document.getElementById("user-menu-dropdown");t&&(t.style.display=t.style.display==="none"?"block":"none")};document.addEventListener("click",t=>{if(!t.target.closest(".user-menu-container")){const e=document.getElementById("user-menu-dropdown");e&&(e.style.display="none")}});window.handleSignup=async t=>{console.log("Signup attempt started"),t.preventDefault();const e=t.target.name.value,i=t.target.email.value,r=t.target.password.value;try{await M.register(e,i,r)}catch(a){console.error("Signup error:",a)}};window.logout=()=>{o.currentUser=null,o.cart=[],localStorage.removeItem("currentUser"),localStorage.removeItem("cart_v2"),u("Logged out successfully"),sessionStorage.removeItem("currentRoute"),P("home")};window.handleContactSubmit=t=>{t.preventDefault();const e=t.target,i={name:e.name.value,email:e.email.value,subject:e.subject.value,message:e.message.value};console.log("Contact form submitted:",i),u("Thank you for your message! We will get back to you soon."),e.reset()};window.deleteProduct=t=>{confirm("Are you sure you want to remove this product?")&&(o.products=o.products.filter(e=>e.id!==t),T(),C(),u("Product removed"))};window.viewOrderDetails=t=>{const e=o.orders.find(l=>l.orderId===t);if(!e){u("Order not found");return}const i=o.users.find(l=>l.id===e.userId),r=i?i.name:`User ID: ${e.userId}`,a=document.createElement("div");a.className="order-details-modal",a.innerHTML=`
         <div class="modal-overlay" onclick="this.parentElement.remove()"></div>
         <div class="modal-content" onclick="event.stopPropagation()">
             <div class="modal-header">
@@ -3895,7 +3895,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 <div class="order-info">
                     <div class="info-row">
                         <span class="info-label">Order ID:</span>
-                        <span class="info-value"><strong>#${t.orderId}</strong></span>
+                        <span class="info-value"><strong>#${e.orderId}</strong></span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Customer:</span>
@@ -3903,19 +3903,19 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                     </div>
                     <div class="info-row">
                         <span class="info-label">Date:</span>
-                        <span class="info-value">${new Date(t.createdAt).toLocaleString()}</span>
+                        <span class="info-value">${new Date(e.createdAt).toLocaleString()}</span>
                     </div>
                     <div class="info-row">
                         <span class="info-label">Status:</span>
                         <span class="info-value">
-                            <span class="status-badge status-${t.status.toLowerCase()}">${t.status}</span>
+                            <span class="status-badge status-${e.status.toLowerCase()}">${e.status}</span>
                         </span>
                     </div>
                 </div>
                 
                 <h3 style="margin: 1.5rem 0 1rem 0; color: var(--primary);">Items Ordered</h3>
                 <div class="order-items-list">
-                    ${t.items.map(l=>`
+                    ${e.items.map(l=>`
                         <div class="order-item-row">
                             <div class="item-details">
                                 <div class="item-name">${l.productName||"Product ID: "+l.productId}</div>
@@ -3928,19 +3928,19 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 
                 <div class="order-total">
                     <span>Total Amount:</span>
-                    <span class="total-amount">${y(t.total)}</span>
+                    <span class="total-amount">${y(e.total)}</span>
                 </div>
             </div>
         </div>
-    `,document.body.appendChild(a);const n=l=>{l.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const C=async()=>{const e=document.getElementById("app");let t="";switch(o.route){case"home":t=K();break;case"products":t=ue({Breadcrumbs:E,state:o});break;case"product-detail":t=ve({Breadcrumbs:E,state:o});break;case"signup":t=ye();break;case"cart":t=we();break;case"checkout":t=Ce();break;case"order-confirmation":t=$e();break;case"contact-us":t=me({Breadcrumbs:E});break;case"about-us":t=de({Breadcrumbs:E});break;case"learn":t=le({Breadcrumbs:E,state:o});break;case"tutorial-detail":t=ce({Breadcrumbs:E,state:o});break;case"deals":t=pe({Breadcrumbs:E,state:o});break;case"admin":t=_(o);break;case"user":t=V({state:o});break;case"admin-profile":t=Y({state:o});break;case"my-devices":t=be();break;case"device-pair":t=xe();break;case"remote-control":t=ke();break;default:t=K()}if(o.route==="admin"){e.innerHTML=_(o),window.initAdminCharts&&setTimeout(()=>window.initAdminCharts(),100);return}if(o.route==="admin-profile"){e.innerHTML=H()+Y({state:o});return}if(o.route==="user"){o.currentUser&&o.orders.length===0&&await M.getMyOrders(),o.currentUser&&!o.myCoupons&&await M.getMyCoupons(),e.innerHTML=H()+V({state:o});return}e.innerHTML=`
+    `,document.body.appendChild(a);const n=l=>{l.key==="Escape"&&(a.remove(),document.removeEventListener("keydown",n))};document.addEventListener("keydown",n)};const C=async()=>{const t=document.getElementById("app");let e="";switch(o.route){case"home":e=K();break;case"products":e=ue({Breadcrumbs:E,state:o});break;case"product-detail":e=ve({Breadcrumbs:E,state:o});break;case"signup":e=ye();break;case"cart":e=we();break;case"checkout":e=Ce();break;case"order-confirmation":e=Se();break;case"contact-us":e=me({Breadcrumbs:E});break;case"about-us":e=de({Breadcrumbs:E});break;case"learn":e=le({Breadcrumbs:E,state:o});break;case"tutorial-detail":e=ce({Breadcrumbs:E,state:o});break;case"deals":e=pe({Breadcrumbs:E,state:o});break;case"admin":e=_(o);break;case"user":e=V({state:o});break;case"admin-profile":e=Y({state:o});break;case"my-devices":e=be();break;case"device-pair":e=xe();break;case"remote-control":e=ke();break;default:e=K()}if(o.route==="admin"){t.innerHTML=_(o),window.initAdminCharts&&setTimeout(()=>window.initAdminCharts(),100);return}if(o.route==="admin-profile"){t.innerHTML=H()+Y({state:o});return}if(o.route==="user"){o.currentUser&&o.orders.length===0&&await M.getMyOrders(),o.currentUser&&!o.myCoupons&&await M.getMyCoupons(),t.innerHTML=H()+V({state:o});return}t.innerHTML=`
         ${H()}
         <main>
-            ${t}
+            ${e}
         </main>
         <footer style="text-align: center; padding: 2rem; color: var(--text-muted); border-top: 1px solid var(--border); margin-top: auto;">
             &copy; 2025 Lumina Electronics. All rights reserved.
         </footer>
-    `,o.route==="admin"&&window.initAdminCharts&&setTimeout(()=>window.initAdminCharts(),100),o.route==="deals"&&setTimeout(()=>window.startDealsTimer(),100)};window.render=C;window.handleCartSearch=e=>{o.cartSearchQuery=e.target.value,j()};window.clearCartSearch=()=>{o.cartSearchQuery="",j()};window.toggleCartItem=e=>{const t=o.cart.find(i=>i.id===e);t&&(t.selected=t.selected===!1,T(),j())};window.toggleFindSimilar=e=>{const t=o.cart.find(i=>i.id===e);t&&(o.cart.forEach(i=>{i.id!==e&&(i.showSimilar=!1)}),t.showSimilar=!t.showSimilar,T(),j())};function j(){const e=document.querySelector(".cart-items"),t=document.querySelector(".cart-summary"),i=document.querySelector(".cart-search-message");if(!e)return;let r=o.cart;if(o.cartSearchQuery&&(r=o.cart.filter(n=>n.name.toLowerCase().includes(o.cartSearchQuery.toLowerCase())||n.category.toLowerCase().includes(o.cartSearchQuery.toLowerCase()))),e.innerHTML=r.map(n=>{const l=o.products.filter(s=>s.category===n.category&&s.id!==n.id).slice(0,4);return`
+    `,o.route==="admin"&&window.initAdminCharts&&setTimeout(()=>window.initAdminCharts(),100),o.route==="deals"&&setTimeout(()=>window.startDealsTimer(),100)};window.render=C;window.handleCartSearch=t=>{o.cartSearchQuery=t.target.value,j()};window.clearCartSearch=()=>{o.cartSearchQuery="",j()};window.toggleCartItem=t=>{const e=o.cart.find(i=>i.id===t);e&&(e.selected=e.selected===!1,T(),j())};window.toggleFindSimilar=t=>{const e=o.cart.find(i=>i.id===t);e&&(o.cart.forEach(i=>{i.id!==t&&(i.showSimilar=!1)}),e.showSimilar=!e.showSimilar,T(),j())};function j(){const t=document.querySelector(".cart-items"),e=document.querySelector(".cart-summary"),i=document.querySelector(".cart-search-message");if(!t)return;let r=o.cart;if(o.cartSearchQuery&&(r=o.cart.filter(n=>n.name.toLowerCase().includes(o.cartSearchQuery.toLowerCase())||n.category.toLowerCase().includes(o.cartSearchQuery.toLowerCase()))),t.innerHTML=r.map(n=>{const l=o.products.filter(s=>s.category===n.category&&s.id!==n.id).slice(0,4);return`
         <div style="display: flex; flex-direction: column; background: var(--surface); border-bottom: 1px solid var(--border);">
             <div class="cart-item" style="border-bottom: none;">
                 <input type="checkbox" 
@@ -3995,7 +3995,7 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 `:'<p class="text-muted text-center">No similar products found.</p>'}
             </div>
         </div>
-    `}).join(""),t){const n=o.cart.reduce((s,d)=>s+(d.selected!==!1?d.price*d.quantity:0),0),l=o.cart.filter(s=>s.selected!==!1).length;t.innerHTML=`
+    `}).join(""),e){const n=o.cart.reduce((s,d)=>s+(d.selected!==!1?d.price*d.quantity:0),0),l=o.cart.filter(s=>s.selected!==!1).length;e.innerHTML=`
             <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; font-size: 1.25rem; font-weight: 700;">
                 <span>Total</span>
                 <span>${y(n)}</span>
@@ -4017,14 +4017,14 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
-        `)}let Z=null;window.startDealsTimer=()=>{const e=new Date().getTime()+864e5;Z=setInterval(()=>{const t=new Date().getTime(),i=e-t,r=Math.floor(i%(1e3*60*60*24)/(1e3*60*60)),a=Math.floor(i%(1e3*60*60)/(1e3*60)),n=Math.floor(i%(1e3*60)/1e3),l=document.getElementById("deal-hours"),s=document.getElementById("deal-minutes"),d=document.getElementById("deal-seconds");l&&(l.textContent=String(r).padStart(2,"0")),s&&(s.textContent=String(a).padStart(2,"0")),d&&(d.textContent=String(n).padStart(2,"0")),i<0&&(clearInterval(Z),l&&(l.textContent="00"),s&&(s.textContent="00"),d&&(d.textContent="00"))},1e3)};window.filterLearningContent=e=>{o.filterLearnCategory=e,C()};window.sortDeals=e=>{const t=document.querySelector('[style*="grid-template-columns: repeat(4, 1fr)"]');if(!t)return;const i=Array.from(t.children);i.sort((r,a)=>{const n=s=>{const d=s.querySelector('[style*="font-size: 1.5rem"]')?.textContent;return parseFloat(d?.replace(/[₱,]/g,"")||"0")},l=s=>{const d=s.querySelector('[style*="background: #6366f1"]')?.textContent;return parseInt(d?.replace(/[-%]/g,"")||"0")};switch(e){case"discount":return l(a)-l(r);case"price-low":return n(r)-n(a);case"price-high":return n(a)-n(r);default:return 0}}),i.forEach(r=>t.appendChild(r))};window.currentLearnCategory="all";window.filterTutorials=e=>{window.currentLearnCategory=e;const t=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".category-tab").forEach(r=>{r.classList.remove("active"),r.dataset.category===e&&r.classList.add("active")}),t.forEach(r=>{e==="all"||r.dataset.category===e?r.style.display="block":r.style.display="none"})};window.filterDeals=e=>{document.querySelectorAll(".deal-category-tab").forEach(t=>{const i=t.dataset.category===e;t.style.background=i?"#6366f1":"white",t.style.color=i?"white":"#64748b",t.dataset.category==="clearance"&&(e==="clearance"?(t.style.background="#dc2626",t.style.color="white",t.style.borderColor="#dc2626"):(t.style.background="white",t.style.color="#dc2626",t.style.borderColor="#dc2626"))}),document.querySelectorAll(".deal-product-card").forEach(t=>{const i=t.dataset.category;if(e==="all")t.style.display="block";else if(e==="clearance"){const r=t.querySelector('[style*="background: #6366f1"]')?.textContent,a=parseInt(r?.replace(/[-%]/g,"")||"0");t.style.display=a>=25?"block":"none"}else t.style.display=i===e?"block":"none"})};window.claimCoupon=async e=>{try{await M.claimCoupon(e),navigator.clipboard.writeText(e)}catch(t){console.error("Claim failed:",t)}};window.openVideoModal=e=>{const t=document.createElement("div");t.className="video-modal",t.innerHTML=`
+        `)}let Z=null;window.startDealsTimer=()=>{const t=new Date().getTime()+864e5;Z=setInterval(()=>{const e=new Date().getTime(),i=t-e,r=Math.floor(i%(1e3*60*60*24)/(1e3*60*60)),a=Math.floor(i%(1e3*60*60)/(1e3*60)),n=Math.floor(i%(1e3*60)/1e3),l=document.getElementById("deal-hours"),s=document.getElementById("deal-minutes"),d=document.getElementById("deal-seconds");l&&(l.textContent=String(r).padStart(2,"0")),s&&(s.textContent=String(a).padStart(2,"0")),d&&(d.textContent=String(n).padStart(2,"0")),i<0&&(clearInterval(Z),l&&(l.textContent="00"),s&&(s.textContent="00"),d&&(d.textContent="00"))},1e3)};window.filterLearningContent=t=>{o.filterLearnCategory=t,C()};window.sortDeals=t=>{const e=document.querySelector('[style*="grid-template-columns: repeat(4, 1fr)"]');if(!e)return;const i=Array.from(e.children);i.sort((r,a)=>{const n=s=>{const d=s.querySelector('[style*="font-size: 1.5rem"]')?.textContent;return parseFloat(d?.replace(/[₱,]/g,"")||"0")},l=s=>{const d=s.querySelector('[style*="background: #6366f1"]')?.textContent;return parseInt(d?.replace(/[-%]/g,"")||"0")};switch(t){case"discount":return l(a)-l(r);case"price-low":return n(r)-n(a);case"price-high":return n(a)-n(r);default:return 0}}),i.forEach(r=>e.appendChild(r))};window.currentLearnCategory="all";window.filterTutorials=t=>{window.currentLearnCategory=t;const e=document.querySelectorAll(".tutorial-card");document.querySelectorAll(".category-tab").forEach(r=>{r.classList.remove("active"),r.dataset.category===t&&r.classList.add("active")}),e.forEach(r=>{t==="all"||r.dataset.category===t?r.style.display="block":r.style.display="none"})};window.filterDeals=t=>{document.querySelectorAll(".deal-category-tab").forEach(e=>{const i=e.dataset.category===t;e.style.background=i?"#6366f1":"white",e.style.color=i?"white":"#64748b",e.dataset.category==="clearance"&&(t==="clearance"?(e.style.background="#dc2626",e.style.color="white",e.style.borderColor="#dc2626"):(e.style.background="white",e.style.color="#dc2626",e.style.borderColor="#dc2626"))}),document.querySelectorAll(".deal-product-card").forEach(e=>{const i=e.dataset.category;if(t==="all")e.style.display="block";else if(t==="clearance"){const r=e.querySelector('[style*="background: #6366f1"]')?.textContent,a=parseInt(r?.replace(/[-%]/g,"")||"0");e.style.display=a>=25?"block":"none"}else e.style.display=i===t?"block":"none"})};window.claimCoupon=async t=>{try{await M.claimCoupon(t),navigator.clipboard.writeText(t)}catch(e){console.error("Claim failed:",e)}};window.openVideoModal=t=>{const e=document.createElement("div");e.className="video-modal",e.innerHTML=`
         <div class="video-modal-content">
             <div class="video-modal-close" onclick="this.closest('.video-modal').remove()">✕</div>
             <div class="video-container">
-                <iframe src="https://www.youtube.com/embed/${e}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <iframe src="https://www.youtube.com/embed/${t}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
         </div>
-    `,document.body.appendChild(t),setTimeout(()=>t.classList.add("show"),10)};const Pe=async()=>{const t=new URLSearchParams(window.location.search).get("product_id"),i=sessionStorage.getItem("currentProductId");t?(o.currentProductId=parseInt(t),sessionStorage.setItem("currentProductId",o.currentProductId),o.route="product-detail"):i&&(o.currentProductId=parseInt(i)),await M.getProducts(),o.currentUser?.role==="admin"?await Promise.all([M.getOrders(),U.getMyDevices(),M.getUsers()]):o.currentUser&&await U.getMyDevices(),C()};window.showLoading=()=>{let e=document.querySelector(".loading-overlay");e||(e=document.createElement("div"),e.className="loading-overlay",e.innerHTML='<div class="spinner"></div>',document.body.appendChild(e)),e.offsetWidth,e.classList.add("active")};window.hideLoading=()=>{const e=document.querySelector(".loading-overlay");e&&(e.classList.remove("active"),setTimeout(()=>{e.parentNode&&e.parentNode.removeChild(e)},300))};window.openLoginModal=()=>{document.body.insertAdjacentHTML("beforeend",`
+    `,document.body.appendChild(e),setTimeout(()=>e.classList.add("show"),10)};const Pe=async()=>{const e=new URLSearchParams(window.location.search).get("product_id"),i=sessionStorage.getItem("currentProductId");e?(o.currentProductId=parseInt(e),sessionStorage.setItem("currentProductId",o.currentProductId),o.route="product-detail"):i&&(o.currentProductId=parseInt(i)),await M.getProducts(),o.currentUser?.role==="admin"?await Promise.all([M.getOrders(),U.getMyDevices(),M.getUsers()]):o.currentUser&&await U.getMyDevices(),C()};window.showLoading=()=>{let t=document.querySelector(".loading-overlay");t||(t=document.createElement("div"),t.className="loading-overlay",t.innerHTML='<div class="spinner"></div>',document.body.appendChild(t)),t.offsetWidth,t.classList.add("active")};window.hideLoading=()=>{const t=document.querySelector(".loading-overlay");t&&(t.classList.remove("active"),setTimeout(()=>{t.parentNode&&t.parentNode.removeChild(t)},300))};window.openLoginModal=()=>{document.body.insertAdjacentHTML("beforeend",`
         <div class="login-modal-overlay" id="loginModal" onclick="window.closeLoginModalOnOverlay(event)">
             <div class="login-modal">
                 <div class="login-modal-header">
@@ -4056,4 +4056,4 @@ var ae=(e,t)=>()=>(t||e((t={exports:{}}).exports,t),t.exports);var De=ae((Ae,N)=
                 </div>
             </div>
         </div>
-    `),setTimeout(()=>{document.getElementById("loginModal").classList.add("show")},10)};window.closeLoginModal=()=>{const e=document.getElementById("loginModal");e&&(e.classList.remove("show"),setTimeout(()=>e.remove(),300))};window.closeLoginModalOnOverlay=e=>{e.target.id==="loginModal"&&window.closeLoginModal()};window.handleModalLogin=async e=>{e.preventDefault();const t=new FormData(e.target),i=t.get("email"),r=t.get("password");try{await M.login(i,r),window.closeLoginModal()}catch(a){console.error("Login error:",a)}};const Ie=window.navigate;window.navigate=(e,t)=>{if(e!=="product-detail"){sessionStorage.removeItem("currentProductId");const i=new URL(window.location);i.searchParams.has("product_id")&&(i.searchParams.delete("product_id"),window.history.replaceState({},"",i))}window._lastSwitchedTab=null,window.showLoading(),setTimeout(()=>{Ie(e,t),window.hideLoading()},300)};window.handleDevicePairing=async e=>{e.preventDefault();const t=e.target,i=t.deviceId.value.trim(),r=t.deviceToken.value.trim();try{await U.pairDevice(i,r)}catch{}};window.handleDeviceUnpairing=async e=>{try{await U.unpairDevice(e)}catch{}};window.startRemoteControl=async e=>{o.currentDeviceId=e,o.esp32Client||(o.esp32Client=new ESP32SocketClient);try{await o.esp32Client.connect(o.currentUser.id),o.esp32Client.monitorDevice(e),o.esp32Client.on("device:status",t=>{o.deviceStatus[t.deviceId]=t,ee()}),o.esp32Client.on("device:telemetry",t=>{o.telemetryData[t.deviceId]=t,ee()}),o.esp32Client.on("command:sent",t=>{Q(`Command sent: ${t.command}`)}),o.esp32Client.on("command:response",t=>{t.success?Q(`✓ ${t.message||"Command executed"}`):Q(`✗ ${t.error||"Command failed"}`)}),P("remote-control")}catch(t){u("Failed to connect to device"),console.error(t)}};window.stopRemoteControl=()=>{o.esp32Client&&o.esp32Client.stopMonitoring(),o.currentDeviceId=null,P("my-devices")};window.sendCarCommand=e=>{if(!(!o.esp32Client||!o.currentDeviceId))try{if(e==="stop")o.esp32Client.stop(o.currentDeviceId);else{const t=document.getElementById("speedSlider"),i=t?parseInt(t.value):100,r=Math.round(i/100*255);o.esp32Client.move(o.currentDeviceId,e,r)}}catch(t){u("Failed to send command"),console.error(t)}};window.setSpeed=e=>{if(!(!o.esp32Client||!o.currentDeviceId))try{const t=Math.round(e/100*255);o.esp32Client.sendCommand(o.currentDeviceId,"speed",{value:t})}catch(t){console.error("Failed to set speed:",t)}};window.toggleLights=()=>{if(!o.esp32Client||!o.currentDeviceId)return;const e=document.getElementById("lightsToggle");if(e){e.classList.toggle("active");const t=e.classList.contains("active");try{o.esp32Client.sendCommand(o.currentDeviceId,"lights",{state:t?"on":"off"}),u(`Lights ${t?"ON":"OFF"}`)}catch(i){console.error("Failed to toggle lights:",i),e.classList.toggle("active")}}};window.toggleHorn=()=>{if(!o.esp32Client||!o.currentDeviceId)return;const e=document.getElementById("hornToggle");if(e){e.classList.toggle("active");const t=e.classList.contains("active");try{o.esp32Client.sendCommand(o.currentDeviceId,"horn",{state:t?"on":"off"}),u(`Horn ${t?"ON":"OFF"}`)}catch(i){console.error("Failed to toggle horn:",i),e.classList.toggle("active")}}};window.updateSpeedDisplay=e=>{const t=document.getElementById("speedDisplay");t&&(t.textContent=`${Math.round(e/255*100)}%`)};window.setCarSpeed=e=>{if(!(!o.esp32Client||!o.currentDeviceId))try{const t=parseInt(e);o.esp32Client.sendCommand(o.currentDeviceId,"speed",{value:t}),u(`Speed set to ${Math.round(t/255*100)}%`)}catch(t){console.error("Failed to set speed:",t)}};window.toggleObstacleAvoidance=()=>{if(!o.esp32Client||!o.currentDeviceId)return;const i=!((o.telemetryData[o.currentDeviceId]||{}).obstacleAvoidance||!1);try{o.esp32Client.sendCommand(o.currentDeviceId,"obstacle_avoidance",{state:i?"on":"off"}),u(`Obstacle Avoidance ${i?"ON":"OFF"}`)}catch(r){console.error("Failed to toggle obstacle avoidance:",r)}};function ee(){o.route==="remote-control"&&C()}function Q(e){const t=document.getElementById("commandLogContent");if(t){const i=document.createElement("div");for(i.className="log-entry",i.textContent=`[${new Date().toLocaleTimeString()}] ${e}`,t.insertBefore(i,t.firstChild);t.children.length>10;)t.removeChild(t.lastChild)}}window.toggleToken=e=>{o.showTokens||(o.showTokens={}),o.showTokens[e]=!o.showTokens[e],C()};window.handleCategoryFilter=e=>{o.filterCategory=e||null,C()};document.addEventListener("keydown",e=>{if(o.route!=="remote-control")return;const t=e.key.toLowerCase(),i={w:"forward",arrowup:"forward",s:"backward",arrowdown:"backward",a:"left",arrowleft:"left",d:"right",arrowright:"right"," ":"stop"};i[t]&&(e.preventDefault(),window.sendCarCommand(i[t]))});document.addEventListener("keydown",e=>{e.key==="Escape"&&document.getElementById("loginModal")&&window.closeLoginModal()});document.addEventListener("keyup",e=>{if(o.route!=="remote-control")return;const t=e.key.toLowerCase();["w","s","a","d","arrowup","arrowdown","arrowleft","arrowright"].includes(t)&&(e.preventDefault(),window.sendCarCommand("stop"))});Pe()});export default De();
+    `),setTimeout(()=>{document.getElementById("loginModal").classList.add("show")},10)};window.closeLoginModal=()=>{const t=document.getElementById("loginModal");t&&(t.classList.remove("show"),setTimeout(()=>t.remove(),300))};window.closeLoginModalOnOverlay=t=>{t.target.id==="loginModal"&&window.closeLoginModal()};window.handleModalLogin=async t=>{t.preventDefault();const e=new FormData(t.target),i=e.get("email"),r=e.get("password");try{await M.login(i,r),window.closeLoginModal()}catch(a){console.error("Login error:",a)}};const Ie=window.navigate;window.navigate=(t,e)=>{if(t!=="product-detail"){sessionStorage.removeItem("currentProductId");const i=new URL(window.location);i.searchParams.has("product_id")&&(i.searchParams.delete("product_id"),window.history.replaceState({},"",i))}window._lastSwitchedTab=null,window.showLoading(),setTimeout(()=>{Ie(t,e),window.hideLoading()},300)};window.handleDevicePairing=async t=>{t.preventDefault();const e=t.target,i=e.deviceId.value.trim(),r=e.deviceToken.value.trim();try{await U.pairDevice(i,r)}catch{}};window.handleDeviceUnpairing=async t=>{try{await U.unpairDevice(t)}catch{}};window.startRemoteControl=async t=>{o.currentDeviceId=t,o.esp32Client||(o.esp32Client=new ESP32SocketClient);try{await o.esp32Client.connect(o.currentUser.id),o.esp32Client.monitorDevice(t),o.esp32Client.on("device:status",e=>{o.deviceStatus[e.deviceId]=e,ee()}),o.esp32Client.on("device:telemetry",e=>{o.telemetryData[e.deviceId]=e,ee()}),o.esp32Client.on("command:sent",e=>{Q(`Command sent: ${e.command}`)}),o.esp32Client.on("command:response",e=>{e.success?Q(`✓ ${e.message||"Command executed"}`):Q(`✗ ${e.error||"Command failed"}`)}),P("remote-control")}catch(e){u("Failed to connect to device"),console.error(e)}};window.stopRemoteControl=()=>{o.esp32Client&&o.esp32Client.stopMonitoring(),o.currentDeviceId=null,P("my-devices")};window.sendCarCommand=t=>{if(!(!o.esp32Client||!o.currentDeviceId))try{if(t==="stop")o.esp32Client.stop(o.currentDeviceId);else{const e=document.getElementById("speedSlider"),i=e?parseInt(e.value):100,r=Math.round(i/100*255);o.esp32Client.move(o.currentDeviceId,t,r)}}catch(e){u("Failed to send command"),console.error(e)}};window.setSpeed=t=>{if(!(!o.esp32Client||!o.currentDeviceId))try{const e=Math.round(t/100*255);o.esp32Client.sendCommand(o.currentDeviceId,"speed",{value:e})}catch(e){console.error("Failed to set speed:",e)}};window.toggleLights=()=>{if(!o.esp32Client||!o.currentDeviceId)return;const t=document.getElementById("lightsToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{o.esp32Client.sendCommand(o.currentDeviceId,"lights",{state:e?"on":"off"}),u(`Lights ${e?"ON":"OFF"}`)}catch(i){console.error("Failed to toggle lights:",i),t.classList.toggle("active")}}};window.toggleHorn=()=>{if(!o.esp32Client||!o.currentDeviceId)return;const t=document.getElementById("hornToggle");if(t){t.classList.toggle("active");const e=t.classList.contains("active");try{o.esp32Client.sendCommand(o.currentDeviceId,"horn",{state:e?"on":"off"}),u(`Horn ${e?"ON":"OFF"}`)}catch(i){console.error("Failed to toggle horn:",i),t.classList.toggle("active")}}};window.updateSpeedDisplay=t=>{const e=document.getElementById("speedDisplay");e&&(e.textContent=`${Math.round(t/255*100)}%`)};window.setCarSpeed=t=>{if(!(!o.esp32Client||!o.currentDeviceId))try{const e=parseInt(t);o.esp32Client.sendCommand(o.currentDeviceId,"speed",{value:e}),u(`Speed set to ${Math.round(e/255*100)}%`)}catch(e){console.error("Failed to set speed:",e)}};window.toggleObstacleAvoidance=()=>{if(!o.esp32Client||!o.currentDeviceId)return;const i=!((o.telemetryData[o.currentDeviceId]||{}).obstacleAvoidance||!1);try{o.esp32Client.sendCommand(o.currentDeviceId,"obstacle_avoidance",{state:i?"on":"off"}),u(`Obstacle Avoidance ${i?"ON":"OFF"}`)}catch(r){console.error("Failed to toggle obstacle avoidance:",r)}};function ee(){o.route==="remote-control"&&C()}function Q(t){const e=document.getElementById("commandLogContent");if(e){const i=document.createElement("div");for(i.className="log-entry",i.textContent=`[${new Date().toLocaleTimeString()}] ${t}`,e.insertBefore(i,e.firstChild);e.children.length>10;)e.removeChild(e.lastChild)}}window.toggleToken=t=>{o.showTokens||(o.showTokens={}),o.showTokens[t]=!o.showTokens[t],C()};window.handleCategoryFilter=t=>{o.filterCategory=t||null,C()};document.addEventListener("keydown",t=>{if(o.route!=="remote-control")return;const e=t.key.toLowerCase(),i={w:"forward",arrowup:"forward",s:"backward",arrowdown:"backward",a:"left",arrowleft:"left",d:"right",arrowright:"right"," ":"stop"};i[e]&&(t.preventDefault(),window.sendCarCommand(i[e]))});document.addEventListener("keydown",t=>{t.key==="Escape"&&document.getElementById("loginModal")&&window.closeLoginModal()});document.addEventListener("keyup",t=>{if(o.route!=="remote-control")return;const e=t.key.toLowerCase();["w","s","a","d","arrowup","arrowdown","arrowleft","arrowright"].includes(e)&&(t.preventDefault(),window.sendCarCommand("stop"))});Pe()});export default De();
