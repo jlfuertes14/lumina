@@ -46,5 +46,6 @@ export async function apiCall(endpoint, options = {}) {
 }
 
 // Log current environment
-console.log(`🌍 Environment: ${isProduction ? 'PRODUCTION' : 'DEVELOPMENT'}`);
+const envName = isLocalhost ? 'DEVELOPMENT' : isVercel ? 'VERCEL' : 'PRODUCTION';
+console.log(`🌍 Environment: ${envName}`);
 console.log(`🔗 API URL: ${API_BASE_URL}`);
