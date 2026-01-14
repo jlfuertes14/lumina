@@ -3,6 +3,13 @@
     "version": 2,
     "routes": [
         {
+            "src": "/api/(.*)",
+            "methods": [
+                "OPTIONS"
+            ],
+            "dest": "/api/cors-preflight.js"
+        },
+        {
             "src": "/api/health",
             "dest": "/api/health.js"
         },
@@ -45,25 +52,6 @@
         {
             "src": "/api/coupons",
             "dest": "/api/coupons.js"
-        }
-    ],
-    "headers": [
-        {
-            "source": "/api/(.*)",
-            "headers": [
-                {
-                    "key": "Access-Control-Allow-Origin",
-                    "value": "*"
-                },
-                {
-                    "key": "Access-Control-Allow-Methods",
-                    "value": "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-                },
-                {
-                    "key": "Access-Control-Allow-Headers",
-                    "value": "Content-Type, Authorization, X-Requested-With"
-                }
-            ]
         }
     ]
 }
