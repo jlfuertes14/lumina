@@ -1,12 +1,8 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "version": 2,
-    "builds": [
-        {
-            "src": "api/**/*.js",
-            "use": "@vercel/node"
-        }
-    ],
+    "buildCommand": "npm run build:frontend",
+    "outputDirectory": "dist",
     "routes": [
         {
             "src": "/api/health",
@@ -51,6 +47,13 @@
         {
             "src": "/api/coupons",
             "dest": "/api/coupons.js"
+        },
+        {
+            "handle": "filesystem"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/index.html"
         }
     ]
 }

@@ -2,16 +2,9 @@
  * CORS middleware for Vercel serverless functions
  */
 
-const allowedOrigins = [
-    'https://jlfuertes14.github.io',
-    'http://localhost:5173',
-    'http://localhost:3000'
-];
-
 function setCorsHeaders(res, origin) {
-    const allowedOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
-
-    res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+    // Allow all origins for now (can restrict later if needed)
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
