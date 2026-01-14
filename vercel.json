@@ -1,0 +1,148 @@
+{
+    "$schema": "https://openapi.vercel.sh/vercel.json",
+    "version": 2,
+    "builds": [
+        {
+            "src": "api/**/*.js",
+            "use": "@vercel/node"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/health",
+            "dest": "/api/health.js"
+        },
+        {
+            "src": "/api/products/archive$",
+            "dest": "/api/products/archive/index.js"
+        },
+        {
+            "src": "/api/products/archive/(.*)",
+            "dest": "/api/products/archive/[id].js"
+        },
+        {
+            "src": "/api/products/meta/categories",
+            "dest": "/api/products/meta/categories.js"
+        },
+        {
+            "src": "/api/products/alerts/low-stock",
+            "dest": "/api/products/alerts/low-stock.js"
+        },
+        {
+            "src": "/api/products/alerts/out-of-stock",
+            "dest": "/api/products/alerts/out-of-stock.js"
+        },
+        {
+            "src": "/api/products/(.*)/stock",
+            "dest": "/api/products/[id]/stock.js"
+        },
+        {
+            "src": "/api/products$",
+            "dest": "/api/products/index.js"
+        },
+        {
+            "src": "/api/products/(.*)",
+            "dest": "/api/products/[id].js"
+        },
+        {
+            "src": "/api/users/register",
+            "dest": "/api/users/register.js"
+        },
+        {
+            "src": "/api/users/login",
+            "dest": "/api/users/login.js"
+        },
+        {
+            "src": "/api/users/archive$",
+            "dest": "/api/users/archive/index.js"
+        },
+        {
+            "src": "/api/users/archive/(.*)",
+            "dest": "/api/users/archive/[id].js"
+        },
+        {
+            "src": "/api/users/stats/customers",
+            "dest": "/api/users/stats/customers.js"
+        },
+        {
+            "src": "/api/users/(.*)/cart/sync",
+            "dest": "/api/users/[id]/cart/sync.js"
+        },
+        {
+            "src": "/api/users/(.*)/cart",
+            "dest": "/api/users/[id]/cart.js"
+        },
+        {
+            "src": "/api/users/(.*)/profile",
+            "dest": "/api/users/[id]/profile.js"
+        },
+        {
+            "src": "/api/users/(.*)/avatar",
+            "dest": "/api/users/[id]/avatar.js"
+        },
+        {
+            "src": "/api/users/(.*)/address",
+            "dest": "/api/users/[id]/address.js"
+        },
+        {
+            "src": "/api/users/(.*)/password",
+            "dest": "/api/users/[id]/password.js"
+        },
+        {
+            "src": "/api/users$",
+            "dest": "/api/users/index.js"
+        },
+        {
+            "src": "/api/users/(.*)",
+            "dest": "/api/users/[id].js"
+        },
+        {
+            "src": "/api/orders/my-orders",
+            "dest": "/api/orders/my-orders.js"
+        },
+        {
+            "src": "/api/orders/stats/summary",
+            "dest": "/api/orders/stats/summary.js"
+        },
+        {
+            "src": "/api/orders/stats/recent",
+            "dest": "/api/orders/stats/recent.js"
+        },
+        {
+            "src": "/api/orders/(.*)/status",
+            "dest": "/api/orders/[orderId]/status.js"
+        },
+        {
+            "src": "/api/orders$",
+            "dest": "/api/orders/index.js"
+        },
+        {
+            "src": "/api/orders/(.*)",
+            "dest": "/api/orders/[orderId].js"
+        },
+        {
+            "src": "/api/analytics/dashboard",
+            "dest": "/api/analytics/dashboard.js"
+        },
+        {
+            "src": "/api/analytics/sales",
+            "dest": "/api/analytics/sales.js"
+        },
+        {
+            "src": "/api/analytics/products/performance",
+            "dest": "/api/analytics/products/performance.js"
+        },
+        {
+            "src": "/api/analytics/revenue/by-category",
+            "dest": "/api/analytics/revenue/by-category.js"
+        },
+        {
+            "src": "/api/coupons/claim",
+            "dest": "/api/coupons/claim.js"
+        },
+        {
+            "src": "/api/coupons/my-coupons",
+            "dest": "/api/coupons/my-coupons.js"
+        }
+    ]
+}
