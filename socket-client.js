@@ -4,7 +4,7 @@
  */
 
 class ESP32SocketClient {
-    constructor(serverUrl = 'https://lumina-production-a4bb.up.railway.app') {
+    constructor(serverUrl = 'https://lumina-jlfuertes14s-projects.vercel.app') {
         this.serverUrl = serverUrl;
         this.socket = null;
         this.connected = false;
