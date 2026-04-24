@@ -1,57 +1,73 @@
 {
     "$schema": "https://openapi.vercel.sh/vercel.json",
     "version": 2,
-    "routes": [
+    "headers": [
         {
-            "src": "/api/(.*)",
-            "methods": [
-                "OPTIONS"
-            ],
-            "dest": "/api/cors-preflight.js"
+            "source": "/api/(.*)",
+            "headers": [
+                {
+                    "key": "Access-Control-Allow-Origin",
+                    "value": "*"
+                },
+                {
+                    "key": "Access-Control-Allow-Methods",
+                    "value": "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+                },
+                {
+                    "key": "Access-Control-Allow-Headers",
+                    "value": "Content-Type, Authorization, X-Requested-With"
+                },
+                {
+                    "key": "Access-Control-Max-Age",
+                    "value": "86400"
+                }
+            ]
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/api/health",
+            "destination": "/api/health.js"
         },
         {
-            "src": "/api/health",
-            "dest": "/api/health.js"
+            "source": "/api/products/:path*",
+            "destination": "/api/products.js"
         },
         {
-            "src": "/api/products/(.*)",
-            "dest": "/api/products.js"
+            "source": "/api/products",
+            "destination": "/api/products.js"
         },
         {
-            "src": "/api/products",
-            "dest": "/api/products.js"
+            "source": "/api/users/:path*",
+            "destination": "/api/users.js"
         },
         {
-            "src": "/api/users/(.*)",
-            "dest": "/api/users.js"
+            "source": "/api/users",
+            "destination": "/api/users.js"
         },
         {
-            "src": "/api/users",
-            "dest": "/api/users.js"
+            "source": "/api/orders/:path*",
+            "destination": "/api/orders.js"
         },
         {
-            "src": "/api/orders/(.*)",
-            "dest": "/api/orders.js"
+            "source": "/api/orders",
+            "destination": "/api/orders.js"
         },
         {
-            "src": "/api/orders",
-            "dest": "/api/orders.js"
+            "source": "/api/analytics/:path*",
+            "destination": "/api/analytics.js"
         },
         {
-            "src": "/api/analytics/(.*)",
-            "dest": "/api/analytics.js"
+            "source": "/api/analytics",
+            "destination": "/api/analytics.js"
         },
         {
-            "src": "/api/analytics",
-            "dest": "/api/analytics.js"
+            "source": "/api/coupons/:path*",
+            "destination": "/api/coupons.js"
         },
         {
-            "src": "/api/coupons/(.*)",
-            "dest": "/api/coupons.js"
-        },
-        {
-            "src": "/api/coupons",
-            "dest": "/api/coupons.js"
+            "source": "/api/coupons",
+            "destination": "/api/coupons.js"
         }
     ]
 }
