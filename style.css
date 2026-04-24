@@ -173,7 +173,8 @@ header {
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
-    min-height: 680px;
+    min-height: max(680px, calc(100vh - 64px));
+    min-height: max(680px, calc(100dvh - 64px));
     isolation: isolate;
 }
 
