@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: lumina-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/server.js
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FRONTEND_URL
+        value: https://jlfuertes14.github.io
+      - key: MONGODB_URI
+        sync: false

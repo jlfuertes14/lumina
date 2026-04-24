@@ -150,21 +150,45 @@ lumina/
 
 ## 🚢 Deployment
 
-The project is configured for GitHub Pages deployment using Vite's base path configuration.
+The project uses a split deployment model:
 
-### Deploy Steps
+- Frontend: GitHub Pages (free)
+- Backend API + WebSocket: Render Web Service (free tier)
+- Database: MongoDB Atlas (free tier)
 
-1. **Build the project**
-   ```bash
-   npm run build
-   ```
+### 1) Deploy backend to Render (free)
 
-2. **Copy dist files to root** (automated in build-and-deploy.bat)
+This repository includes [render.yaml](render.yaml) for one-click Blueprint setup.
+
+Required Render environment variables:
+
+- `MONGODB_URI` (required)
+- `NODE_ENV=production`
+- `FRONTEND_URL=https://jlfuertes14.github.io`
+
+After deploy, note your Render URL:
+
+`https://your-service-name.onrender.com`
+
+### 2) Build frontend with backend origin
+
+Set your backend origin before build so GitHub Pages calls the Render API:
+
+```powershell
+$env:VITE_BACKEND_ORIGIN="https://your-service-name.onrender.com"
+npm run build
+```
+
+### 3) Publish frontend to GitHub Pages
+
+Deploy steps:
+
+1. **Copy dist files to root** (automated in build-and-deploy.bat)
    ```bash
    xcopy /E /Y /I dist\* .
    ```
 
-3. **Commit and push**
+2. **Commit and push**
    ```bash
    git add .
    git commit -m "Deploy to GitHub Pages"

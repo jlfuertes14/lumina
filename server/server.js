@@ -9,8 +9,33 @@ const cors = require('cors');
 
 const app = express();
 
+const allowedOrigins = new Set([
+    'https://jlfuertes14.github.io',
+    'http://localhost:5173',
+    'http://localhost:3000'
+]);
+
+if (process.env.FRONTEND_URL) {
+    allowedOrigins.add(process.env.FRONTEND_URL);
+}
+
 app.use(cors({
-    origin: ['https://jlfuertes14.github.io', 'http://localhost:5173', 'http://localhost:3000'],
+    origin: (origin, callback) => {
+        // Allow non-browser requests (curl/postman/health checks).
+        if (!origin) {
+            return callback(null, true);
+        }
+
+        const isKnownOrigin = allowedOrigins.has(origin);
+        const isRenderPreview = origin.endsWith('.onrender.com');
+        const isVercelPreview = origin.endsWith('.vercel.app');
+
+        if (isKnownOrigin || isRenderPreview || isVercelPreview) {
+            return callback(null, true);
+        }
+
+        return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
@@ -110,7 +135,7 @@ httpServer.on('upgrade', (request, socket, head) => {
     // For other paths (like /socket.io/), let Socket.IO's listener handle it
 });
 
-// Start server - Listen on 0.0.0.0 for Railway
+// Start server - Listen on 0.0.0.0 for cloud providers.
 httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📊 Database: ${(process.env.MONGODB_URI || '').includes('mongodb+srv') ? 'MongoDB Atlas' : 'Local MongoDB'}`);

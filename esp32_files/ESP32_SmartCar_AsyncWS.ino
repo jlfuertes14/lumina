@@ -55,7 +55,7 @@ const int hornPin = 27;        // Passive buzzer
 #define CONFIGURED_FLAG_ADDR 320
 
 // ========== WebSocket Configuration ==========
-const char* websocket_server = "lumina-production-a4bb.up.railway.app";
+const char* websocket_server = "your-render-service.onrender.com";
 const int websocket_port = 443;
 const char* websocket_path = "/ws/device";
 

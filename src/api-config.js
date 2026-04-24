@@ -1,23 +1,11 @@
-// API Configuration
-// This file automatically detects the environment and uses the appropriate backend URL
+import {
+    API_BASE_URL,
+    BACKEND_ORIGIN,
+    ENVIRONMENT_NAME,
+    CONFIG_SOURCE
+} from './runtime-config.js';
 
-const VERCEL_API_URL = 'https://lumina-jlfuertes14s-projects.vercel.app';  // Vercel backend
-const LOCAL_API_URL = 'http://localhost:3000';
-
-// Auto-detect environment
-const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-const isVercel = window.location.hostname.includes('vercel.app');
-const isGitHubPages = window.location.hostname === 'jlfuertes14.github.io';
-
-// Export the API base URL
-// On Vercel: use relative URL (same origin)
-// On GitHub Pages: use full Vercel URL
-// On localhost: use local server
-export const API_BASE_URL = isLocalhost
-    ? `${LOCAL_API_URL}/api`
-    : isVercel
-        ? '/api'  // Same origin on Vercel
-        : `${VERCEL_API_URL}/api`;  // Cross-origin from GitHub Pages
+export { API_BASE_URL };
 
 // Export helper function for API calls
 export async function apiCall(endpoint, options = {}) {
@@ -46,6 +34,6 @@ export async function apiCall(endpoint, options = {}) {
 }
 
 // Log current environment
-const envName = isLocalhost ? 'DEVELOPMENT' : isVercel ? 'VERCEL' : 'PRODUCTION';
-console.log(`🌍 Environment: ${envName}`);
+console.log(`🌍 Environment: ${ENVIRONMENT_NAME}`);
+console.log(`🧭 Backend origin (${CONFIG_SOURCE}): ${BACKEND_ORIGIN}`);
 console.log(`🔗 API URL: ${API_BASE_URL}`);

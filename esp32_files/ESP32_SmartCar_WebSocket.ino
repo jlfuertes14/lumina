@@ -44,8 +44,8 @@ const int irRight = 39;
 #define CONFIGURED_FLAG_ADDR 320  // 1 byte flag
 
 // ========== WebSocket Configuration ==========
-const char* websocket_server = "lumina-production-a4bb.up.railway.app";  // CHANGE THIS to your server IP or domain
-const int websocket_port = 443;  // HTTPS (Railway uses SSL)
+const char* websocket_server = "your-render-service.onrender.com";  // CHANGE THIS to your Render domain
+const int websocket_port = 443;  // HTTPS (Render uses SSL)
 const char* websocket_path = "/socket.io/?EIO=4&transport=websocket";
 
 // ========== Global Variables ==========

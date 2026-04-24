@@ -3,8 +3,10 @@
  * Handles real-time communication with ESP32 smart cars
  */
 
+import { SOCKET_BASE_URL } from './src/runtime-config.js';
+
 class ESP32SocketClient {
-    constructor(serverUrl = 'https://lumina-jlfuertes14s-projects.vercel.app') {
+    constructor(serverUrl = SOCKET_BASE_URL) {
         this.serverUrl = serverUrl;
         this.socket = null;
         this.connected = false;
