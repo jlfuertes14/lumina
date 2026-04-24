@@ -601,13 +601,20 @@ const HomePage = () => {
                     <span class="hero-badge">Quality Components</span>
                     <h1>Build Your Next Project</h1>
                     <p>Premium electronics components, development boards, sensors, and maker supplies. Everything you need to bring your ideas to life.</p>
-                    <div style="display: flex; gap: 1rem;">
+                    <div class="hero-actions">
                         <button class="btn btn-primary" onclick="window.navigate('products')">Shop Components</button>
-                        <button class="btn btn-outline">Learn More</button>
+                        <button class="btn btn-outline" onclick="window.navigate('learn')">Learn More</button>
+                    </div>
+                    <div class="hero-highlights" aria-label="Lumina highlights">
+                        <span>Fast Shipping</span>
+                        <span>Bench-Tested Parts</span>
+                        <span>Maker-Ready Bundles</span>
                     </div>
                 </div>
                 <div class="hero-image">
-                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80" alt="Electronics Components" style="max-width: 400px; border-radius: 20px;">
+                    <div class="hero-image-frame">
+                        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80" alt="Electronics Components">
+                    </div>
                 </div>
             </div>
             
@@ -645,13 +652,20 @@ const HomePage = () => {
                 <span class="hero-badge">Quality Components</span>
                 <h1>Build Your Next Project</h1>
                 <p>Premium electronics components, development boards, sensors, and maker supplies. Everything you need to bring your ideas to life.</p>
-                <div style="display: flex; gap: 1rem;">
+                <div class="hero-actions">
                     <button class="btn btn-primary" onclick="window.navigate('products')">Shop Components</button>
-                    <button class="btn btn-outline">Learn More</button>
+                    <button class="btn btn-outline" onclick="window.navigate('learn')">Learn More</button>
+                </div>
+                <div class="hero-highlights" aria-label="Lumina highlights">
+                    <span>Fast Shipping</span>
+                    <span>Bench-Tested Parts</span>
+                    <span>Maker-Ready Bundles</span>
                 </div>
             </div>
             <div class="hero-image">
-                <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80" alt="Electronics Components" style="max-width: 400px; border-radius: 20px;">
+                <div class="hero-image-frame">
+                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&auto=format&fit=crop&q=80" alt="Electronics Components">
+                </div>
             </div>
         </div>
         
